@@ -7845,10 +7845,44 @@ python -m pyftpdlib
 
 
 # 11/4
-## Waydroid 画面撕裂问题
+## Waydroid
+
+### Waydroid 初始配置
+安装 waydroid 并初始化
+sudo pacman -S waydroid
+sudo waydroid init
+//如果需要使用谷歌服务，可以指定带有谷歌服务的镜像
+sudo waydroid init -s GAPPS
+
+
+原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层
+安装waydroid-script
+yay -S waydroid-script-git
+
+waydroid-scripts 项目提供了 waydroid-extras 命令来安装翻译层
+libhoudini 用于英特尔
+libndk       用于 AMD
+
+不过在某些程序无法运行时，两个都可以装上试试看
+
+我是 A 卡
+sudo waydroid-extras 跟着提示一步步走选择安装libndk就行了
+
+使用谷歌商店会出现此设备不能安装的情况，需要将设备 id 加入谷歌设备中
+这个项目同样提供了获取设备 id 和提供添加 id 的谷歌官网链接，也在 waydroid-extras 命令中
+
+后面发现了 waydroid 轮椅级别的服务工具，功能很全，貌似已经覆盖了上面的工具的所有功能，还是图形化的，叫waydroid-helper，可以用 pacman 直接安装
+
+
+
+
+
+
+
+
+
+### Waydroid 画面撕裂问题
 具体表现形式是类似花屏和撕裂，不过只有黑色色调
-
-
 
 还是混合显卡的问题，是 waydroid 默认使用显卡和桌面环境使用的显卡不一致导致的，我的 plasma 桌面环境默认使用 N 卡（可以用watch -n 1 nvidia-smi 查看哪些进程在使用 N 卡，每秒实时刷新），waydroid 在使用 A 卡集显，需要切换 waydroid 的显卡使用策略，为此 GitHub 上有个项目提供解决方案脚本
 
@@ -7859,7 +7893,6 @@ python -m pyftpdlib
 脚本内容是
 
 ```bash
-░▒▓   ~   17:50   
 ❯ cat waydroid-scripts/waydroid-choose-gpu.sh  
 #!/usr/bin/env bash
 set -eo pipefail
@@ -7907,52 +7940,7 @@ waydroid upgrade --offline
 
 
 
-
-
-
-
-## Waydroid 初始配置
-安装 waydroid 并初始化
-sudo pacman -S waydroid
-sudo waydroid init
-//如果需要使用谷歌服务，可以指定带有谷歌服务的镜像
-sudo waydroid init -s GAPPS
-
-
-原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层
-安装waydroid-script
-yay -S waydroid-script-git
-
-waydroid-scripts 项目提供了 waydroid-extras 命令来安装翻译层
-libhoudini 用于英特尔
-libndk       用于 AMD
-
-不过在某些程序无法运行时，两个都可以装上试试看
-
-我是 A 卡
-sudo waydroid-extras 跟着提示一步步走选择安装libndk就行了
-
-
-使用谷歌商店会出现此设备不能安装的情况，需要将设备 id 加入谷歌设备中
-这个项目同样提供了获取设备 id 和提供添加 id 的谷歌官网链接，也在 waydroid-extras 命令中
-
-后面发现了 waydroid 轮椅级别的服务工具，功能很全，貌似已经覆盖了上面的工具的所有功能，还是图形化的，叫waydroid-helper，可以用 pacman 直接安装
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## waydroid 按键映射
+### waydroid 按键映射
 之前无法解决 waydroid 没有滑动映射的问题，在 github 上看到了一个项目，还算能用，
 
 项目地址：[https://github.com/waydroid-helper/waydroid-helper/tree/main](https://github.com/waydroid-helper/waydroid-helper/tree/main)
@@ -11842,6 +11830,9 @@ Host github-notes
 推送
 `git push -u origin main`
 
+obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推送间隔，其余的该插件都会自动检测
+
+至此完成了obsidian自动化推送markdown笔记到github的私有仓库的配置
 
 ### Git仓库推送流程
 在github上弄了dotfiles仓库用于个人配置文件存储，项目地址[[https://github.com/Caster6443/dotfiles]]，前置认证流程就不记录了，这里记录一下使用方法
