@@ -11813,6 +11813,34 @@ WantedBy=timers.target
 点击 **Add key** 保存。
 
 **3.配置 SSH Config (让 Git 认识新密钥)**
+编辑配置文件
+`vim ~/.ssh/config`
+写入如下内容
+```
+Host github-notes
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_obsidian
+```
+
+
+**4.初始化并提交笔记**
+初始化与设置身份
+`git init`
+`git config user.email "dzy5864@gmail.com"`
+`git config user.name "Caster6443"`
+
+添加文件并提交
+`echo ".obsidian/" >> .gitignore`
+`git add .`
+`git commit -m "Initial commit: my linux notes with independent key"`
+
+**关联远程仓库（使用别名）**： 注意！这里的地址我们用刚才在 config 里起的别名 `github-notes`
+`git branch -M main`
+`git remote add origin git@github-notes:Caster6443/linuxnote.git`
+
+推送
+`git push -u origin main`
 
 
 ### Git仓库推送流程
