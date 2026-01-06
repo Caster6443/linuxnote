@@ -11765,6 +11765,8 @@ WantedBy=timers.target
 `--add-image /path/to/picture.jpg:FRONT_COVER music.mp3 修改歌曲图片`
 案例
 `eyeD3 -a "周杰伦" -t "夜曲" -A "十一月的肖邦" --add-image cover.jpg:FRONT_COVER music.mp3`
+有时会因为不支持中文编码，所以需要显式指定编码
+使用这个参数--encoding utf16
 
 
 
