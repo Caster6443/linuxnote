@@ -11766,8 +11766,11 @@ WantedBy=timers.target
 案例
 `eyeD3 -a "周杰伦" -t "夜曲" -A "十一月的肖邦" --add-image cover.jpg:FRONT_COVER music.mp3`
 有时会因为元数据里的“编码声明”太旧（Latin-1）不支持中文编码，这时需要显式指定编码
-使用这个参数--encoding utf16
+使用这个参数
+`--encoding utf16`
 
+对于某些已经有歌曲封面的元数据，eyeD3添加图片并不会替换掉原有图片，因为原有图片与替换图标描述不同，所以eyeD3并不会实现替换，这时需要添加参数使在添加图片前先删除当前图片
+`--remove-all-images`
 
 
 
