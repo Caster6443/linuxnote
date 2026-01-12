@@ -11833,7 +11833,7 @@ Host github-notes
 `git add .`
 `git commit -m "Initial commit: my linux notes with independent key"`
 
-**关联远程仓库（使用别名）**： 注意！这里的地址我们用刚才在 config 里起的别名 `github-notes`
+**关联远程仓库（使用别名）**： 注意！这里的地址用刚才在 config 里起的别名 `github-notes`
 `git branch -M main`
 `git remote add origin git@github-notes:Caster6443/linuxnote.git`
 
@@ -12005,7 +12005,7 @@ nvram = [
 
 
 8.添加显卡到虚拟机
-这里重启后可以看到N卡已经被独立出去了，在win11虚拟机配置中，添加pci硬件设备，选择独立出的我的4060
+这里重启后可以看到N卡已经被独立出去了，在win11虚拟机配置中，添加pci硬件设备，选择被独立出的4060
 [[_resources/linux笔记/62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg|Open: Pasted image 20251213135843.png]]
 ![[_resources/linux笔记/62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg]]
 
@@ -12147,99 +12147,84 @@ win11老是没事更新，对虚拟机会有很大问题，关闭了自动更新
 ❯ cat /usr/local/bin/switch-gpu-owner 
 #!/bin/bash
 
-# ================= 配置区域 =================
-# 显卡 ID
+# 配置
 VFIO_IDS="10de:28e0,10de:22be"
-# 文件路径
-MKINIT_CONF="/etc/mkinitcpio.conf"
+MKINIT="/etc/mkinitcpio.conf"
 VFIO_CONF="/etc/modprobe.d/vfio.conf"
-# ===========================================
 
-# 颜色定义
-RED='\033[1;31m'
-GREEN='\033[1;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[1;34m'
-NC='\033[0m'
+# 颜色
+R=$(tput sgr0)
+B=$(tput bold)
+BLUE=$(tput setaf 4)
+GREEN=$(tput setaf 2)
+GRAY=$(tput setaf 8)
+PURPLE=$(tput setaf 5)
+RED=$(tput setaf 1)
+CYAN=$(tput setaf 6)
 
-# 1. 权限检查
-if [ "$EUID" -ne 0 ]; then
-  echo -e "${RED}[错误] 请加上 sudo 执行此命令！${NC}"
-  exit 1
-fi
+I_NV="🐧"
+I_VF="⚙️"
 
-echo -e "${BLUE}###############################################${NC}"
-echo -e "${BLUE}#      华硕天选4 显卡归属权切换工具           #${NC}"
-echo -e "${BLUE}###############################################${NC}"
+[ "$EUID" -ne 0 ] && printf "${RED}错误: 请使用 sudo${R}\n" && exit 1
 
-# 2. 检测当前状态
-if grep -q "vfio_pci" "$MKINIT_CONF"; then
-    CURRENT_STATE="VM"
-    TARGET_STATE="HOST"
-    CURRENT_DESC="${YELLOW}虚拟机独占 (直通模式)${NC}"
-    TARGET_DESC="${GREEN}宿主机本机 (普通模式)${NC}"
-    ACTION_MSG="即将执行：释放显卡，归还给 Arch Linux 使用"
+clear
+
+printf "${BLUE}╭────────────────────────────────╮${R}\n"
+printf "${BLUE}│${R}          ${B}独显归属切换${R}          ${BLUE}│${R}\n"
+printf "${BLUE}╰────────────────────────────────╯${R}\n\n"
+
+if grep -q "vfio_pci" "$MKINIT"; then
+    TARGET="HOST"
+    printf "${GRAY}╭── 当前状态 ────────────────────╮${R}\n"
+    printf "${GRAY}│  ${I_VF}  显卡直通                  │${R}\n" 
+    printf "${GRAY}╰────────────────────────────────╯${R}\n"
+    printf "                ${B}⬇️${R}\n"
+    printf "${GREEN}╭── 即将切换 ────────────────────╮${R}\n"
+    printf "${GREEN}│  ${I_NV}  linux主机使用             │${R}\n"
+    printf "${GREEN}╰────────────────────────────────╯${R}\n"
 else
-    CURRENT_STATE="HOST"
-    TARGET_STATE="VM"
-    CURRENT_DESC="${GREEN}宿主机本机 (普通模式)${NC}"
-    TARGET_DESC="${YELLOW}虚拟机独占 (直通模式)${NC}"
-    ACTION_MSG="即将执行：隔离显卡，准备给 Windows 虚拟机使用"
+    TARGET="VM"
+    printf "${GRAY}╭── 当前状态 ────────────────────╮${R}\n"
+    printf "${GRAY}│  ${I_NV}  linux主机使用             │${R}\n"
+    printf "${GRAY}╰────────────────────────────────╯${R}\n"
+    printf "                ${B}⬇️${R}\n"
+    printf "${PURPLE}╭── 即将切换 ────────────────────╮${R}\n"
+    printf "${PURPLE}│  ${I_VF}  显卡直通                  │${R}\n"
+    printf "${PURPLE}╰────────────────────────────────╯${R}\n"
 fi
 
-# 3. 信息展示与防呆确认
-echo -e "当前状态: [ $CURRENT_DESC ]"
-echo -e "目标状态: [ $TARGET_DESC ]"
-echo "-----------------------------------------------"
-echo -e "${BLUE}$ACTION_MSG${NC}"
-echo "-----------------------------------------------"
+printf "\n${B}确认切换? [y/N]: ${R}"
+read CONFIRM
+[[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]] && printf "\n${GRAY}取消。${R}\n" && exit 0
 
-read -p "请确认是否执行上述切换？(输入 y 确认): " CONFIRM
-if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
-    echo -e "${RED}操作已取消。${NC}"
-    exit 0
-fi
+printf "\n${GRAY}────────────────────────────────${R}\n"
+printf "${BLUE}正在修改配置...${R}\n"
 
-# 4. 执行配置文件修改
-echo -e "\n${BLUE}正在修改配置文件...${NC}"
-
-if [ "$TARGET_STATE" == "HOST" ]; then
-    # === 切换到 宿主机模式 ===
+if [ "$TARGET" == "HOST" ]; then
     truncate -s 0 "$VFIO_CONF"
-    echo "  -> [OK] 已清空 VFIO 配置"
+    printf " ${GREEN}✔${R} 清空 ${CYAN}%s${R}\n" "$VFIO_CONF"
     
-    # 强制重置为 amdgpu，防止黑屏
-    sed -i 's/^MODULES=(.*)/MODULES=(amdgpu)/' "$MKINIT_CONF"
-    echo "  -> [OK] 已将 MODULES 重置为 (amdgpu)"
-
+    sed -i 's/^MODULES=(.*)/MODULES=(amdgpu)/' "$MKINIT"
+    printf " ${GREEN}✔${R} 修改 ${CYAN}%s${R}: MODULES=(amdgpu)\n" "$MKINIT"
 else
-    # === 切换到 虚拟机模式 ===
     echo "options vfio-pci ids=$VFIO_IDS" > "$VFIO_CONF"
     echo "softdep nvidia pre: vfio-pci" >> "$VFIO_CONF"
     echo "softdep nouveau pre: vfio-pci" >> "$VFIO_CONF"
-    echo "  -> [OK] 已写入 VFIO ID 配置"
-
-    sed -i 's/^MODULES=(.*)/MODULES=(vfio_pci vfio vfio_iommu_type1 amdgpu)/' "$MKINIT_CONF"
-    echo "  -> [OK] 已添加 VFIO 相关驱动模块"
+    printf " ${GREEN}✔${R} 写入 ${CYAN}%s${R}: 绑定 ID $VFIO_IDS\n" "$VFIO_CONF"
+    
+    sed -i 's/^MODULES=(.*)/MODULES=(vfio_pci vfio vfio_iommu_type1 amdgpu)/' "$MKINIT"
+    printf " ${GREEN}✔${R} 修改 ${CYAN}%s${R}: MODULES=(vfio...)\n" "$MKINIT"
 fi
 
-# 5. 重新构建镜像 
-echo "-----------------------------------------------"
-echo -e "${YELLOW}正在调用 mkinitcpio 重新生成引导镜像...${NC}"
-echo -e "请耐心等待 build successful"
-echo "-----------------------------------------------"
+printf "\n${BLUE}重建内核 (mkinitcpio)...${R}\n${GRAY}"
 
 mkinitcpio -P
-
-# 检查上一条命令的退出代码
 if [ $? -eq 0 ]; then
-    echo "-----------------------------------------------"
-    echo -e "${GREEN}✔ 切换成功！构建顺利完成。${NC}"
-    echo -e "请执行: ${BLUE}reboot${NC} 重启电脑生效。"
+    printf "${R}\n${B}${GREEN}✅ 完成。${R} 请重启。\n"
+    read -p "立即重启? [y/N]: " RB
+    [[ "$RB" == "y" || "$RB" == "Y" ]] && reboot
 else
-    echo "-----------------------------------------------"
-    echo -e "${RED}❌ 构建过程中出现错误！${NC}"
-    echo "请向上滚动查看 mkinitcpio 的错误日志。"
+    printf "${R}\n${RED}❌ 失败！请检查日志。${R}\n"
     exit 1
 fi
 ```
@@ -12327,7 +12312,7 @@ menuentry 'Pop!_OS(Chainload)' {
 
 # 12/15
 ## 蓝牙耳机有电流声
-**随着系统滚动更新，该修复又失效了，麻了**
+**随着系统滚动更新，该修复失效了，麻了**
 **环境：** Arch Linux + Niri (Wayland) + PipeWire + 蓝牙耳机 (漫步者 W820NB, 编码器:SBC)。
 **现象：** 播放音频时，偶尔会出现剧烈的“电击式”爆音或断流。
 **根本原因：** 音频缓冲区耗尽
@@ -12365,7 +12350,7 @@ WantedBy=default.target
 bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 
 这个方案是用声音延迟的代价换取稳定
-原理我也不太懂得，不过差不多可以这样理解
+原理我也不太懂，不过差不多可以这样理解
 `时间窗口=QUANT/48000Hz=xx.ms`
 我原本的QUANT是256，带入公式得到时间窗口大概是5.33ms(毫秒)
 意思是CPU必须每隔5.33毫秒就处理完一次音频数据，但是如果 Niri 渲染一帧画面抢占了 CPU 6 毫秒，音频线程就会错过截止时间。从而导致电流声等问题
