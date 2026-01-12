@@ -11772,8 +11772,8 @@ WantedBy=timers.target
 对于某些已经有歌曲封面的元数据，eyeD3添加图片并不会替换掉原有图片，因为原有图片与替换图标描述不同，所以eyeD3并不会实现替换，这时需要添加参数使在添加图片前先删除当前图片
 `--remove-all-images`
 
-
-
+因为arch滚动更新的特性，有时作者更新不及时导致工具不可用，也可以用mutagen，可执行文件是mutagen,用法选项大体与eyeD3相同，安装命令如下
+sudo pacman -S python-mutagen
 `
 # 12/7
 ## git的使用
