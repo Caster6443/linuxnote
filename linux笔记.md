@@ -11773,8 +11773,14 @@ WantedBy=timers.target
 `--remove-all-images`
 
 因为arch滚动更新的特性，有时作者更新不及时导致工具不可用，也可以用mutagen，可执行文件是mutagen,用法选项大体与eyeD3相同，安装命令如下
-sudo pacman -S python-mutagen
-`
+`sudo pacman -S python-mutagen`
+
+
+
+
+
+
+
 # 12/7
 ## git的使用
 ### obsidian自动化推送笔记到github备份
