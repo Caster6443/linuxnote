@@ -98,7 +98,132 @@ controller(通过ftp提供yum源的主机)禁用了防火墙firewalld，但未�
 
 
 
-# 9/28
+
+# Openstack
+## 9/28
+
+## 关于openstack各组件功能细分
+
+OpenStack是一个由多个组件组成的开源云计算平台，每个组件负责处理特定的任务。以下是一些主要OpenStack组件及其子组件的细分：
+
+Nova（计算）：
+
+```
+1. nova-api：处理API请求。
+2. nova-scheduler：负责虚拟机实例的调度。
+3. nova-conductor：轻量级服务，处理一些数据库操作。
+4. nova-compute：负责管理虚拟机实例的生命周期。
+5. nova-consoleauth：处理VNC控制台的认证。
+6. nova-novncproxy：处理VNC控制台访问的代理。
+```
+
+Neutron（网络）：
+
+```
+1. neutron-server：处理网络服务的API请求。
+2. neutron-agent：包括多种类型的代理，如l3-agent、dhcp-agent、metadata-agent等，负责网络配置和管理。
+```
+
+Cinder（块存储）：
+
+```
+1. cinder-api：处理块存储API请求。
+2. cinder-scheduler：负责卷的调度。
+3. cinder-volume：负责管理后端存储，处理卷的创建、删除和附加等操作。
+```
+
+
+Swift（对象存储）：
+
+```
+1. swift-proxy：处理客户端请求和转发到存储节点。
+2. swift-account、swift-container、swift-object：存储节点服务，分别管理账户、容器和对象。
+```
+
+Keystone（身份服务）：
+
+```
+1. keystone：提供身份认证、令牌生成和管理服务。
+```
+
+
+Glance（镜像服务）：
+
+```
+1. glance-api：处理镜像服务的API请求。
+2. glance-registry：管理镜像元数据。
+```
+
+
+Heat（编排）：
+
+```
+1. heat-api：处理编排服务的API请求。
+2. heat-api-cfn：处理AWS CloudFormation模板。
+3. heat-engine：负责执行堆栈操作。
+```
+
+Ceilometer（计费和监控）：
+
+```
+1. ceilometer-api：提供监控数据的API接口。
+2. ceilometer-collector：负责收集监控数据。
+3. ceilometer-agent：运行在计算节点上，收集和上报实例的监控数据。
+```
+
+Horizon（Dashboard）：
+
+```
+1. horizon：OpenStack的Web界面，提供用户界面访问OpenStack服务。
+```
+
+Ironic（裸机服务）：
+
+```
+1. ironic-api：处理裸机服务的API请求。
+2. ironic-conductor：负责管理裸机硬件的生命周期。
+```
+
+这些是OpenStack中一些主要组件及其子组件的细分。每个组件都有其特定的职责，它们协同工作以提供完整的云计算服务。随着OpenStack的不断发展，可能会有新的组件和服务被引入。
+
+
+
+
+
+
+
+
+## 关于在创建实例时会报错无可用域
+
+这种情况属于是compute节点服务未启动
+
+glance上传的镜像一般储存在/var/lib/glance/images/目录下
+
+在使用glance上传镜像时--file参数也可用反向重定向符‘<’代替
+
+端口和端点
+
+在计算机网络中，“端点”（endpoint）和“端口”（port）是两个相关但不同的概念：
+
+端口（Port）：
+
+端口是网络通信中用于区分不同服务或进程的逻辑概念。在TCP/IP协议栈中，端口号是一个16位的数字，其取值范围从0到65535。
+
+端口号用于识别主机上的特定进程或网络服务，例如，HTTP服务通常监听端口80，而HTTPS服务监听端口443。
+
+在网络通信中，端口号与IP地址结合使用，以确保数据能够正确地发送到目标主机上的特定服务。
+
+端点（Endpoint）：
+
+端点指的是网络中通信的起点和终点。在实际应用中，端点可以是一个设备（如计算机、手机、服务器等）、一个网络接口，或者是运行在设备上的一个应用程序。
+
+端点不仅包括端口号，还包括设备的IP地址，有时甚至包括传输层协议（如TCP或UDP）。因此，端点提供了一个完整的网络通信路径，用于标识和定位网络中的特定通信实体。
+
+例如，一个完整的端点可以表示为 <IP地址>:<端口号>，如 192.168.1.100:8080，其中 192.168.1.100 是IP地址，8080 是端口号。
+
+总结来说，端口是端点的一部分，用于区分同一设备上的不同服务，而端点是一个更广泛的概念，包括了IP地址和端口号，用于在网络中唯一标识一个通信实体。端口号是端点地址的一部分，端点地址则包含了IP地址和端口号，有时还包括协议类型。
+
+
 
 ## 报错：无效的服务目录，compute
 
@@ -145,17 +270,6 @@ allow 192.168.100.0/24
 
 
 
-
-
-
-
-
-
-
-
-
-
-# 10/6
 ## 报错:无效的服务目录：network
 Selinux配置为permis模式
 不知道为什么平台又搭建成功了，报错也解决了
@@ -173,7 +287,7 @@ Selinux配置为permis模式
 
 
 
-# 10/11
+
 
 放弃centos7.9改用7.5
 
@@ -183,12 +297,7 @@ Selinux配置为permis模式
 
 
 
-
-
-
-
-# 12/10
-##报错：新云主机创建失败：找不到有效主机
+## 报错：新云主机创建失败：找不到有效主机
 
 懒得截图了
 初步排错认为是计算节点资源不足导致，尝试添加一个新计算节点
@@ -206,33 +315,6 @@ openstack compute service list --service nova-compute
 
 
 
-## 搭建ceph
-
-三个节点
-
-Node1，2，3
-
-全部配置免密ssh和主机映射，yum源采用ftp使用controller的本地源
-
-先电2.4没有ceph-deploy，node1新增阿里ceph源
-
-ceph-deploy install --no-adjust-repos ceph-node1 ceph-node2 ceph-node3
-
-在为三个节点安装ceph时，遇到报错无法下载密钥文件，通过添加--no-adjust-repos参数跳过了密钥下载，不知道有没有影响
-
-出现此报错多半是yum源地址有问题
-
-Ceph安装错了位置，全部重置
-
-
-
-
-
-
-
-
-
-# 10/15
 
 ## 关于 controller 和 compute 节点在安装完脚本后时间服务器无法启动
 
@@ -295,6 +377,27 @@ gpgkey=https://download.ceph.com/keys/release.asc
 
 
 # 10/16
+
+
+## 搭建ceph
+
+三个节点
+
+Node1，2，3
+
+全部配置免密ssh和主机映射，yum源采用ftp使用controller的本地源
+
+先电2.4没有ceph-deploy，node1新增阿里ceph源
+
+ceph-deploy install --no-adjust-repos ceph-node1 ceph-node2 ceph-node3
+
+在为三个节点安装ceph时，遇到报错无法下载密钥文件，通过添加--no-adjust-repos参数跳过了密钥下载，不知道有没有影响
+
+出现此报错多半是yum源地址有问题
+
+Ceph安装错了位置，全部重置
+
+
 
 ## ceph源配置的官方repo文件
 
@@ -366,7 +469,7 @@ priority=1
 
 //////////////////////////////////////
 
-关于ceph-deploy new报错
+## 关于ceph-deploy new报错
 
 ![[_resources/linux笔记/809b3e0389f8e2463704220d5b877df3_MD5.png]]
 
@@ -479,25 +582,11 @@ echo "000000"| passwd --stdin root
 
 
 
-# 10/26
-
-改用了centos7.9做实验
-
-虚拟机ping不通外网，为8号虚拟网卡配置了静态ip解决了问题
-
-还是报了一个老报错，安装neutron时的libxslt-1.1.28-6.el7.x86_64版本问题
-
-好消息是compute节点也报了这个错，以前没有过
-
-云平台报错了：错误：Invalid service catalog service: compute
 
 
 
 
 
-
-
-# 10/27
 
 由于compute节点也报了lib的版本错误，而此时controller节点的neutron服务已经部署完毕，或许该尝试两个节点同步部署nova服务并更改lib版本，但还是感觉问题出在neutron的几种网络模式的选择上
 
@@ -520,136 +609,6 @@ echo "000000"| passwd --stdin root
 报错原因：重复安装了keystone，由此可知关于lib版本的报错解决并不仅仅是卸载重装这么简单，还需要删除掉对应的多余服务，貌似先电2.2无法识别多余且不可用的服务，2.4没有发现
 
 搭建成功了，关于neutron的网络模式还是需要研究一下
-
-
-
-
-
-
-
-
-
-
-# 10/30
-
-## 关于在创建实例时会报错无可用域
-
-这种情况属于是compute节点服务未启动
-
-glance上传的镜像一般储存在/var/lib/glance/images/目录下
-
-在使用glance上传镜像时--file参数也可用反向重定向符‘<’代替
-
-端口和端点
-
-在计算机网络中，“端点”（endpoint）和“端口”（port）是两个相关但不同的概念：
-
-端口（Port）：
-
-端口是网络通信中用于区分不同服务或进程的逻辑概念。在TCP/IP协议栈中，端口号是一个16位的数字，其取值范围从0到65535。
-
-端口号用于识别主机上的特定进程或网络服务，例如，HTTP服务通常监听端口80，而HTTPS服务监听端口443。
-
-在网络通信中，端口号与IP地址结合使用，以确保数据能够正确地发送到目标主机上的特定服务。
-
-端点（Endpoint）：
-
-端点指的是网络中通信的起点和终点。在实际应用中，端点可以是一个设备（如计算机、手机、服务器等）、一个网络接口，或者是运行在设备上的一个应用程序。
-
-端点不仅包括端口号，还包括设备的IP地址，有时甚至包括传输层协议（如TCP或UDP）。因此，端点提供了一个完整的网络通信路径，用于标识和定位网络中的特定通信实体。
-
-例如，一个完整的端点可以表示为 <IP地址>:<端口号>，如 192.168.1.100:8080，其中 192.168.1.100 是IP地址，8080 是端口号。
-
-总结来说，端口是端点的一部分，用于区分同一设备上的不同服务，而端点是一个更广泛的概念，包括了IP地址和端口号，用于在网络中唯一标识一个通信实体。端口号是端点地址的一部分，端点地址则包含了IP地址和端口号，有时还包括协议类型。
-
-
-
-
-
-## 关于openstack各组件功能细分
-
-OpenStack是一个由多个组件组成的开源云计算平台，每个组件负责处理特定的任务。以下是一些主要OpenStack组件及其子组件的细分：
-
-Nova（计算）：
-
-```
-1. nova-api：处理API请求。
-2. nova-scheduler：负责虚拟机实例的调度。
-3. nova-conductor：轻量级服务，处理一些数据库操作。
-4. nova-compute：负责管理虚拟机实例的生命周期。
-5. nova-consoleauth：处理VNC控制台的认证。
-6. nova-novncproxy：处理VNC控制台访问的代理。
-```
-
-Neutron（网络）：
-
-```
-1. neutron-server：处理网络服务的API请求。
-2. neutron-agent：包括多种类型的代理，如l3-agent、dhcp-agent、metadata-agent等，负责网络配置和管理。
-```
-
-Cinder（块存储）：
-
-```
-1. cinder-api：处理块存储API请求。
-2. cinder-scheduler：负责卷的调度。
-3. cinder-volume：负责管理后端存储，处理卷的创建、删除和附加等操作。
-```
-
-
-Swift（对象存储）：
-
-```
-1. swift-proxy：处理客户端请求和转发到存储节点。
-2. swift-account、swift-container、swift-object：存储节点服务，分别管理账户、容器和对象。
-```
-
-Keystone（身份服务）：
-
-```
-1. keystone：提供身份认证、令牌生成和管理服务。
-```
-
-
-Glance（镜像服务）：
-
-```
-1. glance-api：处理镜像服务的API请求。
-2. glance-registry：管理镜像元数据。
-```
-
-
-Heat（编排）：
-
-```
-1. heat-api：处理编排服务的API请求。
-2. heat-api-cfn：处理AWS CloudFormation模板。
-3. heat-engine：负责执行堆栈操作。
-```
-
-Ceilometer（计费和监控）：
-
-```
-1. ceilometer-api：提供监控数据的API接口。
-2. ceilometer-collector：负责收集监控数据。
-3. ceilometer-agent：运行在计算节点上，收集和上报实例的监控数据。
-```
-
-Horizon（Dashboard）：
-
-```
-1. horizon：OpenStack的Web界面，提供用户界面访问OpenStack服务。
-```
-
-Ironic（裸机服务）：
-
-```
-1. ironic-api：处理裸机服务的API请求。
-2. ironic-conductor：负责管理裸机硬件的生命周期。
-```
-
-这些是OpenStack中一些主要组件及其子组件的细分。每个组件都有其特定的职责，它们协同工作以提供完整的云计算服务。随着OpenStack的不断发展，可能会有新的组件和服务被引入。
-
 
 
 
