@@ -658,9 +658,9 @@ Ironic（裸机服务）：
 
 
 
-# 11/2
 
 # Docker
+## 11/2
 
 Docker pull的源需要更改，好像要注册一个阿里云镜像站的账号，如果想使用阿里云镜像源的话
 
@@ -670,6 +670,10 @@ Docker pull的源需要更改，好像要注册一个阿里云镜像站的账号
 
 ## docker原理
 Linux内核支持两个功能，与容器技术的实现有关![[_resources/linux笔记/3b85d5e8cae5347d129ebc2f31c83d82_MD5.png]]![[_resources/linux笔记/da20e5f18dfa2c93587542109c98d9f3_MD5.png]]
+
+## docker containerd.io
+
+是Docker容器运行时的核心组件之一，它负责管理和运行容器。它提供了容器的生命周期管理、镜像管理、网络管理等功能
 
 
 
@@ -688,6 +692,20 @@ Linux内核支持两个功能，与容器技术的实现有关![[_resources/linu
 "[https://docker.rainbond.cc](https://docker.rainbond.cc)"
 
 
+## 关于docker命令补全问题
+
+默认是无法补全的，但可以通过以下命令实现
+
+yum install -y bash-completion
+
+source /usr/share/bash-completion/bash_completion
+
+
+## docker基础操作
+![[_resources/linux笔记/980d7f13d37fe9f7c8c54cb6f58d42b0_MD5.png]]
+
+![[_resources/linux笔记/1ef38c4dc170e22e61598a8ebb9ded8c_MD5.png]]
+
 
 
 
@@ -705,85 +723,12 @@ Docker镜像都是只读的，当容器启动时，一个新的可写层被加�
 （此处知识点涉及到UnionFS（联合文件系统））
 
 
-
-
-
-# 11/12
-
-## 查看函数库依赖
-
-不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
-
-例：![[_resources/linux笔记/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png]]
-
-想要使用bash则需要确保拥有lib下的各个函数库文件
-
-没有依赖库但想要使用bash则会报错如下
-
-![[_resources/linux笔记/87727257087262a186f7eebb6995744f_MD5.png]]
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-## 关于docker命令补全问题
-
-默认是无法补全的，但可以通过以下命令实现
-
-yum install -y bash-completion
-
-source /usr/share/bash-completion/bash_completion
-
-
-
-
-
-
-
-
-
-
-# 11/14
-## docker基础操作
-![[_resources/linux笔记/980d7f13d37fe9f7c8c54cb6f58d42b0_MD5.png]]
-
-![[_resources/linux笔记/1ef38c4dc170e22e61598a8ebb9ded8c_MD5.png]]
-
-////////////////////////////////////////////////////////////////////////////////////
-
-## 关于命令别名的设置
-以docker为例
-
-![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
-
-
-
-
-
-
-
-
-
-
-
-# 11/15
 ## docker重启策略
 ![[_resources/linux笔记/748481c4d7486e57390d4e2d6bc72716_MD5.png]]
 
 注：该图是关于docker container run --restart命令的策略参数
 
 在模拟容器异常退出时可使用pstree -p 查看进程树及对应pid（centos7.5没有安装该命令，执行yum install -y psmisc)以杀死指定容器进程，该命令之所以能够模拟容器异常退出是因为该命令属于宿主机指令干预，而非容器内部指令操作
-
-
-
-
-
-
-
-
-
-# 11/19
-## ip a 回显解析
-
-ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以容器为例
 
 
 
@@ -809,19 +754,6 @@ ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以
 Registry仓库指定的挂载卷位置与端口：/var/lib/registry 5000
 
 
-
-
-
-
-
-
-
-
-
-
-
-# 11/20
-
 ## 关于容器部署mysql
 
 可参考以下指令格式
@@ -841,29 +773,12 @@ docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/
 
 
 
-
-
-
-
-
-
-
-# 11/21
-
 ## 关于dockerfile命令解析
 
 ![[_resources/linux笔记/ac715b24bf24720805fd9d0f147f733a_MD5.png]]
 
 ![[_resources/linux笔记/8a27da6bfff71225f0dfa133b6b71859_MD5.png]]
 
-
-
-
-
-
-
-
-# 11/26
 
 ## 关于docker容器编排工具docker compose
 
@@ -873,17 +788,6 @@ Compose v2
 
 截止至2024/9/29的centos7,docker-compose指令的使用需要手动安装docker compose
 
-
-
-
-
-
-
-
-
-
-# 11/27
-
 在docker-compose.yml文件的编写中,build参数的使用对象，也就是构建环境中的构建镜像所用文件要严格遵守dockerfile命名规范，即只能将其命名为D(d)ockerfile，否则在构建过程中会因为找不到该文件而报错
 
 另外在docker compose config的使用中，config后面在没有追加选项的情况下，应当填写docker-compose.file文件所处环境（即所处目录），docker-compose的容器编排配置文件也应当固定为dockers-compose.yml
@@ -891,11 +795,110 @@ Compose v2
 这两点存疑，可能是因为构建上下文或版本的问题，又或者是在没有指定文件名的情况下会遵循这个规则
 
 
+## 关于dockerfile构建上下文
+
+编写dockerfile时在写宿主机文件路径时需要注意构建上下文问题，例
+
+docker build -t tag:6 -f /path/Dockerfile .
+
+在这里指定了构建上下文为当前目录环境，则在编写dockerfile时书写宿主机文件路径时需要使用相对路径且文件与dockerfile处于同一文件夹（？），例如在COPY的使用上
 
 
 
 
 
+## 关于docker容器保留前台进程以维持容器运行
+
+由于容器会检测内部pid为1的进程是否存在而判断容器是否在运行，所以为保持容器正常运行，需要指定一个前台进程。
+
+主要是在dockerfile中指定容器运行后执行命令的CMD,一般该参数用于创建一个前台进程，例如在memcached（内存缓存数据库）的dockefile编写中，最后一条CMD是memcached -u root来创建该容器的前台进程(#使用root用户前台启动memcached)
+
+
+
+## 关于mariadb的容器化部署
+
+mysql -uroot -proot -e "grant all privileges on _._ to root@'%' identified by 'root';"
+
+这条SQL命令的作用是授予root用户远程连接数据库的权限。具体来说，这个命令做了以下几件事情：
+
+grant all privileges on _._：这部分指定了授权的范围和权限级别。*.*代表所有数据库和表，all privileges表示授予所有可能的权限，包括SELECT、INSERT、UPDATE、DELETE、CREATE、DROP等。
+
+to root@'%'：这部分指定了授权的用户和其允许连接的主机。root是用户名，'%'表示从任何主机。这意味着任何主机上的root用户都将能够连接到MariaDB服务器。
+
+identified by 'root'：这部分为root用户设置了密码，这里是'root'。
+
+总的来说，这条命令允许任何主机上的root用户使用密码root连接到MariaDB服务器，并拥有对所有数据库和表的完全访问权限。
+
+是为了其他容器能够连接
+
+mysqld --user=root用于启动mysql作为容器中CMD的前台进程
+
+关于nginx容器化部署
+
+nginx -g "daemon off;"
+
+这条命令会启动 Nginx，并且由于 daemon off; 的设置，Nginx 会保持在前台运行，而不是转到后台。用于nginx容器的CMD前台进程
+
+
+
+
+## 关于Harbor仓库的私有仓库搭建
+
+可以用注释相关配置实现免证书搭建
+如果没有申请证书，需要隐藏https
+https:
+https port for harbor, default is 443
+port: 443
+
+同时可以与daemon.json的参数 "insecure-registries": ["0.0.0.0/0"]配合使用，该配置表示docker使用http协议访问任何镜像仓库位置
+
+
+
+
+## 关于docker compose命令的路径要求
+
+![[_resources/linux笔记/f1a0a333246e3f12c0ece763cd038c3c_MD5.png]]
+
+在执行docker compose命令时要求当前目录下有docker-compose.yml这个文件，因为Docker Compose 需要一个 YAML 文件来定义服务、网络和卷等配置，这个文件通常以 docker-compose.yml 或 docker-compose.yaml 命名。
+
+
+
+
+
+
+# 11/12
+
+## 查看函数库依赖
+
+不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
+
+例：![[_resources/linux笔记/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png]]
+
+想要使用bash则需要确保拥有lib下的各个函数库文件
+
+没有依赖库但想要使用bash则会报错如下
+
+![[_resources/linux笔记/87727257087262a186f7eebb6995744f_MD5.png]]
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
+# 11/14
+
+## 关于命令别名的设置
+以docker为例
+
+![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
+
+
+
+
+
+
+# 11/19
+## ip a 回显解析
+
+ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以容器为例
 
 
 
@@ -958,22 +961,6 @@ yum -y install epel-release
 
 
 
-
-# 11/30
-
-## k8s在1.24版本不原生支持docker
-
-K8s三个组件kubeadm kubectl kubelet还有k8s使用的版本都是1.14.1，docker安装的版本是18.09.6
-
-
-
-
-
-
-
-
-
-
 ## 关于命令替换
 
 用来重组命令行，先完成引号里的命令行，然后将其结果替换出来，再重组成新的命令行
@@ -1020,6 +1007,95 @@ PS2：定义多行命令的提示符的格式。
 
 
 # 12/3
+# Kubernetes
+
+## 关于K8S的命名空间
+
+命名空间namespace是K8S中“组”的概念，提供同一服务的Pod应该被放置同一命名空间下，而不是混杂在一起。K8S可以用命名空间来做权限控制和资源隔离。如果不指定的话，Pod将被放置在默认的命名空间default下。
+
+
+
+
+## 关于kubectl get
+
+kubectl get可以列出K8S中所有资源，还可以使用别的参数获取其它资源列表信息，如get svc（查看服务）、get rs（查看副本控制器）、get deploy（查看部署）等。
+
+如果想要查看更多信息，指定-o wide参数即可，语法如下：
+
+kubectl get <资源> -n <命名空间> -o wide
+
+加上这个参数之后就可以看到资源的IP和所在节点。
+
+
+在kubeeasy部署过程中通过查看日志来跟踪k8s安装进度
+
+tail -f /var/log/kubeinstall.log
+
+
+
+
+
+
+
+## 关于kubectl命令行的补全
+
+与docker一样，都需要安装bash-completion
+
+source <(kubectl completion bash)
+
+在bash中设置当前shell的自动补全，要先安装bash-completion包。
+
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+
+
+
+## 关于kubectl管理pod
+
+注意：如果不指定-n 命名空间，会默认查看default命名空间里的pod，创建pod的时候不指定命名空间，只会将pod创建在default命名空间里
+
+在查看pod时可以使用参数查看kubectl get pod --show-labels=true它的标签，该参数在kubectl get --help能够查到，不过是--show-labels=flase的形式 ，因为它旨在表明kubectl get pod这条命令默认是隐藏标签的，所以当使用该参数时要把flase改成true
+
+该命令可以与kubectl describe po -l 结合使用，因为使用这个命令查看pod具体信息时需要指定它的标签
+
+
+
+
+## 关于namespace自动注入sidecar
+
+Istio 作为重要的 ServiceMesh 框架，已经被越来越多的公司所使用。在 Istio 体系中，应用容器的出入流量都需要经过 Sidecar 的拦截和处理。默认地，Istio sidecar 自动注入是通过给 namespace 打 istio-injection=enabled 或 istio-injection=disabled 标签，来确定是否在该命名空间执行自动注入。
+
+示例：kubectl label ns exam istio-injection=enabled
+
+注：ns是指代命名空间，在kubectl create ns中也是这个作用，该命名空间名字叫exam
+
+
+
+
+## 关于helm
+
+Helm 的 Release 是 Helm 这个 Kubernetes 包管理工具的概念，而不是 Kubernetes 自身的概念。
+
+Helm Release：
+
+在 Helm 中，一个 Release 是指一个包（Chart）的单个部署实例。当你使用 Helm 安装一个 Chart 时，Helm 会创建一个 Release 来跟踪这个部署的状态和历史。
+
+每个 Release 都有一个唯一的标识符，通常是一个名字和一个版本号。
+
+Release 包含了 Chart 的配置信息、部署的 Kubernetes 资源对象以及部署过程中的状态信息。
+
+你可以对同一个 Chart 创建多个 Release，每个 Release 可以有不同的配置和升级历史。
+
+
+
+
+## 关于k8s各组件版本问题 [https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml](https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml)
+
+将该链接的版本号那一栏改为想要查询的k8s版本从而查看对应的组件版本信息
+
+
+
+
 
 ## k8s提示certificate signed by unknown authority (possibly because of "crypto/rsa: verification error" while trying to verify candidate authority certificate "kubernetes")
 
@@ -1196,9 +1272,7 @@ sudo yum -y install kernel-devel //安装kernel-devel
 
 # 12/7
 
-docker-compose和Helm的安装部署嵌套在Harbor安装部署包内，安装Harbor的同时，也安装了docker-compose以及Helm
 
-/////////////////////////////////////////////////////////////////////////////
 
 ## 关于namespance分类 
 ![[_resources/linux笔记/21d6eb1b235d93b35c05bff409736782_MD5.png]]
@@ -1247,119 +1321,6 @@ dm-0 对应LVM的 VolGroup00-LogVol00 对应根目录/
 dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
 
 参考文章：linux dm-0 dm-1 设备映射 简介-CSDN博客 ([https://blog.csdn.net/whatday/article/details/106354092](https://blog.csdn.net/whatday/article/details/106354092))
-
-## docker containerd.io
-
-是Docker容器运行时的核心组件之一，它负责管理和运行容器。它提供了容器的生命周期管理、镜像管理、网络管理等功能
-
-
-
-
-
-
-
-## 关于K8S的命名空间
-
-命名空间namespace是K8S中“组”的概念，提供同一服务的Pod应该被放置同一命名空间下，而不是混杂在一起。K8S可以用命名空间来做权限控制和资源隔离。如果不指定的话，Pod将被放置在默认的命名空间default下。
-
-
-
-
-
-## 关于kubectl get
-
-kubectl get可以列出K8S中所有资源，还可以使用别的参数获取其它资源列表信息，如get svc（查看服务）、get rs（查看副本控制器）、get deploy（查看部署）等。
-
-如果想要查看更多信息，指定-o wide参数即可，语法如下：
-
-kubectl get <资源> -n <命名空间> -o wide
-
-加上这个参数之后就可以看到资源的IP和所在节点。
-
-
-在kubeeasy部署过程中通过查看日志来跟踪k8s安装进度
-
-tail -f /var/log/kubeinstall.log
-
-
-
-
-
-
-
-
-
-
-# 12/9
-
-## 关于kubectl命令行的补全
-
-与docker一样，都需要安装bash-completion
-
-source <(kubectl completion bash)
-
-在bash中设置当前shell的自动补全，要先安装bash-completion包。
-
-echo "source <(kubectl completion bash)" >> ~/.bashrc
-
-
-
-
-## 关于kubectl管理pod
-
-注意：如果不指定-n 命名空间，会默认查看default命名空间里的pod，创建pod的时候不指定命名空间，只会将pod创建在default命名空间里
-
-在查看pod时可以使用参数查看kubectl get pod --show-labels=true它的标签，该参数在kubectl get --help能够查到，不过是--show-labels=flase的形式 ，因为它旨在表明kubectl get pod这条命令默认是隐藏标签的，所以当使用该参数时要把flase改成true
-
-该命令可以与kubectl describe po -l 结合使用，因为使用这个命令查看pod具体信息时需要指定它的标签
-
-
-
-
-## 关于namespace自动注入sidecar
-
-Istio 作为重要的 ServiceMesh 框架，已经被越来越多的公司所使用。在 Istio 体系中，应用容器的出入流量都需要经过 Sidecar 的拦截和处理。默认地，Istio sidecar 自动注入是通过给 namespace 打 istio-injection=enabled 或 istio-injection=disabled 标签，来确定是否在该命名空间执行自动注入。
-
-示例：kubectl label ns exam istio-injection=enabled
-
-注：ns是指代命名空间，在kubectl create ns中也是这个作用，该命名空间名字叫exam
-
-
-
-
-## 关于helm
-
-Helm 的 Release 是 Helm 这个 Kubernetes 包管理工具的概念，而不是 Kubernetes 自身的概念。
-
-Helm Release：
-
-在 Helm 中，一个 Release 是指一个包（Chart）的单个部署实例。当你使用 Helm 安装一个 Chart 时，Helm 会创建一个 Release 来跟踪这个部署的状态和历史。
-
-每个 Release 都有一个唯一的标识符，通常是一个名字和一个版本号。
-
-Release 包含了 Chart 的配置信息、部署的 Kubernetes 资源对象以及部署过程中的状态信息。
-
-你可以对同一个 Chart 创建多个 Release，每个 Release 可以有不同的配置和升级历史。
-
-
-
-
-
-
-## 关于k8s各组件版本问题 [https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml](https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml)
-
-将该链接的版本号那一栏改为想要查询的k8s版本从而查看对应的组件版本信息
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1477,27 +1438,6 @@ tar xf xxx.tgz -C /dir/
 
 # 12/17
 
-## 关于dockerfile构建上下文
-
-编写dockerfile时在写宿主机文件路径时需要注意构建上下文问题，例
-
-docker build -t tag:6 -f /path/Dockerfile .
-
-在这里指定了构建上下文为当前目录环境，则在编写dockerfile时书写宿主机文件路径时需要使用相对路径且文件与dockerfile处于同一文件夹（？），例如在COPY的使用上
-
-
-
-
-
-## 关于docker容器保留前台进程以维持容器运行
-
-由于容器会检测内部pid为1的进程是否存在而判断容器是否在运行，所以为保持容器正常运行，需要指定一个前台进程。
-
-主要是在dockerfile中指定容器运行后执行命令的CMD,一般该参数用于创建一个前台进程，例如在memcached（内存缓存数据库）的dockefile编写中，最后一条CMD是memcached -u root来创建该容器的前台进程(#使用root用户前台启动memcached)
-
-
-
-
 
 ## 关于不进入数据库命令行界面而实现交互
 
@@ -1513,67 +1453,6 @@ docker build -t tag:6 -f /path/Dockerfile .
 
 
 # 12/18
-## 关于mariadb的容器化部署
-
-mysql -uroot -proot -e "grant all privileges on _._ to root@'%' identified by 'root';"
-
-这条SQL命令的作用是授予root用户远程连接数据库的权限。具体来说，这个命令做了以下几件事情：
-
-grant all privileges on _._：这部分指定了授权的范围和权限级别。*.*代表所有数据库和表，all privileges表示授予所有可能的权限，包括SELECT、INSERT、UPDATE、DELETE、CREATE、DROP等。
-
-to root@'%'：这部分指定了授权的用户和其允许连接的主机。root是用户名，'%'表示从任何主机。这意味着任何主机上的root用户都将能够连接到MariaDB服务器。
-
-identified by 'root'：这部分为root用户设置了密码，这里是'root'。
-
-总的来说，这条命令允许任何主机上的root用户使用密码root连接到MariaDB服务器，并拥有对所有数据库和表的完全访问权限。
-
-是为了其他容器能够连接
-
-mysqld --user=root用于启动mysql作为容器中CMD的前台进程
-
-关于nginx容器化部署
-
-nginx -g "daemon off;"
-
-这条命令会启动 Nginx，并且由于 daemon off; 的设置，Nginx 会保持在前台运行，而不是转到后台。用于nginx容器的CMD前台进程
-
-
-
-
-
-
-
-## 关于Harbor仓库的私有仓库搭建
-
-可以用注释相关配置实现免证书搭建
-如果没有申请证书，需要隐藏https
-https:
-https port for harbor, default is 443
-port: 443
-
-同时可以与daemon.json的参数 "insecure-registries": ["0.0.0.0/0"]配合使用，该配置表示docker使用http协议访问任何镜像仓库位置
-
-
-
-
-
-
-
-
-
-# 12/21
-
-## 关于docker compose命令的路径要求
-
-![[_resources/linux笔记/f1a0a333246e3f12c0ece763cd038c3c_MD5.png]]
-
-在执行docker compose命令时要求当前目录下有docker-compose.yml这个文件，因为Docker Compose 需要一个 YAML 文件来定义服务、网络和卷等配置，这个文件通常以 docker-compose.yml 或 docker-compose.yaml 命名。
-
-
-
-
-
-
 
 ## 基于插入内核进程的直接生效流量转发
 
