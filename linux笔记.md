@@ -692,7 +692,7 @@ Linux内核支持两个功能，与容器技术的实现有关![[_resources/linu
 "[https://docker.rainbond.cc](https://docker.rainbond.cc)"
 
 
-## 关于docker命令补全问题
+## docker命令补全问题
 
 默认是无法补全的，但可以通过以下命令实现
 
@@ -733,7 +733,7 @@ Docker镜像都是只读的，当容器启动时，一个新的可写层被加�
 
 
 
-## 关于docker容器的五种网络模式及其解析
+## docker容器的五种网络模式及其解析
 
 ![[_resources/linux笔记/06fa053890ac3a042bc04e540bf4bba0_MD5.png]]
 
@@ -745,7 +745,7 @@ Docker镜像都是只读的，当容器启动时，一个新的可写层被加�
 
 ![[_resources/linux笔记/f26491c8e5c187be7a4f7af11b8ea515_MD5.png]]
 
-## 关于docker私有仓库在push时报错：需要使用https协议
+## docker私有仓库在push时报错：需要使用https协议
 如下图
 在daemon.json配置文件中"insecure-registries":是指采用http协议来进行镜像的上传与下载
 
@@ -754,7 +754,7 @@ Docker镜像都是只读的，当容器启动时，一个新的可写层被加�
 Registry仓库指定的挂载卷位置与端口：/var/lib/registry 5000
 
 
-## 关于容器部署mysql
+## 容器部署mysql
 
 可参考以下指令格式
 
@@ -773,14 +773,14 @@ docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/
 
 
 
-## 关于dockerfile命令解析
+## dockerfile命令解析
 
 ![[_resources/linux笔记/ac715b24bf24720805fd9d0f147f733a_MD5.png]]
 
 ![[_resources/linux笔记/8a27da6bfff71225f0dfa133b6b71859_MD5.png]]
 
 
-## 关于docker容器编排工具docker compose
+## docker容器编排工具docker compose
 
 Compose v2
 
@@ -795,7 +795,7 @@ Compose v2
 这两点存疑，可能是因为构建上下文或版本的问题，又或者是在没有指定文件名的情况下会遵循这个规则
 
 
-## 关于dockerfile构建上下文
+## dockerfile构建上下文
 
 编写dockerfile时在写宿主机文件路径时需要注意构建上下文问题，例
 
@@ -815,7 +815,7 @@ docker build -t tag:6 -f /path/Dockerfile .
 
 
 
-## 关于mariadb的容器化部署
+## mariadb的容器化部署
 
 mysql -uroot -proot -e "grant all privileges on _._ to root@'%' identified by 'root';"
 
@@ -842,7 +842,7 @@ nginx -g "daemon off;"
 
 
 
-## 关于Harbor仓库的私有仓库搭建
+## Harbor仓库的私有仓库搭建
 
 可以用注释相关配置实现免证书搭建
 如果没有申请证书，需要隐藏https
@@ -855,11 +855,44 @@ port: 443
 
 
 
-## 关于docker compose命令的路径要求
+## docker compose命令的路径要求
 
 ![[_resources/linux笔记/f1a0a333246e3f12c0ece763cd038c3c_MD5.png]]
 
 在执行docker compose命令时要求当前目录下有docker-compose.yml这个文件，因为Docker Compose 需要一个 YAML 文件来定义服务、网络和卷等配置，这个文件通常以 docker-compose.yml 或 docker-compose.yaml 命名。
+
+## Harbor
+
+Harbor介绍
+
+（一）Harbor镜像仓库简介
+
+Harbor是由VMware公司开源的企业级的Docker Registry管理项目，Harbor主要提供Dcoker Registry管理UI，提供的功能包括：基于角色访问的控制权限管理(RBAC)、AD/LDAP集成、日志审核、管理界面、自我注册、镜像复制和中文支持等。Harbor的目标是帮助用户迅速搭建一个企业级的Docker registry服务。它以Docker公司开源的registry为基础。
+
+Harbor除了提供友好的Web UI界面，角色和用户权限管理，用户操作审计等功能外，它还整合了K8s的插件(Add-ons)仓库，即Helm通过chart方式下载、管理、安装K8S插件，而chartmuseum可以提供存储chart数据的仓库。
+
+注:helm就相当于k8s的yum
+
+
+
+在23版本，docker-compose被插件化作为docker的一部分，也就是说在安装23及以后版本的docker时，也一并安装了docker-compose
+
+
+
+## docker/podman的挂载卷映射与selinux安全上下文
+如果在做挂载卷映射时没有给容器挂载目录打标签，就会被selinux拦截
+
+参考命令如下,要加个z
+podman run -d -v /hello:/fine:z centos:latest
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1008,6 +1041,20 @@ PS2：定义多行命令的提示符的格式。
 
 # 12/3
 # Kubernetes
+## K8s基础架构
+
+![[_resources/linux笔记/602080906e00f1d43df2af815e15f692_MD5.png]]
+
+
+
+
+## 关于k8s资源清单部分顶级字段
+
+![[_resources/linux笔记/b1716fecba8988e8d7a93c340ec2d52b_MD5.png]]
+
+![[_resources/linux笔记/1ba0145f8d5bc1f6702540c0979e5377_MD5.png]]
+
+
 
 ## 关于K8S的命名空间
 
@@ -1132,6 +1179,159 @@ source ~/.bashrc
 ![[_resources/linux笔记/b1265d27c6c54feb86ad6fc6dc4d1acc_MD5.png]]
 
 火狐浏览器的K8s网页乱码，用本地服务器的chrome浏览器解决了问题
+
+
+
+
+## kubeadm拉取镜像及初始化报错mageService" , error: exit status 1 To see the stack trace of this error execute with --v=5 or higher
+
+![[_resources/linux笔记/254071198a2abdf0a9d4a9a1dbedd729_MD5.png]]
+
+原因是containerd的配置文件写错了，在修改cgroup驱动时，将systemd_cgroup = false修改为了true，但实际上应该修改Systemd_cgroup = false为true，两者都存在于配置文件中，只是首字符大小写不一样，集群初始化也没再报错无法通信cri，但我没有执行crictl config runtime-point unix:///var/run/containerd/containerd.sock
+
+
+
+
+
+
+## k8s使用国内镜像源
+
+![[_resources/linux笔记/26a11ad2910c607d57cc46cc4d688773_MD5.png]]
+
+这里使用的是阿里云的镜像仓库
+
+
+
+
+
+## 半本地部署k8s-v1.25.9集群总结
+
+K8s镜像源在这里使用阿里云的镜像仓库，下一次使用harbor仓库实现本地拉取镜像，应该只是指定标签的问题，还有另一个更为简便的方法，就是用ctr创建一个命名空间名为k8s.io（ctr ns create k8s.io），再把需要的镜像导入进去（ctr -n k8s.io image import k8s/k8s-images.tar），由于镜像命名是aliyun的，所以在初始化时要指定阿里云镜像仓库（--image-repository [registry.aliyuncs.com/google_containers](https://www.google.com/search?q=https://registry.aliyuncs.com/google_containers)）离线包有harbor-offline-installer-v2.11.2.tgz k8s-1.25.9.tar.gz
+
+1. 基础环境配置
+    
+
+解压两个安装包，配置阿里云的基础源和docker源（docker是非必须，镜像管理的功能被ctr代替了，但harbor部署还需要它，而基础源可以用7.9镜像代替，都可以实现本地部署），k8s的包解压后的配置文件都拷贝到对应位置
+
+禁用防火墙和selinux，swap分区，配置流量转发，设置主机名映射，时间同步
+
+/////////////////////////////////////////////////////
+
+2.部署k8s
+
+安装docker并修改cgroup驱动（docker理论上是非必须的，因为k8s在1.24就取消了docker作为容器运行时）,安装containerd和k8s三组件，生成containerd默认配置文件，修改沙盒指定版本，修改cgroup驱动（注:修改的是System开头的，注意首字母是否大写，且两者的位置也不一样)，设置cri，重启containerd和kubelet，至此的步骤两个节点都需要执行
+
+然后在master节点开始初始化k8s集群，为节省部署时间，可以先拉取镜像kubeadm config images pull --kubernetes-version 1.25.9 --image-repository [registry.cn-hangzhou.aliyuncs.com/google_containers](https://www.google.com/search?q=https://registry.cn-hangzhou.aliyuncs.com/google_containers)，初始化完成后部署flannle网络，并在node节点执行加入命令，最后用kubectl get nodes 检查集群状态,后续的图形化部署由于是非必须所以暂时不指定
+
+K8s初始化时会在命名空间中搜索是否有需要的本地镜像，找不到再去外网寻找，所以在k8s使用本地镜像时需要将镜像用ctr导入到命名空间中，因此猜想k8s从外网拉取镜像时也是先拉到命名空间中再使用的，而使用的镜像包可以用docker commit生成，ctr暂时不知道是使用什么命令生成
+
+kubeadm config images list
+
+使用这条命令可以查看初始化需要的镜像，然后也可以通过改标签的方式让k8s以为本地的镜像是官方镜像
+
+kubeadm config images list --config kubeadm.conf查看初始化所需镜像
+
+
+
+## 关于使用kubectl命令行创建网络报错8080端口或许被占用
+
+![[_resources/linux笔记/77c7f534c0997bf20d15cb3d7a24a0bc_MD5.png]]
+
+可能的原因是在完成集群初始化后没有将k8s的配置文件admin.conf拷贝到当前用户家目录下并更名为config，因为k8s要读取该配置文件
+
+
+
+
+## 关于k8s的coredns一直处于创建中的状态
+
+![[_resources/linux笔记/2bc2cf73efbe037270af208e41a03b20_MD5.png]]
+
+使用kubectl describe pod coredns-c676cc86f-hfp7q -n kube-system查看详细信息发现缺少对应文件/run/flannel/subnet.env文件(该文件一般是自动生成的）
+
+![[_resources/linux笔记/4af6d086348e0af5fe643310f1844485_MD5.png]]
+
+于是手动创建一个，配置如下
+
+![[_resources/linux笔记/5f193d69cfb466b4150dd3ce2279131c_MD5.png]]
+
+对应的集群初始化时指定的参数--pod-network-cidr 192.168.0.0/16
+
+再次查看pod状态
+
+![[_resources/linux笔记/688a26357a93a290dd6929cce72bfbe0_MD5.png]]
+
+成功运行
+
+
+
+
+## containerd与docker
+containerd 相比于docker , 多了namespace概念, 每个image和container 都会在各自的namespace下可见, 目前k8s会使用k8s.io 作为命名空间,因此在使用ctr命令时一般要使用-n参数指定命名空间
+
+![[_resources/linux笔记/f2789c5a4edcd83ff6976d3bb2efef22_MD5.png]]
+
+
+
+
+## 关于flannel的运行状态
+
+日志信息原图找不回了，大概意思是某个ip加端口ping不通，发现是防火墙没关
+
+而后又有新的报错
+
+![[_resources/linux笔记/9fb0923404b84d4ce394295521861ed6_MD5.png]]
+
+经Al解析得知是因为找不到名为eth0的接口，因为本地的网卡名为ens33，在kube-flannel.yml配置文件中将iface=eth0参数修改为iface=ens33（不修改的话也可以仿openstack搭建前在虚拟机开机时添加参数net.ifnames=0 devbiosname=0,将网卡设置为eth0），且该配置文件中的另一个参数Network要指定为集群初始化时--pod-network-cidr的参数
+
+而后kubeadm reset
+
+再重启配置flannel网络
+
+至此成功搭建了一个完整可用的k8s集群
+
+![[_resources/linux笔记/11c6ee141827d60d80dcb69fe6d3485c_MD5.png]]
+
+![[_resources/linux笔记/dce208538ddc7ad50aca9a7b05cd167a_MD5.png]]
+
+
+
+
+
+
+
+## k8s本地部署总结
+
+Docker-ce和docker-compose，containerd的安装，Harbor仓库的部署，k8s的搭建，黑体为两个节点都需要配置，红体为master节点，蓝体为node节点所需配置
+
+基础环境的配置
+
+//////////////////////////////////////////////////////////////////
+
+防火墙，selinux，swap分区禁用，基础yum源和docker源的配置，设置主机名映射，配置时间同步，开启路由转发和ipvs所需模块的加载（因为flannel需要调用这些内核模块），安装docker，containerd等，修改docker的cgroup驱动为systemd，配置docker镜像拉取使用协议支持http，修改containerd的沙盒为指定的镜像，启用Systemd作为cgroup驱动
+
+Harbor仓库的搭建
+
+/////////////////////////////////////////////////////////
+
+修改harbor仓库的配置文件，建议端口修改为5000，禁用https协议，做好后用prepare脚本检查，而后使用安装脚本部署Harbor仓库
+
+K8s集群初始化
+
+/////////////////////////////////////////////////////////////
+
+用ctr导入k8s初始化所需镜像到k8s.io命名空间中，而后开始集群的初始化，因为给出的镜像是打了aliyun网址的标签，[所以要指定镜像拉取网址为registry.aliyuncs.com/google_containerd](https://www.google.com/search?q=https://%E6%89%80%E4%BB%A5%E8%A6%81%E6%8C%87%E5%AE%9A%E9%95%9C%E5%83%8F%E6%8B%89%E5%8F%96%E7%BD%91%E5%9D%80%E4%B8%BAregistry.aliyuncs.com/google_containerd) ,即使这个网址不可用，初始化完成后在当前用户家目录下创建.kube目录，并将k8s的配置文件admin.conf移动到该目录更名为conf，而后node节点加入集群，修改kube-flannel.yml配置文件，修改Network的参数为初始化时--pod-network-cidr所指定的参数，还要修改iface的参数为本地的网卡名，由于本地主机只有一张名为ens33的网卡，则将默认的eth0修改为ens33，/run/flannel/subnet.env文件有时不会自动生成（操作顺序正确的话，该文件是会自动生成的），没有的话要手动编写一个，配置参考如下
+
+![[_resources/linux笔记/5f193d69cfb466b4150dd3ce2279131c_MD5.png]]
+
+该配置也是和--pod-network-cidr所指定的参数相对应的
+
+而后部署flannel并检查pod状态
+
+
+
+
+
+
 
 
 
@@ -1371,26 +1571,6 @@ modprobe br_netfilter
 
 # 12/12
 
-## 关于Harbor
-
-Harbor介绍
-
-（一）Harbor镜像仓库简介
-
-Harbor是由VMware公司开源的企业级的Docker Registry管理项目，Harbor主要提供Dcoker Registry管理UI，提供的功能包括：基于角色访问的控制权限管理(RBAC)、AD/LDAP集成、日志审核、管理界面、自我注册、镜像复制和中文支持等。Harbor的目标是帮助用户迅速搭建一个企业级的Docker registry服务。它以Docker公司开源的registry为基础。
-
-Harbor除了提供友好的Web UI界面，角色和用户权限管理，用户操作审计等功能外，它还整合了K8s的插件(Add-ons)仓库，即Helm通过chart方式下载、管理、安装K8S插件，而chartmuseum可以提供存储chart数据的仓库。
-
-注:helm就相当于k8s的yum
-
-
-
-在23版本，docker-compose被插件化作为docker的一部分，也就是说在安装23及以后版本的docker时，也一并安装了docker-compose
-
-
-
-
-
 
 ## 关于yum本地安装
 
@@ -1480,166 +1660,6 @@ sysctl -p
 
 
 
-
-
-
-# 12/22
-
-## 关于kubeadm拉取镜像及初始化报错mageService" , error: exit status 1 To see the stack trace of this error execute with --v=5 or higher
-
-![[_resources/linux笔记/254071198a2abdf0a9d4a9a1dbedd729_MD5.png]]
-
-原因是containerd的配置文件写错了，在修改cgroup驱动时，将systemd_cgroup = false修改为了true，但实际上应该修改Systemd_cgroup = false为true，两者都存在于配置文件中，只是首字符大小写不一样，集群初始化也没再报错无法通信cri，但我没有执行crictl config runtime-point unix:///var/run/containerd/containerd.sock
-
-
-
-
-
-
-## 关于k8s使用国内镜像源
-
-![[_resources/linux笔记/26a11ad2910c607d57cc46cc4d688773_MD5.png]]
-
-这里使用的是阿里云的镜像仓库
-
-
-
-
-
-## 半本地部署k8s-v1.25.9集群总结
-
-K8s镜像源在这里使用阿里云的镜像仓库，下一次使用harbor仓库实现本地拉取镜像，应该只是指定标签的问题，还有另一个更为简便的方法，就是用ctr创建一个命名空间名为k8s.io（ctr ns create k8s.io），再把需要的镜像导入进去（ctr -n k8s.io image import k8s/k8s-images.tar），由于镜像命名是aliyun的，所以在初始化时要指定阿里云镜像仓库（--image-repository [registry.aliyuncs.com/google_containers](https://www.google.com/search?q=https://registry.aliyuncs.com/google_containers)）离线包有harbor-offline-installer-v2.11.2.tgz k8s-1.25.9.tar.gz
-
-1. 基础环境配置
-    
-
-解压两个安装包，配置阿里云的基础源和docker源（docker是非必须，镜像管理的功能被ctr代替了，但harbor部署还需要它，而基础源可以用7.9镜像代替，都可以实现本地部署），k8s的包解压后的配置文件都拷贝到对应位置
-
-禁用防火墙和selinux，swap分区，配置流量转发，设置主机名映射，时间同步
-
-/////////////////////////////////////////////////////
-
-2.部署k8s
-
-安装docker并修改cgroup驱动（docker理论上是非必须的，因为k8s在1.24就取消了docker作为容器运行时）,安装containerd和k8s三组件，生成containerd默认配置文件，修改沙盒指定版本，修改cgroup驱动（注:修改的是System开头的，注意首字母是否大写，且两者的位置也不一样)，设置cri，重启containerd和kubelet，至此的步骤两个节点都需要执行
-
-然后在master节点开始初始化k8s集群，为节省部署时间，可以先拉取镜像kubeadm config images pull --kubernetes-version 1.25.9 --image-repository [registry.cn-hangzhou.aliyuncs.com/google_containers](https://www.google.com/search?q=https://registry.cn-hangzhou.aliyuncs.com/google_containers)，初始化完成后部署flannle网络，并在node节点执行加入命令，最后用kubectl get nodes 检查集群状态,后续的图形化部署由于是非必须所以暂时不指定
-
-K8s初始化时会在命名空间中搜索是否有需要的本地镜像，找不到再去外网寻找，所以在k8s使用本地镜像时需要将镜像用ctr导入到命名空间中，因此猜想k8s从外网拉取镜像时也是先拉到命名空间中再使用的，而使用的镜像包可以用docker commit生成，ctr暂时不知道是使用什么命令生成
-
-kubeadm config images list
-
-使用这条命令可以查看初始化需要的镜像，然后也可以通过改标签的方式让k8s以为本地的镜像是官方镜像
-
-kubeadm config images list --config kubeadm.conf查看初始化所需镜像
-
-
-
-
-
-# 12/23
-
-containerd 相比于docker , 多了namespace概念, 每个image和container 都会在各自的namespace下可见, 目前k8s会使用k8s.io 作为命名空间,因此在使用ctr命令时一般要使用-n参数指定命名空间
-
-![[_resources/linux笔记/f2789c5a4edcd83ff6976d3bb2efef22_MD5.png]]
-
-
-
-## 关于使用kubectl命令行创建网络报错8080端口或许被占用
-
-![[_resources/linux笔记/77c7f534c0997bf20d15cb3d7a24a0bc_MD5.png]]
-
-可能的原因是在完成集群初始化后没有将k8s的配置文件admin.conf拷贝到当前用户家目录下并更名为config，因为k8s要读取该配置文件
-
-
-
-
-## 关于k8s的coredns一直处于创建中的状态
-
-![[_resources/linux笔记/2bc2cf73efbe037270af208e41a03b20_MD5.png]]
-
-使用kubectl describe pod coredns-c676cc86f-hfp7q -n kube-system查看详细信息发现缺少对应文件/run/flannel/subnet.env文件(该文件一般是自动生成的）
-
-![[_resources/linux笔记/4af6d086348e0af5fe643310f1844485_MD5.png]]
-
-于是手动创建一个，配置如下
-
-![[_resources/linux笔记/5f193d69cfb466b4150dd3ce2279131c_MD5.png]]
-
-对应的集群初始化时指定的参数--pod-network-cidr 192.168.0.0/16
-
-再次查看pod状态
-
-![[_resources/linux笔记/688a26357a93a290dd6929cce72bfbe0_MD5.png]]
-
-成功运行
-
-
-
-
-
-## 关于flannel的运行状态
-
-日志信息原图找不回了，大概意思是某个ip加端口ping不通，发现是防火墙没关
-
-而后又有新的报错
-
-![[_resources/linux笔记/9fb0923404b84d4ce394295521861ed6_MD5.png]]
-
-经Al解析得知是因为找不到名为eth0的接口，因为本地的网卡名为ens33，在kube-flannel.yml配置文件中将iface=eth0参数修改为iface=ens33（不修改的话也可以仿openstack搭建前在虚拟机开机时添加参数net.ifnames=0 devbiosname=0,将网卡设置为eth0），且该配置文件中的另一个参数Network要指定为集群初始化时--pod-network-cidr的参数
-
-而后kubeadm reset
-
-再重启配置flannel网络
-
-至此成功搭建了一个完整可用的k8s集群
-
-![[_resources/linux笔记/11c6ee141827d60d80dcb69fe6d3485c_MD5.png]]
-
-![[_resources/linux笔记/dce208538ddc7ad50aca9a7b05cd167a_MD5.png]]
-
-
-
-
-
-
-
-## k8s本地部署总结
-
-Docker-ce和docker-compose，containerd的安装，Harbor仓库的部署，k8s的搭建，黑体为两个节点都需要配置，红体为master节点，蓝体为node节点所需配置
-
-基础环境的配置
-
-//////////////////////////////////////////////////////////////////
-
-防火墙，selinux，swap分区禁用，基础yum源和docker源的配置，设置主机名映射，配置时间同步，开启路由转发和ipvs所需模块的加载（因为flannel需要调用这些内核模块），安装docker，containerd等，修改docker的cgroup驱动为systemd，配置docker镜像拉取使用协议支持http，修改containerd的沙盒为指定的镜像，启用Systemd作为cgroup驱动
-
-Harbor仓库的搭建
-
-/////////////////////////////////////////////////////////
-
-修改harbor仓库的配置文件，建议端口修改为5000，禁用https协议，做好后用prepare脚本检查，而后使用安装脚本部署Harbor仓库
-
-K8s集群初始化
-
-/////////////////////////////////////////////////////////////
-
-用ctr导入k8s初始化所需镜像到k8s.io命名空间中，而后开始集群的初始化，因为给出的镜像是打了aliyun网址的标签，[所以要指定镜像拉取网址为registry.aliyuncs.com/google_containerd](https://www.google.com/search?q=https://%E6%89%80%E4%BB%A5%E8%A6%81%E6%8C%87%E5%AE%9A%E9%95%9C%E5%83%8F%E6%8B%89%E5%8F%96%E7%BD%91%E5%9D%80%E4%B8%BAregistry.aliyuncs.com/google_containerd) ,即使这个网址不可用，初始化完成后在当前用户家目录下创建.kube目录，并将k8s的配置文件admin.conf移动到该目录更名为conf，而后node节点加入集群，修改kube-flannel.yml配置文件，修改Network的参数为初始化时--pod-network-cidr所指定的参数，还要修改iface的参数为本地的网卡名，由于本地主机只有一张名为ens33的网卡，则将默认的eth0修改为ens33，/run/flannel/subnet.env文件有时不会自动生成（操作顺序正确的话，该文件是会自动生成的），没有的话要手动编写一个，配置参考如下
-
-![[_resources/linux笔记/5f193d69cfb466b4150dd3ce2279131c_MD5.png]]
-
-该配置也是和--pod-network-cidr所指定的参数相对应的
-
-而后部署flannel并检查pod状态
-
-
-
-
-
-
-
-
-
 # 12/28
 ## 关于 redis的配置文件部分参数
 
@@ -1663,34 +1683,6 @@ find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’�
 
 
 # 12/29
-
-## K8s基础架构
-
-![[_resources/linux笔记/602080906e00f1d43df2af815e15f692_MD5.png]]
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 1/5
-
-## 关于k8s资源清单部分顶级字段
-
-![[_resources/linux笔记/b1716fecba8988e8d7a93c340ec2d52b_MD5.png]]
-
-![[_resources/linux笔记/1ba0145f8d5bc1f6702540c0979e5377_MD5.png]]
-
-
-
-
 
 
 ## 关于&和&&的使用
@@ -2454,23 +2446,6 @@ nihaoa
 
 
 
-## 关于docker/podman的挂载卷映射与selinux安全上下文
-如果在做挂载卷映射时没有给容器挂载目录打标签，就会被selinux拦截
-
-参考命令如下,要加个z
-podman run -d -v /hello:/fine:z centos:latest
-
-
-
-
-
-
-
-
-
-
-
-
 
 # 7/14
 
@@ -2848,8 +2823,9 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 
 
 
-# 7/17
 
+# Ansible
+## 7/17
 ## Ansible 的主要组件
 
 控制节点（Control Node）： Ansible 的运行所在的机器。控制节点发出指令，通过 SSH 连接到目标主机执行任务。
@@ -2912,11 +2888,6 @@ python3 -m pipx ensurepath
 
 
 
-
-
-
-# 7/18
-
 ## ansible 模块
 ansible-doc -l
 
@@ -2932,30 +2903,6 @@ setup 模块 在 剧本执行前,ansible 会自动调用 setup 模块采集目�
 比 ansible-doc 更完善
 
 
-
-
-
-
-
-
-
-
-
-
-
-# 7/21
-## （！待补充）命名空间实践
-在主机 server 上打开两个 ssh 连接操作
-
-
-
-
-
-
-
-
-
-# 7/23
 ## ansible-playbook 中 loop 的使用
 在重复的，仅操作对象不同的任务中，可以使用 loop 简化，loop 的缩进层级和模块同一级
 
@@ -3177,13 +3124,6 @@ node5                      : ok=2    changed=1    unreachable=0    failed=0    s
 
 
 
-
-
-
-
-
-# 7/24
-
 ## ansible 的集合（Collection）
 
 定位：Ansible 的功能单元包（模块/角色/插件等的容器） 命名格式：<命名空间>.<集合名>
@@ -3344,9 +3284,6 @@ files/       meta/        tasks/       tests/       vars/
 
 
 
-
-
-# 7/25
 ## block和rescue、always联合使用
 block中的任务都成功，rescue中的任务不执行
 block中的任务出现失败（failed），rescue中的任务执行block中的任务不管怎么样，always中的任务总是执行
@@ -3436,6 +3373,20 @@ Please review the log for errors.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# 7/21
+## （！待补充）命名空间实践
+在主机 server 上打开两个 ssh 连接操作
 
 
 
@@ -3566,6 +3517,84 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 [root@localhost ~]# 
 ```
 
+
+
+
+
+
+## Mysql 密码插件报错：未加载
+```plsql
+mysql> alter user  zabbix@localhost identified with mysql_native_password by 'Zabbix@123';
+ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded
+```
+
+MySQL 8.4(截至 2024 年的最新 LTS 版本)中引入的一个主要变化是，默认情况下不再启用 “MySQL Native Password” 插件。
+
+此更改会影响使用 MySQL 数据库和 mysql_native_password 身份验证插件的 PHP 和其他应用。由于默认情况下不再加载 mysql_native_password 插件，因此导致 PHP PDO/MySQLi 连接失败。
+
+当尝试使用不再加载的 mysql_native_password 插件连接到数据库时，PDO/MySQLi 抛出 MySQL 返回的错误
+
+解决方案：重新启用mysql_native_password
+
+在 mysql 配置文件的 [mysqld] 下面添加如下配置，配置文件的位置参考我使用的 orcle_linux8.6，路径是/etc/my.cnf
+
+```plain
+# Enable mysql_native_password plugin
+[mysqld]
+mysql_native_password=ON
+```
+
+重启 mysqld 后生效
+
+
+
+
+
+
+
+
+
+
+# Zabbix
+## 8/8
+## Zabbix 基础架构
+![[_resources/linux笔记/aec1d7088e442a64778f46e3a8b338a2_MD5.png]]
+
+代理端是可选项
+
+zabbix-agent 以进程的形式运行在主机的 10050 端口 
+
+
+基础架构组件介绍
+
+Zabbix Server
+是 Zabbix 的核心组件，其功能为将 Agent 采集到的数据持久化 存储到数据库里。
+
+数据库存储
+存储所有由 Agent 采集到的数据，Zabbix 支持多种数据存储，例如: Mysql,Oracle,PostgreSQL,Elasticsearch 等。
+
+Web 界面
+Zabbix 提供了友好的 Web 界面方便我们操作，Web 界面的运行环境可以是 Nginx+PHP或者Apache+PHP服务组成。Web界面也是ZabbixServer的一部分。
+
+Proxy 代理端 
+对于分布式环境，Zabbix 也提供了代理的方案，可以代替 Zabbie Server 收集 多个 Agent 的数据，然后在将收集到的数据汇总到 Zabbix Server，Proxy 可以 起到分担 Zabbix Server 负载的作用。
+
+Agent 客户端
+Zabbix Agent 被部署在需要监控主机上，用于采集监控数据并发送到 Zabbix Server 端。
+
+Server 服务端
+
+Zabbix Server 是 C 语言开发的 Zabbix 服务端，有着 强悍的采集和计算性能，而且资源使用率很低。主要的功能如下：
+
+定时读取 Zabbix 数据库，同步 Zabbix UI 配置的信息到缓存，下发到 Zabbix Agent 或者 Zabbix Proxy。
+
+关于这俩不同的采集进程，可以通过(ps -ef|grep zabbix 查看进程列表)
+
+对于被动采集（主动和被动是从设备侧角度来看的）, Zabbix Server 会有专门的 Poller 线程去采集数据，可以定义特定的时间区间或者特定的频率。
+
+对于主动采集，就是Agent或者设备主动上报数据，Zabbix Server 也会有专门的 Trapper 线程来接收数据，时间间隔或者频率取决于设备侧或者Agent上报配置。
+
+接收到的历史数据（来自于 Agent、Proxy、设备侧），Zabbix Server 会缓存下来，进行告警表达式计算，进行动作触发，最终会同步到数据库的历史记录表，history开头的表。
 
 
 
@@ -3816,82 +3845,6 @@ Query OK, 0 rows affected (0.01 sec)
 至此配置完成
 
 
-
-
-
-
-
-## Mysql 密码插件报错：未加载
-```plsql
-mysql> alter user  zabbix@localhost identified with mysql_native_password by 'Zabbix@123';
-ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded
-```
-
-MySQL 8.4(截至 2024 年的最新 LTS 版本)中引入的一个主要变化是，默认情况下不再启用 “MySQL Native Password” 插件。
-
-此更改会影响使用 MySQL 数据库和 mysql_native_password 身份验证插件的 PHP 和其他应用。由于默认情况下不再加载 mysql_native_password 插件，因此导致 PHP PDO/MySQLi 连接失败。
-
-当尝试使用不再加载的 mysql_native_password 插件连接到数据库时，PDO/MySQLi 抛出 MySQL 返回的错误
-
-解决方案：重新启用mysql_native_password
-
-在 mysql 配置文件的 [mysqld] 下面添加如下配置，配置文件的位置参考我使用的 orcle_linux8.6，路径是/etc/my.cnf
-
-```plain
-# Enable mysql_native_password plugin
-[mysqld]
-mysql_native_password=ON
-```
-
-重启 mysqld 后生效
-
-
-
-
-
-
-
-
-
-# 8/8
-## Zabbix 基础架构
-![[_resources/linux笔记/aec1d7088e442a64778f46e3a8b338a2_MD5.png]]
-
-代理端是可选项
-
-zabbix-agent 以进程的形式运行在主机的 10050 端口 
-
-
-
-### 基础架构组件介绍
-Zabbix Server
-是 Zabbix 的核心组件，其功能为将 Agent 采集到的数据持久化 存储到数据库里。
-
-数据库存储
-存储所有由 Agent 采集到的数据，Zabbix 支持多种数据存储，例如: Mysql,Oracle,PostgreSQL,Elasticsearch 等。
-
-Web 界面
-Zabbix 提供了友好的 Web 界面方便我们操作，Web 界面的运行环境可以是 Nginx+PHP或者Apache+PHP服务组成。Web界面也是ZabbixServer的一部分。
-
-Proxy 代理端 
-对于分布式环境，Zabbix 也提供了代理的方案，可以代替 Zabbie Server 收集 多个 Agent 的数据，然后在将收集到的数据汇总到 Zabbix Server，Proxy 可以 起到分担 Zabbix Server 负载的作用。
-
-Agent 客户端
-Zabbix Agent 被部署在需要监控主机上，用于采集监控数据并发送到 Zabbix Server 端。
-
-Server 服务端
-
-Zabbix Server 是 C 语言开发的 Zabbix 服务端，有着 强悍的采集和计算性能，而且资源使用率很低。主要的功能如下：
-
-定时读取 Zabbix 数据库，同步 Zabbix UI 配置的信息到缓存，下发到 Zabbix Agent 或者 Zabbix Proxy。
-
-关于这俩不同的采集进程，可以通过(ps -ef|grep zabbix 查看进程列表)
-
-对于被动采集（主动和被动是从设备侧角度来看的）, Zabbix Server 会有专门的 Poller 线程去采集数据，可以定义特定的时间区间或者特定的频率。
-
-对于主动采集，就是Agent或者设备主动上报数据，Zabbix Server 也会有专门的 Trapper 线程来接收数据，时间间隔或者频率取决于设备侧或者Agent上报配置。
-
-接收到的历史数据（来自于 Agent、Proxy、设备侧），Zabbix Server 会缓存下来，进行告警表达式计算，进行动作触发，最终会同步到数据库的历史记录表，history开头的表。
 
 
 
