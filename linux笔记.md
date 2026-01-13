@@ -3,7 +3,7 @@
 
 # linux基础知识
 
-## 查看函数库依赖
+## ldd命令
 
 不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
 
@@ -16,13 +16,6 @@
 ![[_resources/linux笔记/87727257087262a186f7eebb6995744f_MD5.png]]
 
 
-## 关于命令别名的设置
-以docker为例
-![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
-
-
-
-
 ## sed命令
 
 -i参数：
@@ -33,6 +26,242 @@ sed命令对文件内容的增删改查都是在内存空间中进行的，并�
 
 由于sed命令的默认机制，即使某行文本未被匹配，也会被打印到终端上，因此在不想显示不匹配文本内容时，需要-n参数来取消sed命令的默认输出
 
+
+
+
+
+## awk命令
+
+awk常见的内建变量：
+
+FS：列分割符。指定每行文本的字段分隔符，默认为空格或制表位。与"-F"作用相同
+
+NF：当前处理的行的字段个数。
+
+NR：当前处理的行的行号（序数）。
+
+$0：当前处理的行的整行内容。
+
+$n：当前处理行的第n个字段（第n列）。
+
+FILENAME：被处理的文件名。
+
+RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取的资料切割成许多条记录,而awk一次仅读入一条记录,以进行处理。预设值是’\n’
+
+在使用awk命令的过程中,可以使用逻辑操作符“&&”表示“与”、“||”表示“或”、“!”表示“非”；还可以进行简单的数学运算，如+、-、*、/、%、^分别表示加、减、乘、除、取余和乘方
+
+[root@master ~]# awk '(NR%2)=0 {print}' test.txt 打印所有偶数行
+
+第二行
+
+第四行
+
+也可以使用正则表达式
+
+![[_resources/linux笔记/01d58b0c95d05afd4079b03dd508cc4e_MD5.png]]
+
+其他的内建变量的使用示例
+
+![[_resources/linux笔记/77fd632d9cffa87c49ac40ffdbb3825a_MD5.png]]
+
+该命令用于统计以字符 ‘行’ 结尾的行数量
+
+在这里将x初始化后统计以字符 ‘行’结尾的行，检测到目标字符后使x自增，最后打印x的值
+
+注意：BEGIN模式表示，在处理指定的文本之前，需要先执行BEGIN模式中指定的动作；awk再处理指定的文本，之后再执行END模式中指定的动作，END{}语句块中，往往会放入打印结果等语句
+
+等同于 grep -c "/bin/bash$" /etc/passwd
+
+-F参数的使用
+
+![[_resources/linux笔记/13d1232062bae2b5368670376d4444ee_MD5.png]]
+
+该命令筛选出了该文件的所有行的第一列，而区分列的规范由” ”里的内容指定，在这里是以:起作分隔不同行的作用,{}里面可以指定一行的多个列，用 , 分隔开
+
+当字段为数字时，也可以用数学运算符起到筛选的作用
+
+例如/etc/passwork在以:作为分隔符时，第三个字段是数字，这里就可以做筛选
+
+![[_resources/linux笔记/f10da89e0b07e0eda8c4d28b216cd874_MD5.png]]
+
+在这里筛选出了第三个字段小于10的字符串（给$3<10打个括号更美观一些）
+
+awk -F ":" '!($3<200){print}' /etc/passwd #输出第3个字段的值不小于200的行
+
+/////////////////////////////////////////////////////////////////////////////////
+
+![[_resources/linux笔记/980aab50b5441793b7c27a3d46a2ea57_MD5.png]]
+
+报错原因：这个镜像是坏的
+
+斗学网容器云赛卷实验的chinaskills_cloud_iaas.iso文件是坏的，从服务器的linux主机上拷贝了一个正常镜像给云主机,但该镜像缺少kubeeasy的可执行命令文件
+
+![[_resources/linux笔记/2db0fb5f00d481e8383307df88bbd46f_MD5.png]]
+
+
+
+
+
+## find命令
+-name
+指定名字，精确查询，也可以使用通配符和正则进行模糊查询
+
+和-i一起使用组成-iname可忽略大小写
+
+ -type
+指定搜索的文件类型，普通文件f,目录文件d,软连接l
+
+
+ -perm
+根据权限搜索(数字表示法)
+
+查找特殊权限时，例如sgid权限，可以通过-perm -2000查找
+
+也可以通过字符表示-perm -g+s
+
+
+ -user
+根据文件所有者搜索
+
+
+-group
+根据文件的组所有者搜索
+
+
+-size
+根据文件大小查找
+
++xxM  查找大于xxM的文件
+
+-xxM   查找小于xx
+
+
+-mtime
+根据修改时间查找文件
+
++7表示  找出7天之前的文件(修改时间是7天之前)
+
+-7表示  最近7天内的文件
+
+
+找出/etc/目录下以.conf结尾的，7天之前的文件
+
+find /etc/ -type f -name "*.conf" -mtime +7
+
+
+ -exec
+表示find找出文件后要执行的命令
+
+find /oldboy/find/ -type f -name '*.txt' -exec ls -lh {} \;
+
+{} 表示前面find命令找出的文件,作占位符使用
+
+\;是该选项的固定格式,表示命令结束
+
+
+
+## chattr 命令
+写这个是因为有个 b 把我搭的网站给黑了，还给他的 ssh 密钥设置了 chattr 属性留了后门，这种东西，普通云服务的查杀功能是不起作用的，只能是自己找然后去除属性后删除，不过也怪我图方便，懒得登录网站进控制台，想直接打开终端 ssh 上去，所以公网开放了 22 端口
+
+Linux chattr 命令用于改变文件或目录的属性，这些属性可以控制文件系统的行为，提供更高级的文件管理功能。
+
+语法: chattr [选项] [+/-/=属性] 文件或目录
+
+常用选项
+-R: 递归处理目录及其子目录
+-V: 显示详细信息
+-v: 显示版本信息
+
+属性模式
++: 添加属性
+-: 移除属性
+= : 设置为指定属性
+
+```
+常用属性
+a     仅追加：文件只能追加内容，不能删除或修改已有内容（需 root 权限）。
+i     不可变：文件不能被删除、修改、重命名或创建硬链接（需 root 权限）。
+A     不更新文件的最后访问时间（atime）。
+c     文件在磁盘上自动压缩（部分文件系统支持）。
+s     安全删除：文件被删除时，其数据会被清零（不可恢复）。
+u     文件被删除后，其内容仍可恢复（与 s 相反）。
+d     文件在 dump 备份时会被跳过。
+```
+
+
+
+## tee命令
+在处理输入输出流时功能类似T型管
+
+一方面它会通过标准输入读取
+
+另一方面它会将标准输入重定向到指定文件(默认是覆盖重定向，加-a选项是追加重定向)
+
+在这个过程中间，它还会将标准输入输出到标准输出(一般是当前shell)
+
+
+
+
+
+
+## tar命令
+tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数实现
+后缀是.tar
+```
+-c 创建新包
+-v 显示过程
+-f 指定待处理文件，该参数要放到最后
+-x 提取文件
+-z 使用gzip过滤(使用该参数可以通过gzip实现压缩文件的创建和解压缩，格式是gzip,后缀加.gz)
+-j, 通过 bzip2 过滤归档(同上,压缩文件格式是bzip2，后缀加.bz2)
+-J 通过xz过滤归档(同上,后缀加.xz)
+ -C 指定解压位置
+```
+
+
+
+## yum命令
+
+yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，像ftp，http，file一样；关于yum为什么能解决依赖关系：所有的Yum 源里面都有repodata，它里面是有XML格式文件, 用于储存元数据，记录软件包之间的依赖关系。
+
+yum install --downloadonly --downloaddir=/xx/xxx/xx/
+只下载软件但不安装
+有时候需要将高版本的依赖降级到低版本，降级命令如下
+yum downgrade <package_name> 
+降级，对于有依赖的，yum不会自动降级，需要手动降级依赖项
+
+
+### yum本地安装
+`yum -y localinstall`
+后面跟rpm安装包名，例：
+`yum -y localinstall dir/*.rpm`
+指定安装了该文件夹下所有的rpm包
+
+
+### yum 查找指定命令的所在软件包
+以查找 zcat 命令的软件包为例
+
+```bash
+[root@localhost ~]# yum provides zcat
+上次元数据过期检查：0:12:24 前，执行于 2025年08月07日 星期四 16时09分17秒。
+gzip-1.12-1.el9.x86_64 : The GNU data compression program
+仓库        ：@System
+匹配来源：
+文件名    ：/usr/bin/zcat
+提供    : /bin/zcat
+
+gzip-1.12-1.el9.x86_64 : The GNU data compression program
+仓库        ：baseos
+匹配来源：
+文件名    ：/usr/bin/zcat
+提供    : /bin/zcat
+```
+
+
+
+## 关于命令别名的设置
+以docker为例
+![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
 
 
 
@@ -118,78 +347,6 @@ PS2：定义多行命令的提示符的格式。
 进程树pstree命令的安装包是psmisc
 
 
-## awk命令
-
-awk常见的内建变量：
-
-FS：列分割符。指定每行文本的字段分隔符，默认为空格或制表位。与"-F"作用相同
-
-NF：当前处理的行的字段个数。
-
-NR：当前处理的行的行号（序数）。
-
-$0：当前处理的行的整行内容。
-
-$n：当前处理行的第n个字段（第n列）。
-
-FILENAME：被处理的文件名。
-
-RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取的资料切割成许多条记录,而awk一次仅读入一条记录,以进行处理。预设值是’\n’
-
-在使用awk命令的过程中,可以使用逻辑操作符“&&”表示“与”、“||”表示“或”、“!”表示“非”；还可以进行简单的数学运算，如+、-、*、/、%、^分别表示加、减、乘、除、取余和乘方
-
-[root@master ~]# awk '(NR%2)=0 {print}' test.txt 打印所有偶数行
-
-第二行
-
-第四行
-
-也可以使用正则表达式
-
-![[_resources/linux笔记/01d58b0c95d05afd4079b03dd508cc4e_MD5.png]]
-
-其他的内建变量的使用示例
-
-![[_resources/linux笔记/77fd632d9cffa87c49ac40ffdbb3825a_MD5.png]]
-
-该命令用于统计以字符 ‘行’ 结尾的行数量
-
-在这里将x初始化后统计以字符 ‘行’结尾的行，检测到目标字符后使x自增，最后打印x的值
-
-注意：BEGIN模式表示，在处理指定的文本之前，需要先执行BEGIN模式中指定的动作；awk再处理指定的文本，之后再执行END模式中指定的动作，END{}语句块中，往往会放入打印结果等语句
-
-等同于 grep -c "/bin/bash$" /etc/passwd
-
--F参数的使用
-
-![[_resources/linux笔记/13d1232062bae2b5368670376d4444ee_MD5.png]]
-
-该命令筛选出了该文件的所有行的第一列，而区分列的规范由” ”里的内容指定，在这里是以:起作分隔不同行的作用,{}里面可以指定一行的多个列，用 , 分隔开
-
-当字段为数字时，也可以用数学运算符起到筛选的作用
-
-例如/etc/passwork在以:作为分隔符时，第三个字段是数字，这里就可以做筛选
-
-![[_resources/linux笔记/f10da89e0b07e0eda8c4d28b216cd874_MD5.png]]
-
-在这里筛选出了第三个字段小于10的字符串（给$3<10打个括号更美观一些）
-
-awk -F ":" '!($3<200){print}' /etc/passwd #输出第3个字段的值不小于200的行
-
-/////////////////////////////////////////////////////////////////////////////////
-
-![[_resources/linux笔记/980aab50b5441793b7c27a3d46a2ea57_MD5.png]]
-
-报错原因：这个镜像是坏的
-
-斗学网容器云赛卷实验的chinaskills_cloud_iaas.iso文件是坏的，从服务器的linux主机上拷贝了一个正常镜像给云主机,但该镜像缺少kubeeasy的可执行命令文件
-
-![[_resources/linux笔记/2db0fb5f00d481e8383307df88bbd46f_MD5.png]]
-
-
-
-
-
 ## 关于echo $PATH的回显释义
 
 ![[_resources/linux笔记/91238653c6e8e6603e279c474409f9ab_MD5.png]]
@@ -197,44 +354,6 @@ awk -F ":" '!($3<200){print}' /etc/passwd #输出第3个字段的值不小于200
 
 
 
-
-
-
-## yum命令
-
-yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，像ftp，http，file一样；关于yum为什么能解决依赖关系：所有的Yum 源里面都有repodata，它里面是有XML格式文件，里面有说明需要什么包。
-
-yum install --downloadonly --downloaddir=/xx/xxx/xx/
-只下载软件但不安装
-有时候需要将高版本的依赖降级到低版本，降级命令如下
-yum downgrade <package_name> 
-降级，对于有依赖的，yum不会自动降级，需要手动降级依赖项
-
-### yum本地安装
-`yum -y localinstall`
-后面跟rpm安装包名，例：
-`yum -y localinstall dir/*.rpm`
-指定安装了该文件夹下所有的rpm包
-
-
-### yum 查找指定命令的所在软件包
-以查找 zcat 命令的软件包为例
-
-```bash
-[root@localhost ~]# yum provides zcat
-上次元数据过期检查：0:12:24 前，执行于 2025年08月07日 星期四 16时09分17秒。
-gzip-1.12-1.el9.x86_64 : The GNU data compression program
-仓库        ：@System
-匹配来源：
-文件名    ：/usr/bin/zcat
-提供    : /bin/zcat
-
-gzip-1.12-1.el9.x86_64 : The GNU data compression program
-仓库        ：baseos
-匹配来源：
-文件名    ：/usr/bin/zcat
-提供    : /bin/zcat
-```
 
 
 
@@ -446,10 +565,6 @@ return 0;
 
 
 
-## repodata
-用于储存元数据，记录软件包之间的依赖关系
-
-
 
 ## 为什么空目录的硬链接索引值默认为2
 一个是自身目录，另一个是特殊文件'.'，就是代表当前目录的'.'，它和".."是linux中的特殊文件，'.'是当前目录的特殊硬链接文件，".."是对当前目录的父目录的特殊硬链接文件，以此类推，当一个目录为空时,该目录只有一个'.'和自身，所以硬链接索引值为2，当该目录存在一个空的子文件夹时，又多了一个该子文件夹下的".."文件作为又一个硬链接
@@ -485,20 +600,6 @@ echo hello &>> hello.log
 
 ## 使用管道非交互式修改用户密码
 echo "000000" | passwd --stdin user
-
-
-
-## tee命令
-在处理输入输出流时功能类似T型管
-
-一方面它会通过标准输入读取
-
-另一方面它会将标准输入重定向到指定文件(默认是覆盖重定向，加-a选项是追加重定向)
-
-在这个过程中间，它还会将标准输入输出到标准输出(一般是当前shell)
-
-
-
 
 
 
@@ -592,80 +693,6 @@ crontab -u 指定用户 -e 开始编辑定时任务
 
 
 
-
-
-
-## find的一些参数使用
--name
-指定名字，精确查询，也可以使用通配符和正则进行模糊查询
-
-和-i一起使用组成-iname可忽略大小写
-
- -type
-指定搜索的文件类型，普通文件f,目录文件d,软连接l
-
-
- -perm
-根据权限搜索(数字表示法)
-
-查找特殊权限时，例如sgid权限，可以通过-perm -2000查找
-
-也可以通过字符表示-perm -g+s
-
-
- -user
-根据文件所有者搜索
-
-
--group
-根据文件的组所有者搜索
-
-
--size
-根据文件大小查找
-
-+xxM  查找大于xxM的文件
-
--xxM   查找小于xx
-
-
--mtime
-根据修改时间查找文件
-
-+7表示  找出7天之前的文件(修改时间是7天之前)
-
--7表示  最近7天内的文件
-
-
-找出/etc/目录下以.conf结尾的，7天之前的文件
-
-find /etc/ -type f -name "*.conf" -mtime +7
-
-
- -exec
-表示find找出文件后要执行的命令
-
-find /oldboy/find/ -type f -name '*.txt' -exec ls -lh {} \;
-
-{} 表示前面find命令找出的文件,作占位符使用
-
-\;是该选项的固定格式,表示命令结束
-
-
-
-## tar命令
-tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数实现
-后缀是.tar
-```
--c 创建新包
--v 显示过程
--f 指定待处理文件，该参数要放到最后
--x 提取文件
--z 使用gzip过滤(使用该参数可以通过gzip实现压缩文件的创建和解压缩，格式是gzip,后缀加.gz)
--j, 通过 bzip2 过滤归档(同上,压缩文件格式是bzip2，后缀加.bz2)
--J 通过xz过滤归档(同上,后缀加.xz)
- -C 指定解压位置
-```
 
 
 
@@ -1028,36 +1055,6 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 .noarch.rpm(99% 的源配置包都是 noarch 架构)
 命名模式：
 <软件名>-<功能词>-<系统版本>.noarch.rpm
-
-
-
-## chattr 命令
-写这个是因为有个 b 把我搭的网站给黑了，还给他的 ssh 密钥设置了 chattr 属性留了后门，这种东西，普通云服务的查杀功能是不起作用的，只能是自己找然后去除属性后删除，不过也怪我图方便，懒得登录网站进控制台，想直接打开终端 ssh 上去，所以公网开放了 22 端口
-
-Linux chattr 命令用于改变文件或目录的属性，这些属性可以控制文件系统的行为，提供更高级的文件管理功能。
-
-语法: chattr [选项] [+/-/=属性] 文件或目录
-
-常用选项
--R: 递归处理目录及其子目录
--V: 显示详细信息
--v: 显示版本信息
-
-属性模式
-+: 添加属性
--: 移除属性
-= : 设置为指定属性
-
-```
-常用属性
-a     仅追加：文件只能追加内容，不能删除或修改已有内容（需 root 权限）。
-i     不可变：文件不能被删除、修改、重命名或创建硬链接（需 root 权限）。
-A     不更新文件的最后访问时间（atime）。
-c     文件在磁盘上自动压缩（部分文件系统支持）。
-s     安全删除：文件被删除时，其数据会被清零（不可恢复）。
-u     文件被删除后，其内容仍可恢复（与 s 相反）。
-d     文件在 dump 备份时会被跳过。
-```
 
 
 
@@ -6353,358 +6350,6 @@ set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件�
 - 从Cookie中获取到 sess_def456，找到对应的Session文件。
     
 - 读取文件内容，确认用户已认证，然后返回受保护的页面内容。
-
-
-
-
-
-
-
-
-# 软件包降级
-clash-verge-rev 更新后发现 tun 模式打不开了，尝试了降级软件包处理
-
-1.首先 pacman 会在本地留下软件包缓存，首先检查这个目录下有没有需要的版本
-
-```bash
-❯ ls /var/cache/pacman/pkg/ | grep clash
-clash-geoip-202510300021-1-any.pkg.tar.zst
-clash-geoip-202510300021-1-any.pkg.tar.zst.sig
-clash-geoip-202511060021-1-any.pkg.tar.zst
-clash-geoip-202511060021-1-any.pkg.tar.zst.sig
-clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst
-clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst.sig
-#发现只有clash-geoip这个包有旧版本，于是尝试先把这个降级
-❯ sudo pacman -U /var/cache/pacman/pkg/clash-geoip-202510300021-1-any.pkg.tar.zst
-#发现没啥用，还是打不开tun模式，而本地又没有clash-verge-rev这个包的旧缓存，所以只能去aur仓库找
-```
-
-2.克隆 AUR 仓库并检测出旧版本
-
-```bash
-git clone https://aur.archlinux.org/clash-verge-rev.git
-cd clash-verge-rev
-```
-
-```bash
-❯ git log --oneline --graph --decorate
-● 7f0a825 (HEAD -> master, origin/master, origin/HEAD) [lilac] updated to 2.4.3-1
-● 8168c5c [lilac] updated to 2.4.2-2
-● 8bd360b Update sha512sums
-● 4adeec4 [lilac] updated to 2.4.2-1
-● 417ee86 [lilac] updated to 2.4.1-1
-● 36a1a2e [lilac] updated to 2.4.0-1
-● 93bfde8 [lilac] updated to 2.3.2-1
-● a0a5484 [lilac] updated to 2.3.1-1
-● b6503cb [lilac] updated to 2.3.0-2
-● 9c4bd9a [lilac] updated to 2.3.0-1
-● 3c510dd [lilac] updated to 2.2.3-3
-● 3a2253d [lilac] updated to 2.2.3-2
-● 0a10265 [lilac] updated to 2.2.3-1
-● 29c9da4 [lilac] updated to 2.2.2-3
-● 1fa194f [lilac] updated to 2.2.2-2
-● 8f1ee0e [lilac] updated to 2.2.2-1
-● fcec89c [lilac] updated to 2.2.1-2
-● d01e243 [lilac] updated to 2.2.0-1
-● 0b19316 Update from archlinuxcn
-● 5719888 Update AUR package
-● fb5473c Update AUR package
-● 37a5344 Update AUR package
-● f74a444 update
-● 3443147 Update AUR package
-● 11538b8 Update AUR package
-● af53270 init
-● 2d856f3 init
-#开头的字符串是提交哈希
-```
-
-
-
-3.切换到旧版本提交
-git checkout b6503cb  # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希
-
-4.构建和安装提交的版本
-makepkg -si
-
-
-构建过程中出现了源文件校验和失败的问题，clash-verge-service.tar.gz 的 SHA512 校验和不匹配，这通常是因为源文件在服务器上已被更新，但 PKGBUILD 中的校验和还是旧值
-sudo pacman -S pacman-contrib
-
-在项目目录中运行
-updpkgsums
-这个命令会自动计算当前下载的源文件的 SHA512 校验和，并更新 PKGBUILD 中的 sha512sums 数组
-
-然后重新构建并安装
-makepkg -si
-
-
-
-然而 pacman -Syu 未来还是必要的，所以在这个问题修复前，我就让 clash-verge-rev 不要跟着一起更新吧
-sudo pacman -D --asexplicit clash-verge-rev clash-geoip
-这个命令的作用是将包标记为显式安装，而不是依赖安装
-
-通过手动构建安装的包，有时会被 pacman 错误标记为依赖包，如果卸载某些软件，该软件包被视为依赖，就会被 pacman 自动清理，标记为显示安装后，pacman 不会自动清理它
-
-```plain
-❯ sudo echo 'IgnorePkg = clash-verge-rev clash-geoip' | sudo tee /etc/pacman.d/ignore.conf
-
-IgnorePkg = clash-verge-rev clash-geoip
-```
-
-
-
-
-
-
-
-
-
-
-
-
-# 微信读取系统文件夹异常
-这个和 hyprland 无关，我就单独拿出来
-
-具体就是用微信打开本地文件夹发现显示不全
-
-看了一下我的微信是 flatpak 版的，关于 flatpak 沙盒，需要单独安装组件来管理应用权限问题，比如文件读取权限
-sudo pacman -S flatseal
-安装这个应用。是图形化的，打开后操作比较简单，找到微信，打开对应权限开关就行了
-
-
-
-
-
-
-
-
-
-
-# konsole提示符异常
-就是在打开窗口的时候，提示符上面不知道为啥会出现一个%号
-
-原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突
-
-```plain
-# 1. 设 置 历 史 记 录e
-# -----------------------------------------------------------------
-HISTFILE=~/.zsh_history
-HISTSIZE=1000
-SAVEHIST=1000
-setoptHIST_IGNORE_DUPS
-setoptHIST_IGNORE_SPACE
-setoptSHARE_HISTORY
-setoptAPPEND_HISTORY
-setoptEXTENDED_HISTORY
-
-# 2. 别 名 与 颜 色D
-# -----------------------------------------------------------------
-alias ls='ls --color=auto'
-alias l='ls -CF --color=auto'
-alias la='ls -A --color=auto'
-alias ll='ls -lA --color=auto'
-eval"$(dircolors -b)"
-
-# 3. 补 全 样 式 o
-# -----------------------------------------------------------------
-zstyle':completion:*' menu select
-zstyle':completion:*:default' list-colors $LS_COLORS
-
-# 4. 加 载  Zsh 自 动 建 议 插 件 a
-# -----------------------------------------------------------------
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# 5. 激 活  Starship 提 示 符 u
-# -----------------------------------------------------------------
-eval"$(starship init zsh)"
-
-# 6. 自 动 补 全 s
-# -----------------------------------------------------------------
-autoload -Uz compinit
-compinit
-
-# 7. 加 载 语 法 高 亮 插 件 t
-# -----------------------------------------------------------------
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-
-```
-
-
-临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能
-
-
-我的方案是使用Zsh 插件管理器：Zinit
-
-执行如下命令，脚本会自动处理
-bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh 
-
-
-用了几天发现这玩意也没鸟用，正好要移除 plasma，顺手给 konselo 卸载换 kitty 了，不过排查思路是对的，确实是因为这俩玩意冲突，更底层的原因就不懂了  
-
-
-
-
-
-
-
-
-
-
-
-
-# sudo 密码输入问题
-用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码
-sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout
-
-在文件中写入如下内容
-Defaults timestamp_timeout=30, !tty_tickets
-
-
-
-为什么起99-custom-timeout这么奇怪的文件名？
-
-因为 Linux 加载 `/etc/sudoers.d/` 目录下的配置时，是按字母和数字顺序的（从 `00-` 到 `99-`）
-
-系统默认的配置（比如 `10-arch-default`）可能设置了 `timestamp_timeout=0`（0分钟超时）。
-
-我们使用 `99-` 这个最高优先级的文件名，确保我们的配置是最后一个被加载的，因此它会覆盖掉系统所有的默认设置。
-
-timestamp_timeout=30
-它把 `sudo` 密码的有效期从默认的（可能是0或5分钟）延长到了 30 分钟。
-
-!tty_tickets
-关闭每个 Konsole 窗口都要单独输密码的规则，使得密码有效期可全局共享
-
-
-
-
-
-
-
-
-
-
-
-
-# git的使用
-## obsidian自动化推送笔记到github备份
-是想实现我的markdown笔记云端备份，因此选择了github私有仓库
-本地仓库目录/home/caster/Documents/Study_Note
-
-进入目录
-`cd /home/caster/Documents/Study_Note`
-**1.生成该仓库专用的独立密钥**
-`ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_obsidian -C "linux_note_key"`
-一路回车即可
-
-在github上创建私有仓库linuxnote
-[[_resources/linux笔记/b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg|Open: Pasted image 20260106114924.png]]
-![[_resources/linux笔记/b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg]]
-
-**2.将密钥配置到 GitHub 仓库**
-查看并复制公钥
-`cat ~/.ssh/id_ed25519_obsidian.pub`
-
-去网页端设置
-打开GitHub 仓库 `linuxnote` 页面
-点击 **Settings**（选项卡） -> 左侧找到 **Deploy keys**
-点击 **Add deploy key**
-**Title**: 随便填,我写的archlinux
-**Key**: 粘贴刚才 `cat` 出来的全部内容
-**重要**：勾选 **Allow write access**（允许写入权限）
-点击 **Add key** 保存。
-
-**3.配置 SSH Config (让 Git 认识新密钥)**
-编辑配置文件
-`vim ~/.ssh/config`
-写入如下内容
-```
-Host github-notes
-    HostName github.com
-    User git
-    IdentityFile ~/.ssh/id_ed25519_obsidian
-```
-
-
-**4.初始化并提交笔记**
-初始化与设置身份
-`git init`
-`git config user.email "dzy5864@gmail.com"`
-`git config user.name "Caster6443"`
-
-添加文件并提交
-`echo ".obsidian/" >> .gitignore`
-`git add .`
-`git commit -m "Initial commit: my linux notes with independent key"`
-
-**关联远程仓库（使用别名）**： 注意！这里的地址用刚才在 config 里起的别名 `github-notes`
-`git branch -M main`
-`git remote add origin git@github-notes:Caster6443/linuxnote.git`
-
-推送
-`git push -u origin main`
-
-obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推送间隔，其余的该插件都会自动检测
-
-至此完成了obsidian自动化推送markdown笔记到github的私有仓库的配置
-
-## Git仓库推送流程
-在github上弄了dotfiles仓库用于个人配置文件存储，项目地址[[https://github.com/Caster6443/dotfiles]]，前置认证流程就不记录了，这里记录一下使用方法
-
-我把本地仓库放在/home/caster/Documents/my-dotfiles处
-进入本地目录后
-`git status`
-检查本地与上游git仓库的文件变化，查看本地相较于git仓库多了哪些变化
-确定无误后
-`git add .` 
-暂存所有修改，准备提交
-
-`git commit -m "这里写点描述"`
-将暂存区的更改打包成一个历史记录点，并附上一条描述。
-
-`git push origin main`
-推送更改
-
-我设置了 SSH 密钥并启动了ssh-agent，Git 会自动使用我的私钥进行身份验证，不需要重复输入用户名或密码。
-
-## git 如何指定添加编译某个 pr
-其实是为了解决微信在 niri 环境下无法右键的问题，在 xwayland-satellite 项目下面发现了有人提交的 pr 可以解决该问题，因此需要指定该 pr 提交的代码编译进去
-
-流程如下
-
-1.安装编译依赖
-`sudo pacman -S --needed rust cargo git`
-
-2.克隆仓库
-`git clone https://github.com/Supreeeme/xwayland-satellite.git`
-`cd xwayland-satellite`
-
-fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
-
-3.拉取并切换到 PR #281
-从 GitHub 拉取 281 号 PR 的代码，并存到一个叫 pr-281 的新分支里 
-`git fetch origin pull/281/head:pr-281`
-
-切换到这个分支 
-`git checkout pr-281`
-
-4.编译
-`cargo build --release`
-
-
-5.替换并生效
-备份旧的
-`sudo mv /usr/bin/xwayland-satellite /usr/bin/xwayland-satellite.bak`
-替换新的（注意路径是 target/release/）
-`sudo cp target/release/xwayland-satellite /usr/bin/`
-重启 Niri 生效
-`niri msg action quit`
-(或者直接重启电脑)
-
-
-
-
 
 
 

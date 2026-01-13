@@ -3512,23 +3512,15 @@ systemctl --user enable --now mpd
 解决乱序播放/文件夹播放问题：
 1.按 1 进入播放列表。
 2.看右上角是否有 [z] 或高亮的 Random。如果有，按 z 键关闭随机模式。
-
-3. 按 c 清空当前列表。
-    
-4. 按 2 进入文件浏览器，选中文件夹，按 空格 即可按顺序添加整张专辑。
-    
+3.按 c 清空当前列表。
+4.按 2 进入文件浏览器，选中文件夹，按 空格 即可按顺序添加整张专辑。
 
 常用按键功能列表：
-
 1：播放列表（正在播放的歌单） 2：文件浏览（去硬盘找歌） 3：搜索（搜歌名/歌手） 空格：添加歌曲（将选中项加入列表） Enter：播放（立即播放选中项） p：暂停/继续（Pause）
-
-> ：下一首（. 键） <：上一首（, 键） c：清空列表（Clear） u：更新数据库（下载新歌后必按） z：随机模式开关（必须关闭才能顺序播放）
-
-
+ ：下一首（. 键） <：上一首（, 键） c：清空列表（Clear） u：更新数据库（下载新歌后必按） z：随机模式开关（必须关闭才能顺序播放）
 
 
 后续优化
-
 为了和我的 waybar 组件配合，让 waybar 的音频可视化能够识别到 MPD 播放的音频，需要打开mpDris2 服务，但如果设置开启自启动的话，waybar 模块就会被一直占用不隐藏了，杀进程又太麻烦，所以写了一个 desktop 文件，用 fuzzel 打开后会在终端运行mpDris2 和 mpd 并打开 ncmpcpp，终端关闭后mpDris2 和 mpd 进程会被杀死，不赖
 
 ```bash
@@ -4136,6 +4128,358 @@ WantedBy=timers.target
 
 因为arch滚动更新的特性，有时作者更新不及时导致工具不可用，也可以用mutagen，可执行文件是mutagen,用法选项大体与eyeD3相同，安装命令如下
 `sudo pacman -S python-mutagen`
+
+
+
+
+# git的使用
+## obsidian自动化推送笔记到github备份
+是想实现我的markdown笔记云端备份，因此选择了github私有仓库
+本地仓库目录/home/caster/Documents/Study_Note
+
+进入目录
+`cd /home/caster/Documents/Study_Note`
+**1.生成该仓库专用的独立密钥**
+`ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_obsidian -C "linux_note_key"`
+一路回车即可
+
+在github上创建私有仓库linuxnote
+[[_resources/linux笔记/b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg|Open: Pasted image 20260106114924.png]]
+![[_resources/linux笔记/b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg]]
+
+**2.将密钥配置到 GitHub 仓库**
+查看并复制公钥
+`cat ~/.ssh/id_ed25519_obsidian.pub`
+
+去网页端设置
+打开GitHub 仓库 `linuxnote` 页面
+点击 **Settings**（选项卡） -> 左侧找到 **Deploy keys**
+点击 **Add deploy key**
+**Title**: 随便填,我写的archlinux
+**Key**: 粘贴刚才 `cat` 出来的全部内容
+**重要**：勾选 **Allow write access**（允许写入权限）
+点击 **Add key** 保存。
+
+**3.配置 SSH Config (让 Git 认识新密钥)**
+编辑配置文件
+`vim ~/.ssh/config`
+写入如下内容
+```
+Host github-notes
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_obsidian
+```
+
+
+**4.初始化并提交笔记**
+初始化与设置身份
+`git init`
+`git config user.email "dzy5864@gmail.com"`
+`git config user.name "Caster6443"`
+
+添加文件并提交
+`echo ".obsidian/" >> .gitignore`
+`git add .`
+`git commit -m "Initial commit: my linux notes with independent key"`
+
+**关联远程仓库（使用别名）**： 注意！这里的地址用刚才在 config 里起的别名 `github-notes`
+`git branch -M main`
+`git remote add origin git@github-notes:Caster6443/linuxnote.git`
+
+推送
+`git push -u origin main`
+
+obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推送间隔，其余的该插件都会自动检测
+
+至此完成了obsidian自动化推送markdown笔记到github的私有仓库的配置
+
+## Git仓库推送流程
+在github上弄了dotfiles仓库用于个人配置文件存储，项目地址[[https://github.com/Caster6443/dotfiles]]，前置认证流程就不记录了，这里记录一下使用方法
+
+我把本地仓库放在/home/caster/Documents/my-dotfiles处
+进入本地目录后
+`git status`
+检查本地与上游git仓库的文件变化，查看本地相较于git仓库多了哪些变化
+确定无误后
+`git add .` 
+暂存所有修改，准备提交
+
+`git commit -m "这里写点描述"`
+将暂存区的更改打包成一个历史记录点，并附上一条描述。
+
+`git push origin main`
+推送更改
+
+我设置了 SSH 密钥并启动了ssh-agent，Git 会自动使用我的私钥进行身份验证，不需要重复输入用户名或密码。
+
+## git 如何指定添加编译某个 pr
+其实是为了解决微信在 niri 环境下无法右键的问题，在 xwayland-satellite 项目下面发现了有人提交的 pr 可以解决该问题，因此需要指定该 pr 提交的代码编译进去
+
+流程如下
+
+1.安装编译依赖
+`sudo pacman -S --needed rust cargo git`
+
+2.克隆仓库
+`git clone https://github.com/Supreeeme/xwayland-satellite.git`
+`cd xwayland-satellite`
+
+fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
+
+3.拉取并切换到 PR #281
+从 GitHub 拉取 281 号 PR 的代码，并存到一个叫 pr-281 的新分支里 
+`git fetch origin pull/281/head:pr-281`
+
+切换到这个分支 
+`git checkout pr-281`
+
+4.编译
+`cargo build --release`
+
+
+5.替换并生效
+备份旧的
+`sudo mv /usr/bin/xwayland-satellite /usr/bin/xwayland-satellite.bak`
+替换新的（注意路径是 target/release/）
+`sudo cp target/release/xwayland-satellite /usr/bin/`
+重启 Niri 生效
+`niri msg action quit`
+(或者直接重启电脑)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 软件包降级
+clash-verge-rev 更新后发现 tun 模式打不开了，尝试了降级软件包处理
+
+1.首先 pacman 会在本地留下软件包缓存，首先检查这个目录下有没有需要的版本
+
+```bash
+❯ ls /var/cache/pacman/pkg/ | grep clash
+clash-geoip-202510300021-1-any.pkg.tar.zst
+clash-geoip-202510300021-1-any.pkg.tar.zst.sig
+clash-geoip-202511060021-1-any.pkg.tar.zst
+clash-geoip-202511060021-1-any.pkg.tar.zst.sig
+clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst
+clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst.sig
+#发现只有clash-geoip这个包有旧版本，于是尝试先把这个降级
+❯ sudo pacman -U /var/cache/pacman/pkg/clash-geoip-202510300021-1-any.pkg.tar.zst
+#发现没啥用，还是打不开tun模式，而本地又没有clash-verge-rev这个包的旧缓存，所以只能去aur仓库找
+```
+
+2.克隆 AUR 仓库并检测出旧版本
+
+```bash
+git clone https://aur.archlinux.org/clash-verge-rev.git
+cd clash-verge-rev
+```
+
+```bash
+❯ git log --oneline --graph --decorate
+● 7f0a825 (HEAD -> master, origin/master, origin/HEAD) [lilac] updated to 2.4.3-1
+● 8168c5c [lilac] updated to 2.4.2-2
+● 8bd360b Update sha512sums
+● 4adeec4 [lilac] updated to 2.4.2-1
+● 417ee86 [lilac] updated to 2.4.1-1
+● 36a1a2e [lilac] updated to 2.4.0-1
+● 93bfde8 [lilac] updated to 2.3.2-1
+● a0a5484 [lilac] updated to 2.3.1-1
+● b6503cb [lilac] updated to 2.3.0-2
+● 9c4bd9a [lilac] updated to 2.3.0-1
+● 3c510dd [lilac] updated to 2.2.3-3
+● 3a2253d [lilac] updated to 2.2.3-2
+● 0a10265 [lilac] updated to 2.2.3-1
+● 29c9da4 [lilac] updated to 2.2.2-3
+● 1fa194f [lilac] updated to 2.2.2-2
+● 8f1ee0e [lilac] updated to 2.2.2-1
+● fcec89c [lilac] updated to 2.2.1-2
+● d01e243 [lilac] updated to 2.2.0-1
+● 0b19316 Update from archlinuxcn
+● 5719888 Update AUR package
+● fb5473c Update AUR package
+● 37a5344 Update AUR package
+● f74a444 update
+● 3443147 Update AUR package
+● 11538b8 Update AUR package
+● af53270 init
+● 2d856f3 init
+#开头的字符串是提交哈希
+```
+
+
+
+3.切换到旧版本提交
+git checkout b6503cb  # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希
+
+4.构建和安装提交的版本
+makepkg -si
+
+
+构建过程中出现了源文件校验和失败的问题，clash-verge-service.tar.gz 的 SHA512 校验和不匹配，这通常是因为源文件在服务器上已被更新，但 PKGBUILD 中的校验和还是旧值
+sudo pacman -S pacman-contrib
+
+在项目目录中运行
+updpkgsums
+这个命令会自动计算当前下载的源文件的 SHA512 校验和，并更新 PKGBUILD 中的 sha512sums 数组
+
+然后重新构建并安装
+makepkg -si
+
+
+
+然而 pacman -Syu 未来还是必要的，所以在这个问题修复前，我就让 clash-verge-rev 不要跟着一起更新吧
+sudo pacman -D --asexplicit clash-verge-rev clash-geoip
+这个命令的作用是将包标记为显式安装，而不是依赖安装
+
+通过手动构建安装的包，有时会被 pacman 错误标记为依赖包，如果卸载某些软件，该软件包被视为依赖，就会被 pacman 自动清理，标记为显示安装后，pacman 不会自动清理它
+
+```plain
+❯ sudo echo 'IgnorePkg = clash-verge-rev clash-geoip' | sudo tee /etc/pacman.d/ignore.conf
+
+IgnorePkg = clash-verge-rev clash-geoip
+```
+
+
+
+
+
+
+
+
+
+
+
+
+# 微信读取系统文件夹异常
+这个和 hyprland 无关，我就单独拿出来
+
+具体就是用微信打开本地文件夹发现显示不全
+
+看了一下我的微信是 flatpak 版的，关于 flatpak 沙盒，需要单独安装组件来管理应用权限问题，比如文件读取权限
+sudo pacman -S flatseal
+安装这个应用。是图形化的，打开后操作比较简单，找到微信，打开对应权限开关就行了
+
+
+
+
+
+
+
+
+
+
+# konsole提示符异常
+就是在打开窗口的时候，提示符上面不知道为啥会出现一个%号
+
+原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突
+
+```plain
+# 1. 设 置 历 史 记 录e
+# -----------------------------------------------------------------
+HISTFILE=~/.zsh_history
+HISTSIZE=1000
+SAVEHIST=1000
+setoptHIST_IGNORE_DUPS
+setoptHIST_IGNORE_SPACE
+setoptSHARE_HISTORY
+setoptAPPEND_HISTORY
+setoptEXTENDED_HISTORY
+
+# 2. 别 名 与 颜 色D
+# -----------------------------------------------------------------
+alias ls='ls --color=auto'
+alias l='ls -CF --color=auto'
+alias la='ls -A --color=auto'
+alias ll='ls -lA --color=auto'
+eval"$(dircolors -b)"
+
+# 3. 补 全 样 式 o
+# -----------------------------------------------------------------
+zstyle':completion:*' menu select
+zstyle':completion:*:default' list-colors $LS_COLORS
+
+# 4. 加 载  Zsh 自 动 建 议 插 件 a
+# -----------------------------------------------------------------
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# 5. 激 活  Starship 提 示 符 u
+# -----------------------------------------------------------------
+eval"$(starship init zsh)"
+
+# 6. 自 动 补 全 s
+# -----------------------------------------------------------------
+autoload -Uz compinit
+compinit
+
+# 7. 加 载 语 法 高 亮 插 件 t
+# -----------------------------------------------------------------
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+
+```
+
+
+临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能
+
+
+我的方案是使用Zsh 插件管理器：Zinit
+
+执行如下命令，脚本会自动处理
+bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh 
+
+
+用了几天发现这玩意也没鸟用，正好要移除 plasma，顺手给 konselo 卸载换 kitty 了，不过排查思路是对的，确实是因为这俩玩意冲突，更底层的原因就不懂了  
+
+
+
+
+
+
+
+
+
+
+
+
+# sudo 密码输入问题
+用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码
+sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout
+
+在文件中写入如下内容
+Defaults timestamp_timeout=30, !tty_tickets
+
+
+
+为什么起99-custom-timeout这么奇怪的文件名？
+
+因为 Linux 加载 `/etc/sudoers.d/` 目录下的配置时，是按字母和数字顺序的（从 `00-` 到 `99-`）
+
+系统默认的配置（比如 `10-arch-default`）可能设置了 `timestamp_timeout=0`（0分钟超时）。
+
+我们使用 `99-` 这个最高优先级的文件名，确保我们的配置是最后一个被加载的，因此它会覆盖掉系统所有的默认设置。
+
+timestamp_timeout=30
+它把 `sudo` 密码的有效期从默认的（可能是0或5分钟）延长到了 30 分钟。
+
+!tty_tickets
+关闭每个 Konsole 窗口都要单独输密码的规则，使得密码有效期可全局共享
+
+
+
+
+
+
 
 
 
