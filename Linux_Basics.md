@@ -504,34 +504,6 @@ sudo lvreduce -L 15G /dev/vg01/lv_data
 
 sudo mount /dev/vg01/lv_data /mnt/data
 
-podman卷映射-v选项的z标签大小写区别
-
-作用都是让selinux放通，但作用不同
-
-小写z标签
-
-表示共享挂载卷，共享宿主机的挂载卷，这样其它容器也能挂载并访问该挂载卷
-
-大写Z标签
-
-表示私有标签，使用该标签后，其它容器就不能通过挂载卷访问该宿主机目录，但这个标签会被覆盖，例如先后有两个容器都对一个宿主机目录做了挂载卷映射，都使用了私有标签Z,生效的是最后打标签的容器，第一个容器失去了通过挂载卷访问该目录的权限
-
-如下
-
-[root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir1:Z --name first_centos centos:latest e48892657919c025d6004d237bd78ceb14bb0f7b540d1ba8b54ed9aa9cbbaecf 
-[root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir2:Z --name Second_centos centos:latest 03095b52384fc28a0073d9d3028d0378d53c8fb3a2a7f5a42bb8befb68c856da 
-[root@server ~]# podman exec -it first_centos /bin/bash [root@e48892657919 /]# ls
-afs bin boot dev dir1 etc home lib lib64 lost+found media mnt opt proc root run sbin srv sys tmp usr var 
-[root@e48892657919 /]# cd dir1/ bash: cd: dir1/: Permission denied [root@e48892657919 ~]# exit 
-[root@server ~]# podman exec -it Second_centos /bin/bash [root@03095b52384f /]# cd dir2/ 
-[root@03095b52384f dir2]#
-
-
-
-
-
-
-
 
 ## namespance分类 
 ![[_resources/linux笔记/21d6eb1b235d93b35c05bff409736782_MD5.png]]
@@ -1293,19 +1265,13 @@ Session（会话）：服务器端用来跟踪用户状态的一种机制。服�
 
 第一步：首次访问，建立匿名会话
 
-1. 【客户端动作】浏览器 向服务器发起一个HTTP请求（例如 GET /login.php）。
-    
+1.【客户端动作】浏览器 向服务器发起一个HTTP请求（例如 GET /login.php）。
+此时，由于是首次访问，浏览器的 http 请求头（Request Headers）中不包含该网站的Session Cookie。
 
-- 此时，由于是首次访问，浏览器的 http 请求头（Request Headers）中不包含该网站的Session Cookie。
-    
+2.【服务端动作】服务器 接收到请求。
+服务器解析请求头，发现没有名为 PHPSESSID（或其他自定义名称）的Cookie。
+ 服务器生成一个新的、唯一的Session ID（例如 sess_abc123）。
 
-2. 【服务端动作】服务器 接收到请求。
-    
-
-- 服务器解析请求头，发现没有名为 PHPSESSID（或其他自定义名称）的Cookie。
-    
-- 服务器生成一个新的、唯一的Session ID（例如 sess_abc123）。
-    
 - 服务器在内存或文件系统中创建一个新的Session文件，文件名通常与Session ID关联（例如 sess_abc123）。此时该文件是空的或只包含初始信息。
     
 

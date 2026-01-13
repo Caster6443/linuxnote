@@ -4220,8 +4220,6 @@ ceph osd pool create <pool名> <pg值> <pg备份值>
 
 
 # Docker
-## 11/2
-
 Docker pull的源需要更改，好像要注册一个阿里云镜像站的账号，如果想使用阿里云镜像源的话
 
 关于docker pull的源配置在/etc/docker/daemon.json文件里，配置完成后使用systemctl daemon-reload和systemctl restart docker后使用docker info可以查看源信息
@@ -4479,13 +4477,66 @@ location 是指定了仓库地址
 [[registry]] 作为主仓库标题，[[registry.mirror]] 作为备用仓库标题，当主仓库拉取失败时，按顺序向下面的备用仓库拉取镜像
 
 
+## podman卷映射-v选项的z标签大小写区别
+
+作用都是让selinux放通，但作用不同
+
+小写z标签
+
+表示共享挂载卷，共享宿主机的挂载卷，这样其它容器也能挂载并访问该挂载卷
+
+大写Z标签
+
+表示私有标签，使用该标签后，其它容器就不能通过挂载卷访问该宿主机目录，但这个标签会被覆盖，例如先后有两个容器都对一个宿主机目录做了挂载卷映射，都使用了私有标签Z,生效的是最后打标签的容器，第一个容器失去了通过挂载卷访问该目录的权限
+
+如下
+
+```bash
+[root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir1:Z --name first_centos centos:latest e48892657919c025d6004d237bd78ceb14bb0f7b540d1ba8b54ed9aa9cbbaecf [root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir2:Z --name Second_centos centos:latest 03095b52384fc28a0073d9d3028d0378d53c8fb3a2a7f5a42bb8befb68c856da [root@server ~]# podman exec -it first_centos /bin/bash [root@e48892657919 /]# ls
+afs bin boot dev dir1 etc home lib lib64 lost+found media mnt opt proc root run sbin srv sys tmp usr var 
+[root@e48892657919 /]# cd dir1/ bash: cd: dir1/: Permission denied [root@e48892657919 ~]# exit 
+[root@server ~]# podman exec -it Second_centos /bin/bash [root@03095b52384f /]# cd dir2/ 
+[root@03095b52384f dir2]#
+```
 
 
-# Kubernetes
+
+
+
+
+
+
+
+
+
+
+
 
 # Redis
 
-# Wordpress
+## 关于 redis的配置文件部分参数
+
+bind 127.0.0.1
+
+该参数表示只允许本地连接，若要开启远程连接则需要注释该参数或将127.0.0.1修改为0.0.0.0
+
+protected-mode yes
+
+字面意思，开启保护模式，若要关闭保护模式只需将yes修改为no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # MySQL
 ## mysql8.0 安装后配置
@@ -4563,6 +4614,8 @@ systemctl restart mariadb
 
 
 
+
+# Wordpress
 
 ## 云主机 Rocky9 部署 WordPress
 腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
@@ -4984,29 +5037,7 @@ MariaDB [wordpress]>
 
 
 
-## 关于 redis的配置文件部分参数
-
-bind 127.0.0.1
-
-该参数表示只允许本地连接，若要开启远程连接则需要注释该参数或将127.0.0.1修改为0.0.0.0
-
-protected-mode yes
-
-字面意思，开启保护模式，若要关闭保护模式只需将yes修改为no
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Kubernetes
 
 ## K8s基础架构
 
