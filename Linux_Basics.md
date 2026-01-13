@@ -311,12 +311,29 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 
 
+### Linux RPM包统一命名规则
+ RPM 二进制包命名的一般格式如下： 包名-版本号-发布次数-发行商-Linux平台-适合的硬件平台-包扩展名
+
+有些 rpm 包用于生成软件源，它们的格式一般如下:
+
+1. 后缀关键词：
+-release (最常见)
+-repo(次常见)
+-repository (较少见)
+-yum(罕见)
+
+架构标识：
+.noarch.rpm(99% 的源配置包都是 noarch 架构)
+命名模式：
+<软件名>-<功能词>-<系统版本>.noarch.rpm
 
 
 
 
 
-## 关于命令别名的设置
+
+
+## alisa命令别名
 以docker为例
 ![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
 
@@ -407,84 +424,6 @@ PS2：定义多行命令的提示符的格式。
 ## 关于echo $PATH的回显释义
 
 ![[_resources/linux笔记/91238653c6e8e6603e279c474409f9ab_MD5.png]]
-
-
-## NetworkManager与network冲突问题
-
-![[_resources/linux笔记/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png]]
-
-使用ip a命令时发现网卡未读取到网卡配置文件中的静态网络配置信息，查看网卡配置没有错误，使用systemctl restart network报错
-job for network.service failed
-
-解决方案：
-```
-systemctl stop NetworkManager
-systemctl disable NetworkManager
-systemctl restart network
-systemctl status network
-```
-
-原因:
-
-在CentOS系统上，目前有NetworkManager和network
-两种网络管理工具。如果两种都配置会引起冲突，而且NetworkManager在网络断开的时候，会清理路由，如果一些自定义的路由，没有加入到NetworkManager的配置文件中，路由就被清理掉，网络连接后需要自定义添加上去。（补充：NetworkManager有一个图形化配置网络的功能，对应指令是：nmtui）(后续补充：在centos9stream版本中网络配置主工具改为了NetworkManager)
-
-
-
-
-
-
-
-
-
-
-
-
-## 网卡激活报错:未被NetworkManager托管
-设备:vmware虚拟机rh9.2
-
-原图
-![[_resources/linux笔记/62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png]]
-
-
-解决方案:
-1.修复主配置
-`sudo sed -i '/^\[main\]/a plugins=keyfile\nno-auto-default=*' \`
-`/etc/NetworkManager/NetworkManager.conf`
-
-
-2.设置全局托管策略
-`sudo echo -e "\nunmanaged-devices=none" > \`
-`/etc/NetworkManager/conf.d/manage-all.conf`
-
-
-3.完全重置状态
-`sudo systemctl stop NetworkManager`
-`sudo rm -rf /var/lib/NetworkManager/*`
-`sudo systemctl start NetworkManager`
-
-
-4.重建连接配置
-`sudo nmcli connection add type ethernet ifname ens160 \`
-`con-name ens160-primary ipv4.method auto`
-`sudo nmcli connection up ens160-primary`
-
-
-
-根本原因分析
-NetworkManager配置缺陷： 
-主配置文件/etc/NetworkManager/NetworkManager.conf缺少关键配置项 未启用keyfile插件导致设备管理功能异常 缺少全局设备托管策略
-
-配置状态不完整
-缺少必要配置项 
-plugins=keyfile
-no-auto-default=*
-
-设备管理策略缺失： 没有明确声明unmanaged-devices=none，导致NetworkManager拒绝管理网络设备
-
-
-
-
 
 
 ## 关于逻辑卷调整的-r参数
@@ -1121,18 +1060,6 @@ linux的/etc/skel目录
 
 
 
-## 故障案例：命令行变为bash-5.1$
-
-原因: 用户家目录下面的配置文件没了这两个: ~/.bashrc，~/.bash_profile
-
-解决: /etc/skel目录下方存放着所有新用户的家目录模板,将缺失文件复制到指定用户的家目录
-
-[root@server ~]# su testuser bash-5.1$ cp /etc/skel/.bash* ~/ bash-5.1$ bash [testuser@server root]$ cd ~ 
-[testuser@server ~]$
-
-
-
-
 
 ## 异常进程分类
 
@@ -1183,23 +1110,6 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 
 
 
-
-
-## Linux RPM包统一命名规则
- RPM 二进制包命名的一般格式如下： 包名-版本号-发布次数-发行商-Linux平台-适合的硬件平台-包扩展名
-
-有些 rpm 包用于生成软件源，它们的格式一般如下:
-
-1. 后缀关键词：
--release (最常见)
--repo(次常见)
--repository (较少见)
--yum(罕见)
-
-架构标识：
-.noarch.rpm(99% 的源配置包都是 noarch 架构)
-命名模式：
-<软件名>-<功能词>-<系统版本>.noarch.rpm
 
 
 
@@ -1345,46 +1255,6 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 
 
-# SSH
-## ssh报错kex_exchange_identification
-[[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
-![[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg]]
-虚拟机内部的sshd服务报错是
-[[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg|Open: Pasted image 20251222202505.png]]
-![[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg]]
-SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
-- 它会启动一个拥有 root 权限的主进程。
-    
-- 还会启动一个没有任何权限的子进程来处理网络数据（防止黑客溢出攻击）。
-    
-- 这两个进程需要交换数据，就依赖于 `/run/sshd` 这个目录。
-    
-- 如果这个目录不存在，或者权限不对（比如不是 root 拥有），SSH 会认为“环境不安全”，为了防止被劫持，它宁可直接自杀（fatal error）也不启动。
-
-解决方案
-1.创建目录
-`sudo mkdir -p /run/sshd`
-
-2.设置权限（必须是 755，即 rwxr-xr-x）
-`sudo chmod 0755 /run/sshd`
-
-3.设置属主（必须属于 root）
-`sudo chown root:root /run/sshd`
-
-4.重启sshd服务
-`sudo systemctl restart sshd`
-
-永久修复（可选）
-1.新建一个临时文件配置
-`sudo vim /etc/tmpfiles.d/sshd.conf`
-写入以下内容
-`d /run/sshd 0755 root root`
-
-
-
-
-
-
 # DNS 解析流程
 DNS端口因为使用的是udp，所以是53号端口
 本地主机名是 rocky.linux.com
@@ -1508,6 +1378,164 @@ set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件�
     
 - 读取文件内容，确认用户已认证，然后返回受保护的页面内容。
 
+
+
+
+# 常见问题
+
+## ssh报错kex_exchange_identification
+[[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
+![[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg]]
+虚拟机内部的sshd服务报错是
+[[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg|Open: Pasted image 20251222202505.png]]
+![[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg]]
+SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
+- 它会启动一个拥有 root 权限的主进程。
+    
+- 还会启动一个没有任何权限的子进程来处理网络数据（防止黑客溢出攻击）。
+    
+- 这两个进程需要交换数据，就依赖于 `/run/sshd` 这个目录。
+    
+- 如果这个目录不存在，或者权限不对（比如不是 root 拥有），SSH 会认为“环境不安全”，为了防止被劫持，它宁可直接自杀（fatal error）也不启动。
+
+解决方案
+1.创建目录
+`sudo mkdir -p /run/sshd`
+
+2.设置权限（必须是 755，即 rwxr-xr-x）
+`sudo chmod 0755 /run/sshd`
+
+3.设置属主（必须属于 root）
+`sudo chown root:root /run/sshd`
+
+4.重启sshd服务
+`sudo systemctl restart sshd`
+
+永久修复（可选）
+1.新建一个临时文件配置
+`sudo vim /etc/tmpfiles.d/sshd.conf`
+写入以下内容
+`d /run/sshd 0755 root root`
+
+
+
+
+
+
+## 命令行变为bash-5.1$
+
+原因: 用户家目录下面的配置文件没了这两个: ~/.bashrc，~/.bash_profile
+
+解决: /etc/skel目录下方存放着所有新用户的家目录模板,将缺失文件复制到指定用户的家目录
+
+[root@server ~]# su testuser bash-5.1$ cp /etc/skel/.bash* ~/ bash-5.1$ bash [testuser@server root]$ cd ~ 
+[testuser@server ~]$
+
+
+
+
+
+
+## centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
+
+![[_resources/linux笔记/d3c4ccd82df00fadf72ecaeccf298f63_MD5.png]]
+
+![[_resources/linux笔记/675a64bc9f80cf73c9e88af566904b64_MD5.png]] 因服务器无端重启，导致无法挂载系统
+
+解决方案：使用xfs_repair工具修复
+
+执行xfs_repair -v -L /dev/dm-0命令
+
+命令详解：
+
+-v：
+
+这个参数表示启用详细模式（verbose mode），会显示更多的诊断信息和操作细节。
+
+-L：
+
+这个参数用于指定一个日志文件，xfs_repair 会将修复过程中的详细信息记录到这个文件中。
+
+/dev/dm-0：
+
+这是要修复的 XFS 文件系统的设备路径。在这个例子中，/dev/dm-0 表示一个使用设备映射（device-mapper）的逻辑卷。
+
+
+
+
+
+## NetworkManager与network冲突问题
+
+![[_resources/linux笔记/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png]]
+
+使用ip a命令时发现网卡未读取到网卡配置文件中的静态网络配置信息，查看网卡配置没有错误，使用systemctl restart network报错
+job for network.service failed
+
+解决方案：
+```
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+systemctl restart network
+systemctl status network
+```
+
+原因:
+
+在CentOS系统上，目前有NetworkManager和network
+两种网络管理工具。如果两种都配置会引起冲突，而且NetworkManager在网络断开的时候，会清理路由，如果一些自定义的路由，没有加入到NetworkManager的配置文件中，路由就被清理掉，网络连接后需要自定义添加上去。（补充：NetworkManager有一个图形化配置网络的功能，对应指令是：nmtui）(后续补充：在centos9stream版本中网络配置主工具改为了NetworkManager)
+
+
+
+
+
+
+
+
+
+
+
+
+## 网卡激活报错:未被NetworkManager托管
+设备:vmware虚拟机rh9.2
+
+原图
+![[_resources/linux笔记/62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png]]
+
+
+解决方案:
+1.修复主配置
+`sudo sed -i '/^\[main\]/a plugins=keyfile\nno-auto-default=*' \`
+`/etc/NetworkManager/NetworkManager.conf`
+
+
+2.设置全局托管策略
+`sudo echo -e "\nunmanaged-devices=none" > \`
+`/etc/NetworkManager/conf.d/manage-all.conf`
+
+
+3.完全重置状态
+`sudo systemctl stop NetworkManager`
+`sudo rm -rf /var/lib/NetworkManager/*`
+`sudo systemctl start NetworkManager`
+
+
+4.重建连接配置
+`sudo nmcli connection add type ethernet ifname ens160 \`
+`con-name ens160-primary ipv4.method auto`
+`sudo nmcli connection up ens160-primary`
+
+
+
+根本原因分析
+NetworkManager配置缺陷： 
+主配置文件/etc/NetworkManager/NetworkManager.conf缺少关键配置项 未启用keyfile插件导致设备管理功能异常 缺少全局设备托管策略
+
+配置状态不完整
+缺少必要配置项 
+plugins=keyfile
+no-auto-default=*
+
+设备管理策略缺失： 没有明确声明unmanaged-devices=none，导致NetworkManager拒绝管理网络设备
 
 
 

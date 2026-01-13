@@ -4483,6 +4483,531 @@ location 是指定了仓库地址
 
 # Kubernetes
 
+# Redis
+
+# Wordpress
+
+# MySQL
+## mysql8.0 安装后配置
+
+与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
+
+
+
+
+
+## Mysql 密码插件报错：未加载
+```plsql
+mysql> alter user  zabbix@localhost identified with mysql_native_password by 'Zabbix@123';
+ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded
+```
+
+MySQL 8.4(截至 2024 年的最新 LTS 版本)中引入的一个主要变化是，默认情况下不再启用 “MySQL Native Password” 插件。
+
+此更改会影响使用 MySQL 数据库和 mysql_native_password 身份验证插件的 PHP 和其他应用。由于默认情况下不再加载 mysql_native_password 插件，因此导致 PHP PDO/MySQLi 连接失败。
+
+当尝试使用不再加载的 mysql_native_password 插件连接到数据库时，PDO/MySQLi 抛出 MySQL 返回的错误
+
+解决方案：重新启用mysql_native_password
+
+在 mysql 配置文件的 [mysqld] 下面添加如下配置，配置文件的位置参考我使用的 orcle_linux8.6，路径是/etc/my.cnf
+
+```plain
+# Enable mysql_native_password plugin
+[mysqld]
+mysql_native_password=ON
+```
+
+重启 mysqld 后生效
+
+
+## 不进入数据库命令行界面实现交互
+
+可参考该命令mysql -uroot -proot -e " create database djangoblog;"
+
+另外还可以直接进入指定数据库mysql -uroot -proot djangoblog
+
+
+
+
+
+
+## 数据库调优-my.cnf配置详解
+
+![[_resources/linux笔记/7a3e8731c537b0aa65c421cbd92242ef_MD5.png]]
+
+lower_case_table_names =1 //数据库支持大小写
+innodb_buffer_pool_size = 4G //设置数据库缓存（缓冲区）大小为4G innodb_log_buffer_size = 64MB //设置数据库的log buffer即redo日志缓冲为64MB 
+innodb_log_file_size = 256MB //设置数据库的redo log即redo日志大小为256MB 
+innodb_log_files_in_group = 2 //数据库的redo log文件组即redo日志的个数配置为2
+
+systemctl restart mariadb
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 云主机 Rocky9 部署 WordPress
+腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
+
+1.安装并启用 httpd
+```
+dnf install httpd -y
+systemctl enable --now httpd
+```
+
+
+
+2.放通防火墙
+
+（云主机把防火墙和 selinux 的功能交给安全组管理，防火墙和 selinux 都被禁用了，所以这个不用执行，但还是记下来给普通主机参考）
+```
+firewall-cmd --add-service=http --permanent  
+firewall-cmd --reload
+```
+
+
+
+3.创建数据库和用户(用户可以不创建，使用默认的 root 用户也行)
+```
+dnf -y install mariadb-server
+systemctl enable  --now mariadb.service
+mysql -uroot
+```
+
+进入数据库后
+```
+CREATE DATABASE mywordpress_db;
+CREATE USER 'wp_foc'@'localhost' IDENTIFIED BY 'Pp123456';
+GRANT ALL ON mywordpress_db.* TO 'wp_foc'@'localhost';
+FLUSH PRIVILEGES;
+```
+这里设置了:
+
+```
+Database: mywordpress_db
+User Name:wp_foc
+Password:Pp123456
+```
+
+
+
+4.下载并提取 WordPress
+```
+dnf install wget unzip -y
+wget https://wordpress.org/latest.zip
+unzip latest.zip
+mv wordpress /var/www/html/
+```
+
+5.修改用户，组和权限
+```
+chown -R apache:apache /var/www/html/wordpress
+chmod -R 775 /var/www/html/wordpress
+```
+
+
+
+6.selinux 放通 httpd（还是不用执行，上面说了原因）
+
+```plain
+[root@VM-24-6-rockylinux ~]#semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/wordpress(/.*)?"
+[root@VM-24-6-rockylinux ~]#restorecon -Rv /var/www/html/wordpress
+```
+
+
+7.修改相关配置文件，填写数据库，密码，用户名
+`vi /var/www/html/wordpress/wp-config.php`
+修改内容如下
+```
+define( 'DB_NAME', 'mywordpress_db' );  
+  /** Database username */  
+define( 'DB_USER', 'wp_foc' );  
+  /** Database password */  
+define( 'DB_PASSWORD', 'Pp123456' );
+```
+
+
+8.重启 http 并访问 WordPress 主页
+`systemctl restart httpd`
+
+访问前看一下有没有安全组有没有放通 http 规则，不过一般都默认放通常用服务协议和端口
+
+访问 url 参考[http://192.168.122.238/wordpress/wp-admin/install.php](http://192.168.122.238/wordpress/wp-admin/install.php)
+
+
+
+
+## Rocky9.6 本地部署 wordpress
+基于 LNMP 架构部署wordpress-6.7
+
+php 和 mysql 版本如下
+
+```plain
+[root@rocky ~]# mysql --version
+mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
+[root@rocky ~]# php -v
+PHP 8.2.29 (cli) (built: Jul  1 2025 16:29:21) (NTS gcc x86_64)
+Copyright (c) The PHP Group
+Zend Engine v4.2.29, Copyright (c) Zend Technologies
+    with Zend OPcache v8.2.29, Copyright (c), by Zend Technologies
+```
+
+
+
+1.安装 nginx
+
+```plain
+[root@rocky ~]# yum -y install nginx
+[root@rocky ~]# nginx -v
+nginx version: nginx/1.28.0
+```
+
+
+
+2.配置 php 源
+
+这里选用了 remi 源（个人维护的 php 软件源站点），注意版本即可
+安装 epel 源
+
+```
+dnf install [https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm) [https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm)
+```
+
+
+安装 Remi 源
+
+```
+dnf -y install [http://rpms.remirepo.net/enterprise/remi-release-9.rpm](http://rpms.remirepo.net/enterprise/remi-release-9.rpm)
+dnf -y install  dnf-utils
+```
+
+
+删除已有（可选）
+`sudo dnf -y remove php php-fpm`
+
+
+删除相关扩展包
+sudo dnf -y remove php*
+
+重置 PHP 模块列表
+sudo dnf -y module list reset php
+
+查看 PHP 版本
+sudo dnf module list php
+
+启用 PHP
+sudo dnf -y module enable php:remi-8.2
+
+
+
+
+
+
+3.安装 php，mariadb 及其必要组件
+安装 php
+`dnf -y install php php-fpm`
+
+安装拓展
+```
+dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
+```
+
+
+
+安装 mariadb
+
+```bash
+[root@rocky ~]# yum install -y mariadb-server
+[root@rocky ~]# mysql --version
+mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
+```
+
+
+
+4.从 wordpress 官网下载源码包并解压到网站目录 alice
+
+```bash
+[root@rocky ~]# wget https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
+--2025-09-01 16:58:28--  https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
+正在解析主机 cn.wordpress.org (cn.wordpress.org)... 198.143.164.252
+正在连接 cn.wordpress.org (cn.wordpress.org)|198.143.164.252|:443... 已连接。
+已发出 HTTP 请求，正在等待回应... 200 OK
+长度：33984379 (32M) [application/octet-stream]
+正在保存至: “wordpress-6.7-zh_CN.tar.gz”
+
+wordpress-6.7-zh_CN.tar.gz                100%[=====================================================================================>]  32.41M  7.99MB/s  用时 4.5s    
+
+2025-09-01 16:58:34 (7.19 MB/s) - 已保存 “wordpress-6.7-zh_CN.tar.gz” [33984379/33984379])
+[root@rocky ~]# tar xf wordpress-6.7-zh_CN.tar.gz -C /alice/
+```
+
+
+
+5.创建用户用于统一管理 nginx，php
+
+避免繁杂的权限问题
+```
+[root@rocky ~]# groupadd -g 666 www  
+[root@rocky ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
+```
+
+
+
+6.修改相关用户及权限
+
+```bash
+[root@rocky ~]# grep -w user /etc/nginx/nginx.conf
+user  www;
+[root@rocky ~]# egrep '^user|^group' /etc/php-fpm.d/www.conf 
+user = www
+group = www
+[root@rocky ~]# chown www:www /alice/wordpress/
+```
+
+
+
+7.修改 php-fpm 监听端口
+
+```bash
+[root@rocky ~]# grep '^listen' /etc/php-fpm.d/www.conf 
+listen = 127.0.0.1:9000
+[root@rocky ~]# systemctl enable --now  php-fpm.service 
+Created symlink /etc/systemd/system/multi-user.target.wants/php-fpm.service → /usr/lib/systemd/system/php-fpm.service.
+[root@rocky ~]# netstat -tunlp | grep 9000
+tcp        0      0 127.0.0.1:9000          0.0.0.0:*               LISTEN      6651/php-fpm: maste 
+```
+
+
+
+测试 nginx，php 连通性
+
+```bash
+[root@rocky ~]# cat /etc/nginx/conf.d/php.conf 
+server {
+        listen 80;
+        server_name php.test.com;
+        root /php;
+        location / {
+                index index.php index.html;
+        }
+        location ~ \.php$ {
+                fastcgi_pass 127.0.0.1:9000;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                include fastcgi_params;
+        }
+ }
+[root@rocky ~]# cat /php/index.php 
+<?php
+     phpinfo();
+?>
+```
+
+访问网站php.test.com 测试，在 hosts 文件里做好相关映射
+
+
+
+7.书写网站配置文件
+
+```bash
+[root@rocky ~]# cat /etc/nginx/conf.d/wordpress.conf 
+server {
+        listen 80;
+        server_name php.alice.com;
+        root /alice/wordpress;
+ 
+        location / {
+                 index index.php index.html;
+        }
+        # 区分大小写，定义所有.php结尾的文件属性，使其能够连接php
+        location ~ \.php$ {
+                 fastcgi_pass 127.0.0.1:9000; #指定nginx连接php端口
+                 fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                 # 为SCRIPT_FILENAME变量赋值，$document_root被赋值为上面root指定的/alice/wordpress
+                 # $fastcgi_script_name被赋值为请求的uri
+                 # uri是域名/后的内容，如www.qq.com/test.php，这里的uri就是/test.php
+                 include fastcgi_params;# # 引入标准 FastCGI 参数文件，确保所有必要参数被设置
+        }
+}
+```
+
+
+
+8.初始化 mysql 设置密码
+ `[root@rocky ~]# mysqladmin password '000000'`  
+
+
+
+测试 MySQL 和 php 连通性 
+
+```bash
+[root@rocky ~]# cat /alice/mysql.php 
+<?php
+     $servername = "localhost";
+     $username = "root";
+     $password = "000000";
+
+     $conn = mysqli_connect($servername, $username, $password);
+
+     if (!$conn) {
+	     die("Connection failed: " . mysqli_connect_error());
+     }
+     echo "php可以连接MySQL~";
+?>
+<img style='width:100%;height:100%;' src=images/hx.png>
+```
+
+访问 php.alice.com/mysql.php
+
+
+
+9.创建 wordpress 所需数据库
+ `[root@web01 wordpress]#mysql -uroot -p000000 -e "create database wordpress;"`  
+
+
+
+10.修改 wordpress 配置文件
+
+/alice/wordpress/wp-config-sample.php 是示例文件（很多 php 源码包都会这样设计，字段里带 sample）
+
+先把这个文件重命名为wp-config.php
+
+然后再修改指定的数据库位置，用户名密码等信息
+
+
+
+11.访问 php.alice.com 即可
+
+
+
+
+
+
+
+
+
+
+
+
+
+## wordpress 重置密码
+注册时邮箱和密码都是乱填的，所以无法登录
+
+进入后端数据库，查询相关表信息并修改即可
+
+```plsql
+[root@web02 ~]# mysql -h 192.168.120.150 -ucaster -p000000
+#这里搞的是远程数据库
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 31
+Server version: 10.5.27-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| wordpress          |
++--------------------+
+4 rows in set (0.021 sec)
+MariaDB [(none)]> use wordpress;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+MariaDB [wordpress]> show tables;
++-----------------------+
+| Tables_in_wordpress   |
++-----------------------+
+| wp_commentmeta        |
+| wp_comments           |
+| wp_links              |
+| wp_options            |
+| wp_postmeta           |
+| wp_posts              |
+| wp_term_relationships |
+| wp_term_taxonomy      |
+| wp_termmeta           |
+| wp_terms              |
+| wp_usermeta           |
+| wp_users              |
++-----------------------+
+12 rows in set (0.001 sec)
+MariaDB [wordpress]> select * from wp_users;
++----+------------+------------------------------------+---------------+------------+----------------------+---------------------+---------------------+-------------+--------------+
+| ID | user_login | user_pass                          | user_nicename | user_email | user_url             | user_registered     | user_activation_key | user_status | display_name |
++----+------------+------------------------------------+---------------+------------+----------------------+---------------------+---------------------+-------------+--------------+
+|  1 | awdxa      | $P$Bz.Bif9F.CYW0iJiQTWwT67jMt2t5q/ | awdxa         | xaw@qq.com | http://php.alice.com | 2025-09-01 09:51:26 |                     |           0 | awdxa        |
++----+------------+------------------------------------+---------------+------------+----------------------+---------------------+---------------------+-------------+--------------+
+1 row in set (0.001 sec)
+#可以看到awdxa就是我乱填的用户名，后面还有邮箱，密码被md5加密了
+MariaDB [wordpress]> UPDATE wp_users SET user_pass = MD5('000000') WHERE user_login = 'awdxa';
+Query OK, 1 row affected (0.024 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [wordpress]> 
+#把密码改成了000000，回到主页登录就行了
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 关于 redis的配置文件部分参数
+
+bind 127.0.0.1
+
+该参数表示只允许本地连接，若要开启远程连接则需要注释该参数或将127.0.0.1修改为0.0.0.0
+
+protected-mode yes
+
+字面意思，开启保护模式，若要关闭保护模式只需将yes修改为no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## K8s基础架构
 
 ![[_resources/linux笔记/602080906e00f1d43df2af815e15f692_MD5.png]]
@@ -5721,531 +6246,6 @@ ClientAliveCountMax 0
 参考如图
 [[_resources/linux笔记/116f35fe7335894b2b5ee3abc79ea714_MD5.jpg|Open: Pasted image 20251223194356.png]]
 ![[_resources/linux笔记/116f35fe7335894b2b5ee3abc79ea714_MD5.jpg]]
-
-
-
-
-
-
-# Wordpress
-
-## 云主机 Rocky9 部署 WordPress
-腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
-
-1.安装并启用 httpd
-```
-dnf install httpd -y
-systemctl enable --now httpd
-```
-
-
-
-2.放通防火墙
-
-（云主机把防火墙和 selinux 的功能交给安全组管理，防火墙和 selinux 都被禁用了，所以这个不用执行，但还是记下来给普通主机参考）
-```
-firewall-cmd --add-service=http --permanent  
-firewall-cmd --reload
-```
-
-
-
-3.创建数据库和用户(用户可以不创建，使用默认的 root 用户也行)
-```
-dnf -y install mariadb-server
-systemctl enable  --now mariadb.service
-mysql -uroot
-```
-
-进入数据库后
-```
-CREATE DATABASE mywordpress_db;
-CREATE USER 'wp_foc'@'localhost' IDENTIFIED BY 'Pp123456';
-GRANT ALL ON mywordpress_db.* TO 'wp_foc'@'localhost';
-FLUSH PRIVILEGES;
-```
-这里设置了:
-
-```
-Database: mywordpress_db
-User Name:wp_foc
-Password:Pp123456
-```
-
-
-
-4.下载并提取 WordPress
-```
-dnf install wget unzip -y
-wget https://wordpress.org/latest.zip
-unzip latest.zip
-mv wordpress /var/www/html/
-```
-
-5.修改用户，组和权限
-```
-chown -R apache:apache /var/www/html/wordpress
-chmod -R 775 /var/www/html/wordpress
-```
-
-
-
-6.selinux 放通 httpd（还是不用执行，上面说了原因）
-
-```plain
-[root@VM-24-6-rockylinux ~]#semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/wordpress(/.*)?"
-[root@VM-24-6-rockylinux ~]#restorecon -Rv /var/www/html/wordpress
-```
-
-
-7.修改相关配置文件，填写数据库，密码，用户名
-`vi /var/www/html/wordpress/wp-config.php`
-修改内容如下
-```
-define( 'DB_NAME', 'mywordpress_db' );  
-  /** Database username */  
-define( 'DB_USER', 'wp_foc' );  
-  /** Database password */  
-define( 'DB_PASSWORD', 'Pp123456' );
-```
-
-
-8.重启 http 并访问 WordPress 主页
-`systemctl restart httpd`
-
-访问前看一下有没有安全组有没有放通 http 规则，不过一般都默认放通常用服务协议和端口
-
-访问 url 参考[http://192.168.122.238/wordpress/wp-admin/install.php](http://192.168.122.238/wordpress/wp-admin/install.php)
-
-
-
-
-## Rocky9.6 本地部署 wordpress
-基于 LNMP 架构部署wordpress-6.7
-
-php 和 mysql 版本如下
-
-```plain
-[root@rocky ~]# mysql --version
-mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
-[root@rocky ~]# php -v
-PHP 8.2.29 (cli) (built: Jul  1 2025 16:29:21) (NTS gcc x86_64)
-Copyright (c) The PHP Group
-Zend Engine v4.2.29, Copyright (c) Zend Technologies
-    with Zend OPcache v8.2.29, Copyright (c), by Zend Technologies
-```
-
-
-
-1.安装 nginx
-
-```plain
-[root@rocky ~]# yum -y install nginx
-[root@rocky ~]# nginx -v
-nginx version: nginx/1.28.0
-```
-
-
-
-2.配置 php 源
-
-这里选用了 remi 源（个人维护的 php 软件源站点），注意版本即可
-安装 epel 源
-
-```
-dnf install [https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm) [https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm)
-```
-
-
-安装 Remi 源
-
-```
-dnf -y install [http://rpms.remirepo.net/enterprise/remi-release-9.rpm](http://rpms.remirepo.net/enterprise/remi-release-9.rpm)
-dnf -y install  dnf-utils
-```
-
-
-删除已有（可选）
-`sudo dnf -y remove php php-fpm`
-
-
-删除相关扩展包
-sudo dnf -y remove php*
-
-重置 PHP 模块列表
-sudo dnf -y module list reset php
-
-查看 PHP 版本
-sudo dnf module list php
-
-启用 PHP
-sudo dnf -y module enable php:remi-8.2
-
-
-
-
-
-
-3.安装 php，mariadb 及其必要组件
-安装 php
-`dnf -y install php php-fpm`
-
-安装拓展
-```
-dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
-```
-
-
-
-安装 mariadb
-
-```bash
-[root@rocky ~]# yum install -y mariadb-server
-[root@rocky ~]# mysql --version
-mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
-```
-
-
-
-4.从 wordpress 官网下载源码包并解压到网站目录 alice
-
-```bash
-[root@rocky ~]# wget https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
---2025-09-01 16:58:28--  https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
-正在解析主机 cn.wordpress.org (cn.wordpress.org)... 198.143.164.252
-正在连接 cn.wordpress.org (cn.wordpress.org)|198.143.164.252|:443... 已连接。
-已发出 HTTP 请求，正在等待回应... 200 OK
-长度：33984379 (32M) [application/octet-stream]
-正在保存至: “wordpress-6.7-zh_CN.tar.gz”
-
-wordpress-6.7-zh_CN.tar.gz                100%[=====================================================================================>]  32.41M  7.99MB/s  用时 4.5s    
-
-2025-09-01 16:58:34 (7.19 MB/s) - 已保存 “wordpress-6.7-zh_CN.tar.gz” [33984379/33984379])
-[root@rocky ~]# tar xf wordpress-6.7-zh_CN.tar.gz -C /alice/
-```
-
-
-
-5.创建用户用于统一管理 nginx，php
-
-避免繁杂的权限问题
-```
-[root@rocky ~]# groupadd -g 666 www  
-[root@rocky ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
-```
-
-
-
-6.修改相关用户及权限
-
-```bash
-[root@rocky ~]# grep -w user /etc/nginx/nginx.conf
-user  www;
-[root@rocky ~]# egrep '^user|^group' /etc/php-fpm.d/www.conf 
-user = www
-group = www
-[root@rocky ~]# chown www:www /alice/wordpress/
-```
-
-
-
-7.修改 php-fpm 监听端口
-
-```bash
-[root@rocky ~]# grep '^listen' /etc/php-fpm.d/www.conf 
-listen = 127.0.0.1:9000
-[root@rocky ~]# systemctl enable --now  php-fpm.service 
-Created symlink /etc/systemd/system/multi-user.target.wants/php-fpm.service → /usr/lib/systemd/system/php-fpm.service.
-[root@rocky ~]# netstat -tunlp | grep 9000
-tcp        0      0 127.0.0.1:9000          0.0.0.0:*               LISTEN      6651/php-fpm: maste 
-```
-
-
-
-测试 nginx，php 连通性
-
-```bash
-[root@rocky ~]# cat /etc/nginx/conf.d/php.conf 
-server {
-        listen 80;
-        server_name php.test.com;
-        root /php;
-        location / {
-                index index.php index.html;
-        }
-        location ~ \.php$ {
-                fastcgi_pass 127.0.0.1:9000;
-                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                include fastcgi_params;
-        }
- }
-[root@rocky ~]# cat /php/index.php 
-<?php
-     phpinfo();
-?>
-```
-
-访问网站php.test.com 测试，在 hosts 文件里做好相关映射
-
-
-
-7.书写网站配置文件
-
-```bash
-[root@rocky ~]# cat /etc/nginx/conf.d/wordpress.conf 
-server {
-        listen 80;
-        server_name php.alice.com;
-        root /alice/wordpress;
- 
-        location / {
-                 index index.php index.html;
-        }
-        # 区分大小写，定义所有.php结尾的文件属性，使其能够连接php
-        location ~ \.php$ {
-                 fastcgi_pass 127.0.0.1:9000; #指定nginx连接php端口
-                 fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                 # 为SCRIPT_FILENAME变量赋值，$document_root被赋值为上面root指定的/alice/wordpress
-                 # $fastcgi_script_name被赋值为请求的uri
-                 # uri是域名/后的内容，如www.qq.com/test.php，这里的uri就是/test.php
-                 include fastcgi_params;# # 引入标准 FastCGI 参数文件，确保所有必要参数被设置
-        }
-}
-```
-
-
-
-8.初始化 mysql 设置密码
- `[root@rocky ~]# mysqladmin password '000000'`  
-
-
-
-测试 MySQL 和 php 连通性 
-
-```bash
-[root@rocky ~]# cat /alice/mysql.php 
-<?php
-     $servername = "localhost";
-     $username = "root";
-     $password = "000000";
-
-     $conn = mysqli_connect($servername, $username, $password);
-
-     if (!$conn) {
-	     die("Connection failed: " . mysqli_connect_error());
-     }
-     echo "php可以连接MySQL~";
-?>
-<img style='width:100%;height:100%;' src=images/hx.png>
-```
-
-访问 php.alice.com/mysql.php
-
-
-
-9.创建 wordpress 所需数据库
- `[root@web01 wordpress]#mysql -uroot -p000000 -e "create database wordpress;"`  
-
-
-
-10.修改 wordpress 配置文件
-
-/alice/wordpress/wp-config-sample.php 是示例文件（很多 php 源码包都会这样设计，字段里带 sample）
-
-先把这个文件重命名为wp-config.php
-
-然后再修改指定的数据库位置，用户名密码等信息
-
-
-
-11.访问 php.alice.com 即可
-
-
-
-
-
-
-
-
-
-
-
-
-
-## wordpress 重置密码
-注册时邮箱和密码都是乱填的，所以无法登录
-
-进入后端数据库，查询相关表信息并修改即可
-
-```plsql
-[root@web02 ~]# mysql -h 192.168.120.150 -ucaster -p000000
-#这里搞的是远程数据库
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 31
-Server version: 10.5.27-MariaDB MariaDB Server
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [(none)]> show databases;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| mysql              |
-| performance_schema |
-| wordpress          |
-+--------------------+
-4 rows in set (0.021 sec)
-MariaDB [(none)]> use wordpress;
-Reading table information for completion of table and column names
-You can turn off this feature to get a quicker startup with -A
-
-Database changed
-MariaDB [wordpress]> show tables;
-+-----------------------+
-| Tables_in_wordpress   |
-+-----------------------+
-| wp_commentmeta        |
-| wp_comments           |
-| wp_links              |
-| wp_options            |
-| wp_postmeta           |
-| wp_posts              |
-| wp_term_relationships |
-| wp_term_taxonomy      |
-| wp_termmeta           |
-| wp_terms              |
-| wp_usermeta           |
-| wp_users              |
-+-----------------------+
-12 rows in set (0.001 sec)
-MariaDB [wordpress]> select * from wp_users;
-+----+------------+------------------------------------+---------------+------------+----------------------+---------------------+---------------------+-------------+--------------+
-| ID | user_login | user_pass                          | user_nicename | user_email | user_url             | user_registered     | user_activation_key | user_status | display_name |
-+----+------------+------------------------------------+---------------+------------+----------------------+---------------------+---------------------+-------------+--------------+
-|  1 | awdxa      | $P$Bz.Bif9F.CYW0iJiQTWwT67jMt2t5q/ | awdxa         | xaw@qq.com | http://php.alice.com | 2025-09-01 09:51:26 |                     |           0 | awdxa        |
-+----+------------+------------------------------------+---------------+------------+----------------------+---------------------+---------------------+-------------+--------------+
-1 row in set (0.001 sec)
-#可以看到awdxa就是我乱填的用户名，后面还有邮箱，密码被md5加密了
-MariaDB [wordpress]> UPDATE wp_users SET user_pass = MD5('000000') WHERE user_login = 'awdxa';
-Query OK, 1 row affected (0.024 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-MariaDB [wordpress]> 
-#把密码改成了000000，回到主页登录就行了
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-# MySQL
-## mysql8.0 安装后配置
-
-与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
-
-ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
-
-
-
-
-
-## Mysql 密码插件报错：未加载
-```plsql
-mysql> alter user  zabbix@localhost identified with mysql_native_password by 'Zabbix@123';
-ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded
-```
-
-MySQL 8.4(截至 2024 年的最新 LTS 版本)中引入的一个主要变化是，默认情况下不再启用 “MySQL Native Password” 插件。
-
-此更改会影响使用 MySQL 数据库和 mysql_native_password 身份验证插件的 PHP 和其他应用。由于默认情况下不再加载 mysql_native_password 插件，因此导致 PHP PDO/MySQLi 连接失败。
-
-当尝试使用不再加载的 mysql_native_password 插件连接到数据库时，PDO/MySQLi 抛出 MySQL 返回的错误
-
-解决方案：重新启用mysql_native_password
-
-在 mysql 配置文件的 [mysqld] 下面添加如下配置，配置文件的位置参考我使用的 orcle_linux8.6，路径是/etc/my.cnf
-
-```plain
-# Enable mysql_native_password plugin
-[mysqld]
-mysql_native_password=ON
-```
-
-重启 mysqld 后生效
-
-
-## 不进入数据库命令行界面实现交互
-
-可参考该命令mysql -uroot -proot -e " create database djangoblog;"
-
-另外还可以直接进入指定数据库mysql -uroot -proot djangoblog
-
-
-
-
-
-
-## 数据库调优-my.cnf配置详解
-
-![[_resources/linux笔记/7a3e8731c537b0aa65c421cbd92242ef_MD5.png]]
-
-lower_case_table_names =1 //数据库支持大小写
-innodb_buffer_pool_size = 4G //设置数据库缓存（缓冲区）大小为4G innodb_log_buffer_size = 64MB //设置数据库的log buffer即redo日志缓冲为64MB 
-innodb_log_file_size = 256MB //设置数据库的redo log即redo日志大小为256MB 
-innodb_log_files_in_group = 2 //数据库的redo log文件组即redo日志的个数配置为2
-
-systemctl restart mariadb
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 关于 redis的配置文件部分参数
-
-bind 127.0.0.1
-
-该参数表示只允许本地连接，若要开启远程连接则需要注释该参数或将127.0.0.1修改为0.0.0.0
-
-protected-mode yes
-
-字面意思，开启保护模式，若要关闭保护模式只需将yes修改为no
-
-
-
-
-
-
-
-
-
-# 如何在不通外网且不支持 ntfs格式U盘 的系统配置本地源
-当因为需要使用的本地镜像过大而FAT32格式不支持时
-
-
-红帽9为例，红帽9(centos7)支持FAT32格式的U盘，可以先把U盘格式化为FAT32格式（windows11一般不允许格式化为该格式，可以使用软件格式化,这里使用的是DiskGenius,在图吧工具箱有收录)，然后下载ntfs-3g（<font style="color:#DF2A3F;">该组件可以让红帽9系统能够识别并使用NTFS格式的移动硬盘，可以使用yum install --downloadonly --downloaddir 本地保存目录 ntfs-3g来保存安装包和相关依赖</font>),该插件一般在epel源里，然后在系统上安装该插件，拔出U盘后就可以重新格式化为NTFS格式，然后就可以放进需要挂载的镜像，再次插入时，该系统已经可以支持识别该格式的移动硬盘了
 
 
 
