@@ -36,11 +36,6 @@ sed命令对文件内容的增删改查都是在内存空间中进行的，并�
 由于sed命令的默认机制，即使某行文本未被匹配，也会被打印到终端上，因此在不想显示不匹配文本内容时，需要-n参数来取消sed命令的默认输出
 
 
-## 关于tar命令指定解压位置
-
-tar xf xxx.tgz -C /dir/
-
-
 
 
 
@@ -230,7 +225,24 @@ yum downgrade <package_name>
 指定安装了该文件夹下所有的rpm包
 
 
+### yum 查找指定命令的所在软件包
+以查找 zcat 命令的软件包为例
 
+```bash
+[root@localhost ~]# yum provides zcat
+上次元数据过期检查：0:12:24 前，执行于 2025年08月07日 星期四 16时09分17秒。
+gzip-1.12-1.el9.x86_64 : The GNU data compression program
+仓库        ：@System
+匹配来源：
+文件名    ：/usr/bin/zcat
+提供    : /bin/zcat
+
+gzip-1.12-1.el9.x86_64 : The GNU data compression program
+仓库        ：baseos
+匹配来源：
+文件名    ：/usr/bin/zcat
+提供    : /bin/zcat
+```
 
 
 
@@ -308,6 +320,675 @@ dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
 
 指定多行注释是在末行模式中进行，格式是 起始行号,结束行号s/^/#/g
 g是全局匹配，不加g仅替换每行的第一个匹配项
+
+
+## 关于&和&&的使用
+
+在dockerfile的CMD指令中需要指定一个前台运行的指令来保障容器的运行，例如在编写mysql的dockerfile用初始化脚本时使用mysqld --user=root来启动mysql，但该命令是前台运行会导致阻塞，所以需要&来而不是&&来衔接下一条指令，&的使用可以保证即使前一条指令未执行完毕也能够继续执行下一条指令，&&则必须要前一条指令执行成功才能继续执行下一条指令
+
+
+
+
+
+
+## 如何设置ssh连接后执行指定可执行文件
+
+基于.bashrc和ssh连接的特性
+
+.bashrc在对应用户（这要看.bashrc文件在哪个用户的家目录下）在登录时可以设置一些自动执行的可执行文件
+
+例如
+
+if [ -n "$SSH_CONNECTION" ]; then /path/可执行文件 fi
+
+上述命令实现了ssh连接后在cli执行指定的可执行文件,-n参数是限制仅"$SSH_CONNECTION" 一个判断条件
+
+SSH_CONNECTION变量在ssh连接成功后会被自动赋值，内容格式为:
+
+客户端IP 客户端端口 服务器IP 服务器端口
+
+当没有ssh连接进程时，该变量为空值
+
+基于这些原理，就可以设置指定用户ssh登录时自动执行指定的可执行文件
+
+
+
+
+
+
+
+## 在linux系统的cli中如何实现字体属性设置
+
+这里用C程序举例（使用echo时要加-e选项，参数要加双引号)
+
+终端字体设置
+\#include <stdio.h>
+int main()
+{ puts("\033[5;33m黄色字体,属性是闪烁\033[0m"); /*固定模板是\033[<属性代码>;<前景色代码>;<背景色代码>m 后接需要应用的文本 / 属性代码: 重置(恢复默认)-0 加粗(亮色)-1 淡色(暗色)-2 斜体-3 下划线-4 闪烁-5 反显(反白)-7 隐藏文字-8 前景色和对应代码: 黑色-30 红色-31 绿色-32 黄色-33 蓝色-34 洋红色(品红)-35 青色-36 白色-37 背景色和对应代码: 黑色-40 红色-41 绿色-42 黄色-43 蓝色-44 洋红色(品红)-45 青色-46 白色-47 */ 
+return 0; 
+}
+
+
+
+
+
+## 使用ifconfig临时修改网卡配置(重启失效)
+
+格式: ifconfig 网卡名 参数
+
+
+
+
+## FQDN
+
+"完全限定域名",实际上就是字面意思。本质上，它是互联网上计算机或主机的完整域名。它由几个不同的元素组成
+
+它分为以下几个部分：
+
+［hostname］.［domain］.［tld］
+
+例如，以下是如何分解完全限定域名，www.WordPress 站群.com。The 第一部分(“www”)是主机名。第二部分(“WordPress 站群”)是域名。最后一部分(“com”)是 TLD(顶级域)
+
+可以将完全限定域名视为地址。这个地址的目的是在 DNS 系统中指定位置。使用 FQDN，网站或其他线上实体的位置有都自己的唯一识别符号和位置。
+
+
+
+
+## 私网ip地址范围
+10.0.0.0-10.255.255.255
+
+172.16.0.0-172.31.255.255
+
+192.168.0.0-192.168.255.255
+
+
+
+## repodata
+用于储存元数据，记录软件包之间的依赖关系
+
+
+
+## 为什么空目录的硬链接索引值默认为2
+一个是自身目录，另一个是特殊文件'.'，就是代表当前目录的'.'，它和".."是linux中的特殊文件，'.'是当前目录的特殊硬链接文件，".."是对当前目录的父目录的特殊硬链接文件，以此类推，当一个目录为空时,该目录只有一个'.'和自身，所以硬链接索引值为2，当该目录存在一个空的子文件夹时，又多了一个该子文件夹下的".."文件作为又一个硬链接
+
+
+## 特殊重定向的使用
+1>
+1可以视为进程的默认出口，不加1和>也没区别
+
+作用是仅将正确信息覆盖重定向到指定文件，错误信息会输出到终端,处理顺序是先清空后写入
+
+2>
+2可以视为进程的默认错误出口
+
+仅将错误信息覆盖重定向到指定文件，不会在shell上显示
+
+
+
+1>和2>的组合使用和变种
+可以实现同时记录正常输出与错误输出
+echo hello  >> hello.log	2>> hell.log
+
+这个功能实现还有多种写法
+echo hello   >> hello.log   2>&1
+
+
+echo hello &>> hello.log
+无论正确错误，都会追加重定向到指定文件，不在shell上显示
+
+在定时任务中常用，同时记录正确和错误信息
+
+
+
+## 使用管道非交互式修改用户密码
+echo "000000" | passwd --stdin user
+
+
+
+## tee命令
+在处理输入输出流时功能类似T型管
+
+一方面它会通过标准输入读取
+
+另一方面它会将标准输入重定向到指定文件(默认是覆盖重定向，加-a选项是追加重定向)
+
+在这个过程中间，它还会将标准输入输出到标准输出(一般是当前shell)
+
+
+
+
+
+
+## linux的用户与组提权
+有临时提权和永久提权，就是允许sudo的使用
+
+临时提权
+当前用户执行sudo命令,id命令查看当前权限
+
+永久提权
+修改/etc/sudoers文件第108行（可以通过visudo命令直接进入该配置文件）
+
+格式是:     用户名  ALL=(ALL)       ALL
+
+(其实在配置文件内部都有参考,包括组提权，参考wheel组）
+
+sudo提权可以精确到具体命令
+```bash
+[root@server ~]# grep "^testuser" /etc/sudoers
+testuser ALL=(ALL) /bin/cat
+[root@server ~]# 
+```
+
+```bash
+[testuser@server ~]$ sudo echo hello
+对不起，用户 testuser 无权以 root 的身份在 server 上执行 /bin/echo hello。
+[testuser@server root]$ sudo cat sudotest.txt
+[sudo] testuser 的密码：
+hello!
+[testuser@server root]$ 
+```
+
+通过sudo -l命令可以查看当前用户有哪些sudo权限
+
+```bash
+[testuser@server root]$ sudo -l
+匹配 %2$s 上 %1$s 的默认条目：
+    !visiblepw, always_set_home, match_group_by_gid, always_query_group_plugin, env_reset, env_keep="COLORS DISPLAY HOSTNAME HISTSIZE KDEDIR LS_COLORS",
+    env_keep+="MAIL PS1 PS2 QTDIR USERNAME LANG LC_ADDRESS LC_CTYPE", env_keep+="LC_COLLATE LC_IDENTIFICATION LC_MEASUREMENT LC_MESSAGES", env_keep+="LC_MONETARY
+    LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE", env_keep+="LC_TIME LC_ALL LANGUAGE LINGUAS _XKB_CHARSET XAUTHORITY", secure_path=/sbin\:/bin\:/usr/sbin\:/usr/bin
+
+用户 testuser 可以在 server 上运行以下命令：
+    (ALL) /bin/cat
+[testuser@server root]$ 
+```
+
+
+
+
+
+## cron定时任务
+/etc/crontab  计划任务列表配置文件
+
+crontab -u 指定用户 -e 开始编辑定时任务
+
+定时任务的格式是
+
+分 时 日 月 周 待执行命令
+
+用*代替指定时间段
+ `* * * * * echo hello`
+
+代表每分钟执行一次echo hello命令
+
+可以加除号指定每xx时间段执行
+
+*/3 * * * * echo hello
+
+代表每三分钟执行一次echo hello
+
+以此类推
+
+
+
+
+## semanager（待补充）
+用于管理selinux的安全上下文
+
+
+
+## semanager port
+用来管理端口安全上下文
+
+-a添加规则
+
+-t指定标签类型
+
+-p指定协议tcp/udp
+
+-l列出所有端口安全上下文
+
+
+
+
+
+
+## find的一些参数使用
+-name
+指定名字，精确查询，也可以使用通配符和正则进行模糊查询
+
+和-i一起使用组成-iname可忽略大小写
+
+ -type
+指定搜索的文件类型，普通文件f,目录文件d,软连接l
+
+
+ -perm
+根据权限搜索(数字表示法)
+
+查找特殊权限时，例如sgid权限，可以通过-perm -2000查找
+
+也可以通过字符表示-perm -g+s
+
+
+ -user
+根据文件所有者搜索
+
+
+-group
+根据文件的组所有者搜索
+
+
+-size
+根据文件大小查找
+
++xxM  查找大于xxM的文件
+
+-xxM   查找小于xx
+
+
+-mtime
+根据修改时间查找文件
+
++7表示  找出7天之前的文件(修改时间是7天之前)
+
+-7表示  最近7天内的文件
+
+
+找出/etc/目录下以.conf结尾的，7天之前的文件
+
+find /etc/ -type f -name "*.conf" -mtime +7
+
+
+ -exec
+表示find找出文件后要执行的命令
+
+find /oldboy/find/ -type f -name '*.txt' -exec ls -lh {} \;
+
+{} 表示前面find命令找出的文件,作占位符使用
+
+\;是该选项的固定格式,表示命令结束
+
+
+
+## tar命令
+tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数实现
+后缀是.tar
+```
+-c 创建新包
+-v 显示过程
+-f 指定待处理文件，该参数要放到最后
+-x 提取文件
+-z 使用gzip过滤(使用该参数可以通过gzip实现压缩文件的创建和解压缩，格式是gzip,后缀加.gz)
+-j, 通过 bzip2 过滤归档(同上,压缩文件格式是bzip2，后缀加.bz2)
+-J 通过xz过滤归档(同上,后缀加.xz)
+ -C 指定解压位置
+```
+
+
+
+## 关于su和ssh特性
+1. su 切换用户的环境问题  
+使用 su wallah 从 root 切换到 wallah 用户。这种方式 不会完全重置环境变量（如 XDG_RUNTIME_DIR），会继承 root 的部分环境。  
+
+2. SSH 登录的优势  
+通过 ssh wallah@localhost 登录时：  
+系统会创建全新的登录会话，完全初始化 wallah 用户的环境。  
+自动设置正确的 XDG_RUNTIME_DIR（如 /run/user/1000，假设 wallah 的 UID=1000）。  
+Podman 可正常访问运行时目录，因此认证成功。
+3. 根本原因总结  
+su 命令的缺陷：不加载目标用户的完整环境（尤其 systemd 相关的登录会话）。
+
+
+##  systemd
+
+在较新的linux系统上，都使用systemd 取代了init（红帽在 rhel7 之后使用 systemd），成为系统的第一个进程（PID 等于 1），其他进程都是它的子进程。systemd为系统启动和管理提供了完整的解决方案。它提供了一组命令。字母d是守护进程（daemon）的缩写
+
+一、systemd 核心概念
+
+1. 定义：systemd 是现代 Linux 系统的初始化系统 (Init System) 和服务管理器，是内核启动后运行的第一个进程（PID 1）。
+    
+2. 核心优势： 并行启动：通过精确的依赖管理和套接字激活等技术，最大化并行启动服务，极大提升开机速度。 统一管理：使用 systemctl 一个命令管理所有系统资源（服务、设备、挂载点等）。 强大功能：集成了日志管理 (journald)、定时任务 (timer)、资源隔离 (cgroups) 等功能。
+    
+3. 基本单元 (Unit)：systemd 管理的基本对象，通过单元文件定义。常见类型有： .service：定义一个后台服务。 .target：对单元进行分组，代表系统运行状态（类似“运行级别”）。 .socket：定义一个套接字，用于按需启动服务（Socket Activation）。 .timer：定义一个定时器，用于替代 cron。 .mount / .automount：管理文件系统挂载。
+    
+
+二、systemd 的两个层面：系统 vs 用户
+
+systemd 同时在系统和用户两个层面运行，职责分明。
+
+特性：系统层面 (System Level) / 用户层面 (User Level) 管理者：systemd (PID 1)，以 root 权限运行 / systemd --user，以普通用户权限运行 核心命令：sudo systemctl ... / systemctl --user ... 主要用途：管理整个系统的核心服务（如 Nginx, SSHD, 数据库） / 管理用户个人应用（如同步工具, 开发服务器, GUI 程序） 生命周期：从系统启动到系统关机 / 从用户首次登录到最后一次会话登出（除非开启 Linger） 日志查看：sudo journalctl ... / journalctl --user ...
+
+三、单元文件加载路径与优先级
+
+systemd 在固定的路径下按优先级顺序查找单元文件。高优先级目录中的同名文件会覆盖低优先级目录中的文件。
+
+系统单元 (systemctl)
+
+1. /etc/systemd/system/ (管理员配置，最高优先级) 系统管理员放置自定义配置或修改现有服务的地方。 systemctl enable 主要在此创建链接。
+    
+2. /run/systemd/system/ (运行时生成，中等优先级) 存放运行时动态创建的单元。
+    
+3. /usr/lib/systemd/system/ (软件包默认，最低优先级) 软件包安装时自带的默认单元文件。不应直接修改此目录下的文件。
+    
+
+用户单元 (systemctl --user)
+
+1. ~/.config/systemd/user/ (用户自定义，最高优先级) 用户放置个人服务单元文件的首选位置。
+    
+2. /etc/systemd/user/ (管理员为用户配置，中等优先级) 管理员为所有用户提供的通用用户单元。
+    
+3. /usr/lib/systemd/user/ (软件包默认，最低优先级) 软件包为用户模式提供的默认单元文件。
+    
+
+四、核心工作机制
+
+1. 启动流程： 内核启动 systemd (PID 1)。 systemd 读取 default.target 链接（通常指向 graphical.target 或 multi-user.target）。 递归解析目标的依赖关系（Wants=, Requires=, After= 等），构建依赖树。 将无依赖或依赖已满足的单元并行启动。 可视化工具：systemd-analyze plot > boot.svg 可生成启动过程图。
+    
+2. 用户服务逗留 (Linger)： 问题：默认情况下，用户登出后，其名下的所有服务都会被终止。 解决方案：为用户开启 Linger，使其 systemd --user 实例在开机时启动，并在用户登出后继续运行。 命令：sudo loginctl enable-linger <用户名>
+    
+
+五、常用命令速查表
+
+注意：管理用户服务时，在所有命令中加入 --user 标志。
+
+[服务管理] 启动服务：start (示例：sudo systemctl start nginx.service) 停止服务：stop (示例：sudo systemctl stop nginx.service) 重启服务：restart (示例：sudo systemctl restart nginx.service) 重载配置：reload (示例：sudo systemctl reload nginx.service) 查看状态：status (示例：systemctl --user status my-app.service)
+
+[开机/登录自启] 设为自启：enable (示例：systemctl --user enable my-timer.timer) 禁止自启：disable (示例：sudo systemctl disable sshd.service) 检查自启状态：is-enabled (示例：systemctl is-enabled nginx.service)
+
+[日志查看 (Journal)] 查看所有日志：journalctl (示例：journalctl) 按单元过滤：-u (示例：journalctl -u sshd) 实时跟踪：-f (示例：journalctl -f -u nginx) 按优先级过滤：-p (示例：journalctl -p err 查看错误及以上)
+
+[系统与配置] 重载单元文件：daemon-reload (示例：systemctl --user daemon-reload) 查看默认目标：get-default (示例：systemctl get-default) 设定默认目标：set-default (示例：sudo systemctl set-default multi-user.target) 重启/关机：reboot / poweroff (示例：sudo systemctl reboot) 列出定时器：list-timers (示例：systemctl --user list-timers)
+
+
+
+
+
+
+
+##  init
+
+以前的Linux启动都是用init进程。启动服务：
+
+$ sudo /etc/init.d/apache2 start
+
+或者
+
+$ service apache2 start
+
+缺点：
+
+启动时间长。init进程是串行启动，只有前一个进程启动完，才会启动下一个进程。 启动脚本复杂。init进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。
+
+以红帽系统为例，在 rhel7 之后使用 systemd 代替 init 启动
+
+
+## linux文件特殊权限 suid、sgid、sticky
+
+linux文件的三种特殊权限分别是：suid权限、sgid权限、sticky权限；其中suid权限作用于文件属主，sgid权限作用于属组上，sticky权限作用于other其他上。
+
+一、SUID (Set User ID)
+
+作用对象：可执行文件 功能：当用户执行该文件时，程序会以文件所有者的权限运行（而不是执行者的权限） 符号表示：s 或 S（位于所有者执行位） 数字表示：4（权限前缀）
+
+特点：
+仅对二进制可执行文件有效（脚本文件需依赖解释器，通常无效）
+权限位显示：
+rwsr-xr-x：有执行权限时显示小写 s
+rwSr--r--：无执行权限时显示大写 S
+
+经典应用：
+
+ls -l /usr/bin/passwd 输出：-rwsr-xr-x 1 root root 59976 Nov 24 2022 /usr/bin/passwd
+
+普通用户执行 passwd 时，临时获得 root 权限修改 /etc/shadow
+
+设置方法：
+
+符号法 chmod u+s filename
+
+数字法（4755 = SUID + rwxr-xr-x） chmod 4755 filename
+
+二、SGID (Set Group ID)
+
+作用对象：可执行文件和目录 功能：
+
+对文件：执行时以文件所属组的权限运行 对目录：在该目录下创建的新文件/目录继承父目录的所属组
+
+符号表示：s 或 S（位于所属组执行位） 数字表示：2（权限前缀）
+
+目录应用场景：
+
+假设共享目录 /project 属于 dev-team 组：
+
+sudo chmod g+s /project # 设置SGID sudo chgrp dev-team /project
+
+用户A（主组为 groupA）在 /project 创建文件时：
+
+touch /project/file.txt ls -l /project/file.txt 输出：-rw-r--r-- 1 userA dev-team 0 Jul 14 10:00 file.txt
+
+文件自动属于 dev-team 组，而非用户的主组
+
+设置方法：
+
+符号法 chmod g+s directory
+
+数字法（2775 = SGID + rwxrwsr-x） chmod 2775 directory
+
+三、Sticky Bit (粘滞位)
+
+作用对象：目录 功能：只允许文件所有者或root删除/重命名目录中的文件 符号表示：t 或 T（位于其他用户执行位） 数字表示：1（权限前缀）
+
+经典应用：
+
+ls -ld /tmp 输出：drwxrwxrwt 12 root root 4096 Jul 14 09:30 /tmp
+
+所有用户可在 /tmp 创建文件 但只能删除自己创建的文件（防止用户随意删除他人文件）
+
+设置方法：
+
+符号法 chmod +t directory
+
+数字法（1777 = Sticky + rwxrwxrwt） chmod 1777 directory
+
+关于linux设置普通用户密码策略
+
+系统用户不受该配置文件影响
+
+配置文件和具体参数如下
+
+[root@node1 ~]# grep ^PASS /etc/login.defs PASS_MAX_DAYS 25 PASS_MIN_DAYS 0 PASS_WARN_AGE 7
+
+PASS_MAX_DAYS:用于设置普通用户的密码有效期 PASS_MIN_DAYS用于设置普通用户的密码修改最小间隔时间 PASS_WARN_AGE 7用于设置普通用户的密码过期前的警告提前期 单位都是天
+
+另外还有 PASS_MIN_LEN用于设置密码最小长度，对root账户无效 使用chage -l user查看指定用户密码策略信息
+
+
+
+
+
+
+## umask
+
+umask 不是文件属性 错误理解："查看文件的 umask" 正确理解："查看当前会话的 umask 设置" umask 是 Shell 进程的环境变量，影响新创建的文件/目录
+
+umask 的值是被“拒绝”的权限。数值越大，权限越严格
+
+权限系统的底层逻辑：二进制位控制
+
+Linux 文件权限的本质是 9 个二进制位（对应 rwxrwxrwx）：
+
+rwx rwx rwx → 用户(u) 组(g) 其他(o) 111 111 111 = 777 (八进制)
+
+每个权限位：
+1 = 启用权限
+0 = 禁用权限
+
+umask 是反向掩码： 它的二进制位表示 需要强制关闭的权限（1=关闭，0=保留）。
+
+关键认知： 权限值（如 755）是人类可读的八进制抽象，而 umask 是操作系统内核直接处理的二进制掩码。
+
+计算公式： 最终权限 = 最大权限 & (~umask) （& 表示按位与，~ 表示按位取反）
+
+按位与是指在二进制中，两个对应位置有一个为0就取0，取反就是字面意思
+
+至于进制换算有个通用公式，参考下面这个十进制拆解 123 = 1 * 10^2 + 2 * 10^1 + 3 * 10^0
+
+不加参数会显示当前用户的权限值
+[root@node1 ~]# umask 0022
+
+第一个 0 表示是 8 进制，后面的三位数字用 8 进制表示
+加上-S选项会以字符形式显示权限
+[root@node1 ~]# umask -S u=rwx,g=rx,o=rx
+通常目录文件的默认权限是777(rwxrwxrwx)，普通文件的默认权限是666(rw-rw-rw-)
+
+在此基础上受umask的影响 umask为0022(第一位是特殊权限位)3 那么以022为例 0表示文件所属者权限不变，2代表对应所有者权限减2(即w权限) 那么022对应的目录权限就是755（rwxr-xr-x）,文件就是644（rw-r--r--）
+
+可以通过在指定用户的.bashrc文件内写入umask xxxx并source声明设置环境变量
+
+
+
+
+## linux各种引号的作用
+
+
+1.单引号' ' 单引号里面的内容会原封不动输出，全都视为普通字符进行处理
+
+2.双引号" " 和双引号类似，但它会对双引号里面的特殊符号进行解析，不过对于花括号{}(通配符)没有解析
+
+3.不加引号 和双引号类似，额外支持通配符（匹配文件）*.log {1..10}
+
+4.反引号 优先执行，先执行反引号里面的命令，相较于$()，两者作用相同，但反引号在类unix平台适用性更高
+
+
+
+
+
+
+
+
+
+## 文件属性inode和block
+
+ls加-i选项可查看inode号
+
+inode号准确地说是inode索引节点,inode号码类似于身份证号码,通过inode号码可以找到文件的内容.
+
+inode inode是一个空间，inode号是空间的位置,类似于身份证,inode空间存放: inode空间中存放的是 文件属性信息 ,文件大小,修改时间,权限,所有者 inode空间中存放block的位置(指向文件实体的指针) 这里不存放文件名.
+
+block块(数据块): 存放数据
+
+
+
+
+
+
+## 管道的一些特性
+ 管道无法将接收的数据流转化为后续命令的参数，如果一定要使用管道，可以在管道后面加上xargs，把前面命令传递过来的字符串转换为后面命令可以识别的参数
+[root@server ~]# mkdir -pv testdir 
+[root@server ~]# touch testdir/{1,2,3}.ddd 
+[root@server ~]# find testdir/ -name "*.ddd" |xargs ls -lh -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/1.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/2.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/3.ddd
+[root@server ~]# find testdir/ -name "*.txt" |xargs cp -t matchfile_dir/ [root@server ~]# ls matchfile_dir/ 10.txt 1.txt 2.txt 3.txt 4.txt 5.txt 6.txt 7.txt 8.txt 9.txt 
+[root@server ~]#
+
+有时管道会将某些命令的标准输出视为错误输出不予传递
+
+如图，从 curl -v 的标准输出中过滤关键词 Date 失败
+
+![[_resources/linux笔记/5868337d1d74cb62f25fbe671bfdafe5_MD5.png]]
+
+只需要在管道符后面加上一个&即可
+
+![[_resources/linux笔记/5291b5bebf2a0dff8ef97421fd6e7130_MD5.png]]
+
+linux的/etc/skel目录
+
+该目录下方存放着所有新用户的家目录模板
+
+
+
+## 故障案例：命令行变为bash-5.1$
+
+原因: 用户家目录下面的配置文件没了这两个: ~/.bashrc，~/.bash_profile
+
+解决: /etc/skel目录下方存放着所有新用户的家目录模板,将缺失文件复制到指定用户的家目录
+
+[root@server ~]# su testuser bash-5.1$ cp /etc/skel/.bash* ~/ bash-5.1$ bash [testuser@server root]$ cd ~ 
+[testuser@server ~]$
+
+
+
+
+
+## 异常进程分类
+
+僵尸进程 僵尸进程是当子进程比父进程先结束，而父进程又没有回收子进程，释放子进程占用的资源，此时子进程将成为一个僵尸进程。 由于各种原因导致某个进程挂掉了，但是进程本身仍然存在，还占用着系统资源
+
+这里用ai写了一个linux僵尸进程的C程序模拟
+
+[root@server ~]# gcc -o zombine code/zombine.c 
+[root@server ~]# ./zombine [Parent] PID 2378 running [Parent] Created child PID 2379 [Parent] Sleeping for 60 seconds without calling wait()... [Child] PID 2379 started [Child] Exiting immediately...
+
+此时前台阻塞中，再开一个bash进程来操作
+
+```
+[root@server ~]# ps aux | grep zombine
+root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 pts/0 Z+ 16:22 0:00 [zombine]  root 2381 0.0 0.1 221680 2448 pts/1 S+ 16:22 0:00 grep --color=auto zombine [root@server ~]# pstree -p | grep 2378 |-sshd(988)-+-sshd(2094)---sshd(2130)---bash(2140)---zombine(2378)---zombine(2379) 
+```
+
+查询到僵尸进程后通过pid查看对应进程树 僵尸进程是由于父进程进入异常状态(这里的父进程用sleep函数模拟异常状态)无法正常回收子进程，导致子进程一直占用资源，通过进程树得知异常父进程的pid是2378 只能通过杀死父进程来杀死僵尸进程
+
+```
+[root@server ~]# kill -9 2378
+[root@server ~]# ./zombine
+[Parent] PID 2401 running 
+[Parent] Created child PID 2378
+[Parent] Sleeping for 60 seconds without calling wait()... 
+[Child] PID 2379 started 
+[Child] Exiting immediately... 已杀死 
+[root@server ~]#
+
+```
+孤儿进程 孤儿进程指的是在其父进程执行完成或被终止后仍继续运行的一类进程。 孤儿进程会被系统直接接管.(systemd进程)
+
+还是用C代码演示孤儿进程
+
+```
+[root@server ~]# ./orphan
+[Parent] PID 2471 created child PID 2472
+[Parent] Exiting now 
+[Child] PID 2472 started (PPID=1) 
+[root@server ~]# 
+[Orphan] PID 2472 now has PPID=1 (init process) 
+[Orphan] Running for 60 seconds...
+[root@server ~]# ps aux | grep orphan root 2472 0.0 0.0 2628 88 pts/1 S 16:46 0:00 ./orphan root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan 
+[root@server ~]# pstree -p | grep 2472 |-orphan(2472)
+```
+
+这里可以看到该进程被系统接管,直接kill -9杀掉就行
+
+
+
+
+
+## Linux RPM包统一命名规则
+ RPM 二进制包命名的一般格式如下： 包名-版本号-发布次数-发行商-Linux平台-适合的硬件平台-包扩展名
+
+有些 rpm 包用于生成软件源，它们的格式一般如下:
+
+1. 后缀关键词：
+-release (最常见)
+-repo(次常见)
+-repository (较少见)
+-yum(罕见)
+
+架构标识：
+.noarch.rpm(99% 的源配置包都是 noarch 架构)
+命名模式：
+<软件名>-<功能词>-<系统版本>.noarch.rpm
+
+
+
+
 
 
 
@@ -1525,109 +2206,6 @@ find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’�
 
 
 
-# 12/29
-
-
-## 关于&和&&的使用
-
-在dockerfile的CMD指令中需要指定一个前台运行的指令来保障容器的运行，例如在编写mysql的dockerfile用初始化脚本时使用mysqld --user=root来启动mysql，但该命令是前台运行会导致阻塞，所以需要&来而不是&&来衔接下一条指令，&的使用可以保证即使前一条指令未执行完毕也能够继续执行下一条指令，&&则必须要前一条指令执行成功才能继续执行下一条指令
-
-
-
-
-
-
-## 如何设置ssh连接后执行指定可执行文件
-
-基于.bashrc和ssh连接的特性
-
-.bashrc在对应用户（这要看.bashrc文件在哪个用户的家目录下）在登录时可以设置一些自动执行的可执行文件
-
-例如
-
-if [ -n "$SSH_CONNECTION" ]; then /path/可执行文件 fi
-
-上述命令实现了ssh连接后在cli执行指定的可执行文件,-n参数是限制仅"$SSH_CONNECTION" 一个判断条件
-
-SSH_CONNECTION变量在ssh连接成功后会被自动赋值，内容格式为:
-
-客户端IP 客户端端口 服务器IP 服务器端口
-
-当没有ssh连接进程时，该变量为空值
-
-基于这些原理，就可以设置指定用户ssh登录时自动执行指定的可执行文件
-
-
-
-
-
-
-
-## 在linux系统的cli中如何实现字体属性设置
-
-这里用C程序举例（使用echo时要加-e选项，参数要加双引号)
-
-终端字体设置
-\#include <stdio.h>
-int main()
-{ puts("\033[5;33m黄色字体,属性是闪烁\033[0m"); /*固定模板是\033[<属性代码>;<前景色代码>;<背景色代码>m 后接需要应用的文本 / 属性代码: 重置(恢复默认)-0 加粗(亮色)-1 淡色(暗色)-2 斜体-3 下划线-4 闪烁-5 反显(反白)-7 隐藏文字-8 前景色和对应代码: 黑色-30 红色-31 绿色-32 黄色-33 蓝色-34 洋红色(品红)-35 青色-36 白色-37 背景色和对应代码: 黑色-40 红色-41 绿色-42 黄色-43 蓝色-44 洋红色(品红)-45 青色-46 白色-47 */ 
-return 0; 
-}
-
-
-
-
-
-## 使用ifconfig临时修改网卡配置(重启失效)
-
-格式: ifconfig 网卡名 参数
-
-
-
-
-## FQDN
-
-"完全限定域名",实际上就是字面意思。本质上，它是互联网上计算机或主机的完整域名。它由几个不同的元素组成
-
-它分为以下几个部分：
-
-［hostname］.［domain］.［tld］
-
-例如，以下是如何分解完全限定域名，www.WordPress 站群.com。The 第一部分(“www”)是主机名。第二部分(“WordPress 站群”)是域名。最后一部分(“com”)是 TLD(顶级域)
-
-可以将完全限定域名视为地址。这个地址的目的是在 DNS 系统中指定位置。使用 FQDN，网站或其他线上实体的位置有都自己的唯一识别符号和位置。
-
-
-
-
-
-
-
-
-
-
-## 私网ip地址范围
-10.0.0.0-10.255.255.255
-
-172.16.0.0-172.31.255.255
-
-192.168.0.0-192.168.255.255
-
-
-
-## repodata
-用于储存元数据，记录软件包之间的依赖关系
-
-
-
-
-
-
-
-
-
-
-
 # 7/4
 ## DNS端口
 因为使用的是udp，所以是53号端口
@@ -1652,13 +2230,6 @@ return 0;
 
 
 # 7/5
-## 为什么空目录的硬链接索引值默认为2
-一个是自身目录，另一个是特殊文件'.'，就是代表当前目录的'.'，它和".."是linux中的特殊文件，'.'是当前目录的特殊硬链接文件，".."是对当前目录的父目录的特殊硬链接文件，以此类推，当一个目录为空时,该目录只有一个'.'和自身，所以硬链接索引值为2，当该目录存在一个空的子文件夹时，又多了一个该子文件夹下的".."文件作为又一个硬链接
-
-
-
-
-
 
 ## nginx和httpd的默认端口
 nginx和httpd都默认使用80端口，两个服务都部署时，就要考虑端口冲突问题
@@ -1669,267 +2240,10 @@ nginx和httpd都默认使用80端口，两个服务都部署时，就要考虑�
 
 
 
-
-
-
-
-# 7/7
-## 特殊重定向的使用
-1>
-1可以视为进程的默认出口，不加1和>也没区别
-
-作用是仅将正确信息覆盖重定向到指定文件，错误信息会输出到终端,处理顺序是先清空后写入
-
-2>
-2可以视为进程的默认错误出口
-
-仅将错误信息覆盖重定向到指定文件，不会在shell上显示
-
-
-
-1>和2>的组合使用和变种
-可以实现同时记录正常输出与错误输出
-echo hello  >> hello.log	2>> hell.log
-
-这个功能实现还有多种写法
-echo hello   >> hello.log   2>&1
-
-
-echo hello &>> hello.log
-无论正确错误，都会追加重定向到指定文件，不在shell上显示
-
-在定时任务中常用，同时记录正确和错误信息
-
-
-
-## 使用管道非交互式修改用户密码
-echo "000000" | passwd --stdin user
-
-
-
-## tee命令
-在处理输入输出流时功能类似T型管
-
-一方面它会通过标准输入读取
-
-另一方面它会将标准输入重定向到指定文件(默认是覆盖重定向，加-a选项是追加重定向)
-
-在这个过程中间，它还会将标准输入输出到标准输出(一般是当前shell)
-
-
-
-
-
-
-## linux的用户与组提权
-有临时提权和永久提权，就是允许sudo的使用
-
-临时提权
-当前用户执行sudo命令,id命令查看当前权限
-
-永久提权
-修改/etc/sudoers文件第108行（可以通过visudo命令直接进入该配置文件）
-
-格式是:     用户名  ALL=(ALL)       ALL
-
-(其实在配置文件内部都有参考,包括组提权，参考wheel组）
-
-sudo提权可以精确到具体命令
-```bash
-[root@server ~]# grep "^testuser" /etc/sudoers
-testuser ALL=(ALL) /bin/cat
-[root@server ~]# 
-```
-
-```bash
-[testuser@server ~]$ sudo echo hello
-对不起，用户 testuser 无权以 root 的身份在 server 上执行 /bin/echo hello。
-[testuser@server root]$ sudo cat sudotest.txt
-[sudo] testuser 的密码：
-hello!
-[testuser@server root]$ 
-```
-
-通过sudo -l命令可以查看当前用户有哪些sudo权限
-
-```bash
-[testuser@server root]$ sudo -l
-匹配 %2$s 上 %1$s 的默认条目：
-    !visiblepw, always_set_home, match_group_by_gid, always_query_group_plugin, env_reset, env_keep="COLORS DISPLAY HOSTNAME HISTSIZE KDEDIR LS_COLORS",
-    env_keep+="MAIL PS1 PS2 QTDIR USERNAME LANG LC_ADDRESS LC_CTYPE", env_keep+="LC_COLLATE LC_IDENTIFICATION LC_MEASUREMENT LC_MESSAGES", env_keep+="LC_MONETARY
-    LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE", env_keep+="LC_TIME LC_ALL LANGUAGE LINGUAS _XKB_CHARSET XAUTHORITY", secure_path=/sbin\:/bin\:/usr/sbin\:/usr/bin
-
-用户 testuser 可以在 server 上运行以下命令：
-    (ALL) /bin/cat
-[testuser@server root]$ 
-```
-
-
-
-
-
-## cron定时任务
-/etc/crontab  计划任务列表配置文件
-
-crontab -u 指定用户 -e 开始编辑定时任务
-
-定时任务的格式是
-
-分 时 日 月 周 待执行命令
-
-用*代替指定时间段
- `* * * * * echo hello`
-
-代表每分钟执行一次echo hello命令
-
-可以加除号指定每xx时间段执行
-
-*/3 * * * * echo hello
-
-代表每三分钟执行一次echo hello
-
-以此类推
-
-
-
-
-
-
-
-# 7/8
-## semanager（待补充）
-用于管理selinux的安全上下文
-
-
-
-## semanager port
-用来管理端口安全上下文
-
--a添加规则
-
--t指定标签类型
-
--p指定协议tcp/udp
-
--l列出所有端口安全上下文
-
-
-
-
-
-
-
-
-
-
-
-# 7/10
-## find的一些参数使用
--name
-指定名字，精确查询，也可以使用通配符和正则进行模糊查询
-
-和-i一起使用组成-iname可忽略大小写
-
- -type
-指定搜索的文件类型，普通文件f,目录文件d,软连接l
-
-
- -perm
-根据权限搜索(数字表示法)
-
-查找特殊权限时，例如sgid权限，可以通过-perm -2000查找
-
-也可以通过字符表示-perm -g+s
-
-
- -user
-根据文件所有者搜索
-
-
--group
-根据文件的组所有者搜索
-
-
--size
-根据文件大小查找
-
-+xxM  查找大于xxM的文件
-
--xxM   查找小于xx
-
-
--mtime
-根据修改时间查找文件
-
-+7表示  找出7天之前的文件(修改时间是7天之前)
-
--7表示  最近7天内的文件
-
-
-找出/etc/目录下以.conf结尾的，7天之前的文件
-
-find /etc/ -type f -name "*.conf" -mtime +7
-
-
- -exec
-表示find找出文件后要执行的命令
-
-find /oldboy/find/ -type f -name '*.txt' -exec ls -lh {} \;
-
-{} 表示前面find命令找出的文件,作占位符使用
-
-\;是该选项的固定格式,表示命令结束
-
-
-
-## tar命令
-tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数实现
-
-后缀是.tar
-
--c 创建新包
-
--v 显示过程
-
--f 指定待处理文件，该参数要放到最后
-
--x 提取文件
-
--z 使用gzip过滤(使用该参数可以通过gzip实现压缩文件的创建和解压缩，格式是gzip,后缀加.gz)
-
--j, 通过 bzip2 过滤归档(同上,压缩文件格式是bzip2，后缀加.bz2)
-
--J 通过xz过滤归档(同上,后缀加.xz)
-
-
-
 ## http和nginx的网页默认访问根目录
 http是/var/www/html
 
 nginx是/usr/share/html
-
-
-
-## 关于su和ssh特性
-1. su 切换用户的环境问题  
-使用 su wallah 从 root 切换到 wallah 用户。这种方式 不会完全重置环境变量（如 XDG_RUNTIME_DIR），会继承 root 的部分环境。  
-
-2. SSH 登录的优势  
-通过 ssh wallah@localhost 登录时：  
-系统会创建全新的登录会话，完全初始化 wallah 用户的环境。  
-自动设置正确的 XDG_RUNTIME_DIR（如 /run/user/1000，假设 wallah 的 UID=1000）。  
-Podman 可正常访问运行时目录，因此认证成功。
-3. 根本原因总结  
-su 命令的缺陷：不加载目标用户的完整环境（尤其 systemd 相关的登录会话）。
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1997,89 +2311,6 @@ no-auto-default=*
 映射文件（如 /etc/remote.misc）
 作用：定义子目录如何挂载到远程共享。 常见格式： [子目录名] [挂载选项] [服务器:共享路径]
 
-
-
-## 关于 systemd
-
-在较新的linux系统上，都使用systemd 取代了init（红帽在 rhel7 之后使用 systemd），成为系统的第一个进程（PID 等于 1），其他进程都是它的子进程。systemd为系统启动和管理提供了完整的解决方案。它提供了一组命令。字母d是守护进程（daemon）的缩写
-
-一、systemd 核心概念
-
-1. 定义：systemd 是现代 Linux 系统的初始化系统 (Init System) 和服务管理器，是内核启动后运行的第一个进程（PID 1）。
-    
-2. 核心优势： 并行启动：通过精确的依赖管理和套接字激活等技术，最大化并行启动服务，极大提升开机速度。 统一管理：使用 systemctl 一个命令管理所有系统资源（服务、设备、挂载点等）。 强大功能：集成了日志管理 (journald)、定时任务 (timer)、资源隔离 (cgroups) 等功能。
-    
-3. 基本单元 (Unit)：systemd 管理的基本对象，通过单元文件定义。常见类型有： .service：定义一个后台服务。 .target：对单元进行分组，代表系统运行状态（类似“运行级别”）。 .socket：定义一个套接字，用于按需启动服务（Socket Activation）。 .timer：定义一个定时器，用于替代 cron。 .mount / .automount：管理文件系统挂载。
-    
-
-二、systemd 的两个层面：系统 vs 用户
-
-systemd 同时在系统和用户两个层面运行，职责分明。
-
-特性：系统层面 (System Level) / 用户层面 (User Level) 管理者：systemd (PID 1)，以 root 权限运行 / systemd --user，以普通用户权限运行 核心命令：sudo systemctl ... / systemctl --user ... 主要用途：管理整个系统的核心服务（如 Nginx, SSHD, 数据库） / 管理用户个人应用（如同步工具, 开发服务器, GUI 程序） 生命周期：从系统启动到系统关机 / 从用户首次登录到最后一次会话登出（除非开启 Linger） 日志查看：sudo journalctl ... / journalctl --user ...
-
-三、单元文件加载路径与优先级
-
-systemd 在固定的路径下按优先级顺序查找单元文件。高优先级目录中的同名文件会覆盖低优先级目录中的文件。
-
-系统单元 (systemctl)
-
-1. /etc/systemd/system/ (管理员配置，最高优先级) 系统管理员放置自定义配置或修改现有服务的地方。 systemctl enable 主要在此创建链接。
-    
-2. /run/systemd/system/ (运行时生成，中等优先级) 存放运行时动态创建的单元。
-    
-3. /usr/lib/systemd/system/ (软件包默认，最低优先级) 软件包安装时自带的默认单元文件。不应直接修改此目录下的文件。
-    
-
-用户单元 (systemctl --user)
-
-1. ~/.config/systemd/user/ (用户自定义，最高优先级) 用户放置个人服务单元文件的首选位置。
-    
-2. /etc/systemd/user/ (管理员为用户配置，中等优先级) 管理员为所有用户提供的通用用户单元。
-    
-3. /usr/lib/systemd/user/ (软件包默认，最低优先级) 软件包为用户模式提供的默认单元文件。
-    
-
-四、核心工作机制
-
-1. 启动流程： 内核启动 systemd (PID 1)。 systemd 读取 default.target 链接（通常指向 graphical.target 或 multi-user.target）。 递归解析目标的依赖关系（Wants=, Requires=, After= 等），构建依赖树。 将无依赖或依赖已满足的单元并行启动。 可视化工具：systemd-analyze plot > boot.svg 可生成启动过程图。
-    
-2. 用户服务逗留 (Linger)： 问题：默认情况下，用户登出后，其名下的所有服务都会被终止。 解决方案：为用户开启 Linger，使其 systemd --user 实例在开机时启动，并在用户登出后继续运行。 命令：sudo loginctl enable-linger <用户名>
-    
-
-五、常用命令速查表
-
-注意：管理用户服务时，在所有命令中加入 --user 标志。
-
-[服务管理] 启动服务：start (示例：sudo systemctl start nginx.service) 停止服务：stop (示例：sudo systemctl stop nginx.service) 重启服务：restart (示例：sudo systemctl restart nginx.service) 重载配置：reload (示例：sudo systemctl reload nginx.service) 查看状态：status (示例：systemctl --user status my-app.service)
-
-[开机/登录自启] 设为自启：enable (示例：systemctl --user enable my-timer.timer) 禁止自启：disable (示例：sudo systemctl disable sshd.service) 检查自启状态：is-enabled (示例：systemctl is-enabled nginx.service)
-
-[日志查看 (Journal)] 查看所有日志：journalctl (示例：journalctl) 按单元过滤：-u (示例：journalctl -u sshd) 实时跟踪：-f (示例：journalctl -f -u nginx) 按优先级过滤：-p (示例：journalctl -p err 查看错误及以上)
-
-[系统与配置] 重载单元文件：daemon-reload (示例：systemctl --user daemon-reload) 查看默认目标：get-default (示例：systemctl get-default) 设定默认目标：set-default (示例：sudo systemctl set-default multi-user.target) 重启/关机：reboot / poweroff (示例：sudo systemctl reboot) 列出定时器：list-timers (示例：systemctl --user list-timers)
-
-
-
-
-
-
-
-## 关于 init
-
-以前的Linux启动都是用init进程。启动服务：
-
-$ sudo /etc/init.d/apache2 start
-
-或者
-
-$ service apache2 start
-
-缺点：
-
-启动时间长。init进程是串行启动，只有前一个进程启动完，才会启动下一个进程。 启动脚本复杂。init进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。
-
-以红帽系统为例，在 rhel7 之后使用 systemd 代替 init 启动
 
 
 
@@ -2212,153 +2443,6 @@ nihaoa
 
 
 
-
-
-
-
-
-
-# 7/14
-
-## linux文件特殊权限 suid、sgid、sticky
-
-linux文件的三种特殊权限分别是：suid权限、sgid权限、sticky权限；其中suid权限作用于文件属主，sgid权限作用于属组上，sticky权限作用于other其他上。
-
-一、SUID (Set User ID)
-
-作用对象：可执行文件 功能：当用户执行该文件时，程序会以文件所有者的权限运行（而不是执行者的权限） 符号表示：s 或 S（位于所有者执行位） 数字表示：4（权限前缀）
-
-特点：
-仅对二进制可执行文件有效（脚本文件需依赖解释器，通常无效）
-权限位显示：
-rwsr-xr-x：有执行权限时显示小写 s
-rwSr--r--：无执行权限时显示大写 S
-
-经典应用：
-
-ls -l /usr/bin/passwd 输出：-rwsr-xr-x 1 root root 59976 Nov 24 2022 /usr/bin/passwd
-
-普通用户执行 passwd 时，临时获得 root 权限修改 /etc/shadow
-
-设置方法：
-
-符号法 chmod u+s filename
-
-数字法（4755 = SUID + rwxr-xr-x） chmod 4755 filename
-
-二、SGID (Set Group ID)
-
-作用对象：可执行文件和目录 功能：
-
-对文件：执行时以文件所属组的权限运行 对目录：在该目录下创建的新文件/目录继承父目录的所属组
-
-符号表示：s 或 S（位于所属组执行位） 数字表示：2（权限前缀）
-
-目录应用场景：
-
-假设共享目录 /project 属于 dev-team 组：
-
-sudo chmod g+s /project # 设置SGID sudo chgrp dev-team /project
-
-用户A（主组为 groupA）在 /project 创建文件时：
-
-touch /project/file.txt ls -l /project/file.txt 输出：-rw-r--r-- 1 userA dev-team 0 Jul 14 10:00 file.txt
-
-文件自动属于 dev-team 组，而非用户的主组
-
-设置方法：
-
-符号法 chmod g+s directory
-
-数字法（2775 = SGID + rwxrwsr-x） chmod 2775 directory
-
-三、Sticky Bit (粘滞位)
-
-作用对象：目录 功能：只允许文件所有者或root删除/重命名目录中的文件 符号表示：t 或 T（位于其他用户执行位） 数字表示：1（权限前缀）
-
-经典应用：
-
-ls -ld /tmp 输出：drwxrwxrwt 12 root root 4096 Jul 14 09:30 /tmp
-
-所有用户可在 /tmp 创建文件 但只能删除自己创建的文件（防止用户随意删除他人文件）
-
-设置方法：
-
-符号法 chmod +t directory
-
-数字法（1777 = Sticky + rwxrwxrwt） chmod 1777 directory
-
-关于linux设置普通用户密码策略
-
-系统用户不受该配置文件影响
-
-配置文件和具体参数如下
-
-[root@node1 ~]# grep ^PASS /etc/login.defs PASS_MAX_DAYS 25 PASS_MIN_DAYS 0 PASS_WARN_AGE 7
-
-PASS_MAX_DAYS:用于设置普通用户的密码有效期 PASS_MIN_DAYS用于设置普通用户的密码修改最小间隔时间 PASS_WARN_AGE 7用于设置普通用户的密码过期前的警告提前期 单位都是天
-
-另外还有 PASS_MIN_LEN用于设置密码最小长度，对root账户无效 使用chage -l user查看指定用户密码策略信息
-
-
-
-
-
-
-## 关于umask
-
-umask 不是文件属性 错误理解："查看文件的 umask" 正确理解："查看当前会话的 umask 设置" umask 是 Shell 进程的环境变量，影响新创建的文件/目录
-
-umask 的值是被“拒绝”的权限。数值越大，权限越严格
-
-权限系统的底层逻辑：二进制位控制
-
-Linux 文件权限的本质是 9 个二进制位（对应 rwxrwxrwx）：
-
-rwx rwx rwx → 用户(u) 组(g) 其他(o) 111 111 111 = 777 (八进制)
-
-每个权限位：
-1 = 启用权限
-0 = 禁用权限
-
-umask 是反向掩码： 它的二进制位表示 需要强制关闭的权限（1=关闭，0=保留）。
-
-关键认知： 权限值（如 755）是人类可读的八进制抽象，而 umask 是操作系统内核直接处理的二进制掩码。
-
-计算公式： 最终权限 = 最大权限 & (~umask) （& 表示按位与，~ 表示按位取反）
-
-按位与是指在二进制中，两个对应位置有一个为0就取0，取反就是字面意思
-
-至于进制换算有个通用公式，参考下面这个十进制拆解 123 = 1 * 10^2 + 2 * 10^1 + 3 * 10^0
-
-不加参数会显示当前用户的权限值
-
-[root@node1 ~]# umask 0022
-
-第一个 0 表示是 8 进制，后面的三位数字用 8 进制表示
-
-加上-S选项会以字符形式显示权限
-
-[root@node1 ~]# umask -S u=rwx,g=rx,o=rx
-
-通常目录文件的默认权限是777(rwxrwxrwx)，普通文件的默认权限是666(rw-rw-rw-)
-
-在此基础上受umask的影响 umask为0022(第一位是特殊权限位)3 那么以022为例 0表示文件所属者权限不变，2代表对应所有者权限减2(即w权限) 那么022对应的目录权限就是755（rwxr-xr-x）,文件就是644（rw-r--r--）
-
-可以通过在指定用户的.bashrc文件内写入umask xxxx并source声明设置环境变量
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 7/15
 
 ## 关于逻辑卷调整的-r参数
@@ -2460,135 +2544,6 @@ afs bin boot dev dir1 etc home lib lib64 lost+found media mnt opt proc root run 
 [root@e48892657919 /]# cd dir1/ bash: cd: dir1/: Permission denied [root@e48892657919 ~]# exit 
 [root@server ~]# podman exec -it Second_centos /bin/bash [root@03095b52384f /]# cd dir2/ 
 [root@03095b52384f dir2]#
-
-
-
-
-
-## linux各种引号的作用
-
-
-1.单引号' ' 单引号里面的内容会原封不动输出，全都视为普通字符进行处理
-
-2.双引号" " 和双引号类似，但它会对双引号里面的特殊符号进行解析，不过对于花括号{}(通配符)没有解析
-
-3.不加引号 和双引号类似，额外支持通配符（匹配文件）*.log {1..10}
-
-4.反引号 优先执行，先执行反引号里面的命令，相较于$()，两者作用相同，但反引号在类unix平台适用性更高
-
-
-
-
-
-
-
-
-
-# 7/16
-
-## 文件属性inode和block
-
-ls加-i选项可查看inode号
-
-inode号准确地说是inode索引节点,inode号码类似于身份证号码,通过inode号码可以找到文件的内容.
-
-inode inode是一个空间，inode号是空间的位置,类似于身份证,inode空间存放: inode空间中存放的是 文件属性信息 ,文件大小,修改时间,权限,所有者 inode空间中存放block的位置(指向文件实体的指针) 这里不存放文件名.
-
-block块(数据块): 存放数据
-
-
-
-
-
-
-## 管道的一些特性
- 管道无法将接收的数据流转化为后续命令的参数，如果一定要使用管道，可以在管道后面加上xargs，把前面命令传递过来的字符串转换为后面命令可以识别的参数
-[root@server ~]# mkdir -pv testdir 
-[root@server ~]# touch testdir/{1,2,3}.ddd 
-[root@server ~]# find testdir/ -name "*.ddd" |xargs ls -lh -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/1.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/2.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/3.ddd
-[root@server ~]# find testdir/ -name "*.txt" |xargs cp -t matchfile_dir/ [root@server ~]# ls matchfile_dir/ 10.txt 1.txt 2.txt 3.txt 4.txt 5.txt 6.txt 7.txt 8.txt 9.txt 
-[root@server ~]#
-
-有时管道会将某些命令的标准输出视为错误输出不予传递
-
-如图，从 curl -v 的标准输出中过滤关键词 Date 失败
-
-![[_resources/linux笔记/5868337d1d74cb62f25fbe671bfdafe5_MD5.png]]
-
-只需要在管道符后面加上一个&即可
-
-![[_resources/linux笔记/5291b5bebf2a0dff8ef97421fd6e7130_MD5.png]]
-
-linux的/etc/skel目录
-
-该目录下方存放着所有新用户的家目录模板
-
-
-
-## 故障案例：命令行变为bash-5.1$
-
-原因: 用户家目录下面的配置文件没了这两个: ~/.bashrc，~/.bash_profile
-
-解决: /etc/skel目录下方存放着所有新用户的家目录模板,将缺失文件复制到指定用户的家目录
-
-[root@server ~]# su testuser bash-5.1$ cp /etc/skel/.bash* ~/ bash-5.1$ bash [testuser@server root]$ cd ~ 
-[testuser@server ~]$
-
-
-
-
-
-## 异常进程分类
-
-僵尸进程 僵尸进程是当子进程比父进程先结束，而父进程又没有回收子进程，释放子进程占用的资源，此时子进程将成为一个僵尸进程。 由于各种原因导致某个进程挂掉了，但是进程本身仍然存在，还占用着系统资源
-
-这里用ai写了一个linux僵尸进程的C程序模拟
-
-[root@server ~]# gcc -o zombine code/zombine.c 
-[root@server ~]# ./zombine [Parent] PID 2378 running [Parent] Created child PID 2379 [Parent] Sleeping for 60 seconds without calling wait()... [Child] PID 2379 started [Child] Exiting immediately...
-
-此时前台阻塞中，再开一个bash进程来操作
-
-```
-[root@server ~]# ps aux | grep zombine
-root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 pts/0 Z+ 16:22 0:00 [zombine]  root 2381 0.0 0.1 221680 2448 pts/1 S+ 16:22 0:00 grep --color=auto zombine [root@server ~]# pstree -p | grep 2378 |-sshd(988)-+-sshd(2094)---sshd(2130)---bash(2140)---zombine(2378)---zombine(2379) 
-```
-
-查询到僵尸进程后通过pid查看对应进程树 僵尸进程是由于父进程进入异常状态(这里的父进程用sleep函数模拟异常状态)无法正常回收子进程，导致子进程一直占用资源，通过进程树得知异常父进程的pid是2378 只能通过杀死父进程来杀死僵尸进程
-
-```
-[root@server ~]# kill -9 2378
-[root@server ~]# ./zombine
-[Parent] PID 2401 running 
-[Parent] Created child PID 2378
-[Parent] Sleeping for 60 seconds without calling wait()... 
-[Child] PID 2379 started 
-[Child] Exiting immediately... 已杀死 
-[root@server ~]#
-
-```
-孤儿进程 孤儿进程指的是在其父进程执行完成或被终止后仍继续运行的一类进程。 孤儿进程会被系统直接接管.(systemd进程)
-
-还是用C代码演示孤儿进程
-
-```
-[root@server ~]# ./orphan
-[Parent] PID 2471 created child PID 2472
-[Parent] Exiting now 
-[Child] PID 2472 started (PPID=1) 
-[root@server ~]# 
-[Orphan] PID 2472 now has PPID=1 (init process) 
-[Orphan] Running for 60 seconds...
-[root@server ~]# ps aux | grep orphan root 2472 0.0 0.0 2628 88 pts/1 S 16:46 0:00 ./orphan root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan 
-[root@server ~]# pstree -p | grep 2472 |-orphan(2472)
-```
-
-这里可以看到该进程被系统接管,直接kill -9杀掉就行
-
-
-
-
-
 
 
 
@@ -3242,56 +3197,6 @@ GPT 分区表下的类型代码: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
 
 
 # 8/7
-
-## Linux RPM包统一命名规则
- RPM 二进制包命名的一般格式如下： 包名-版本号-发布次数-发行商-Linux平台-适合的硬件平台-包扩展名
-
-有些 rpm 包用于生成软件源，它们的格式一般如下:
-
-1. 后缀关键词：
--release (最常见)
--repo(次常见)
--repository (较少见)
--yum(罕见)
-
-架构标识：
-.noarch.rpm(99% 的源配置包都是 noarch 架构)
-命名模式：
-<软件名>-<功能词>-<系统版本>.noarch.rpm
-
-
-
-
-
-
-
-
-
-## yum 查找指定命令的所在软件包
-以查找 zcat 命令的软件包为例
-
-```bash
-[root@localhost ~]# yum provides zcat
-上次元数据过期检查：0:12:24 前，执行于 2025年08月07日 星期四 16时09分17秒。
-gzip-1.12-1.el9.x86_64 : The GNU data compression program
-仓库        ：@System
-匹配来源：
-文件名    ：/usr/bin/zcat
-提供    : /bin/zcat
-
-gzip-1.12-1.el9.x86_64 : The GNU data compression program
-仓库        ：baseos
-匹配来源：
-文件名    ：/usr/bin/zcat
-提供    : /bin/zcat
-
-[root@localhost ~]# 
-```
-
-
-
-
-
 
 ## Mysql 密码插件报错：未加载
 ```plsql
@@ -6508,45 +6413,6 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 在浏览器的 url 栏中输入域名 rocky.linux.com 时，有多个流程，当前流程失败就走下一个流程
 
 ![[_resources/linux笔记/f310b68af89c66d83487d5c9b5a03840_MD5.jpg]]
-
-
-
-
-
-
-
-## chattr 命令
-写这个是因为有个 b 把我搭的网站给黑了，还给他的 ssh 密钥设置了 chattr 属性留了后门，这种东西，普通云服务的查杀功能是不起作用的，只能是自己找然后去除属性后删除，不过也怪我图方便，懒得登录网站进控制台，想直接打开终端 ssh 上去，所以公网开放了 22 端口
-
-Linux chattr 命令用于改变文件或目录的属性，这些属性可以控制文件系统的行为，提供更高级的文件管理功能。
-
-语法: chattr [选项] [+/-/=属性] 文件或目录
-
-常用选项
-
--R: 递归处理目录及其子目录
-
--V: 显示详细信息
-
--v: 显示版本信息
-
-属性模式
-+: 添加属性
--: 移除属性
-= : 设置为指定属性
-
-常用属性
-|属性|说明|
-|---|---|
-|a|仅追加：文件只能追加内容，不能删除或修改已有内容（需 root 权限）。|
-|i|不可变：文件不能被删除、修改、重命名或创建硬链接（需 root 权限）。|
-|A|不更新文件的最后访问时间（atime）。|
-|c|文件在磁盘上自动压缩（部分文件系统支持）。|
-|s|安全删除：文件被删除时，其数据会被清零（不可恢复）。|
-|u|文件被删除后，其内容仍可恢复（与 s 相反）。|
-|d|文件在 dump 备份时会被跳过。|
-
-
 
 
 
