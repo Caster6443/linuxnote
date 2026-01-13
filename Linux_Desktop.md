@@ -10,6 +10,26 @@
 
 
 
+# 在 wps 中使用 fcitx5 输入法
+网上有个方案是在~/.pam_environment 中写入
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx5
+export XMODIFIERS=@im=fcitx
+但貌似 wps 随着版本更新不再读取这个文件
+
+
+
+所以需要在/usr/bin/wps 中的gOpt=下面一行添加如下内容即可
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx5
+export XMODIFIERS=@im=fcitx
+  
+
+
+
+
+
+
 
 
 
