@@ -1,7 +1,7 @@
 # 2024/9/20
 
 
-# linux常用命令
+# linux基础知识
 
 ## 查看函数库依赖
 
@@ -25,6 +25,187 @@
 ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以容器为例
 
 
+## sed命令
+
+-i参数：
+
+sed命令对文件内容的增删改查都是在内存空间中进行的，并不直接影响到文件内容，若想实现对文件内容的直接修改需要加上-i参数
+
+-n参数：
+
+由于sed命令的默认机制，即使某行文本未被匹配，也会被打印到终端上，因此在不想显示不匹配文本内容时，需要-n参数来取消sed命令的默认输出
+
+
+## 关于tar命令指定解压位置
+
+tar xf xxx.tgz -C /dir/
+
+
+
+
+
+## 正则表达式
+
+.
+
+表示匹配任意的单个字符，可以与 * 搭配为 .* 表示匹配任意的多个任意字符
+
+例如可以用正则表达式 ^.*hhh 来表示以任意的多个任意字符开头且以hhh结尾的字符串
+
+&
+
+用例： /^hhh/@&/ 此处&的作用是指代前文中^后的匹配字符串hhh，这个正则的作用是将以hhh开头的字符串的hhh更改为了@hhh，总之就是&具有指代’匹配字符串’的作用
+
+\
+
+转义字符
+
+&和\的示例(以sed命令示例)
+
+![[_resources/linux笔记/215f862977ebe34f865d059a684c4d22_MD5.png]]
+
+
+
+
+## ipvs
+
+启动ipvs的要求：
+
+k8s版本 >= v1.11
+
+使用ipvs需要安装相应的工具来处理”yum install ipset ipvsadm -y“
+
+确保 ipvs已经加载内核模块， ip_vs、ip_vs_rr、ip_vs_wrr、ip_vs_sh、
+
+nf_conntrack_ipv4。如果这些内核模块不加载，当kube-proxy启动后，会退回到iptables模式。
+
+yum -y install epel-release
+
+
+
+
+
+
+## 命令替换
+
+用来重组命令行，先完成引号里的命令行，然后将其结果替换出来，再重组成新的命令行
+
+shell中命令替换符有两种 与 $()
+
+反单引号适用于任何类unix平台，他的适用性比较高。$符号却不是。
+
+
+
+
+
+## linux常用的系统环境变量
+
+PATH：决定了系统在哪些目录中查找可执行文件。当你输入一个命令时，系统会在PATH中定义的目录中查找该命令的可执行文件。
+
+HOME：指定当前用户的主目录路径。
+
+USER：当前用户的用户名。
+
+SHELL：指定当前用户默认使用的shell。
+
+LANG：指定系统的默认语言。
+
+LD_LIBRARY_PATH：指定系统在哪些目录中查找共享库文件。
+
+TERM：指定当前终端的类型。
+
+PS1：定义命令行提示符的格式。
+
+PS2：定义多行命令的提示符的格式。
+
+使用env命令显示当前用户的所有环境变量
+
+使用set命令查看所有本地定义的环境变量
+
+进程树pstree命令的安装包是psmisc
+
+
+## awk命令
+
+awk常见的内建变量：
+
+FS：列分割符。指定每行文本的字段分隔符，默认为空格或制表位。与"-F"作用相同
+
+NF：当前处理的行的字段个数。
+
+NR：当前处理的行的行号（序数）。
+
+$0：当前处理的行的整行内容。
+
+$n：当前处理行的第n个字段（第n列）。
+
+FILENAME：被处理的文件名。
+
+RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取的资料切割成许多条记录,而awk一次仅读入一条记录,以进行处理。预设值是’\n’
+
+在使用awk命令的过程中,可以使用逻辑操作符“&&”表示“与”、“||”表示“或”、“!”表示“非”；还可以进行简单的数学运算，如+、-、*、/、%、^分别表示加、减、乘、除、取余和乘方
+
+[root@master ~]# awk '(NR%2)=0 {print}' test.txt 打印所有偶数行
+
+第二行
+
+第四行
+
+也可以使用正则表达式
+
+![[_resources/linux笔记/01d58b0c95d05afd4079b03dd508cc4e_MD5.png]]
+
+其他的内建变量的使用示例
+
+![[_resources/linux笔记/77fd632d9cffa87c49ac40ffdbb3825a_MD5.png]]
+
+该命令用于统计以字符 ‘行’ 结尾的行数量
+
+在这里将x初始化后统计以字符 ‘行’结尾的行，检测到目标字符后使x自增，最后打印x的值
+
+注意：BEGIN模式表示，在处理指定的文本之前，需要先执行BEGIN模式中指定的动作；awk再处理指定的文本，之后再执行END模式中指定的动作，END{}语句块中，往往会放入打印结果等语句
+
+等同于 grep -c "/bin/bash$" /etc/passwd
+
+-F参数的使用
+
+![[_resources/linux笔记/13d1232062bae2b5368670376d4444ee_MD5.png]]
+
+该命令筛选出了该文件的所有行的第一列，而区分列的规范由” ”里的内容指定，在这里是以:起作分隔不同行的作用,{}里面可以指定一行的多个列，用 , 分隔开
+
+当字段为数字时，也可以用数学运算符起到筛选的作用
+
+例如/etc/passwork在以:作为分隔符时，第三个字段是数字，这里就可以做筛选
+
+![[_resources/linux笔记/f10da89e0b07e0eda8c4d28b216cd874_MD5.png]]
+
+在这里筛选出了第三个字段小于10的字符串（给$3<10打个括号更美观一些）
+
+awk -F ":" '!($3<200){print}' /etc/passwd #输出第3个字段的值不小于200的行
+
+/////////////////////////////////////////////////////////////////////////////////
+
+![[_resources/linux笔记/980aab50b5441793b7c27a3d46a2ea57_MD5.png]]
+
+报错原因：这个镜像是坏的
+
+斗学网容器云赛卷实验的chinaskills_cloud_iaas.iso文件是坏的，从服务器的linux主机上拷贝了一个正常镜像给云主机,但该镜像缺少kubeeasy的可执行命令文件
+
+![[_resources/linux笔记/2db0fb5f00d481e8383307df88bbd46f_MD5.png]]
+
+
+
+
+
+## 关于echo $PATH的回显释义
+
+![[_resources/linux笔记/91238653c6e8e6603e279c474409f9ab_MD5.png]]
+
+////////////////////////////////////////////////////////////////////////
+
+在github上找到了kubeeasy的命令文件kubeeasy-v1.3.0，将它移动到了/usr/bin目录下添加可执行权限并删除了版本号以供执行，不删版本号的话命令行就变成kubeeasy-v1.3.0了,命令行这个说法有失偏颇，在一切皆文件的linux中，它应该叫可执行文件。关于这个可联想到斗学网教程上iptables在写完规则后也是执行了/usr/sbin/iptables-save这个文件来保存配置信息，也就是说不加这个可执行文件的路径，单输入一个iptables-save ，shell也能够找到这个文件并执行
+
+Kubeeasy本地保留了一份在D:\云计算技能大赛\镜像资源
 
 
 
@@ -32,8 +213,101 @@ ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以
 
 
 
+## yum命令
+
+yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，像ftp，http，file一样；关于yum为什么能解决依赖关系：所有的Yum 源里面都有repodata，它里面是有XML格式文件，里面有说明需要什么包。
+
+yum install --downloadonly --downloaddir=/xx/xxx/xx/
+只下载软件但不安装
+有时候需要将高版本的依赖降级到低版本，降级命令如下
+yum downgrade <package_name> 
+降级，对于有依赖的，yum不会自动降级，需要手动降级依赖项
+
+### yum本地安装
+`yum -y localinstall`
+后面跟rpm安装包名，例：
+`yum -y localinstall dir/*.rpm`
+指定安装了该文件夹下所有的rpm包
 
 
+
+
+
+
+
+## namespance分类 
+![[_resources/linux笔记/21d6eb1b235d93b35c05bff409736782_MD5.png]]
+
+
+## 报错缺少br_netfilter模块
+
+![[_resources/linux笔记/aedaa60f7fd1b1bdc2504d549bd805d7_MD5.png]]
+使用的是7.2镜像
+解决方案：
+`yum install bridge-utils -y`
+`echo br_netfilter > /etc/modules-load.d/br_netfilter.conf`
+`reboot`
+`modprobe br_netfilter`
+
+
+## centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
+
+![[_resources/linux笔记/d3c4ccd82df00fadf72ecaeccf298f63_MD5.png]]
+
+![[_resources/linux笔记/675a64bc9f80cf73c9e88af566904b64_MD5.png]] 因服务器无端重启，导致无法挂载系统
+
+解决方案：使用xfs_repair工具修复
+
+执行xfs_repair -v -L /dev/dm-0命令
+
+命令详解：
+
+-v：
+
+这个参数表示启用详细模式（verbose mode），会显示更多的诊断信息和操作细节。
+
+-L：
+
+这个参数用于指定一个日志文件，xfs_repair 会将修复过程中的详细信息记录到这个文件中。
+
+/dev/dm-0：
+
+这是要修复的 XFS 文件系统的设备路径。在这个例子中，/dev/dm-0 表示一个使用设备映射（device-mapper）的逻辑卷。
+
+
+
+## 基于插入内核进程的直接生效流量转发
+
+这个方法有意思，临时生效
+```
+配置网络
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+echo 1 >/proc/sys/net/bridge/bridge-nf-call-ip6tables
+echo """vm.swappiness = 0 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward = 1 net.bridge.bridge-nf-call-ip6tables = 1 """ > /etc/sysctl.conf
+加载配置
+sysctl -p
+```
+
+
+## 关于dm
+
+dm是Device Mapper的缩写，Device Mapper 是 Linux 2.6 内核中提供的一种从逻辑设备到物理设备的映射框架机制，在该机制下，用户可以很方便的根据自己的需要制定实现存储资源的管理策略，当前比较流行的 Linux 下的逻辑卷管理器如 LVM2（Linux Volume Manager 2 version)、EVMS(Enterprise Volume Management System)、dmraid(Device Mapper Raid Tool)等都是基于该机制实现的。
+
+dm-0 对应LVM的 VolGroup00-LogVol00 对应根目录/
+
+dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
+
+参考文章：linux dm-0 dm-1 设备映射 简介-CSDN博客 ([https://blog.csdn.net/whatday/article/details/106354092](https://blog.csdn.net/whatday/article/details/106354092))
+
+
+
+
+## 关于vim搜索指定字符串和指定多行注释
+
+在命令模式下（默认进入vim时就是命令模式，shift加：是末行模式）按下/可以进入搜索模式，输入指定字符串并回车进行查找，按下n跳转到下一个匹配字符串
+
+指定多行注释是在末行模式中进行，格式是 起始行号,结束行号s/^/#/g
+g是全局匹配，不加g仅替换每行的第一个匹配项
 
 
 
@@ -42,7 +316,7 @@ ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以
 
 # Vmware
 
-## 关于虚拟机启用虚拟机引擎失败
+## 虚拟机启用虚拟机引擎失败
 
 工具：centos7虚拟机，VMware17pro
 
@@ -882,113 +1156,8 @@ location 是指定了仓库地址
 
 
 
-
-
-
-# 11/28
-
-## 关于sed命令
-
--i参数：
-
-sed命令对文件内容的增删改查都是在内存空间中进行的，并不直接影响到文件内容，若想实现对文件内容的直接修改需要加上-i参数
-
--n参数：
-
-由于sed命令的默认机制，即使某行文本未被匹配，也会被打印到终端上，因此在不想显示不匹配文本内容时，需要-n参数来取消sed命令的默认输出
-
-
-
-
-## 关于正则表达式
-
-.
-
-表示匹配任意的单个字符，可以与 * 搭配为 .* 表示匹配任意的多个任意字符
-
-例如可以用正则表达式 ^.*hhh 来表示以任意的多个任意字符开头且以hhh结尾的字符串
-
-&
-
-用例： /^hhh/@&/ 此处&的作用是指代前文中^后的匹配字符串hhh，这个正则的作用是将以hhh开头的字符串的hhh更改为了@hhh，总之就是&具有指代’匹配字符串’的作用
-
-\
-
-转义字符
-
-&和\的示例(以sed命令示例)
-
-![[_resources/linux笔记/215f862977ebe34f865d059a684c4d22_MD5.png]]
-
-
-
-
-## 关于ipvs
-
-启动ipvs的要求：
-
-k8s版本 >= v1.11
-
-使用ipvs需要安装相应的工具来处理”yum install ipset ipvsadm -y“
-
-确保 ipvs已经加载内核模块， ip_vs、ip_vs_rr、ip_vs_wrr、ip_vs_sh、
-
-nf_conntrack_ipv4。如果这些内核模块不加载，当kube-proxy启动后，会退回到iptables模式。
-
-yum -y install epel-release
-
-
-
-
-
-
-## 关于命令替换
-
-用来重组命令行，先完成引号里的命令行，然后将其结果替换出来，再重组成新的命令行
-
-shell中命令替换符有两种 与 $()
-
-反单引号适用于任何类unix平台，他的适用性比较高。$符号却不是。
-
-
-
-
-
-## 关于linux常用的系统环境变量
-
-PATH：决定了系统在哪些目录中查找可执行文件。当你输入一个命令时，系统会在PATH中定义的目录中查找该命令的可执行文件。
-
-HOME：指定当前用户的主目录路径。
-
-USER：当前用户的用户名。
-
-SHELL：指定当前用户默认使用的shell。
-
-LANG：指定系统的默认语言。
-
-LD_LIBRARY_PATH：指定系统在哪些目录中查找共享库文件。
-
-TERM：指定当前终端的类型。
-
-PS1：定义命令行提示符的格式。
-
-PS2：定义多行命令的提示符的格式。
-
-使用env命令显示当前用户的所有环境变量
-
-使用set命令查看所有本地定义的环境变量
-
-进程树pstree命令的安装包是psmisc
-
-
-
-
-
-
-
-
-# 12/3
 # Kubernetes
+## 12/3
 ## K8s基础架构
 
 ![[_resources/linux笔记/602080906e00f1d43df2af815e15f692_MD5.png]]
@@ -1080,6 +1249,28 @@ Helm Release：
 Release 包含了 Chart 的配置信息、部署的 Kubernetes 资源对象以及部署过程中的状态信息。
 
 你可以对同一个 Chart 创建多个 Release，每个 Release 可以有不同的配置和升级历史。
+
+
+## k8s镜像下载策略有哪些
+
+[root@k8s231.oldboyedu.com pods]# cat 06-nginx-imagePullPolicy.yaml
+
+apiVersion: v1 kind: Pod metadata: name: linux85-web-imagepullpolicy-001 spec: nodeName: k8s233.oldboyedu.com containers:
+
+- name: nginx image: [harbor.oldboyedu.com/web/linux85-web:v0.1](https://www.google.com/search?q=https://harbor.oldboyedu.com/web/linux85-web:v0.1)
+    
+指定镜像的下载策略，有效值为: Always, Never, IfNotPresent
+Always:
+    # 默认值，表示始终拉取最新的镜像。
+IfNotPresent:
+    如果本地有镜像，则不去远程仓库拉取镜像，若本地没有，才会去远程仓库拉取镜像。
+Never:
+    如果本地有镜像则尝试启动，若本地没有镜像，也不会去远程仓库拉取镜像。
+imagePullPolicy: Always
+imagePullPolicy: IfNotPresent
+imagePullPolicy: Never
+
+
 
 
 
@@ -1282,196 +1473,6 @@ K8s集群初始化
 
 
 
-
-
-
-
-
-
-
-# 12/5
-
-## 关于awk命令
-
-awk常见的内建变量：
-
-FS：列分割符。指定每行文本的字段分隔符，默认为空格或制表位。与"-F"作用相同
-
-NF：当前处理的行的字段个数。
-
-NR：当前处理的行的行号（序数）。
-
-$0：当前处理的行的整行内容。
-
-$n：当前处理行的第n个字段（第n列）。
-
-FILENAME：被处理的文件名。
-
-RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取的资料切割成许多条记录,而awk一次仅读入一条记录,以进行处理。预设值是’\n’
-
-在使用awk命令的过程中,可以使用逻辑操作符“&&”表示“与”、“||”表示“或”、“!”表示“非”；还可以进行简单的数学运算，如+、-、*、/、%、^分别表示加、减、乘、除、取余和乘方
-
-[root@master ~]# awk '(NR%2)=0 {print}' test.txt 打印所有偶数行
-
-第二行
-
-第四行
-
-也可以使用正则表达式
-
-![[_resources/linux笔记/01d58b0c95d05afd4079b03dd508cc4e_MD5.png]]
-
-其他的内建变量的使用示例
-
-![[_resources/linux笔记/77fd632d9cffa87c49ac40ffdbb3825a_MD5.png]]
-
-该命令用于统计以字符 ‘行’ 结尾的行数量
-
-在这里将x初始化后统计以字符 ‘行’结尾的行，检测到目标字符后使x自增，最后打印x的值
-
-注意：BEGIN模式表示，在处理指定的文本之前，需要先执行BEGIN模式中指定的动作；awk再处理指定的文本，之后再执行END模式中指定的动作，END{}语句块中，往往会放入打印结果等语句
-
-等同于 grep -c "/bin/bash$" /etc/passwd
-
--F参数的使用
-
-![[_resources/linux笔记/13d1232062bae2b5368670376d4444ee_MD5.png]]
-
-该命令筛选出了该文件的所有行的第一列，而区分列的规范由” ”里的内容指定，在这里是以:起作分隔不同行的作用,{}里面可以指定一行的多个列，用 , 分隔开
-
-当字段为数字时，也可以用数学运算符起到筛选的作用
-
-例如/etc/passwork在以:作为分隔符时，第三个字段是数字，这里就可以做筛选
-
-![[_resources/linux笔记/f10da89e0b07e0eda8c4d28b216cd874_MD5.png]]
-
-在这里筛选出了第三个字段小于10的字符串（给$3<10打个括号更美观一些）
-
-awk -F ":" '!($3<200){print}' /etc/passwd #输出第3个字段的值不小于200的行
-
-/////////////////////////////////////////////////////////////////////////////////
-
-![[_resources/linux笔记/980aab50b5441793b7c27a3d46a2ea57_MD5.png]]
-
-报错原因：这个镜像是坏的
-
-斗学网容器云赛卷实验的chinaskills_cloud_iaas.iso文件是坏的，从服务器的linux主机上拷贝了一个正常镜像给云主机,但该镜像缺少kubeeasy的可执行命令文件
-
-![[_resources/linux笔记/2db0fb5f00d481e8383307df88bbd46f_MD5.png]]
-
-
-
-
-
-
-
-
-
-
-
-
-# 12/6
-
-## 关于echo $PATH的回显释义
-
-![[_resources/linux笔记/91238653c6e8e6603e279c474409f9ab_MD5.png]]
-
-////////////////////////////////////////////////////////////////////////
-
-在github上找到了kubeeasy的命令文件kubeeasy-v1.3.0，将它移动到了/usr/bin目录下添加可执行权限并删除了版本号以供执行，不删版本号的话命令行就变成kubeeasy-v1.3.0了,命令行这个说法有失偏颇，在一切皆文件的linux中，它应该叫可执行文件。关于这个可联想到斗学网教程上iptables在写完规则后也是执行了/usr/sbin/iptables-save这个文件来保存配置信息，也就是说不加这个可执行文件的路径，单输入一个iptables-save ，shell也能够找到这个文件并执行
-
-Kubeeasy本地保留了一份在D:\云计算技能大赛\镜像资源
-
-
-
-
-
-
-
-## 关于yum命令
-
-yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，像ftp，http，file一样；关于yum为什么能解决依赖关系：所有的Yum 源里面都有repodata，它里面是有XML格式文件，里面有说明需要什么包。
-
-yum install --downloadonly --downloaddir=/xx/xxx/xx/
-只下载软件但不安装
-有时候需要将高版本的依赖降级到低版本，降级命令如下
-yum downgrade <package_name> 
-降级，对于有依赖的，yum不会自动降级，需要手动降级依赖项
-
-
-
-
-
-## Linux-headers的安装
-
-sudo yum -y install kernel-headers //安装kernel-headers
-
-sudo yum -y install kernel-devel //安装kernel-devel
-
-
-
-
-
-
-
-
-
-
-
-# 12/7
-
-
-
-## 关于namespance分类 
-![[_resources/linux笔记/21d6eb1b235d93b35c05bff409736782_MD5.png]]
-
-
-
-
-
-
-
-# 12/8
-
-## 关于centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
-
-![[_resources/linux笔记/d3c4ccd82df00fadf72ecaeccf298f63_MD5.png]]
-
-![[_resources/linux笔记/675a64bc9f80cf73c9e88af566904b64_MD5.png]] 因服务器无端重启，导致无法挂载系统
-
-解决方案：使用xfs_repair工具修复
-
-执行xfs_repair -v -L /dev/dm-0命令
-
-命令详解：
-
--v：
-
-这个参数表示启用详细模式（verbose mode），会显示更多的诊断信息和操作细节。
-
--L：
-
-这个参数用于指定一个日志文件，xfs_repair 会将修复过程中的详细信息记录到这个文件中。
-
-/dev/dm-0：
-
-这是要修复的 XFS 文件系统的设备路径。在这个例子中，/dev/dm-0 表示一个使用设备映射（device-mapper）的逻辑卷。
-
-
-
-
-## 关于dm
-
-dm是Device Mapper的缩写，Device Mapper 是 Linux 2.6 内核中提供的一种从逻辑设备到物理设备的映射框架机制，在该机制下，用户可以很方便的根据自己的需要制定实现存储资源的管理策略，当前比较流行的 Linux 下的逻辑卷管理器如 LVM2（Linux Volume Manager 2 version)、EVMS(Enterprise Volume Management System)、dmraid(Device Mapper Raid Tool)等都是基于该机制实现的。
-
-dm-0 对应LVM的 VolGroup00-LogVol00 对应根目录/
-
-dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
-
-参考文章：linux dm-0 dm-1 设备映射 简介-CSDN博客 ([https://blog.csdn.net/whatday/article/details/106354092](https://blog.csdn.net/whatday/article/details/106354092))
-
-
-
 # 12/10
 systemctl enable --now containerd # enable --now 等于 enable + start
 
@@ -1487,122 +1488,16 @@ http的安装包是httpd，配置文件在/etc/httpd/conf/httpd.conf，若要修
 
 
 
-# 11/12
-
-## 关于缺少br_netfilter模块
-
-![[_resources/linux笔记/aedaa60f7fd1b1bdc2504d549bd805d7_MD5.png]]
-
-使用的是7.2镜像
-
-解决方案：
-
-yum install bridge-utils -y
-
-echo br_netfilter > /etc/modules-load.d/br_netfilter.conf
-
-reboot
-
-modprobe br_netfilter
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 12/12
-
-
-## 关于yum本地安装
-
-yum -y localinstall
-
-后面跟rpm安装包名，例：
-
-yum -y localinstall dir/*.rpm
-
-指定安装了该文件夹下所有的rpm包
-
-
-
-
-
-## 关于tar命令指定解压位置
-
-tar xf xxx.tgz -C /dir/
-
-才发现我一直搞错了，tar 命令的-C 不是指定目录
-
--C 的唯一意思就是：“在执行下一步操作之前，先切换（Change）目录”。
-
-（2025/11/16）
-
-
 
 
 
 # 12/15
-
-## 关于vim搜索指定字符串和指定多行注释
-
-在命令模式下（默认进入vim时就是命令模式，shift加：是末行模式）按下/可以进入搜索模式，输入指定字符串并回车进行查找，按下n跳转到下一个匹配字符串
-
-指定多行注释是在末行模式中进行，格式是 起始行号,结束行号s/^/#/g
-
-
-
-
-
-
-
-
-
-# 12/17
-
 
 ## 关于不进入数据库命令行界面而实现交互
 
 可参考该命令mysql -uroot -proot -e " create database djangoblog;"
 
 另外还可以直接进入指定数据库mysql -uroot -proot djangoblog
-
-
-
-
-
-
-
-
-# 12/18
-
-## 基于插入内核进程的直接生效流量转发
-
-这个方法有意思，但非持久化
-配置网络
-echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
-
-echo 1 >/proc/sys/net/bridge/bridge-nf-call-ip6tables
-
-echo """
-
-vm.swappiness = 0
-
-net.bridge.bridge-nf-call-iptables = 1
-
-net.ipv4.ip_forward = 1
-
-net.bridge.bridge-nf-call-ip6tables = 1
-
-""" > /etc/sysctl.conf
-加载配置
-sysctl -p
 
 
 
@@ -1637,70 +1532,7 @@ find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’�
 
 在dockerfile的CMD指令中需要指定一个前台运行的指令来保障容器的运行，例如在编写mysql的dockerfile用初始化脚本时使用mysqld --user=root来启动mysql，但该命令是前台运行会导致阻塞，所以需要&来而不是&&来衔接下一条指令，&的使用可以保证即使前一条指令未执行完毕也能够继续执行下一条指令，&&则必须要前一条指令执行成功才能继续执行下一条指令
 
-镜像下载策略有哪些
 
-[root@k8s231.oldboyedu.com pods]# cat 06-nginx-imagePullPolicy.yaml
-
-apiVersion: v1 kind: Pod metadata: name: linux85-web-imagepullpolicy-001 spec: nodeName: k8s233.oldboyedu.com containers:
-
-- name: nginx image: [harbor.oldboyedu.com/web/linux85-web:v0.1](https://www.google.com/search?q=https://harbor.oldboyedu.com/web/linux85-web:v0.1)
-    
-指定镜像的下载策略，有效值为: Always, Never, IfNotPresent
-Always:
-    # 默认值，表示始终拉取最新的镜像。
-IfNotPresent:
-    如果本地有镜像，则不去远程仓库拉取镜像，若本地没有，才会去远程仓库拉取镜像。
-Never:
-    如果本地有镜像则尝试启动，若本地没有镜像，也不会去远程仓库拉取镜像。
-imagePullPolicy: Always
-imagePullPolicy: IfNotPresent
-imagePullPolicy: Never
-
-/////////////////////////////////////////////////////////
-
-心累，再也不和混子搞团队赛了
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 2025/6/23
-
-本来打算记录C语言的学习，但是显得笔记太杂了就不记了，用我的的.c文件代替笔记
-
-
-
-
-
-
-
-
-
-
-
-
-# 7/1
-接下来开始备考RHCE，所以重拾我的linux学习笔记
-
-
-## 关于NAT虚拟机能ping通宿主机但宿主机不能ping通虚拟机
-
-虚拟机可以通外网，测试了ssh服务没有问题，然后查看宿主机的虚拟网卡发现虚拟网卡8没有设置网关
 
 
 
@@ -1746,13 +1578,6 @@ return 0;
 
 
 
-
-
-
-
-
-# 7/2
-
 ## 使用ifconfig临时修改网卡配置(重启失效)
 
 格式: ifconfig 网卡名 参数
@@ -1781,7 +1606,6 @@ return 0;
 
 
 
-# 7/3
 ## 私网ip地址范围
 10.0.0.0-10.255.255.255
 
@@ -1810,8 +1634,7 @@ return 0;
 
 
 
-## vim的全局替换属性g
-不加g仅替换每行的第一个匹配项
+
 
 
 
