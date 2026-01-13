@@ -315,8 +315,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
  RPM 二进制包命名的一般格式如下： 包名-版本号-发布次数-发行商-Linux平台-适合的硬件平台-包扩展名
 
 有些 rpm 包用于生成软件源，它们的格式一般如下:
-
-1. 后缀关键词：
+后缀关键词：
 -release (最常见)
 -repo(次常见)
 -repository (较少见)
@@ -460,49 +459,33 @@ APFS： 扩容支持：在线 收缩支持：在线 工具：macOS 磁盘工具
 加密LUKS： 扩容支持：需先调整加密层 收缩支持：高风险 工具：cryptsetup + fs工具
 
 扩容不支持-r选项的文件系统的逻辑卷
+1.扩展逻辑卷 (扩展10G) 
+`sudo lvextend -L +10G /dev/vg01/lv_data`
 
-1. 扩展逻辑卷 (扩展10G)
-    
+2.手动扩展文件系统
+如果是 NTFS (需安装 ntfs-3g)： 
+`sudo ntfsresize /dev/vg01/lv_data # 离线操作需要卸载`
 
-sudo lvextend -L +10G /dev/vg01/lv_data
+如果是 FAT32：
+`sudo fatresize -s +10G /dev/vg01/lv_data`
 
-2. 手动扩展文件系统
-    
+如果是 ReiserFS： `sudo resize_reiserfs /dev/vg01/lv_data`
 
-如果是 NTFS (需安装 ntfs-3g)： sudo ntfsresize /dev/vg01/lv_data # 离线操作需要卸载
-
-如果是 FAT32： sudo fatresize -s +10G /dev/vg01/lv_data
-
-如果是 ReiserFS： sudo resize_reiserfs /dev/vg01/lv_data
-
-如果是加密卷 (LUKS)： sudo cryptsetup resize crypt_data # 先调整加密层 sudo ntfsresize /dev/mapper/crypt_data
+如果是加密卷 (LUKS)： 
+`sudo cryptsetup resize crypt_data # 先调整加密层` 
+`sudo ntfsresize /dev/mapper/crypt_data`
 
 缩容不支持-r选项的文件系统的逻辑卷(风险极高不建议使用)
-
-1. 卸载文件系统
-    
-
-sudo umount /mnt/data
-
-2. 检查文件系统 (以NTFS为例)
-    
-
-sudo ntfsfix /dev/vg01/lv_data
-
-3. 收缩文件系统 (目标缩小到15G)
-    
-
-sudo ntfsresize -s 15G /dev/vg01/lv_data
-
-4. 收缩逻辑卷 (必须精确匹配文件系统新大小)
-    
-
-sudo lvreduce -L 15G /dev/vg01/lv_data
-
-5. 重新挂载
-    
-
-sudo mount /dev/vg01/lv_data /mnt/data
+1.卸载文件系统 
+`sudo umount /mnt/data`
+2.检查文件系统 (以NTFS为例)
+`sudo ntfsfix /dev/vg01/lv_data`
+3.收缩文件系统 (目标缩小到15G)
+`sudo ntfsresize -s 15G /dev/vg01/lv_data`
+4.收缩逻辑卷 (必须精确匹配文件系统新大小) 
+`sudo lvreduce -L 15G /dev/vg01/lv_data`
+5.重新挂载 
+`sudo mount /dev/vg01/lv_data /mnt/data`
 
 
 ## namespance分类 
