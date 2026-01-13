@@ -888,7 +888,35 @@ podman run -d -v /hello:/fine:z centos:latest
 
 
 
+## podman 指定镜像仓库位置
+在/etc/containers/registries.conf配置文件中书写
 
+```
+unqualified-search-registries = ["utility.lab.example.com"]
+[[registry]]
+insecure = true
+blocked = false
+location = "utility.lab.example.com"
+```
+
+
+第一行指定了 podman 的默认仓库位置，也就是当 podman pull 时，如果不加对应镜像仓库的位置，只有一个镜像名时，会从这个指定的默认仓库拉取镜像
+
+即执行podman pull nginx 时
+
+实际上会执行 podman pull utility.lab.example.com/nginx:latest
+
+insecure 则指定了允许通过 http 协议
+
+blocked 指定是否禁用该仓库，设置 true 即可禁用
+
+location 是指定了仓库地址
+
+
+
+在用于指定不同的仓库地址和相关配置时
+
+[[registry]] 作为主仓库标题，[[registry.mirror]] 作为备用仓库标题，当主仓库拉取失败时，按顺序向下面的备用仓库拉取镜像
 
 
 
@@ -3847,21 +3875,6 @@ Query OK, 0 rows affected (0.01 sec)
 
 
 
-
-
-
-
-
-
-# 8/9
-## 欧拉系统安装 GUI
-yum -y install dde 安装图形化
-
-systemctl set-default graphical.target 设置开机默认启动图形化界面
-
-
-
-
 ## 欧拉部署zabbix7.0的版本依赖问题
 欧拉的具体版本是 24.03-sp1
 
@@ -3876,22 +3889,6 @@ zabbix7.0 要求net-snmp-libs 版本要在1:5.9.1-x 以内（大概是这样，�
 
 
 
-
-## mysql8.0 安装后配置
-
-与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
-
-ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
-
-
-
-
-
-
-
-
-
-# 8/11
 ## zabbix 自定义监控
 在 zabbix-server 端安装 zabbix-get 用于测试
 ```
@@ -3992,7 +3989,7 @@ root.login                                    [t|1]
 
 
 
-# 8/12
+
 ## 书写触发器问题表达式案例 swap
 这里直接使用官方提供的监控项，可以使用 zabbix-agent2 -p 查看所有官方提供的监控项和使用方法，更具体需要查看官网的 zabbix 使用文档
 
@@ -4076,61 +4073,6 @@ UserParmeter=user.login[*],lastlog -u "$1" | awk 'NR==2{print $$3}'
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-# 8/13
-## podman 指定镜像仓库位置
-在/etc/containers/registries.conf配置文件中书写
-
-```
-unqualified-search-registries = ["utility.lab.example.com"]
-[[registry]]
-insecure = true
-blocked = false
-location = "utility.lab.example.com"
-```
-
-
-第一行指定了 podman 的默认仓库位置，也就是当 podman pull 时，如果不加对应镜像仓库的位置，只有一个镜像名时，会从这个指定的默认仓库拉取镜像
-
-即执行podman pull nginx 时
-
-实际上会执行 podman pull utility.lab.example.com/nginx:latest
-
-insecure 则指定了允许通过 http 协议
-
-blocked 指定是否禁用该仓库，设置 true 即可禁用
-
-location 是指定了仓库地址
-
-
-
-在用于指定不同的仓库地址和相关配置时
-
-[[registry]] 作为主仓库标题，[[registry.mirror]] 作为备用仓库标题，当主仓库拉取失败时，按顺序向下面的备用仓库拉取镜像
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 8/14
 ## zabbix7.0 更换 apache 为 nginx 流程
 系统是欧拉 24.03sp1，相关源已配置
 
@@ -4196,7 +4138,6 @@ nginx 切换 apache 也是一样的逻辑与流程
 
 
 
-# 8/15
 ## zabbix 自定义网站监控流程
 以 baidu.com 为例
 
@@ -4317,8 +4258,21 @@ date 可识别该参数
 
 
 
+# 8/9
+## 欧拉系统安装 GUI
+yum -y install dde 安装图形化
+
+systemctl set-default graphical.target 设置开机默认启动图形化界面
 
 
+
+
+
+## mysql8.0 安装后配置
+
+与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
 
 
 
@@ -4408,8 +4362,147 @@ date 可识别该参数
 
 
 
-## Nginx
-### nginx 启动方式
+# Nginx
+
+## Nginx 编译安装
+想要实现一个功能，但是 Nginx 没有默认没有此模块，需要编译安装的方式将新的模块编译进已安装的 nginx
+
+这里需要安装 nginx_upstream_check  模块
+
+在反向代理服务器上配置
+Rockylinux9.6
+```
+主机名: nginx
+ip: 192.168.120.153
+```
+
+
+
+检查 nginx 默认模块
+```bash
+[root@nginx ~]# nginx -V
+nginx version: nginx/1.28.0
+built by gcc 11.5.0 20240719 (Red Hat 11.5.0-5) (GCC) 
+built with OpenSSL 3.2.2 4 Jun 2024
+TLS SNI support enabled
+configure arguments: --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-http_v3_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --with-cc-opt='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -march=x86-64-v2 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie'
+```
+
+
+
+1.安装依赖
+```bash
+[root@nginx ~]# yum install -y gcc glibc gcc-c++ pcre-devel openssl-devel patch redhat-rpm-config.noarch zlib-devel
+```
+
+
+
+2.下载和已经安装的 Nginx 版本相同的源码
+```bash
+[root@nginx ~]# nginx -v
+nginx version: nginx/1.28.0
+[root@nginx ~]# wget https://nginx.org/download/nginx-1.28.0.tar.gz
+--2025-09-04 14:47:59--  https://nginx.org/download/nginx-1.28.0.tar.gz
+正在解析主机 nginx.org (nginx.org)... 52.58.199.22, 3.125.197.172, 2a05:d014:5c0:2601::6, ...
+正在连接 nginx.org (nginx.org)|52.58.199.22|:443... 已连接。
+已发出 HTTP 请求，正在等待回应... 200 OK
+长度：1280111 (1.2M) [application/octet-stream]
+正在保存至: “nginx-1.28.0.tar.gz”
+
+nginx-1.28.0.tar.gz                       100%[=====================================================================================>]   1.22M  --.-KB/s  用时 0.01s   
+
+2025-09-04 14:47:59 (82.7 MB/s) - 已保存 “nginx-1.28.0.tar.gz” [1280111/1280111])
+
+[root@nginx ~]# 
+```
+
+
+
+下载第三方模块
+是 github 上的[https://github.com/yaoweibin/nginx_upstream_check_module](https://github.com/yaoweibin/nginx_upstream_check_module)
+下载到 windows 后传到虚拟机里
+```bash
+[root@nginx code]# tar -xf ../nginx-1.28.0.tar.gz
+[root@nginx code]# unzip ../nginx_upstream_check_module-master.zip
+#解压下载的源码包和模块
+[root@nginx code]# ll
+总用量 8
+drwxr-xr-x 8  502 games 4096  4月 23 19:55 nginx-1.28.0
+drwxr-xr-x 6 root root  4096 11月  6  2022 nginx_upstream_check_module-master
+[root@nginx code]# cd nginx-1.28.0/
+[root@nginx nginx-1.28.0]# patch -p1 < ../nginx_upstream_check_module-master/
+CHANGES                                   check_1.2.6+.patch                        nginx-tests/
+check_1.11.1+.patch                       check_1.5.12+.patch                       ngx_http_upstream_check_module.c
+check_1.11.5+.patch                       check_1.7.2+.patch                        ngx_http_upstream_check_module.h
+check_1.12.1+.patch                       check_1.7.5+.patch                        ngx_http_upstream_jvm_route_module.patch
+check_1.14.0+.patch                       check_1.9.2+.patch                        README
+check_1.16.1+.patch                       check.patch                               test/
+check_1.20.1+.patch                       config                                    upstream_fair.patch
+check_1.2.1.patch                         doc/                                      util/
+check_1.2.2+.patch                        nginx-sticky-module.patch                 
+[root@nginx nginx-1.28.0]# patch -p1 < ../nginx_upstream_check_module-master/check_1.20.1+.patch 
+patching file src/http/modules/ngx_http_upstream_hash_module.c
+Hunk #2 succeeded at 253 (offset 12 lines).
+Hunk #3 succeeded at 639 (offset 68 lines).
+patching file src/http/modules/ngx_http_upstream_ip_hash_module.c
+Hunk #2 succeeded at 219 (offset 8 lines).
+patching file src/http/modules/ngx_http_upstream_least_conn_module.c
+Hunk #2 succeeded at 156 (offset 6 lines).
+Hunk #3 succeeded at 221 (offset 6 lines).
+patching file src/http/ngx_http_upstream_round_robin.c
+Hunk #2 succeeded at 214 (offset 107 lines).
+Hunk #3 succeeded at 349 (offset 163 lines).
+Hunk #4 succeeded at 426 (offset 163 lines).
+Hunk #5 succeeded at 554 (offset 171 lines).
+Hunk #6 succeeded at 591 (offset 171 lines).
+Hunk #7 succeeded at 665 with fuzz 2 (offset 177 lines).
+Hunk #8 succeeded at 770 (offset 182 lines).
+patching file src/http/ngx_http_upstream_round_robin.h
+Hunk #1 succeeded at 55 (offset 17 lines).
+[root@nginx nginx-1.28.0]# ./configure --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-http_v3_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --add-module=/root/code/nginx_upstream_check_module-master --with-cc-opt='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -march=x86-64-v2 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie'
+#将模块的父目录的绝对路径添加到--prefix中
+```
+
+添加划线的那一条
+
+![[_resources/linux笔记/f6b299e7413c5f1125a76cf5259a0232_MD5.png]]
+
+
+
+整个--prefix 是从 nginx -V 的回显结果里粘贴的
+
+![[_resources/linux笔记/d68e85fa487f4dac1ed7501995761af9_MD5.png]]
+
+把 --add-module 模块所在目录绝对路径添加进里面就好
+
+从这个回显也能看出来，这个--prefix 指定了 nginx 的配置文件 nginx.conf，错误日志的位置等等，添加模块也不过是在里面指定了模块文件路径，有修改某个配置文件安装时指定路径的需求时，比如把 nginx.conf 安装到/opt/下面，也可以通过编译安装的方式修改或添加指定的路径。虽然 包管理器安装后也能修改配置文件路径，但远没有编译安装自由
+
+
+
+3.make 编译
+
+[root@nginx nginx-1.28.0]# make
+
+
+
+4.编译安装 （支持覆盖安装）
+
+[root@nginx nginx-1.28.0]# make install
+
+
+
+5.查看模块安装情况
+
+![[_resources/linux笔记/3005ff1d65778aee103839056b1b1171_MD5.png]]
+
+可以看到模块成功安装了
+
+
+
+
+
+
+## nginx 启动方式
 有两种启动方式
 
 1.被 systemctl 所管理
@@ -4455,7 +4548,7 @@ tcp   LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",
 
 
 
-### nginx 配置文件详解
+## nginx 配置文件详解
 配置文件主要由指令，参数，上下文组成
 
 ```bash
@@ -4518,8 +4611,8 @@ server {
 
 
 
-### nginx 配置多个业务
-#### 1.使用多 IP 地址的方式
+## nginx 配置多个业务
+### 1.使用多 IP 地址的方式
 ```bash
 [root@rocky code]# ip add add 192.168.120.150/24 dev ens160
 [root@rocky code]# ip a
@@ -4554,10 +4647,10 @@ server {
 
 
 
-#### 2.使用多端口的方式
+### 2.使用多端口的方式
 就是 listen 只加端口，省略了
 
-#### 3.使用多域名的方式
+### 3.使用多域名的方式
 ```nginx
 [root@rocky jump]# cat /etc/nginx/conf.d/*.conf
 server {
@@ -4587,8 +4680,8 @@ server {
 
 
 
-### nginx 常用模块
-#### 目录索引模块
+## nginx 常用模块
+### 目录索引模块
 该模块默认是不开启的
 
 在配置文件中写入指令
@@ -4603,7 +4696,7 @@ autoindex on;
 
 
 
-#### 密码登录验证模块
+### 密码登录验证模块
 
 
 auth_basic # 描述信息 
@@ -4628,7 +4721,7 @@ auth_basic_user_file auth_pass;
 
 
 
-#### IP 地址限制模块
+### IP 地址限制模块
 在 location 区块里配置
 
 限制方式: 先允许后拒绝
@@ -4649,7 +4742,7 @@ allow all;
 
 
 
-#### 状态模块
+### 状态模块
 stub_status
 
 配置:
@@ -4682,7 +4775,7 @@ Waiting # 等待的请求数（处于 keepalive 的 tcp 连接），开启了 ke
 
 
 
-#### 连接限制模块
+### 连接限制模块
 limit_conn
 
 请求限制
@@ -4759,7 +4852,7 @@ server {
 
 
 
-#### 代理缓存区模块
+### 代理缓存区模块
 nignx会把后端返回的内容先放到缓冲区当中，然后再返回给客户端，边收边传, 不是全部接收完再传给客户端
 
 Syntax: proxy_buffering on | off;
@@ -4805,7 +4898,7 @@ proxy_buffers 8 8k;
 
 
 
-#### 代理连接超时
+### 代理连接超时
 proxy_connect_timeout: Nginx 与后端服务器建立连接的超时时间。proxy_read_timeout: Nginx 等待后端服务器响应的超时时间。
 proxy_send_timeout: Nginx 向后端服务器发送请求数据的超时时间。
 
@@ -4815,7 +4908,7 @@ proxy_send_timeout: Nginx 向后端服务器发送请求数据的超时时间。
 
 
 
-### location 和 root 的关系
+## location 和 root 的关系
 location 是区块（或者叫上下文），root 是指令（或者理解为区块中的字段属性）
 
 root 定义了文件查找的根，而 location 则指定了网页访问时的 url 的路径，实际上还是在 root 指定的根下的 location 指定的目录里查找，下面举例
@@ -4856,7 +4949,7 @@ root 可以写在 location 之外来定义全局根目录，但还是 location �
 
 
 
-### location 的匹配规则优先级
+## location 的匹配规则优先级
 “统一不同文件路径的资源属性”，这正是 location 优先级机制要解决的核心问题之一，也是它最强大的用途。Nginx 的优先级规则，特别是正则匹配，允许你抛开“路径”这个属性，直接根据“类型”这个属性来制定规则。
 
 
@@ -4896,7 +4989,7 @@ server {
 
 
 
-### nginx 与 php 通信
+## nginx 与 php 通信
 
 
 在 LNMP 架构中，需要实现 nginx 与 php 的通信，通信方式主要有两种方式，通过 socket 和端口通信，在 php-fpm 的配置文件中，listen = 属性指定了通信方式，我使用的 php8.2 默认使用 socket 通信，listen 的配置是
@@ -4939,6 +5032,1178 @@ listen.owner = www
 listen.group = www
 
 但需要注释刚刚修改的那一行，因为listen.acl_users 配置是优先级最高的，会使这两行配置被忽略（该配置的注释里有详细说明）
+
+
+
+
+## LNMP 架构拆分
+### 一、数据库迁移
+```
+db01(Rocky9.6)    192.168.120.150
+web01(Rocky9.6)  192.168.120.129
+```
+
+基础软件源配置省略
+
+1.db01 部署 mariadb 服务
+```
+[root@db01 ~]# yum -y install mariadb-server
+[root@db01 ~]# systemctl enable --now mariadb
+```
+
+
+2.web01 备份数据库并拷贝到 db01
+```
+[root@web01 ~]# mysqldump -uroot -p000000 -A > all.sql
+[root@web01 ~]# scp all.sql 192.168.120.150:/root/
+```
+
+
+3.db01 导入数据库文件
+```
+[root@db01 ~]# mysql -uroot < all.sql
+[root@db01 ~]# systemctl restart mariadb
+```
+
+
+4.设置数据库远程用户
+```
+[root@db01 ~]# mysqladmin -uroot password '000000'
+[root@db01 ~]# mysql -uroot
+```
+
+进入数据库后执行
+`grant all on *.* to caster@'%' identified by '000000';`
+设置远程用户 caster 密码 000000 拥有全部权限
+
+
+5.web01 远程连接数据库
+
+```bash
+[root@rocky ~]# systemctl stop mariadb
+[root@rocky ~]# mysql -h 192.168.120.150 -uroot -p000000  # 先用root账户测试
+ERROR 1045 (28000): Access denied for user 'root'@'192.168.120.129' (using password: YES)
+[root@rocky ~]# mysql -h 192.168.120.150 -ucaster -p000000
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 5
+Server version: 10.5.27-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> 
+```
+
+
+
+6.修改 php 连接数据库配置文件
+```
+[root@web01 ~]# grep '^define' /alice/wordpress/wp-config.php 
+define( 'DB_NAME', 'wordpress' );
+define( 'DB_USER', 'caster' );
+define( 'DB_PASSWORD', '000000' );
+define( 'DB_HOST', '192.168.120.150' );
+```
+
+
+
+
+
+### 二、扩展 web 服务
+```
+web01 192.168.120.129
+web02 192.168.120.151
+db01 192.168.120.150
+```
+
+
+
+1.准备一台 web02
+
+配置相关源，nginx 的源配置在官网找，有手册
+
+php 的和上面的一样的源配置。使用 remi 源
+
+
+
+2.创建虚拟用户 www
+```
+[root@web02 ~]# groupadd -g666 www
+[root@web02 ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
+```
+
+
+3.web02 服务器部署 nginx
+
+`[root@web02 ~]# yum install nginx -y`
+
+
+
+4.web02 服务器部署 php
+```
+[root@web02 ~]# dnf -y install php php-fpm
+[root@web02 ~]# dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
+```
+
+
+5.nginx 配置无差异同步 web01
+`[root@web02 ~]# rsync -avz --delete 192.168.120.129:/etc/nginx /etc/`
+
+
+6.php 配置无差异同步 web01
+`[root@web02 ~]# rsync -avz --delete 192.168.120.129:/etc/php-fpm.d/www.conf /etc/php-fpm.d/`
+
+
+
+7.web01 将整个代码目录拷贝到 web02
+```
+[root@web01 ~]# tar czf code.tar.gz /alice/
+[root@web01 ~]# scp code.tar.gz 192.168.120.151:/root/
+[root@web02 ~]# tar zxf code.tar.gz -C /
+```
+
+
+
+8.启动 web02 的 php，nginx，禁用 web01 相关服务
+```
+[root@web02 ~]# systemctl enable --now nginx
+[root@web02 ~]# systemctl enable --now php-fpm.service 
+[root@web01 ~]# systemctl stop nginx.service 
+[root@web01 ~]# systemctl disable nginx.service 
+[root@web01 ~]# systemctl stop php-fpm.service 
+[root@web01 ~]# systemctl disable php-fpm.service 
+```
+
+
+
+9.修改相关主机名映射，访问网站即可
+
+
+
+
+
+### 三、配置 NFS 服务
+```
+web01 192.168.120.129   nfs客户端
+web02 192.168.120.151   nfs客户端
+nfs 192.168.120.152     nfs 服务端
+```
+
+
+
+1.准备一台 nfs 服务器
+
+2.安装 nfs 服务
+`[root@nfs ~]# yum -y install nfs-utils rpcbind`
+
+
+3.配置 nfs 服务
+
+创建相关用户与组
+```
+[root@nfs ~]# groupadd -g666 www
+[root@nfs ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
+```
+
+
+创建本地远程目录/alice/wp 并修改所有者与所属组
+```
+[root@nfs ~]# mkdir -pv /alice/wp
+[root@nfs ~]# chown -R www:www /alice/
+[root@nfs ~]# cat /etc/exports
+/alice/wp 192.168.120.0/24(rw,sync,all_squash,anonuid=666,anongid=666)
+[root@nfs ~]# systemctl enable --now nfs-server.service
+```
+
+检查配置是否生效
+
+```bash
+[root@nfs ~]# cat /var/lib/nfs/etab 
+/alice/wp	192.168.120.0/24(rw,sync,wdelay,hide,nocrossmnt,secure,root_squash,all_squash,no_subtree_check,secure_locks,acl,no_pnfs,anonuid=666,anongid=666,sec=sys,rw,secure,root_squash,all_squash) 
+```
+
+
+
+客户端挂载
+
+1 客户端安装 nfs（不需要启动）
+
+```bash
+[root@web01 ~]# yum -y install nfs-utils
+[root@web02 ~]# yum -y install nfs-utils
+```
+
+
+
+2.将 web01 和 web02 上本地磁盘上的图片推送到 nfs 服务端
+
+wordpress 上传图片的目录是 wordpress/wp-content/uploads/
+
+```bash
+[root@web01 ~]# scp -r /alice/wordpress/wp-content/uploads/2025 192.168.120.152:/alice/wp/
+[root@web01 ~]# scp -r /alice/wordpress/wp-content/uploads/2025/09/* 192.168.120.152:/alice/wp/2025/09/
+```
+
+
+
+3.开始挂载
+
+```bash
+[root@web01 ~]# showmount -e 192.168.120.152
+Export list for 192.168.120.152:
+/alice/wp 192.168.120.0/24
+[root@web01 ~]# mount -t nfs 192.168.120.152:/alice/wp /alice/wordpress/wp-content/uploads/
+[root@web01 ~]# df
+文件系统                     1K-块    已用     可用 已用% 挂载点
+devtmpfs                      4096       0     4096    0% /dev
+tmpfs                       375032       0   375032    0% /dev/shm
+tmpfs                       150016    4476   145540    3% /run
+/dev/mapper/rl-root       49201152 6387592 42813560   13% /
+/dev/nvme0n1p1              983040  611584   371456   63% /boot
+tmpfs                        75004      52    74952    1% /run/user/42
+tmpfs                        75004      36    74968    1% /run/user/0
+192.168.120.152:/alice/wp 49201152 6023296 43177856   13% /alice/wordpress/wp-content/uploads
+[root@web01 ~]# 
+```
+
+
+
+```bash
+[root@web02 ~]# mount -t nfs 192.168.120.152:/alice/wp /alice/wordpress/wp-content/uploads/
+[root@web02 ~]# df
+文件系统                     1K-块    已用     可用 已用% 挂载点
+devtmpfs                      4096       0     4096    0% /dev
+tmpfs                       375024       0   375024    0% /dev/shm
+tmpfs                       150012    4468   145544    3% /run
+/dev/mapper/rl-root       49201152 6384584 42816568   13% /
+/dev/nvme0n1p1              983040  611584   371456   63% /boot
+tmpfs                        75004      52    74952    1% /run/user/42
+tmpfs                        75004      36    74968    1% /run/user/0
+192.168.120.152:/alice/wp 49201152 6023296 43177856   13% /alice/wordpress/wp-content/uploads
+[root@web02 ~]# 
+```
+
+
+
+nfs 挂载可写进 fstab 里
+
+```bash
+192.168.120.152:/alice/wp /alice/wordpress/wp-content/uploads/  nfs   defaults      0 0
+```
+
+网站的图片上传文件大小受限制，可以修改配置文件调整大小限制
+```
+client_body_buffer_size 16k;
+client_max_body_size 20m;
+```
+写在 http，server，location 区块都可以，写得越大，网站访问速度就越慢
+
+同时还要修改 php 配置文件
+
+```bash
+[root@web02 ~]# egrep "upload_max_filesize|max_file_uploads|post_max_size" /etc/php.ini 
+; Default Value: -1 (Sum of max_input_vars and max_file_uploads)
+post_max_size = 20M
+upload_max_filesize = 20M
+max_file_uploads = 20
+```
+
+nginx，php-fpm 重启后生效
+
+
+
+修改 hosts 映射为 web01，浏览器访问
+
+![[_resources/linux笔记/be97a9f8ca9e0b1767a6726f0e9d1c6c_MD5.png]]
+
+该图片是 web02 上传的，web01 可正常访问
+
+这样就实现了无论从 web01 还是 02 上传图片，都不影响 网站图片 的整体访问
+
+
+
+
+
+
+
+
+
+
+
+## Ngnix 反向代理
+两台机器
+```
+rocky_nginx 192.168.120.153
+web01 192.168.120.129
+```
+
+
+
+配置 web01 的静态页面
+
+```bash
+[root@web01 ~]# cat /etc/nginx/conf.d/static.conf 
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        root /alice/test;
+        index index.html;
+        }
+}
+[root@web01 ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web01 ~]# systemctl restart nginx
+[root@web01 ~]# mkdir -p /alice/test
+[root@web01 ~]# echo '<h1>web01 is here!</h1>' > /alice/test/index.html
+hosts映射写在win11上面了
+
+ 
+```
+
+
+
+1.准备一台 nginx 反向代理服务器
+
+`rocky9.6 192.168.120.153`
+基于上面的 LNMP 架构拆分
+软件源配置省略了
+
+
+2.安装并配置 nginx
+
+```bash
+[root@nginx ~]# yum -y install nginx
+[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        proxy_pass http://192.168.120.129;
+        }
+}
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+```
+
+win11 访问 www.static.com(域名映射的是 192.168.120.153)
+
+![[_resources/linux笔记/ad1f3a640f9a46059c6c6e512e5207df_MD5.png]]
+
+返回的却是这个(这个是其他 server 服务)
+
+使用 WireShark 抓包分析得到下面两条
+
+![[_resources/linux笔记/4a8460ea803585486720dece4c97fee1_MD5.png]]
+
+192.168.120.1 访问.153 时，注意蓝色标注条目
+
+Host: www.static.com\r\n
+
+可以看到 host 头部域名正确
+
+![[_resources/linux笔记/fb68b5c4f4dc1a5d5b04f2bc61ee9c87_MD5.png]]
+
+然而在 153（rocky_nginx） 请求 129（web01） 时，host 头部变成了
+Host: 192.168.120.129\r\n
+头部信息（域名 www.static.com）被丢弃，协议也从 http1.1（长连接） 变成了 http1.0（短连接）
+
+
+
+这时就需要给 nginx 配置加参数，使其携带头部信息
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        proxy_pass http://192.168.120.129;
+        proxy_set_header Host $http_host; #要求在下一次转发保留头部信息
+        proxy_http_version 1.1; #保留协议
+        }
+}
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+```
+
+再次访问
+
+![[_resources/linux笔记/ebcaf011778388591d7ab089a65df672_MD5.png]]
+
+
+
+然后就涉及到一个问题，代理服务器访问 web01，web01 的 nginx 的 access 日志  保存的源 ip 是代理服务器的 ip 而不是客户端 ip，这没有意义
+
+![[_resources/linux笔记/d1782f9d352ebf91850f52160198b97a_MD5.png]]
+
+
+
+回到 nginx 反向代理服务器配置
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        proxy_pass http://192.168.120.129;
+        proxy_set_header Host $http_host;
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;# 添加这一条
+        }
+}
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+[root@nginx ~]# 
+```
+
+浏览器再次访问然后查看 web01 的访问日志，可以看到新增一条客户端访问的 ip
+
+![[_resources/linux笔记/603a732955a5a5f3b6716d71d4691b7f_MD5.png]]
+
+这里能够显示远程 ip 不仅仅是因为配置了这一条
+
+还是因为早在 nginx.conf 里就定义了 access 的变量内容（标红的那一条）
+
+```
+log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+ '$status $body_bytes_sent "$http_referer" '
+  '"$http_user_agent" "<font style="color:#DF2A3F;">$http_x_forwarded_for</font>"';
+```
+
+
+
+反向代理到这里还需要进行调优
+
+在 nginx 反向代理服务器上配置(模块介绍见上面的 'nginx 常用模块')
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        proxy_pass http://192.168.120.129;
+        proxy_set_header Host $http_host;
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_connect_timeout 30;
+        proxy_send_timeout 60;
+        proxy_read_timeout 60;
+        proxy_buffering on;
+        proxy_buffer_size 32k;
+        proxy_buffers 4 128k;
+        }
+}
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+```
+
+
+
+这样写较为繁琐且观感不好，可以使用 include 指令将这些模块写到其他文件中
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        proxy_pass http://192.168.120.129;
+        include proxy_params;
+        }
+}
+[root@nginx ~]# cat /etc/nginx/proxy_params 
+proxy_set_header Host $http_host;
+proxy_http_version 1.1;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_connect_timeout 30;
+proxy_send_timeout 60;
+proxy_read_timeout 60;
+proxy_buffering on;
+proxy_buffer_size 32k;
+proxy_buffers 4 128k;
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+[root@nginx ~]# 
+```
+
+
+
+
+
+## Nginx 负载均衡
+从上面继续，添加一台 LNMP 拆分架构里的 web02，web02 部署静态页面过程省略
+```
+Rocky_nginx      192.168.120.153
+web01               192.168.120.129
+web02               192.168.120.151
+```
+
+
+
+修改反向代理服务器的 nginx 配置
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+#定义一个名为webs的地址池
+upstream webs {
+      server 192.168.120.129;
+      server 192.168.120.151;
+}
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        proxy_pass http://webs;#调用定义的地址池
+        include proxy_params;
+        }
+}
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+[root@nginx ~]# vim /etc/hosts 
+[root@nginx ~]# curl www.static.com
+<h1>web01 is here!</h1>
+[root@nginx ~]# curl www.static.com
+<h1>web02 is here!</h1>
+#负载均衡配置成功
+```
+
+
+
+把上面做的 wordpress 配置负载均衡也是一样的
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/wordpress.conf 
+server {
+        listen 80;
+        server_name php.alice.com;
+        
+        location / {
+        proxy_pass http://webs;
+        include proxy_params;
+        }
+}
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# 
+```
+
+
+
+在某一台 web 服务器因故障无法连接数据库时（停止 php-fpm 服务模拟故障），页面由于做了负载均衡，在刷新时会因为将请求转发到了故障的 web 服务器从而报 502 错误，这时就可以做一些优化
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+upstream webs {
+      server 192.168.120.129;
+      server 192.168.120.151;
+}
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        proxy_pass http://webs;
+        include proxy_params;
+        }
+}
+
+server {
+        listen 80;
+        server_name php.alice.com;
+        
+        location / {
+        proxy_pass http://webs;
+        include proxy_params;
+        proxy_next_upstream error timeout http_500 http_502 http_503 http_504;
+        #添加该条，意思是只要页面报500，502，503，504这些错误，nginx就会将请求转发到upstream定义
+        #的地址池中的其他服务器
+        }
+}
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+[root@nginx ~]# 
+```
+
+
+
+
+
+## Nginx 负载均衡调度算法
+1. rr 轮询
+2. 加权轮询
+3. ip_hash   ip 哈希
+4. url_hash  url 哈希
+5. 最少链接数
+
+
+1.rr 轮询
+
+```bash
+upstream webs {
+      server 192.168.120.129;
+      server 192.168.120.151;
+}
+#轮流访问
+```
+
+
+
+2.加权轮询
+
+```bash
+upstream webs {
+      server 192.168.120.129 weight=5;#访问5次129后访问一次151
+      server 192.168.120.151;
+}
+#服务器资源性能不同时可以使用
+```
+
+
+
+3.ip_hash
+
+```bash
+upstream webs {
+      ip_hash;
+      server 192.168.120.129;
+      server 192.168.120.151;
+}
+#第一次访问的是哪个节点，就会一直访问该节点
+缺点：导致负载均衡不均衡
+优点：自动实现会话保持
+```
+
+
+
+
+
+## Nginx 负载均衡后端状态
+down             当前的 server 暂时不参与负载均衡
+
+backup          预留的备份服务器
+
+max_fails       允许请求失败的次数      
+
+fail_timeout   经过 max_fails 失败后，服务暂停时间
+
+max_conns    限制最大的接收连接数
+
+用法就是写在地址池的 server 尾巴那里;
+
+
+
+
+## 四层负载均衡配置
+![[_resources/linux笔记/bb593528d3e66df5021fad1d3ee4bf78_MD5.png]]
+
+画了个整体架构草图，相比上面的架构添加了 LB02 和 LB，LB01（原名 nginx）
+
+1.通过访问负载均衡的 5555 端口，实际是后端的 web01 的 22 端口在提供服务
+
+准备一台服务器 LB 192.168.120.141
+
+1）安装 nginx
+
+```bash
+[root@LB ~]# #scp 192.168.120.153:/etc/yum.repos.d/nginx.repo /etc/yum.repos.d/
+[root@LB ~]# yum -y install nginx
+```
+
+
+
+2）删除默认的七层配置（）
+
+```bash
+[root@LB ~]# rm -rf /etc/nginx/conf.d/*
+```
+
+
+
+ 配置主配置文件在http区块外包含的语句  
+
+```bash
+[root@LB ~]# grep conf.c /etc/nginx/nginx.conf
+include /etc/nginx/conf.c/*.conf;
+```
+
+
+
+ 3)创建四层配置文件  
+
+```bash
+[root@LB nginx]# mkdir -pv conf.c
+mkdir: 已创建目录 'conf.c'
+[root@LB nginx]# cd conf.c/
+[root@LB conf.c]# cat lb.conf 
+stream {
+        upstream web01 {
+                 server 192.168.120.129:22;
+        }
+server {
+        listen 5555;
+        proxy_pass web01;
+       }
+}
+[root@LB conf.c]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@LB conf.c]# systemctl restart nginx
+```
+
+
+
+打开一个 ssh 窗口，ssh 测试
+
+```bash
+[C:\~]$ ssh 192.168.120.141 5555
+
+Connecting to 192.168.120.141:5555...
+Connection established.
+To escape to local shell, press 'Ctrl+Alt+]'.
+
+Activate the web console with: systemctl enable --now cockpit.socket
+
+Last login: Sat Sep  6 13:43:13 2025 from 192.168.120.1
+[root@web01 ~]# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:0c:29:c0:23:10 brd ff:ff:ff:ff:ff:ff
+    altname enp3s0
+    inet 192.168.120.129/24 brd 192.168.120.255 scope global noprefixroute ens160
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:fec0:2310/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+[root@web01 ~]# 
+```
+
+可以看到成功转发到了 web01 的 22 端口
+
+![[_resources/linux笔记/210fac57e84fe4f394f0dde91d337b59_MD5.png]]
+
+抓包后可以看到 具体流程
+
+
+
+2.通过访问负载均衡的 6666 端口，实际是后端的 mysql 的 3306 端口在提供服务
+
+```bash
+[root@LB conf.c]# cat lb.conf 
+stream {
+        upstream web01 {
+                 server 192.168.120.129:22;
+        }
+        upstream db01 {
+                 server 192.168.120.150:3306;
+        }
+server {
+        listen 5555;
+        proxy_pass web01;
+       }
+
+server {
+        listen 6666;
+        proxy_pass db01;
+       }
+}
+
+[root@LB conf.c]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@LB conf.c]# systemctl restart nginx
+```
+
+
+
+在 web01 上测试
+
+```bash
+[root@web01 ~]# mysql -h 192.168.120.141 -P 6666 -ucaster -p000000
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 3
+Server version: 10.5.27-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| wordpress          |
++--------------------+
+4 rows in set (0.034 sec)
+```
+
+
+
+
+
+## 四层转发七层
+基于‘’四层负载均衡配置‘’的架构图
+
+先配置 LB02
+
+```bash
+[root@LB02 ~]# scp 192.168.120.153:/etc/yum.repos.d/nginx.repo /etc/yum.repos.d/
+[root@LB02 ~]# yum -y install nginx
+[root@LB02 ~]# scp 192.168.120.153:/etc/nginx/conf.d/* /etc/nginx/conf.d/
+The authenticity of host '192.168.120.153 (192.168.120.153)' can't be established.
+ED25519 key fingerprint is SHA256:qM6PEbM6vEVWXh5pwCypNutWEk0Eel1PSmVcP7HiNAY.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.120.153' (ED25519) to the list of known hosts.
+root@192.168.120.153's password: 
+admin.conf                                                                                                        100%  284   274.1KB/s   00:00    
+default.conf                                                                                                      100%  504   515.7KB/s   00:00    
+[root@LB02 ~]# scp 192.168.120.153:/etc/nginx/proxy_params /etc/nginx/
+root@192.168.120.153's password: 
+proxy_params                                                                                                      100%  256   250.9KB/s   00:00    
+[root@LB02 ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@LB02 ~]# systemctl enable --now nginx
+Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /usr/lib/systemd/system/nginx.service.
+```
+
+
+
+配置 LB 四层
+
+```bash
+[root@LB conf.c]# mv lb.conf lb.conf.bak #不能同时存在两个stream字段
+[root@LB conf.c]# cat web.conf 
+stream {
+        upstream webs {
+                 server 192.168.120.153:80;
+                 server 192.168.120.130:80;
+        }
+
+server {
+        listen 80;
+        proxy_pass webs;
+       }
+}
+[root@LB conf.c]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@LB conf.c]# systemctl restart nginx
+```
+
+
+
+修改主机映射 hosts   192.168.120.141 php.alice.com
+
+访问 php.alice.com
+
+![[_resources/linux笔记/931b1a699d00f1ce51378f6ba7baaca5_MD5.png]]
+
+配置成功
+
+
+
+
+## session 会话保持
+以部署 phpmyadmin 业务为例，虚拟机统一使用 rocky9.6
+
+nginx  
+
+web01  
+
+web02  
+
+192.168.120.153
+
+192.168.120.129
+
+192.168.120.151
+
+1.配置 nginx
+
+```bash
+[root@web01 admin]# cat /etc/nginx/conf.d/admin.conf 
+server {
+        listen 80;
+        server_name www.admin.com;
+        root /alice/admin;
+
+        location / {
+                    index index.php index.html;
+        }
+
+        location ~ \.php$ {
+                           fastcgi_pass 127.0.0.1:9000;
+                           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                           include fastcgi_params;
+        }
+}
+[root@web01 admin]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web01 admin]# systemctl restart nginx 
+```
+
+
+
+2.配置代码目录，下载代码包
+
+从官网找到的代码包phpMyAdmin-5.2.2-all-languages.zip，用 xftp 传到/alice 目录下
+
+```bash
+[root@web01 ~]# cd /alice/
+[root@web01 alice]# unzip phpMyAdmin-5.2.2-all-languages.zip
+[root@web01 alice]# mv phpMyAdmin-5.2.2-all-languages admin
+[root@web01 alice]# mv phpMyAdmin-5.2.2-all-languages.zip /root/
+[root@web01 alice]# ll
+总用量 24
+drwxr-xr-x 12 root root 4096  9月  5 15:29 admin
+drwxr-xr-x  2 www  www    20  9月  2 20:03 images
+-rw-r--r--  1 www  www    25  9月  2 20:03 index.php
+-rw-r--r--  1 www  www   335  9月  2 20:03 mysql.php
+drwxr-xr-x  2 root root   24  9月  3 16:44 test
+drwxr-xr-x  5 www  www  4096  9月  2 20:33 wordpress
+[root@web01 alice]# chown -R www:www admin/
+[root@web01 alice]# chown www:www /var/lib/php/session/
+[root@web01 alice]# systemctl restart nginx
+[root@web01 alice]# systemctl restart php-fpm.service 
+```
+
+
+
+3.配置数据库信息
+
+```bash
+[root@web01 alice]# cd admin/
+[root@web01 admin]# cp config.sample.inc.php config.inc.php #带 sample 的是示例文件，不会生效
+[root@web01 admin]# grep 192.168.120.150 config.inc.php 
+$cfg['Servers'][$i]['host'] = '192.168.120.150';
+```
+
+win11 宿主机做好 hosts 映射 web01 的 IP 后访问 www.admin.com 测试
+
+
+
+4. 快速部署WEB02 phpmyadmin业务
+
+ 1.scp配置文件  
+
+```bash
+[root@web02 ~]# scp 192.168.120.129:/etc/nginx/conf.d/admin.conf /etc/nginx/conf.d/
+root@192.168.120.129's password: 
+admin.conf                                                                                                        100%  411   546.8KB/s   00:00    
+[root@web02 ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web02 ~]# systemctl restart nginx
+```
+
+
+
+2.拷贝代码文件
+
+```bash
+[root@web02 ~]# scp 192.168.120.129:/root/phpMyAdmin-5.2.2-all-languages.zip /alice/
+root@192.168.120.129's password: 
+phpMyAdmin-5.2.2-all-languages.zip                                                                                100%   15MB 107.0MB/s   00:00    
+[root@web02 ~]# cd /alice/
+[root@web02 alice]# unzip phpMyAdmin-5.2.2-all-languages.zip 
+[root@web02 alice]# mv phpMyAdmin-5.2.2-all-languages.zip /root/
+[root@web02 alice]# mv phpMyAdmin-5.2.2-all-languages/ admin
+[root@web02 alice]# cd admin/
+[root@web02 admin]# cp config.sample.inc.php config.inc.php
+[root@web02 admin]# vim config.inc.php 
+[root@web02 admin]# grep '192.168.120.150' config.inc.php 
+$cfg['Servers'][$i]['host'] = '192.168.120.150';
+[root@web02 admin]# cd ..
+[root@web02 alice]# ll
+总用量 24
+drwxr-xr-x 12 root root 4096  9月  5 15:29 admin
+-rw-r--r--  1 root root 4810  9月  5 15:29 config.inc.php
+drwxr-xr-x  2 www  www    20  9月  2 20:03 images
+-rw-r--r--  1 www  www    25  9月  2 20:03 index.php
+-rw-r--r--  1 www  www   335  9月  2 20:03 mysql.php
+drwxr-xr-x  2 root root   24  9月  3 16:44 test
+drwxr-xr-x  5 www  www  4096  9月  2 20:33 wordpress
+[root@web02 alice]# chown -R www:www admin/
+[root@web02 alice]# chown www:www /var/lib/php/session/
+[root@web02 alice]# systemctl restart nginx
+[root@web02 alice]# systemctl restart php-fpm.service 
+
+```
+
+同样通过 hosts 解析检查配置
+
+
+
+5.nginx 负载均衡配置
+
+```bash
+[root@nginx ~]# cat /etc/nginx/conf.d/admin.conf 
+upstream admin {
+                server 192.168.120.129;
+                server 192.168.120.151;
+}
+
+server {
+        listen 80;
+        server_name www.admin.com;
+
+        location / {
+                    proxy_pass http://admin;
+                    include proxy_params;
+        }
+}
+[root@nginx ~]# cat /etc/nginx/proxy_params 
+proxy_set_header Host $http_host;
+proxy_http_version 1.1;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_connect_timeout 30;
+proxy_send_timeout 60;
+proxy_read_timeout 60;
+proxy_buffering on;
+proxy_buffer_size 32k;
+proxy_buffers 4 128k;
+[root@nginx ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@nginx ~]# systemctl restart nginx
+```
+
+
+
+测试访问，主机 hosts 解析
+
+192.168.120.153 www.admin.com
+
+![[_resources/linux笔记/6d036eaa98a62b008ed93df3d0523d52_MD5.png]]
+
+这里无法登录是因为没做会话保持，涉及到 cookie 和 session，之前有详解
+
+
+
+6.phpmyadmin实现会话保持写入到redis
+
+  这里在 db01 上做
+
+1） 安装并配置 redis
+
+```bash
+[root@db01 ~]# yum -y install redis
+[root@db01 ~]# grep 192.168.120.150 /etc/redis/redis.conf 
+bind 127.0.0.1 192.168.120.150
+[root@db01 ~]# systemctl enable --now redis
+[root@db01 ~]# netstat -tunlp | grep redis
+tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      2794/redis-server 1 
+tcp        0      0 192.168.120.150:6379    0.0.0.0:*               LISTEN      2794/redis-server 1 
+```
+
+
+
+2） 配置php会话写入到redis中
+
+<font style="color:#DF2A3F;">WEB01和WEB02都需要修改 </font>
+
+修改/etc/php.ini  
+
+```bash
+[root@web01 admin]# vim /etc/php.ini 
+[root@web01 admin]# egrep -n "192.168.120.150|redis" /etc/php.ini
+1230:session.save_handler = redis
+1263:session.save_path = "tcp://192.168.120.150:6379"
+```
+
+
+
+ 注释/etc/php-fpm.d/www.conf 中的两行配置
+
+```bash
+[root@web01 admin]# tail -4  /etc/php-fpm.d/www.conf
+;php_value[session.save_handler] = files
+;php_value[session.save_path]    = /var/lib/php/session
+php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
+;php_value[opcache.file_cache]  = /var/lib/php/opcache
+```
+
+
+
+ 两台 web 服务器修改完成后各自重启PHP-FPM进程
+
+ systemctl restart php-fpm  
+
+
+
+7.再次访问 www.admin.com
+
+账号和密码是之前 mysql 授权的远程用户的账号密码
+
+我设定的是 
+
+账号 caster
+
+密码 000000
+
+![[_resources/linux笔记/33527651eac752f9e3669794a7db38f5_MD5.png]]
+
+刷新两次可以看到每次的登录 ip 都不同
+
+![[_resources/linux笔记/0a7c2ae40046efcd8b5088d8ada62cb4_MD5.png]]
+
+![[_resources/linux笔记/a1fac794434f540b090c08edb9452f4b_MD5.png]]
+
+
+
+ 查看redis中的session数据  
+
+```bash
+[root@db01 ~]# redis-cli
+127.0.0.1:6379> keys *
+1) "PHPREDIS_SESSION:pp4fc5b21j46269632aqdevvjg"
+127.0.0.1:6379> 
+```
+
+
+
+至此就完成了 session 会话保持，session 存储在了 redis 里
+
+
+
+
+
 
 
 
@@ -5502,713 +6767,6 @@ MariaDB [wordpress]>
 
 
 
-
-
-
-
-
-
-# 9/2
-## LNMP 架构拆分
-### 一、数据库迁移
-```
-db01(Rocky9.6)    192.168.120.150
-web01(Rocky9.6)  192.168.120.129
-```
-
-基础软件源配置省略
-
-1.db01 部署 mariadb 服务
-```
-[root@db01 ~]# yum -y install mariadb-server
-[root@db01 ~]# systemctl enable --now mariadb
-```
-
-
-2.web01 备份数据库并拷贝到 db01
-```
-[root@web01 ~]# mysqldump -uroot -p000000 -A > all.sql
-[root@web01 ~]# scp all.sql 192.168.120.150:/root/
-```
-
-
-3.db01 导入数据库文件
-```
-[root@db01 ~]# mysql -uroot < all.sql
-[root@db01 ~]# systemctl restart mariadb
-```
-
-
-4.设置数据库远程用户
-```
-[root@db01 ~]# mysqladmin -uroot password '000000'
-[root@db01 ~]# mysql -uroot
-```
-
-进入数据库后执行
-`grant all on *.* to caster@'%' identified by '000000';`
-设置远程用户 caster 密码 000000 拥有全部权限
-
-
-5.web01 远程连接数据库
-
-```bash
-[root@rocky ~]# systemctl stop mariadb
-[root@rocky ~]# mysql -h 192.168.120.150 -uroot -p000000  # 先用root账户测试
-ERROR 1045 (28000): Access denied for user 'root'@'192.168.120.129' (using password: YES)
-[root@rocky ~]# mysql -h 192.168.120.150 -ucaster -p000000
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 5
-Server version: 10.5.27-MariaDB MariaDB Server
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [(none)]> 
-```
-
-
-
-6.修改 php 连接数据库配置文件
-```
-[root@web01 ~]# grep '^define' /alice/wordpress/wp-config.php 
-define( 'DB_NAME', 'wordpress' );
-define( 'DB_USER', 'caster' );
-define( 'DB_PASSWORD', '000000' );
-define( 'DB_HOST', '192.168.120.150' );
-```
-
-
-
-
-
-### 二、扩展 web 服务
-```
-web01 192.168.120.129
-web02 192.168.120.151
-db01 192.168.120.150
-```
-
-
-
-1.准备一台 web02
-
-配置相关源，nginx 的源配置在官网找，有手册
-
-php 的和上面的一样的源配置。使用 remi 源
-
-
-
-2.创建虚拟用户 www
-```
-[root@web02 ~]# groupadd -g666 www
-[root@web02 ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
-```
-
-
-3.web02 服务器部署 nginx
-
-`[root@web02 ~]# yum install nginx -y`
-
-
-
-4.web02 服务器部署 php
-```
-[root@web02 ~]# dnf -y install php php-fpm
-[root@web02 ~]# dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
-```
-
-
-5.nginx 配置无差异同步 web01
-`[root@web02 ~]# rsync -avz --delete 192.168.120.129:/etc/nginx /etc/`
-
-
-6.php 配置无差异同步 web01
-`[root@web02 ~]# rsync -avz --delete 192.168.120.129:/etc/php-fpm.d/www.conf /etc/php-fpm.d/`
-
-
-
-7.web01 将整个代码目录拷贝到 web02
-```
-[root@web01 ~]# tar czf code.tar.gz /alice/
-[root@web01 ~]# scp code.tar.gz 192.168.120.151:/root/
-[root@web02 ~]# tar zxf code.tar.gz -C /
-```
-
-
-
-8.启动 web02 的 php，nginx，禁用 web01 相关服务
-```
-[root@web02 ~]# systemctl enable --now nginx
-[root@web02 ~]# systemctl enable --now php-fpm.service 
-[root@web01 ~]# systemctl stop nginx.service 
-[root@web01 ~]# systemctl disable nginx.service 
-[root@web01 ~]# systemctl stop php-fpm.service 
-[root@web01 ~]# systemctl disable php-fpm.service 
-```
-
-
-
-9.修改相关主机名映射，访问网站即可
-
-
-
-
-
-### 三、配置 NFS 服务
-```
-web01 192.168.120.129   nfs客户端
-web02 192.168.120.151   nfs客户端
-nfs 192.168.120.152     nfs 服务端
-```
-
-
-
-1.准备一台 nfs 服务器
-
-2.安装 nfs 服务
-`[root@nfs ~]# yum -y install nfs-utils rpcbind`
-
-
-3.配置 nfs 服务
-
-创建相关用户与组
-```
-[root@nfs ~]# groupadd -g666 www
-[root@nfs ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
-```
-
-
-创建本地远程目录/alice/wp 并修改所有者与所属组
-```
-[root@nfs ~]# mkdir -pv /alice/wp
-[root@nfs ~]# chown -R www:www /alice/
-[root@nfs ~]# cat /etc/exports
-/alice/wp 192.168.120.0/24(rw,sync,all_squash,anonuid=666,anongid=666)
-[root@nfs ~]# systemctl enable --now nfs-server.service
-```
-
-检查配置是否生效
-
-```bash
-[root@nfs ~]# cat /var/lib/nfs/etab 
-/alice/wp	192.168.120.0/24(rw,sync,wdelay,hide,nocrossmnt,secure,root_squash,all_squash,no_subtree_check,secure_locks,acl,no_pnfs,anonuid=666,anongid=666,sec=sys,rw,secure,root_squash,all_squash) 
-```
-
-
-
-客户端挂载
-
-1 客户端安装 nfs（不需要启动）
-
-```bash
-[root@web01 ~]# yum -y install nfs-utils
-[root@web02 ~]# yum -y install nfs-utils
-```
-
-
-
-2.将 web01 和 web02 上本地磁盘上的图片推送到 nfs 服务端
-
-wordpress 上传图片的目录是 wordpress/wp-content/uploads/
-
-```bash
-[root@web01 ~]# scp -r /alice/wordpress/wp-content/uploads/2025 192.168.120.152:/alice/wp/
-[root@web01 ~]# scp -r /alice/wordpress/wp-content/uploads/2025/09/* 192.168.120.152:/alice/wp/2025/09/
-```
-
-
-
-3.开始挂载
-
-```bash
-[root@web01 ~]# showmount -e 192.168.120.152
-Export list for 192.168.120.152:
-/alice/wp 192.168.120.0/24
-[root@web01 ~]# mount -t nfs 192.168.120.152:/alice/wp /alice/wordpress/wp-content/uploads/
-[root@web01 ~]# df
-文件系统                     1K-块    已用     可用 已用% 挂载点
-devtmpfs                      4096       0     4096    0% /dev
-tmpfs                       375032       0   375032    0% /dev/shm
-tmpfs                       150016    4476   145540    3% /run
-/dev/mapper/rl-root       49201152 6387592 42813560   13% /
-/dev/nvme0n1p1              983040  611584   371456   63% /boot
-tmpfs                        75004      52    74952    1% /run/user/42
-tmpfs                        75004      36    74968    1% /run/user/0
-192.168.120.152:/alice/wp 49201152 6023296 43177856   13% /alice/wordpress/wp-content/uploads
-[root@web01 ~]# 
-```
-
-
-
-```bash
-[root@web02 ~]# mount -t nfs 192.168.120.152:/alice/wp /alice/wordpress/wp-content/uploads/
-[root@web02 ~]# df
-文件系统                     1K-块    已用     可用 已用% 挂载点
-devtmpfs                      4096       0     4096    0% /dev
-tmpfs                       375024       0   375024    0% /dev/shm
-tmpfs                       150012    4468   145544    3% /run
-/dev/mapper/rl-root       49201152 6384584 42816568   13% /
-/dev/nvme0n1p1              983040  611584   371456   63% /boot
-tmpfs                        75004      52    74952    1% /run/user/42
-tmpfs                        75004      36    74968    1% /run/user/0
-192.168.120.152:/alice/wp 49201152 6023296 43177856   13% /alice/wordpress/wp-content/uploads
-[root@web02 ~]# 
-```
-
-
-
-nfs 挂载可写进 fstab 里
-
-```bash
-192.168.120.152:/alice/wp /alice/wordpress/wp-content/uploads/  nfs   defaults      0 0
-```
-
-网站的图片上传文件大小受限制，可以修改配置文件调整大小限制
-```
-client_body_buffer_size 16k;
-client_max_body_size 20m;
-```
-写在 http，server，location 区块都可以，写得越大，网站访问速度就越慢
-
-同时还要修改 php 配置文件
-
-```bash
-[root@web02 ~]# egrep "upload_max_filesize|max_file_uploads|post_max_size" /etc/php.ini 
-; Default Value: -1 (Sum of max_input_vars and max_file_uploads)
-post_max_size = 20M
-upload_max_filesize = 20M
-max_file_uploads = 20
-```
-
-nginx，php-fpm 重启后生效
-
-
-
-修改 hosts 映射为 web01，浏览器访问
-
-![[_resources/linux笔记/be97a9f8ca9e0b1767a6726f0e9d1c6c_MD5.png]]
-
-该图片是 web02 上传的，web01 可正常访问
-
-这样就实现了无论从 web01 还是 02 上传图片，都不影响 网站图片 的整体访问
-
-
-
-
-
-
-
-
-
-
-
-# 9/3
-## Ngnix 反向代理
-两台机器
-```
-rocky_nginx 192.168.120.153
-web01 192.168.120.129
-```
-
-
-
-配置 web01 的静态页面
-
-```bash
-[root@web01 ~]# cat /etc/nginx/conf.d/static.conf 
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        root /alice/test;
-        index index.html;
-        }
-}
-[root@web01 ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web01 ~]# systemctl restart nginx
-[root@web01 ~]# mkdir -p /alice/test
-[root@web01 ~]# echo '<h1>web01 is here!</h1>' > /alice/test/index.html
-hosts映射写在win11上面了
-
- 
-```
-
-
-
-1.准备一台 nginx 反向代理服务器
-
-`rocky9.6 192.168.120.153`
-基于上面的 LNMP 架构拆分
-软件源配置省略了
-
-
-2.安装并配置 nginx
-
-```bash
-[root@nginx ~]# yum -y install nginx
-[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        proxy_pass http://192.168.120.129;
-        }
-}
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-```
-
-win11 访问 www.static.com(域名映射的是 192.168.120.153)
-
-![[_resources/linux笔记/ad1f3a640f9a46059c6c6e512e5207df_MD5.png]]
-
-返回的却是这个(这个是其他 server 服务)
-
-使用 WireShark 抓包分析得到下面两条
-
-![[_resources/linux笔记/4a8460ea803585486720dece4c97fee1_MD5.png]]
-
-192.168.120.1 访问.153 时，注意蓝色标注条目
-
-Host: www.static.com\r\n
-
-可以看到 host 头部域名正确
-
-![[_resources/linux笔记/fb68b5c4f4dc1a5d5b04f2bc61ee9c87_MD5.png]]
-
-然而在 153（rocky_nginx） 请求 129（web01） 时，host 头部变成了
-Host: 192.168.120.129\r\n
-头部信息（域名 www.static.com）被丢弃，协议也从 http1.1（长连接） 变成了 http1.0（短连接）
-
-
-
-这时就需要给 nginx 配置加参数，使其携带头部信息
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        proxy_pass http://192.168.120.129;
-        proxy_set_header Host $http_host; #要求在下一次转发保留头部信息
-        proxy_http_version 1.1; #保留协议
-        }
-}
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-```
-
-再次访问
-
-![[_resources/linux笔记/ebcaf011778388591d7ab089a65df672_MD5.png]]
-
-
-
-然后就涉及到一个问题，代理服务器访问 web01，web01 的 nginx 的 access 日志  保存的源 ip 是代理服务器的 ip 而不是客户端 ip，这没有意义
-
-![[_resources/linux笔记/d1782f9d352ebf91850f52160198b97a_MD5.png]]
-
-
-
-回到 nginx 反向代理服务器配置
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        proxy_pass http://192.168.120.129;
-        proxy_set_header Host $http_host;
-        proxy_http_version 1.1;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;# 添加这一条
-        }
-}
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-[root@nginx ~]# 
-```
-
-浏览器再次访问然后查看 web01 的访问日志，可以看到新增一条客户端访问的 ip
-
-![[_resources/linux笔记/603a732955a5a5f3b6716d71d4691b7f_MD5.png]]
-
-这里能够显示远程 ip 不仅仅是因为配置了这一条
-
-还是因为早在 nginx.conf 里就定义了 access 的变量内容（标红的那一条）
-
-```
-log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
- '$status $body_bytes_sent "$http_referer" '
-  '"$http_user_agent" "<font style="color:#DF2A3F;">$http_x_forwarded_for</font>"';
-```
-
-
-
-反向代理到这里还需要进行调优
-
-在 nginx 反向代理服务器上配置(模块介绍见上面的 'nginx 常用模块')
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        proxy_pass http://192.168.120.129;
-        proxy_set_header Host $http_host;
-        proxy_http_version 1.1;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_connect_timeout 30;
-        proxy_send_timeout 60;
-        proxy_read_timeout 60;
-        proxy_buffering on;
-        proxy_buffer_size 32k;
-        proxy_buffers 4 128k;
-        }
-}
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-```
-
-
-
-这样写较为繁琐且观感不好，可以使用 include 指令将这些模块写到其他文件中
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        proxy_pass http://192.168.120.129;
-        include proxy_params;
-        }
-}
-[root@nginx ~]# cat /etc/nginx/proxy_params 
-proxy_set_header Host $http_host;
-proxy_http_version 1.1;
-proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-proxy_connect_timeout 30;
-proxy_send_timeout 60;
-proxy_read_timeout 60;
-proxy_buffering on;
-proxy_buffer_size 32k;
-proxy_buffers 4 128k;
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-[root@nginx ~]# 
-```
-
-
-
-
-
-## Nginx 负载均衡
-从上面继续，添加一台 LNMP 拆分架构里的 web02，web02 部署静态页面过程省略
-```
-Rocky_nginx      192.168.120.153
-web01               192.168.120.129
-web02               192.168.120.151
-```
-
-
-
-修改反向代理服务器的 nginx 配置
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
-#定义一个名为webs的地址池
-upstream webs {
-      server 192.168.120.129;
-      server 192.168.120.151;
-}
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        proxy_pass http://webs;#调用定义的地址池
-        include proxy_params;
-        }
-}
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-[root@nginx ~]# vim /etc/hosts 
-[root@nginx ~]# curl www.static.com
-<h1>web01 is here!</h1>
-[root@nginx ~]# curl www.static.com
-<h1>web02 is here!</h1>
-#负载均衡配置成功
-```
-
-
-
-把上面做的 wordpress 配置负载均衡也是一样的
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/wordpress.conf 
-server {
-        listen 80;
-        server_name php.alice.com;
-        
-        location / {
-        proxy_pass http://webs;
-        include proxy_params;
-        }
-}
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# 
-```
-
-
-
-在某一台 web 服务器因故障无法连接数据库时（停止 php-fpm 服务模拟故障），页面由于做了负载均衡，在刷新时会因为将请求转发到了故障的 web 服务器从而报 502 错误，这时就可以做一些优化
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
-upstream webs {
-      server 192.168.120.129;
-      server 192.168.120.151;
-}
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        proxy_pass http://webs;
-        include proxy_params;
-        }
-}
-
-server {
-        listen 80;
-        server_name php.alice.com;
-        
-        location / {
-        proxy_pass http://webs;
-        include proxy_params;
-        proxy_next_upstream error timeout http_500 http_502 http_503 http_504;
-        #添加该条，意思是只要页面报500，502，503，504这些错误，nginx就会将请求转发到upstream定义
-        #的地址池中的其他服务器
-        }
-}
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-[root@nginx ~]# 
-```
-
-
-
-
-
-## Nginx 负载均衡调度算法
-1. rr 轮询
-2. 加权轮询
-3. ip_hash   ip 哈希
-4. url_hash  url 哈希
-5. 最少链接数
-
-
-1.rr 轮询
-
-```bash
-upstream webs {
-      server 192.168.120.129;
-      server 192.168.120.151;
-}
-#轮流访问
-```
-
-
-
-2.加权轮询
-
-```bash
-upstream webs {
-      server 192.168.120.129 weight=5;#访问5次129后访问一次151
-      server 192.168.120.151;
-}
-#服务器资源性能不同时可以使用
-```
-
-
-
-3.ip_hash
-
-```bash
-upstream webs {
-      ip_hash;
-      server 192.168.120.129;
-      server 192.168.120.151;
-}
-#第一次访问的是哪个节点，就会一直访问该节点
-缺点：导致负载均衡不均衡
-优点：自动实现会话保持
-```
-
-
-
-
-
-## Nginx 负载均衡后端状态
-down             当前的 server 暂时不参与负载均衡
-
-backup          预留的备份服务器
-
-max_fails       允许请求失败的次数      
-
-fail_timeout   经过 max_fails 失败后，服务暂停时间
-
-max_conns    限制最大的接收连接数
-
-用法就是写在地址池的 server 尾巴那里;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 9/4
 ## linux 调用历史命令
 有两种方式
@@ -6226,157 +6784,6 @@ max_conns    限制最大的接收连接数
 ![[_resources/linux笔记/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png]]
 
 没用的小知识又增加了
-
-
-
-
-
-## Nginx 编译安装
-想要实现一个功能，但是 Nginx 没有默认没有此模块，需要编译安装的方式将新的模块编译进已安装的 nginx
-
-这里需要安装 nginx_upstream_check  模块
-
-
-
-在反向代理服务器上配置
-
-Rockylinux9.6
-
-主机名   nginx
-
-ip          192.168.120.153
-
-
-
-检查 nginx 默认模块
-
-```bash
-[root@nginx ~]# nginx -V
-nginx version: nginx/1.28.0
-built by gcc 11.5.0 20240719 (Red Hat 11.5.0-5) (GCC) 
-built with OpenSSL 3.2.2 4 Jun 2024
-TLS SNI support enabled
-configure arguments: --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-http_v3_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --with-cc-opt='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -march=x86-64-v2 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie'
-```
-
-
-
-1.安装依赖
-
-```bash
-[root@nginx ~]# yum install -y gcc glibc gcc-c++ pcre-devel openssl-devel patch redhat-rpm-config.noarch zlib-devel
-```
-
-
-
-2.下载和已经安装的 Nginx 版本相同的源码
-
-```bash
-[root@nginx ~]# nginx -v
-nginx version: nginx/1.28.0
-[root@nginx ~]# wget https://nginx.org/download/nginx-1.28.0.tar.gz
---2025-09-04 14:47:59--  https://nginx.org/download/nginx-1.28.0.tar.gz
-正在解析主机 nginx.org (nginx.org)... 52.58.199.22, 3.125.197.172, 2a05:d014:5c0:2601::6, ...
-正在连接 nginx.org (nginx.org)|52.58.199.22|:443... 已连接。
-已发出 HTTP 请求，正在等待回应... 200 OK
-长度：1280111 (1.2M) [application/octet-stream]
-正在保存至: “nginx-1.28.0.tar.gz”
-
-nginx-1.28.0.tar.gz                       100%[=====================================================================================>]   1.22M  --.-KB/s  用时 0.01s   
-
-2025-09-04 14:47:59 (82.7 MB/s) - 已保存 “nginx-1.28.0.tar.gz” [1280111/1280111])
-
-[root@nginx ~]# 
-```
-
-
-
-下载第三方模块
-
-是 github 上的[https://github.com/yaoweibin/nginx_upstream_check_module](https://github.com/yaoweibin/nginx_upstream_check_module)
-
-下载到 windows 后传到虚拟机里
-
-```bash
-[root@nginx code]# tar -xf ../nginx-1.28.0.tar.gz
-[root@nginx code]# unzip ../nginx_upstream_check_module-master.zip
-#解压下载的源码包和模块
-[root@nginx code]# ll
-总用量 8
-drwxr-xr-x 8  502 games 4096  4月 23 19:55 nginx-1.28.0
-drwxr-xr-x 6 root root  4096 11月  6  2022 nginx_upstream_check_module-master
-[root@nginx code]# cd nginx-1.28.0/
-[root@nginx nginx-1.28.0]# patch -p1 < ../nginx_upstream_check_module-master/
-CHANGES                                   check_1.2.6+.patch                        nginx-tests/
-check_1.11.1+.patch                       check_1.5.12+.patch                       ngx_http_upstream_check_module.c
-check_1.11.5+.patch                       check_1.7.2+.patch                        ngx_http_upstream_check_module.h
-check_1.12.1+.patch                       check_1.7.5+.patch                        ngx_http_upstream_jvm_route_module.patch
-check_1.14.0+.patch                       check_1.9.2+.patch                        README
-check_1.16.1+.patch                       check.patch                               test/
-check_1.20.1+.patch                       config                                    upstream_fair.patch
-check_1.2.1.patch                         doc/                                      util/
-check_1.2.2+.patch                        nginx-sticky-module.patch                 
-[root@nginx nginx-1.28.0]# patch -p1 < ../nginx_upstream_check_module-master/check_1.20.1+.patch 
-patching file src/http/modules/ngx_http_upstream_hash_module.c
-Hunk #2 succeeded at 253 (offset 12 lines).
-Hunk #3 succeeded at 639 (offset 68 lines).
-patching file src/http/modules/ngx_http_upstream_ip_hash_module.c
-Hunk #2 succeeded at 219 (offset 8 lines).
-patching file src/http/modules/ngx_http_upstream_least_conn_module.c
-Hunk #2 succeeded at 156 (offset 6 lines).
-Hunk #3 succeeded at 221 (offset 6 lines).
-patching file src/http/ngx_http_upstream_round_robin.c
-Hunk #2 succeeded at 214 (offset 107 lines).
-Hunk #3 succeeded at 349 (offset 163 lines).
-Hunk #4 succeeded at 426 (offset 163 lines).
-Hunk #5 succeeded at 554 (offset 171 lines).
-Hunk #6 succeeded at 591 (offset 171 lines).
-Hunk #7 succeeded at 665 with fuzz 2 (offset 177 lines).
-Hunk #8 succeeded at 770 (offset 182 lines).
-patching file src/http/ngx_http_upstream_round_robin.h
-Hunk #1 succeeded at 55 (offset 17 lines).
-[root@nginx nginx-1.28.0]# ./configure --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-http_v3_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --add-module=/root/code/nginx_upstream_check_module-master --with-cc-opt='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -march=x86-64-v2 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie'
-#将模块的父目录的绝对路径添加到--prefix中
-```
-
-添加划线的那一条
-
-![[_resources/linux笔记/f6b299e7413c5f1125a76cf5259a0232_MD5.png]]
-
-
-
-整个--prefix 是从 nginx -V 的回显结果里粘贴的
-
-![[_resources/linux笔记/d68e85fa487f4dac1ed7501995761af9_MD5.png]]
-
-把 --add-module 模块所在目录绝对路径添加进里面就好
-
-从这个回显也能看出来，这个--prefix 指定了 nginx 的配置文件 nginx.conf，错误日志的位置等等，添加模块也不过是在里面指定了模块文件路径，有修改某个配置文件安装时指定路径的需求时，比如把 nginx.conf 安装到/opt/下面，也可以通过编译安装的方式修改或添加指定的路径。虽然 包管理器安装后也能修改配置文件路径，但远没有编译安装自由
-
-
-
-3.make 编译
-
-[root@nginx nginx-1.28.0]# make
-
-
-
-4.编译安装 （支持覆盖安装）
-
-[root@nginx nginx-1.28.0]# make install
-
-
-
-5.查看模块安装情况
-
-![[_resources/linux笔记/3005ff1d65778aee103839056b1b1171_MD5.png]]
-
-可以看到模块成功安装了
-
-
-
-
-
 
 
 
@@ -6483,515 +6890,7 @@ set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件�
 
 
 
-
-
-
-
-## session 会话保持
-以部署 phpmyadmin 业务为例，虚拟机统一使用 rocky9.6
-
-nginx  
-
-web01  
-
-web02  
-
-192.168.120.153
-
-192.168.120.129
-
-192.168.120.151
-
-1.配置 nginx
-
-```bash
-[root@web01 admin]# cat /etc/nginx/conf.d/admin.conf 
-server {
-        listen 80;
-        server_name www.admin.com;
-        root /alice/admin;
-
-        location / {
-                    index index.php index.html;
-        }
-
-        location ~ \.php$ {
-                           fastcgi_pass 127.0.0.1:9000;
-                           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                           include fastcgi_params;
-        }
-}
-[root@web01 admin]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web01 admin]# systemctl restart nginx 
-```
-
-
-
-2.配置代码目录，下载代码包
-
-从官网找到的代码包phpMyAdmin-5.2.2-all-languages.zip，用 xftp 传到/alice 目录下
-
-```bash
-[root@web01 ~]# cd /alice/
-[root@web01 alice]# unzip phpMyAdmin-5.2.2-all-languages.zip
-[root@web01 alice]# mv phpMyAdmin-5.2.2-all-languages admin
-[root@web01 alice]# mv phpMyAdmin-5.2.2-all-languages.zip /root/
-[root@web01 alice]# ll
-总用量 24
-drwxr-xr-x 12 root root 4096  9月  5 15:29 admin
-drwxr-xr-x  2 www  www    20  9月  2 20:03 images
--rw-r--r--  1 www  www    25  9月  2 20:03 index.php
--rw-r--r--  1 www  www   335  9月  2 20:03 mysql.php
-drwxr-xr-x  2 root root   24  9月  3 16:44 test
-drwxr-xr-x  5 www  www  4096  9月  2 20:33 wordpress
-[root@web01 alice]# chown -R www:www admin/
-[root@web01 alice]# chown www:www /var/lib/php/session/
-[root@web01 alice]# systemctl restart nginx
-[root@web01 alice]# systemctl restart php-fpm.service 
-```
-
-
-
-3.配置数据库信息
-
-```bash
-[root@web01 alice]# cd admin/
-[root@web01 admin]# cp config.sample.inc.php config.inc.php #带 sample 的是示例文件，不会生效
-[root@web01 admin]# grep 192.168.120.150 config.inc.php 
-$cfg['Servers'][$i]['host'] = '192.168.120.150';
-```
-
-win11 宿主机做好 hosts 映射 web01 的 IP 后访问 www.admin.com 测试
-
-
-
-4. 快速部署WEB02 phpmyadmin业务
-
- 1.scp配置文件  
-
-```bash
-[root@web02 ~]# scp 192.168.120.129:/etc/nginx/conf.d/admin.conf /etc/nginx/conf.d/
-root@192.168.120.129's password: 
-admin.conf                                                                                                        100%  411   546.8KB/s   00:00    
-[root@web02 ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web02 ~]# systemctl restart nginx
-```
-
-
-
-2.拷贝代码文件
-
-```bash
-[root@web02 ~]# scp 192.168.120.129:/root/phpMyAdmin-5.2.2-all-languages.zip /alice/
-root@192.168.120.129's password: 
-phpMyAdmin-5.2.2-all-languages.zip                                                                                100%   15MB 107.0MB/s   00:00    
-[root@web02 ~]# cd /alice/
-[root@web02 alice]# unzip phpMyAdmin-5.2.2-all-languages.zip 
-[root@web02 alice]# mv phpMyAdmin-5.2.2-all-languages.zip /root/
-[root@web02 alice]# mv phpMyAdmin-5.2.2-all-languages/ admin
-[root@web02 alice]# cd admin/
-[root@web02 admin]# cp config.sample.inc.php config.inc.php
-[root@web02 admin]# vim config.inc.php 
-[root@web02 admin]# grep '192.168.120.150' config.inc.php 
-$cfg['Servers'][$i]['host'] = '192.168.120.150';
-[root@web02 admin]# cd ..
-[root@web02 alice]# ll
-总用量 24
-drwxr-xr-x 12 root root 4096  9月  5 15:29 admin
--rw-r--r--  1 root root 4810  9月  5 15:29 config.inc.php
-drwxr-xr-x  2 www  www    20  9月  2 20:03 images
--rw-r--r--  1 www  www    25  9月  2 20:03 index.php
--rw-r--r--  1 www  www   335  9月  2 20:03 mysql.php
-drwxr-xr-x  2 root root   24  9月  3 16:44 test
-drwxr-xr-x  5 www  www  4096  9月  2 20:33 wordpress
-[root@web02 alice]# chown -R www:www admin/
-[root@web02 alice]# chown www:www /var/lib/php/session/
-[root@web02 alice]# systemctl restart nginx
-[root@web02 alice]# systemctl restart php-fpm.service 
-
-```
-
-同样通过 hosts 解析检查配置
-
-
-
-5.nginx 负载均衡配置
-
-```bash
-[root@nginx ~]# cat /etc/nginx/conf.d/admin.conf 
-upstream admin {
-                server 192.168.120.129;
-                server 192.168.120.151;
-}
-
-server {
-        listen 80;
-        server_name www.admin.com;
-
-        location / {
-                    proxy_pass http://admin;
-                    include proxy_params;
-        }
-}
-[root@nginx ~]# cat /etc/nginx/proxy_params 
-proxy_set_header Host $http_host;
-proxy_http_version 1.1;
-proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-proxy_connect_timeout 30;
-proxy_send_timeout 60;
-proxy_read_timeout 60;
-proxy_buffering on;
-proxy_buffer_size 32k;
-proxy_buffers 4 128k;
-[root@nginx ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@nginx ~]# systemctl restart nginx
-```
-
-
-
-测试访问，主机 hosts 解析
-
-192.168.120.153 www.admin.com
-
-![[_resources/linux笔记/6d036eaa98a62b008ed93df3d0523d52_MD5.png]]
-
-这里无法登录是因为没做会话保持，涉及到 cookie 和 session，之前有详解
-
-
-
-6.phpmyadmin实现会话保持写入到redis
-
-  这里在 db01 上做
-
-1） 安装并配置 redis
-
-```bash
-[root@db01 ~]# yum -y install redis
-[root@db01 ~]# grep 192.168.120.150 /etc/redis/redis.conf 
-bind 127.0.0.1 192.168.120.150
-[root@db01 ~]# systemctl enable --now redis
-[root@db01 ~]# netstat -tunlp | grep redis
-tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      2794/redis-server 1 
-tcp        0      0 192.168.120.150:6379    0.0.0.0:*               LISTEN      2794/redis-server 1 
-```
-
-
-
-2） 配置php会话写入到redis中
-
-<font style="color:#DF2A3F;">WEB01和WEB02都需要修改 </font>
-
-修改/etc/php.ini  
-
-```bash
-[root@web01 admin]# vim /etc/php.ini 
-[root@web01 admin]# egrep -n "192.168.120.150|redis" /etc/php.ini
-1230:session.save_handler = redis
-1263:session.save_path = "tcp://192.168.120.150:6379"
-```
-
-
-
- 注释/etc/php-fpm.d/www.conf 中的两行配置
-
-```bash
-[root@web01 admin]# tail -4  /etc/php-fpm.d/www.conf
-;php_value[session.save_handler] = files
-;php_value[session.save_path]    = /var/lib/php/session
-php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
-;php_value[opcache.file_cache]  = /var/lib/php/opcache
-```
-
-
-
- 两台 web 服务器修改完成后各自重启PHP-FPM进程
-
- systemctl restart php-fpm  
-
-
-
-7.再次访问 www.admin.com
-
-账号和密码是之前 mysql 授权的远程用户的账号密码
-
-我设定的是 
-
-账号 caster
-
-密码 000000
-
-![[_resources/linux笔记/33527651eac752f9e3669794a7db38f5_MD5.png]]
-
-刷新两次可以看到每次的登录 ip 都不同
-
-![[_resources/linux笔记/0a7c2ae40046efcd8b5088d8ada62cb4_MD5.png]]
-
-![[_resources/linux笔记/a1fac794434f540b090c08edb9452f4b_MD5.png]]
-
-
-
- 查看redis中的session数据  
-
-```bash
-[root@db01 ~]# redis-cli
-127.0.0.1:6379> keys *
-1) "PHPREDIS_SESSION:pp4fc5b21j46269632aqdevvjg"
-127.0.0.1:6379> 
-```
-
-
-
-至此就完成了 session 会话保持，session 存储在了 redis 里
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 9/6
-## 四层负载均衡配置
-![[_resources/linux笔记/bb593528d3e66df5021fad1d3ee4bf78_MD5.png]]
-
-画了个整体架构草图，相比上面的架构添加了 LB02 和 LB，LB01（原名 nginx）
-
-1.通过访问负载均衡的 5555 端口，实际是后端的 web01 的 22 端口在提供服务
-
-准备一台服务器 LB 192.168.120.141
-
-1）安装 nginx
-
-```bash
-[root@LB ~]# #scp 192.168.120.153:/etc/yum.repos.d/nginx.repo /etc/yum.repos.d/
-[root@LB ~]# yum -y install nginx
-```
-
-
-
-2）删除默认的七层配置（）
-
-```bash
-[root@LB ~]# rm -rf /etc/nginx/conf.d/*
-```
-
-
-
- 配置主配置文件在http区块外包含的语句  
-
-```bash
-[root@LB ~]# grep conf.c /etc/nginx/nginx.conf
-include /etc/nginx/conf.c/*.conf;
-```
-
-
-
- 3)创建四层配置文件  
-
-```bash
-[root@LB nginx]# mkdir -pv conf.c
-mkdir: 已创建目录 'conf.c'
-[root@LB nginx]# cd conf.c/
-[root@LB conf.c]# cat lb.conf 
-stream {
-        upstream web01 {
-                 server 192.168.120.129:22;
-        }
-server {
-        listen 5555;
-        proxy_pass web01;
-       }
-}
-[root@LB conf.c]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@LB conf.c]# systemctl restart nginx
-```
-
-
-
-打开一个 ssh 窗口，ssh 测试
-
-```bash
-[C:\~]$ ssh 192.168.120.141 5555
-
-Connecting to 192.168.120.141:5555...
-Connection established.
-To escape to local shell, press 'Ctrl+Alt+]'.
-
-Activate the web console with: systemctl enable --now cockpit.socket
-
-Last login: Sat Sep  6 13:43:13 2025 from 192.168.120.1
-[root@web01 ~]# ip a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
-       valid_lft forever preferred_lft forever
-2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
-    link/ether 00:0c:29:c0:23:10 brd ff:ff:ff:ff:ff:ff
-    altname enp3s0
-    inet 192.168.120.129/24 brd 192.168.120.255 scope global noprefixroute ens160
-       valid_lft forever preferred_lft forever
-    inet6 fe80::20c:29ff:fec0:2310/64 scope link noprefixroute 
-       valid_lft forever preferred_lft forever
-[root@web01 ~]# 
-```
-
-可以看到成功转发到了 web01 的 22 端口
-
-![[_resources/linux笔记/210fac57e84fe4f394f0dde91d337b59_MD5.png]]
-
-抓包后可以看到 具体流程
-
-
-
-2.通过访问负载均衡的 6666 端口，实际是后端的 mysql 的 3306 端口在提供服务
-
-```bash
-[root@LB conf.c]# cat lb.conf 
-stream {
-        upstream web01 {
-                 server 192.168.120.129:22;
-        }
-        upstream db01 {
-                 server 192.168.120.150:3306;
-        }
-server {
-        listen 5555;
-        proxy_pass web01;
-       }
-
-server {
-        listen 6666;
-        proxy_pass db01;
-       }
-}
-
-[root@LB conf.c]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@LB conf.c]# systemctl restart nginx
-```
-
-
-
-在 web01 上测试
-
-```bash
-[root@web01 ~]# mysql -h 192.168.120.141 -P 6666 -ucaster -p000000
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 3
-Server version: 10.5.27-MariaDB MariaDB Server
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [(none)]> show databases;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| mysql              |
-| performance_schema |
-| wordpress          |
-+--------------------+
-4 rows in set (0.034 sec)
-```
-
-
-
-
-
-## 四层转发七层
-基于‘’四层负载均衡配置‘’的架构图
-
-先配置 LB02
-
-```bash
-[root@LB02 ~]# scp 192.168.120.153:/etc/yum.repos.d/nginx.repo /etc/yum.repos.d/
-[root@LB02 ~]# yum -y install nginx
-[root@LB02 ~]# scp 192.168.120.153:/etc/nginx/conf.d/* /etc/nginx/conf.d/
-The authenticity of host '192.168.120.153 (192.168.120.153)' can't be established.
-ED25519 key fingerprint is SHA256:qM6PEbM6vEVWXh5pwCypNutWEk0Eel1PSmVcP7HiNAY.
-This key is not known by any other names
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '192.168.120.153' (ED25519) to the list of known hosts.
-root@192.168.120.153's password: 
-admin.conf                                                                                                        100%  284   274.1KB/s   00:00    
-default.conf                                                                                                      100%  504   515.7KB/s   00:00    
-[root@LB02 ~]# scp 192.168.120.153:/etc/nginx/proxy_params /etc/nginx/
-root@192.168.120.153's password: 
-proxy_params                                                                                                      100%  256   250.9KB/s   00:00    
-[root@LB02 ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@LB02 ~]# systemctl enable --now nginx
-Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /usr/lib/systemd/system/nginx.service.
-```
-
-
-
-配置 LB 四层
-
-```bash
-[root@LB conf.c]# mv lb.conf lb.conf.bak #不能同时存在两个stream字段
-[root@LB conf.c]# cat web.conf 
-stream {
-        upstream webs {
-                 server 192.168.120.153:80;
-                 server 192.168.120.130:80;
-        }
-
-server {
-        listen 80;
-        proxy_pass webs;
-       }
-}
-[root@LB conf.c]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@LB conf.c]# systemctl restart nginx
-```
-
-
-
-修改主机映射 hosts   192.168.120.141 php.alice.com
-
-访问 php.alice.com
-
-![[_resources/linux笔记/931b1a699d00f1ce51378f6ba7baaca5_MD5.png]]
-
-配置成功
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # 9/10
 ## tomcat 图片分离
@@ -7679,10 +7578,10 @@ python -m pyftpdlib
 
 
 
-# 11/4
-## Waydroid
 
-### Waydroid 初始配置
+# Waydroid
+## 11/4
+## Waydroid 初始配置
 安装 waydroid 并初始化
 sudo pacman -S waydroid
 sudo waydroid init
@@ -7712,11 +7611,7 @@ sudo waydroid-extras 跟着提示一步步走选择安装libndk就行了
 
 
 
-
-
-
-
-### Waydroid 画面撕裂问题
+## Waydroid 画面撕裂问题
 具体表现形式是类似花屏和撕裂，不过只有黑色色调
 
 还是混合显卡的问题，是 waydroid 默认使用显卡和桌面环境使用的显卡不一致导致的，我的 plasma 桌面环境默认使用 N 卡（可以用watch -n 1 nvidia-smi 查看哪些进程在使用 N 卡，每秒实时刷新），waydroid 在使用 A 卡集显，需要切换 waydroid 的显卡使用策略，为此 GitHub 上有个项目提供解决方案脚本
@@ -7775,7 +7670,7 @@ waydroid upgrade --offline
 
 
 
-### waydroid 按键映射
+## waydroid 按键映射
 之前无法解决 waydroid 没有滑动映射的问题，在 github 上看到了一个项目，还算能用，
 
 项目地址：[https://github.com/waydroid-helper/waydroid-helper/tree/main](https://github.com/waydroid-helper/waydroid-helper/tree/main)
