@@ -20,9 +20,7 @@
 以docker为例
 ![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
 
-## ip a 回显解析
 
-ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以容器为例
 
 
 ## sed命令
@@ -196,12 +194,6 @@ awk -F ":" '!($3<200){print}' /etc/passwd #输出第3个字段的值不小于200
 
 ![[_resources/linux笔记/91238653c6e8e6603e279c474409f9ab_MD5.png]]
 
-////////////////////////////////////////////////////////////////////////
-
-在github上找到了kubeeasy的命令文件kubeeasy-v1.3.0，将它移动到了/usr/bin目录下添加可执行权限并删除了版本号以供执行，不删版本号的话命令行就变成kubeeasy-v1.3.0了,命令行这个说法有失偏颇，在一切皆文件的linux中，它应该叫可执行文件。关于这个可联想到斗学网教程上iptables在写完规则后也是执行了/usr/sbin/iptables-save这个文件来保存配置信息，也就是说不加这个可执行文件的路径，单输入一个iptables-save ，shell也能够找到这个文件并执行
-
-Kubeeasy本地保留了一份在D:\云计算技能大赛\镜像资源
-
 
 
 
@@ -310,15 +302,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 ![[_resources/linux笔记/21d6eb1b235d93b35c05bff409736782_MD5.png]]
 
 
-## 报错缺少br_netfilter模块
 
-![[_resources/linux笔记/aedaa60f7fd1b1bdc2504d549bd805d7_MD5.png]]
-使用的是7.2镜像
-解决方案：
-`yum install bridge-utils -y`
-`echo br_netfilter > /etc/modules-load.d/br_netfilter.conf`
-`reboot`
-`modprobe br_netfilter`
 
 
 ## centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
