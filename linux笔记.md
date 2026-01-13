@@ -988,6 +988,46 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 
 
 
+## chattr 命令
+写这个是因为有个 b 把我搭的网站给黑了，还给他的 ssh 密钥设置了 chattr 属性留了后门，这种东西，普通云服务的查杀功能是不起作用的，只能是自己找然后去除属性后删除，不过也怪我图方便，懒得登录网站进控制台，想直接打开终端 ssh 上去，所以公网开放了 22 端口
+
+Linux chattr 命令用于改变文件或目录的属性，这些属性可以控制文件系统的行为，提供更高级的文件管理功能。
+
+语法: chattr [选项] [+/-/=属性] 文件或目录
+
+常用选项
+-R: 递归处理目录及其子目录
+-V: 显示详细信息
+-v: 显示版本信息
+
+属性模式
++: 添加属性
+-: 移除属性
+= : 设置为指定属性
+
+```
+常用属性
+a     仅追加：文件只能追加内容，不能删除或修改已有内容（需 root 权限）。
+i     不可变：文件不能被删除、修改、重命名或创建硬链接（需 root 权限）。
+A     不更新文件的最后访问时间（atime）。
+c     文件在磁盘上自动压缩（部分文件系统支持）。
+s     安全删除：文件被删除时，其数据会被清零（不可恢复）。
+u     文件被删除后，其内容仍可恢复（与 s 相反）。
+d     文件在 dump 备份时会被跳过。
+```
+
+
+
+## linux 调用历史命令
+有两种方式
+1.使用 history 命令查看执行过的命令，输入对应历史命令的序号，前面加上！即可快速执行该命令
+![[_resources/linux笔记/0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png]]
+
+2.直接使用 ！
+使用  '!关键字'  可以快速查找并执行 最后一次执行的 以该关键字开头的命令
+![[_resources/linux笔记/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png]]
+没用的小知识又增加了
+
 
 
 
@@ -1036,6 +1076,9 @@ systemctl status network
 
 在CentOS系统上，目前有NetworkManager和network
 两种网络管理工具。如果两种都配置会引起冲突，而且NetworkManager在网络断开的时候，会清理路由，如果一些自定义的路由，没有加入到NetworkManager的配置文件中，路由就被清理掉，网络连接后需要自定义添加上去。（补充：NetworkManager有一个图形化配置网络的功能，对应指令是：nmtui）(后续补充：在centos9stream版本中网络配置主工具改为了NetworkManager)
+
+
+
 
 
 
@@ -2201,14 +2244,6 @@ which只能用来查找命令，而不能用来查找文件，find用来查找�
 
 find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’来实现在根目录下查找名称包含filename字段的文件
 
-
-
-
-
-
-# 7/4
-## DNS端口
-因为使用的是udp，所以是53号端口
 
 
 
@@ -6408,6 +6443,7 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 
 # 8/21
 ## DNS 解析流程
+DNS端口因为使用的是udp，所以是53号端口
 本地主机名是 rocky.linux.com
 
 在浏览器的 url 栏中输入域名 rocky.linux.com 时，有多个流程，当前流程失败就走下一个流程
@@ -6921,30 +6957,6 @@ Rows matched: 1  Changed: 1  Warnings: 0
 MariaDB [wordpress]> 
 #把密码改成了000000，回到主页登录就行了
 ```
-
-
-
-
-# 9/4
-## linux 调用历史命令
-有两种方式
-
-1. 使用 history 命令查看执行过的命令，输入对应历史命令的序号，前面加上！即可快速执行该命令
-
-![[_resources/linux笔记/0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png]]
-
-
-
-2.直接使用 ！
-
-使用  '!关键字'  可以快速查找并执行 最后一次执行的 以该关键字开头的命令
-
-![[_resources/linux笔记/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png]]
-
-没用的小知识又增加了
-
-
-
 
 
 
@@ -11211,7 +11223,7 @@ fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
 
 
 
-## KVM/QEMU虚拟机
+# KVM/QEMU虚拟机
 1.安装qemu，图形界面， TPM，网络组件
 `sudo pacman -S qemu-full virt-manager swtpm dnsmasq`
 
@@ -11238,7 +11250,7 @@ sudo systemctl restart libvirtd
 ```
 有一个注意点，virtmanager默认的连接是系统范围的，如果需要用户范围的话需要左上角新增一个用户会话连接。
 
-### 嵌套虚拟化
+## 嵌套虚拟化
 临时生效
 `modprobe kvm_amd nested=1`
 
@@ -11253,7 +11265,7 @@ options kvm_amd nested=1
 `sudo mkinitcpio -P`
 
 
-### KVM显卡直通
+## KVM显卡直通
 前置的win11虚拟机安装，virtio-win驱动安装不再赘述
 virtio-win驱动下载链接参考
 https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.285-1/virtio-win-0.1.285.iso
@@ -11533,9 +11545,9 @@ fi
 ```
 
 
-### KVM虚拟机性能优化和伪装
+## KVM虚拟机性能优化和伪装
 从这里开始的配置就在克隆系统中进行
-#### 禁用memballoon
+### 禁用memballoon
 [libvirt/QEMU Installation — Looking Glass B7 documentation](https://looking-glass.io/docs/B7/install_libvirt/#memballoon)
 
 memlbaloon的目的是提高内存的利用率，但是由于它会不停地“取走”和“归还”虚拟机内存，导致显卡 直通时虚拟机内存性能极差。
