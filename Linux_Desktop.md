@@ -3438,11 +3438,9 @@ SDL_IM_MODULE=fcitx
 写入如下内容
 ```
 general {
-    # 使用 Noctalia 原生 IPC 锁屏
     lock_cmd = qs -c noctalia-shell ipc call lockScreen lock
     before_sleep_cmd = qs -c noctalia-shell ipc call lockScreen lock
 
-    # 唤醒时告诉 Niri 开屏
     after_sleep_cmd = niri msg action power-on-monitors
 }
 
@@ -3453,15 +3451,12 @@ listener {
 
 listener {
     timeout = 330
-    # Niri 专用关屏指令
     on-timeout = niri msg action power-off-monitors
-    # Niri 专用开屏指令
     on-resume = niri msg action power-on-monitors
 }
 
 listener {
     timeout = 1200
-    # Noctalia 锁屏并休眠
     on-timeout = qs -c noctalia-shell ipc call sessionMenu lockAndSuspend
 }
 ```
