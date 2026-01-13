@@ -1,5 +1,3 @@
-
-
 # Vmware
 
 ## 虚拟机启用虚拟机引擎失败
@@ -39,20 +37,17 @@ NFS 使用 UID 和 GID 来控制文件权限。默认情况下，客户端请求
 7.同步与异步操作 同步 (sync)：
 数据写入操作必须完成并确认后，才返回响应，确保数据一致性，但可能降低性能。 异步 (async)：写操作不等待确认立即返回，虽然性能更高，但可能导致数据不一致的风险。
 
-8.NFS 协议版本 NFSv2：
-较早的版本，基于 UDP 协议，不支持强大的安全性。 NFSv3：引入了基于 TCP 的传输，支持更大文件和更强的性能。 NFSv4：提供了更强的安全性、身份验证、支持锁机制等。它是目前使用的主要版本，支持更好的跨平台兼容性和性能。
 
-9.NFS 服务的管理 启动和管理服务：
+
+8.NFS 服务的管理 启动和管理服务：
 NFS 服务器通过 nfs-server 服务提供支持，可以使用 systemctl 命令来启动、停止和查看服务状态。
-启动：systemctl start nfs-server
-停止：systemctl stop nfs-server
-状态：systemctl status nfs-server
 
-10.NFS 常用端口 2049/TCP 和 UDP：
+
+9.NFS 常用端口 2049/TCP 和 UDP：
 这是 NFS 的固定端口，主要用于文件系统操作（如读写、挂载等）。所有文件共享的操作都通过此端口进行。 111/TCP 和 UDP（portmapper 或 rpcbind）：portmapper 服务（在现代系统中通常是 rpcbind）运行在 111 端口，客户端首先通过此端口查询到 NFS 服务的实际端口号。 20048/TCP 和 UDP（nfsd）：用于 NFS 服务器的守护进程，处理客户端的文件操作请求。 32768-65535/TCP 和 UDP：这些端口用于 NFS 的其他相关服务（如锁管理等），它们是动态分配的。
 
 防火墙配置：确保这些端口在防火墙上是开放的，否则客户端将无法访问 NFS 服务。
-firewall-cmd --permanent --add-port=2049/tcp firewall-cmd --permanent --add-port=2049/udp firewall-cmd --permanent --add-port=111/tcp firewall-cmd --permanent --add-port=111/udp firewall-cmd --reload
+`firewall-cmd --permanent --add-port=2049/tcp firewall-cmd --permanent --add-port=2049/udp firewall-cmd --permanent --add-port=111/tcp firewall-cmd --permanent --add-port=111/udp firewall-cmd --reload`
 
 
 
@@ -111,7 +106,6 @@ Export list for server:
 ```
 [root@client hello]# cat /etc/remote.misc 
 hello -rw server:/hello
-
 ```
 
 格式是[子目录名] [挂载选项] [服务器:共享路径]
@@ -125,7 +119,6 @@ hello -rw server:/hello
 [root@client mountdir]# cd /mountdir/hello
 [root@client hello]# ls
 nihaoa
-
 ```
 服务端的hello目录会变成mountdir的子目录，使用cd访问/mountdir/hello触发autofs的自动挂载，注意，在访问之前，mountdir下面是空的，hello是tab不出来的，只有直接cd访问这个目前不存在的目录，才会触发autofs的自动挂载
 
