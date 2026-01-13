@@ -5727,13 +5727,9 @@ ClientAliveCountMax 0
 
 
 
-Wordpress
+# Wordpress
 
-
-
-
-
-# 云主机 Rocky9 部署 WordPress
+## 云主机 Rocky9 部署 WordPress
 腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
 
 1.安装并启用 httpd
@@ -5824,7 +5820,7 @@ define( 'DB_PASSWORD', 'Pp123456' );
 
 
 
-# Rocky9.6 本地部署 wordpress
+## Rocky9.6 本地部署 wordpress
 基于 LNMP 架构部署wordpress-6.7
 
 php 和 mysql 版本如下
@@ -6076,7 +6072,7 @@ server {
 
 
 
-# wordpress 重置密码
+## wordpress 重置密码
 注册时邮箱和密码都是乱填的，所以无法登录
 
 进入后端数据库，查询相关表信息并修改即可
@@ -6152,50 +6148,9 @@ MariaDB [wordpress]>
 
 
 
-# ssh报错kex_exchange_identification
-[[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
-![[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg]]
-虚拟机内部的sshd服务报错是
-[[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg|Open: Pasted image 20251222202505.png]]
-![[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg]]
-SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
-- 它会启动一个拥有 root 权限的主进程。
-    
-- 还会启动一个没有任何权限的子进程来处理网络数据（防止黑客溢出攻击）。
-    
-- 这两个进程需要交换数据，就依赖于 `/run/sshd` 这个目录。
-    
-- 如果这个目录不存在，或者权限不对（比如不是 root 拥有），SSH 会认为“环境不安全”，为了防止被劫持，它宁可直接自杀（fatal error）也不启动。
 
-解决方案
-1.创建目录
-`sudo mkdir -p /run/sshd`
-
-2.设置权限（必须是 755，即 rwxr-xr-x）
-`sudo chmod 0755 /run/sshd`
-
-3.设置属主（必须属于 root）
-`sudo chown root:root /run/sshd`
-
-4.重启sshd服务
-`sudo systemctl restart sshd`
-
-永久修复（可选）
-1.新建一个临时文件配置
-`sudo vim /etc/tmpfiles.d/sshd.conf`
-写入以下内容
-`d /run/sshd 0755 root root`
-
-
-
-
-
-
-
-
-
-
-# mysql8.0 安装后配置
+# MySQL
+## mysql8.0 安装后配置
 
 与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
 
@@ -6205,12 +6160,7 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
 
 
 
-
-
-
-
-
-# Mysql 密码插件报错：未加载
+## Mysql 密码插件报错：未加载
 ```plsql
 mysql> alter user  zabbix@localhost identified with mysql_native_password by 'Zabbix@123';
 ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded
@@ -6235,69 +6185,18 @@ mysql_native_password=ON
 重启 mysqld 后生效
 
 
+## 不进入数据库命令行界面实现交互
+
+可参考该命令mysql -uroot -proot -e " create database djangoblog;"
+
+另外还可以直接进入指定数据库mysql -uroot -proot djangoblog
 
 
 
 
 
 
-
-
-
-
-
-# 关于虚拟机未读取到网卡配置文件中的静态网络配置信息
-
-![[_resources/linux笔记/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png]]
-
-使用ip a命令时发现网卡未读取到网卡配置文件中的静态网络配置信息，查看网卡配置没有错误，使用systemctl restart network报错
-job for network.service failed
-
-解决方案：
-```
-systemctl stop NetworkManager
-systemctl disable NetworkManager
-systemctl restart network
-systemctl status network
-```
-
-原因:
-
-在CentOS系统上，目前有NetworkManager和network
-两种网络管理工具。如果两种都配置会引起冲突，而且NetworkManager在网络断开的时候，会清理路由，如果一些自定义的路由，没有加入到NetworkManager的配置文件中，路由就被清理掉，网络连接后需要自定义添加上去。（补充：NetworkManager有一个图形化配置网络的功能，对应指令是：nmtui）(后续补充：在centos9stream版本中网络配置主工具改为了NetworkManager)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 以ftp配置yum源无法连接
-报错:![[_resources/linux笔记/74be754693f3b8ea2a35eaeaff007871_MD5.png]]
-
-解决方案：
-
-vi /etc/selinux/config
-
-将文件内selinux参数修改为disabled
-
-原因：
-controller(通过ftp提供yum源的主机)禁用了防火墙firewalld，但未禁用selinux
-
-
-
-
-
-
-
-# 关于数据库调优-my.cnf配置详解
+## 数据库调优-my.cnf配置详解
 
 ![[_resources/linux笔记/7a3e8731c537b0aa65c421cbd92242ef_MD5.png]]
 
@@ -6314,11 +6213,13 @@ systemctl restart mariadb
 
 
 
-# 关于不进入数据库命令行界面而实现交互
 
-可参考该命令mysql -uroot -proot -e " create database djangoblog;"
 
-另外还可以直接进入指定数据库mysql -uroot -proot djangoblog
+
+
+
+
+
 
 
 
@@ -6332,11 +6233,6 @@ protected-mode yes
 
 字面意思，开启保护模式，若要关闭保护模式只需将yes修改为no
 
-which和find
-
-which只能用来查找命令，而不能用来查找文件，find用来查找文件
-
-find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’来实现在根目录下查找名称包含filename字段的文件
 
 
 
@@ -6350,168 +6246,6 @@ find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’�
 
 
 红帽9为例，红帽9(centos7)支持FAT32格式的U盘，可以先把U盘格式化为FAT32格式（windows11一般不允许格式化为该格式，可以使用软件格式化,这里使用的是DiskGenius,在图吧工具箱有收录)，然后下载ntfs-3g（<font style="color:#DF2A3F;">该组件可以让红帽9系统能够识别并使用NTFS格式的移动硬盘，可以使用yum install --downloadonly --downloaddir 本地保存目录 ntfs-3g来保存安装包和相关依赖</font>),该插件一般在epel源里，然后在系统上安装该插件，拔出U盘后就可以重新格式化为NTFS格式，然后就可以放进需要挂载的镜像，再次插入时，该系统已经可以支持识别该格式的移动硬盘了
-
-
-
-
-
-
-# 网卡激活报错:未被NetworkManager托管
-设备:vmware虚拟机rh9.2
-
-原图
-![[_resources/linux笔记/62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png]]
-
-
-解决方案:
-1.修复主配置
-
-sudo sed -i '/^\[main\]/a plugins=keyfile\nno-auto-default=*' \
-
-/etc/NetworkManager/NetworkManager.conf
-
-
-2.设置全局托管策略
-
-sudo echo -e "\nunmanaged-devices=none" > \
-
-/etc/NetworkManager/conf.d/manage-all.conf
-
-
-3.完全重置状态
-
-sudo systemctl stop NetworkManager
-
-sudo rm -rf /var/lib/NetworkManager/*
-
-sudo systemctl start NetworkManager
-
-
-4.重建连接配置
-
-sudo nmcli connection add type ethernet ifname ens160 \
-
-con-name ens160-primary ipv4.method auto
-
-sudo nmcli connection up ens160-primary
-
-
-
-
-根本原因分析
-NetworkManager配置缺陷： 
-主配置文件/etc/NetworkManager/NetworkManager.conf缺少关键配置项 未启用keyfile插件导致设备管理功能异常 缺少全局设备托管策略
-
-配置状态不完整
-缺少必要配置项 
-plugins=keyfile
-no-auto-default=*
-
-设备管理策略缺失： 没有明确声明unmanaged-devices=none，导致NetworkManager拒绝管理网络设备
-
-
-# 关于逻辑卷调整的-r参数
-
--r 参数确保在扩展或收缩逻辑卷时，其上的文件系统也会自动调整大小以匹配新的空间。避免了手动操作文件系统的步骤和风险。
-
-操作类型对比：
-
-扩展逻辑卷： 无 -r 参数：只扩展LV空间，需手动运行 resize2fs 有 -r 参数：自动扩展LV空间+文件系统一步完成
-
-收缩逻辑卷： 无 -r 参数：需先手动收缩文件系统，再收缩LV 有 -r 参数：自动先收缩文件系统，再收缩LV空间
-
-文件系统必须支持在线调整：
-
-- 支持：ext2/3/4, XFS（仅扩展）, Btrfs
-    
-- 不支持：NTFS, FAT32 等
-    
-- XFS 文件系统只能扩展不能收缩
-    
-
-常见不支持 -r 选项的文件系统：
-
-NTFS： 扩容支持：在线/离线 收缩支持：离线 工具：ntfsresize
-
-FAT32/VFAT： 扩容支持：离线 收缩支持：离线 工具：fatresize
-
-ReiserFS： 扩容支持：离线 收缩支持：复杂且风险高 工具：resize_reiserfs
-
-ZFS： 扩容支持：在线 收缩支持：在线 工具：zfs set
-
-APFS： 扩容支持：在线 收缩支持：在线 工具：macOS 磁盘工具
-
-加密LUKS： 扩容支持：需先调整加密层 收缩支持：高风险 工具：cryptsetup + fs工具
-
-扩容不支持-r选项的文件系统的逻辑卷
-
-1. 扩展逻辑卷 (扩展10G)
-    
-
-sudo lvextend -L +10G /dev/vg01/lv_data
-
-2. 手动扩展文件系统
-    
-
-如果是 NTFS (需安装 ntfs-3g)： sudo ntfsresize /dev/vg01/lv_data # 离线操作需要卸载
-
-如果是 FAT32： sudo fatresize -s +10G /dev/vg01/lv_data
-
-如果是 ReiserFS： sudo resize_reiserfs /dev/vg01/lv_data
-
-如果是加密卷 (LUKS)： sudo cryptsetup resize crypt_data # 先调整加密层 sudo ntfsresize /dev/mapper/crypt_data
-
-缩容不支持-r选项的文件系统的逻辑卷(风险极高不建议使用)
-
-1. 卸载文件系统
-    
-
-sudo umount /mnt/data
-
-2. 检查文件系统 (以NTFS为例)
-    
-
-sudo ntfsfix /dev/vg01/lv_data
-
-3. 收缩文件系统 (目标缩小到15G)
-    
-
-sudo ntfsresize -s 15G /dev/vg01/lv_data
-
-4. 收缩逻辑卷 (必须精确匹配文件系统新大小)
-    
-
-sudo lvreduce -L 15G /dev/vg01/lv_data
-
-5. 重新挂载
-    
-
-sudo mount /dev/vg01/lv_data /mnt/data
-
-podman卷映射-v选项的z标签大小写区别
-
-作用都是让selinux放通，但作用不同
-
-小写z标签
-
-表示共享挂载卷，共享宿主机的挂载卷，这样其它容器也能挂载并访问该挂载卷
-
-大写Z标签
-
-表示私有标签，使用该标签后，其它容器就不能通过挂载卷访问该宿主机目录，但这个标签会被覆盖，例如先后有两个容器都对一个宿主机目录做了挂载卷映射，都使用了私有标签Z,生效的是最后打标签的容器，第一个容器失去了通过挂载卷访问该目录的权限
-
-如下
-
-[root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir1:Z --name first_centos centos:latest e48892657919c025d6004d237bd78ceb14bb0f7b540d1ba8b54ed9aa9cbbaecf 
-[root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir2:Z --name Second_centos centos:latest 03095b52384fc28a0073d9d3028d0378d53c8fb3a2a7f5a42bb8befb68c856da 
-[root@server ~]# podman exec -it first_centos /bin/bash [root@e48892657919 /]# ls
-afs bin boot dev dir1 etc home lib lib64 lost+found media mnt opt proc root run sbin srv sys tmp usr var 
-[root@e48892657919 /]# cd dir1/ bash: cd: dir1/: Permission denied [root@e48892657919 ~]# exit 
-[root@server ~]# podman exec -it Second_centos /bin/bash [root@03095b52384f /]# cd dir2/ 
-[root@03095b52384f dir2]#
-
-
-
 
 
 

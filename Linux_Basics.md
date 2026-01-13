@@ -218,7 +218,7 @@ tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数�
 
 
 
-## yum命令
+## yum/rpm命令
 
 yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，像ftp，http，file一样；关于yum为什么能解决依赖关系：所有的Yum 源里面都有repodata，它里面是有XML格式文件, 用于储存元数据，记录软件包之间的依赖关系。
 
@@ -254,6 +254,65 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 文件名    ：/usr/bin/zcat
 提供    : /bin/zcat
 ```
+
+### 查看某个服务的所有配置文件路径
+以 nginx 为例
+
+```bash
+[root@rocky ~]# rpm -qc nginx
+/etc/logrotate.d/nginx
+/etc/nginx/conf.d/default.conf
+/etc/nginx/fastcgi_params
+/etc/nginx/mime.types
+/etc/nginx/nginx.conf
+/etc/nginx/scgi_params
+/etc/nginx/uwsgi_params
+```
+
+还可以查看所有相关文件（不止配置文件）
+
+```bash
+[root@rocky ~]# rpm -ql nginx
+/etc/logrotate.d/nginx
+/etc/nginx
+/etc/nginx/conf.d
+/etc/nginx/conf.d/default.conf
+/etc/nginx/fastcgi_params
+/etc/nginx/mime.types
+/etc/nginx/modules
+/etc/nginx/nginx.conf
+/etc/nginx/scgi_params
+/etc/nginx/uwsgi_params
+/usr/lib/.build-id
+/usr/lib/.build-id/2f
+/usr/lib/.build-id/2f/1aebf1c44110efa44f0ddc88a30c3c35bec25c
+/usr/lib/.build-id/42
+/usr/lib/.build-id/42/201aa568b3c7e88fcc8b2734bcf8ea7899a847
+/usr/lib/systemd/system/nginx-debug.service
+/usr/lib/systemd/system/nginx.service
+/usr/lib64/nginx
+/usr/lib64/nginx/modules
+/usr/libexec/initscripts/legacy-actions/nginx
+/usr/libexec/initscripts/legacy-actions/nginx/check-reload
+/usr/libexec/initscripts/legacy-actions/nginx/upgrade
+/usr/sbin/nginx
+/usr/sbin/nginx-debug
+/usr/share/doc/nginx-1.24.0
+/usr/share/doc/nginx-1.24.0/COPYRIGHT
+/usr/share/man/man8/nginx.8.gz
+/usr/share/nginx
+/usr/share/nginx/html
+/usr/share/nginx/html/50x.html
+/usr/share/nginx/html/index.html
+/var/cache/nginx
+/var/log/nginx
+[root@rocky ~]# 
+```
+
+
+
+
+
 
 
 
@@ -350,64 +409,184 @@ PS2：定义多行命令的提示符的格式。
 ![[_resources/linux笔记/91238653c6e8e6603e279c474409f9ab_MD5.png]]
 
 
+## NetworkManager与network冲突问题
 
+![[_resources/linux笔记/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png]]
 
+使用ip a命令时发现网卡未读取到网卡配置文件中的静态网络配置信息，查看网卡配置没有错误，使用systemctl restart network报错
+job for network.service failed
 
-
-
-## 查看某个服务的所有配置文件路径
-以 nginx 为例
-
-```bash
-[root@rocky ~]# rpm -qc nginx
-/etc/logrotate.d/nginx
-/etc/nginx/conf.d/default.conf
-/etc/nginx/fastcgi_params
-/etc/nginx/mime.types
-/etc/nginx/nginx.conf
-/etc/nginx/scgi_params
-/etc/nginx/uwsgi_params
+解决方案：
+```
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+systemctl restart network
+systemctl status network
 ```
 
-还可以查看所有相关文件（不止配置文件）
+原因:
 
-```bash
-[root@rocky ~]# rpm -ql nginx
-/etc/logrotate.d/nginx
-/etc/nginx
-/etc/nginx/conf.d
-/etc/nginx/conf.d/default.conf
-/etc/nginx/fastcgi_params
-/etc/nginx/mime.types
-/etc/nginx/modules
-/etc/nginx/nginx.conf
-/etc/nginx/scgi_params
-/etc/nginx/uwsgi_params
-/usr/lib/.build-id
-/usr/lib/.build-id/2f
-/usr/lib/.build-id/2f/1aebf1c44110efa44f0ddc88a30c3c35bec25c
-/usr/lib/.build-id/42
-/usr/lib/.build-id/42/201aa568b3c7e88fcc8b2734bcf8ea7899a847
-/usr/lib/systemd/system/nginx-debug.service
-/usr/lib/systemd/system/nginx.service
-/usr/lib64/nginx
-/usr/lib64/nginx/modules
-/usr/libexec/initscripts/legacy-actions/nginx
-/usr/libexec/initscripts/legacy-actions/nginx/check-reload
-/usr/libexec/initscripts/legacy-actions/nginx/upgrade
-/usr/sbin/nginx
-/usr/sbin/nginx-debug
-/usr/share/doc/nginx-1.24.0
-/usr/share/doc/nginx-1.24.0/COPYRIGHT
-/usr/share/man/man8/nginx.8.gz
-/usr/share/nginx
-/usr/share/nginx/html
-/usr/share/nginx/html/50x.html
-/usr/share/nginx/html/index.html
-/var/cache/nginx
-/var/log/nginx
-[root@rocky ~]# 
-```
+在CentOS系统上，目前有NetworkManager和network
+两种网络管理工具。如果两种都配置会引起冲突，而且NetworkManager在网络断开的时候，会清理路由，如果一些自定义的路由，没有加入到NetworkManager的配置文件中，路由就被清理掉，网络连接后需要自定义添加上去。（补充：NetworkManager有一个图形化配置网络的功能，对应指令是：nmtui）(后续补充：在centos9stream版本中网络配置主工具改为了NetworkManager)
+
+
+
+
+
+
+
+
+
+
+
+
+## 网卡激活报错:未被NetworkManager托管
+设备:vmware虚拟机rh9.2
+
+原图
+![[_resources/linux笔记/62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png]]
+
+
+解决方案:
+1.修复主配置
+`sudo sed -i '/^\[main\]/a plugins=keyfile\nno-auto-default=*' \`
+`/etc/NetworkManager/NetworkManager.conf`
+
+
+2.设置全局托管策略
+`sudo echo -e "\nunmanaged-devices=none" > \`
+`/etc/NetworkManager/conf.d/manage-all.conf`
+
+
+3.完全重置状态
+`sudo systemctl stop NetworkManager`
+`sudo rm -rf /var/lib/NetworkManager/*`
+`sudo systemctl start NetworkManager`
+
+
+4.重建连接配置
+`sudo nmcli connection add type ethernet ifname ens160 \`
+`con-name ens160-primary ipv4.method auto`
+`sudo nmcli connection up ens160-primary`
+
+
+
+根本原因分析
+NetworkManager配置缺陷： 
+主配置文件/etc/NetworkManager/NetworkManager.conf缺少关键配置项 未启用keyfile插件导致设备管理功能异常 缺少全局设备托管策略
+
+配置状态不完整
+缺少必要配置项 
+plugins=keyfile
+no-auto-default=*
+
+设备管理策略缺失： 没有明确声明unmanaged-devices=none，导致NetworkManager拒绝管理网络设备
+
+
+
+
+
+
+## 关于逻辑卷调整的-r参数
+
+-r 参数确保在扩展或收缩逻辑卷时，其上的文件系统也会自动调整大小以匹配新的空间。避免了手动操作文件系统的步骤和风险。
+
+操作类型对比：
+
+扩展逻辑卷： 无 -r 参数：只扩展LV空间，需手动运行 resize2fs 有 -r 参数：自动扩展LV空间+文件系统一步完成
+
+收缩逻辑卷： 无 -r 参数：需先手动收缩文件系统，再收缩LV 有 -r 参数：自动先收缩文件系统，再收缩LV空间
+
+文件系统必须支持在线调整：
+
+- 支持：ext2/3/4, XFS（仅扩展）, Btrfs
+    
+- 不支持：NTFS, FAT32 等
+    
+- XFS 文件系统只能扩展不能收缩
+    
+
+常见不支持 -r 选项的文件系统：
+
+NTFS： 扩容支持：在线/离线 收缩支持：离线 工具：ntfsresize
+
+FAT32/VFAT： 扩容支持：离线 收缩支持：离线 工具：fatresize
+
+ReiserFS： 扩容支持：离线 收缩支持：复杂且风险高 工具：resize_reiserfs
+
+ZFS： 扩容支持：在线 收缩支持：在线 工具：zfs set
+
+APFS： 扩容支持：在线 收缩支持：在线 工具：macOS 磁盘工具
+
+加密LUKS： 扩容支持：需先调整加密层 收缩支持：高风险 工具：cryptsetup + fs工具
+
+扩容不支持-r选项的文件系统的逻辑卷
+
+1. 扩展逻辑卷 (扩展10G)
+    
+
+sudo lvextend -L +10G /dev/vg01/lv_data
+
+2. 手动扩展文件系统
+    
+
+如果是 NTFS (需安装 ntfs-3g)： sudo ntfsresize /dev/vg01/lv_data # 离线操作需要卸载
+
+如果是 FAT32： sudo fatresize -s +10G /dev/vg01/lv_data
+
+如果是 ReiserFS： sudo resize_reiserfs /dev/vg01/lv_data
+
+如果是加密卷 (LUKS)： sudo cryptsetup resize crypt_data # 先调整加密层 sudo ntfsresize /dev/mapper/crypt_data
+
+缩容不支持-r选项的文件系统的逻辑卷(风险极高不建议使用)
+
+1. 卸载文件系统
+    
+
+sudo umount /mnt/data
+
+2. 检查文件系统 (以NTFS为例)
+    
+
+sudo ntfsfix /dev/vg01/lv_data
+
+3. 收缩文件系统 (目标缩小到15G)
+    
+
+sudo ntfsresize -s 15G /dev/vg01/lv_data
+
+4. 收缩逻辑卷 (必须精确匹配文件系统新大小)
+    
+
+sudo lvreduce -L 15G /dev/vg01/lv_data
+
+5. 重新挂载
+    
+
+sudo mount /dev/vg01/lv_data /mnt/data
+
+podman卷映射-v选项的z标签大小写区别
+
+作用都是让selinux放通，但作用不同
+
+小写z标签
+
+表示共享挂载卷，共享宿主机的挂载卷，这样其它容器也能挂载并访问该挂载卷
+
+大写Z标签
+
+表示私有标签，使用该标签后，其它容器就不能通过挂载卷访问该宿主机目录，但这个标签会被覆盖，例如先后有两个容器都对一个宿主机目录做了挂载卷映射，都使用了私有标签Z,生效的是最后打标签的容器，第一个容器失去了通过挂载卷访问该目录的权限
+
+如下
+
+[root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir1:Z --name first_centos centos:latest e48892657919c025d6004d237bd78ceb14bb0f7b540d1ba8b54ed9aa9cbbaecf 
+[root@server ~]# podman run -itd -v /podman-mapper-dir1:/dir2:Z --name Second_centos centos:latest 03095b52384fc28a0073d9d3028d0378d53c8fb3a2a7f5a42bb8befb68c856da 
+[root@server ~]# podman exec -it first_centos /bin/bash [root@e48892657919 /]# ls
+afs bin boot dev dir1 etc home lib lib64 lost+found media mnt opt proc root run sbin srv sys tmp usr var 
+[root@e48892657919 /]# cd dir1/ bash: cd: dir1/: Permission denied [root@e48892657919 ~]# exit 
+[root@server ~]# podman exec -it Second_centos /bin/bash [root@03095b52384f /]# cd dir2/ 
+[root@03095b52384f dir2]#
+
 
 
 
@@ -420,31 +599,6 @@ PS2：定义多行命令的提示符的格式。
 
 
 
-
-
-## centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
-
-![[_resources/linux笔记/d3c4ccd82df00fadf72ecaeccf298f63_MD5.png]]
-
-![[_resources/linux笔记/675a64bc9f80cf73c9e88af566904b64_MD5.png]] 因服务器无端重启，导致无法挂载系统
-
-解决方案：使用xfs_repair工具修复
-
-执行xfs_repair -v -L /dev/dm-0命令
-
-命令详解：
-
--v：
-
-这个参数表示启用详细模式（verbose mode），会显示更多的诊断信息和操作细节。
-
--L：
-
-这个参数用于指定一个日志文件，xfs_repair 会将修复过程中的详细信息记录到这个文件中。
-
-/dev/dm-0：
-
-这是要修复的 XFS 文件系统的设备路径。在这个例子中，/dev/dm-0 表示一个使用设备映射（device-mapper）的逻辑卷。
 
 
 
@@ -1189,6 +1343,42 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 至此三次握手结束，连接建立
 
+
+
+# SSH
+## ssh报错kex_exchange_identification
+[[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
+![[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg]]
+虚拟机内部的sshd服务报错是
+[[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg|Open: Pasted image 20251222202505.png]]
+![[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg]]
+SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
+- 它会启动一个拥有 root 权限的主进程。
+    
+- 还会启动一个没有任何权限的子进程来处理网络数据（防止黑客溢出攻击）。
+    
+- 这两个进程需要交换数据，就依赖于 `/run/sshd` 这个目录。
+    
+- 如果这个目录不存在，或者权限不对（比如不是 root 拥有），SSH 会认为“环境不安全”，为了防止被劫持，它宁可直接自杀（fatal error）也不启动。
+
+解决方案
+1.创建目录
+`sudo mkdir -p /run/sshd`
+
+2.设置权限（必须是 755，即 rwxr-xr-x）
+`sudo chmod 0755 /run/sshd`
+
+3.设置属主（必须属于 root）
+`sudo chown root:root /run/sshd`
+
+4.重启sshd服务
+`sudo systemctl restart sshd`
+
+永久修复（可选）
+1.新建一个临时文件配置
+`sudo vim /etc/tmpfiles.d/sshd.conf`
+写入以下内容
+`d /run/sshd 0755 root root`
 
 
 
