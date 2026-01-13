@@ -246,6 +246,65 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 
 
+## 查看某个服务的所有配置文件路径
+以 nginx 为例
+
+```bash
+[root@rocky ~]# rpm -qc nginx
+/etc/logrotate.d/nginx
+/etc/nginx/conf.d/default.conf
+/etc/nginx/fastcgi_params
+/etc/nginx/mime.types
+/etc/nginx/nginx.conf
+/etc/nginx/scgi_params
+/etc/nginx/uwsgi_params
+```
+
+还可以查看所有相关文件（不止配置文件）
+
+```bash
+[root@rocky ~]# rpm -ql nginx
+/etc/logrotate.d/nginx
+/etc/nginx
+/etc/nginx/conf.d
+/etc/nginx/conf.d/default.conf
+/etc/nginx/fastcgi_params
+/etc/nginx/mime.types
+/etc/nginx/modules
+/etc/nginx/nginx.conf
+/etc/nginx/scgi_params
+/etc/nginx/uwsgi_params
+/usr/lib/.build-id
+/usr/lib/.build-id/2f
+/usr/lib/.build-id/2f/1aebf1c44110efa44f0ddc88a30c3c35bec25c
+/usr/lib/.build-id/42
+/usr/lib/.build-id/42/201aa568b3c7e88fcc8b2734bcf8ea7899a847
+/usr/lib/systemd/system/nginx-debug.service
+/usr/lib/systemd/system/nginx.service
+/usr/lib64/nginx
+/usr/lib64/nginx/modules
+/usr/libexec/initscripts/legacy-actions/nginx
+/usr/libexec/initscripts/legacy-actions/nginx/check-reload
+/usr/libexec/initscripts/legacy-actions/nginx/upgrade
+/usr/sbin/nginx
+/usr/sbin/nginx-debug
+/usr/share/doc/nginx-1.24.0
+/usr/share/doc/nginx-1.24.0/COPYRIGHT
+/usr/share/man/man8/nginx.8.gz
+/usr/share/nginx
+/usr/share/nginx/html
+/usr/share/nginx/html/50x.html
+/usr/share/nginx/html/index.html
+/var/cache/nginx
+/var/log/nginx
+[root@rocky ~]# 
+```
+
+
+
+
+
+
 
 ## namespance分类 
 ![[_resources/linux笔记/21d6eb1b235d93b35c05bff409736782_MD5.png]]
@@ -1044,77 +1103,6 @@ d     文件在 dump 备份时会被跳过。
 报错：模块“VPMC”启动失败，未能启动虚拟机
 
 解决方案：在任务管理器中查看到本机CPU支持并已开启了虚拟化功能，而后在安全中心中关闭了内存完整性，成功解决（在此之前关闭了windows功能服务中的windows虚拟机监控程序平台，但并未排除报错，不知道有没有关联，不过hyprv和这个是必须关闭的）
-
-
-
-
-
-
-
-
-
-
-
-
-# 关于虚拟机未读取到网卡配置文件中的静态网络配置信息
-
-![[_resources/linux笔记/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png]]
-
-使用ip a命令时发现网卡未读取到网卡配置文件中的静态网络配置信息，查看网卡配置没有错误，使用systemctl restart network报错
-job for network.service failed
-
-解决方案：
-```
-systemctl stop NetworkManager
-systemctl disable NetworkManager
-systemctl restart network
-systemctl status network
-```
-
-原因:
-
-在CentOS系统上，目前有NetworkManager和network
-两种网络管理工具。如果两种都配置会引起冲突，而且NetworkManager在网络断开的时候，会清理路由，如果一些自定义的路由，没有加入到NetworkManager的配置文件中，路由就被清理掉，网络连接后需要自定义添加上去。（补充：NetworkManager有一个图形化配置网络的功能，对应指令是：nmtui）(后续补充：在centos9stream版本中网络配置主工具改为了NetworkManager)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 以ftp配置yum源无法连接
-报错:![[_resources/linux笔记/74be754693f3b8ea2a35eaeaff007871_MD5.png]]
-
-解决方案：
-
-vi /etc/selinux/config
-
-将文件内selinux参数修改为disabled
-
-原因：
-controller(通过ftp提供yum源的主机)禁用了防火墙firewalld，但未禁用selinux
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2287,7 +2275,7 @@ no-auto-default=*
 设备管理策略缺失： 没有明确声明unmanaged-devices=none，导致NetworkManager拒绝管理网络设备
 
 
-## autofs配置文件解析
+# autofs配置文件解析
 /etc/auto.master（主配置文件）
 作用：定义挂载点的根目录和对应的映射文件。
 格式： [挂载点根目录] [映射文件路径] [可选参数] 
@@ -2298,9 +2286,7 @@ no-auto-default=*
 
 
 
-# 7/13
-
-## NFS（Network File System）总结与分析
+# NFS（Network File System）总结与分析
 1.NFS 概述 定义：
 NFS 是一种允许通过网络共享文件系统的协议，使得不同机器上的文件系统能够像本地文件系统一样被访问。 工作原理：客户端通过网络请求访问 NFS 服务器上共享的目录，服务器根据权限提供访问。
 
@@ -2425,11 +2411,7 @@ nihaoa
 
 
 
-
-
-# 7/15
-
-## 关于逻辑卷调整的-r参数
+# 关于逻辑卷调整的-r参数
 
 -r 参数确保在扩展或收缩逻辑卷时，其上的文件系统也会自动调整大小以匹配新的空间。避免了手动操作文件系统的步骤和风险。
 
@@ -3083,27 +3065,7 @@ Please review the log for errors.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-# 7/21
-## （！待补充）命名空间实践
-在主机 server 上打开两个 ssh 连接操作
-
-
-
-
-
-# 7/26
-## 如何安全删除双系统
+# 如何安全删除双系统
 以在 windows 下删除另一 ubuntu 系统为例
 
 在磁盘管理中将对应系统分区格式化后，可以看到一个分区名为 EFI 系统分区
@@ -3136,11 +3098,11 @@ Please review the log for errors.
 
 
 
-## EFI 系统分区
+# EFI 系统分区
 
 EFI 系统分区 (ESP) 是操作系统启动的关键组件，尤其是在使用 UEFI启动模式的电脑上（现代电脑基本都是 UEFI）。
 
-### EFI 系统分区是什么？
+## EFI 系统分区是什么？
 
 1. 核心定义：EFI 系统分区（ESP）是一个小型、隐藏的 FAT32 格式分区，它是 UEFI 固件启动操作系统所必需的。
     
@@ -3156,7 +3118,7 @@ EFI 系统分区 (ESP) 是操作系统启动的关键组件，尤其是在使用
 GPT 分区表下的类型代码: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
         
 
-### EFI 系统分区里有什么？
+## EFI 系统分区里有什么？
 
 1. 引导加载程序：
     Windows: \EFI\Microsoft\Boot\bootmgfw.efi (主 Windows 引导管理器) 以及 \EFI\Microsoft\Boot\BCD(启动配置数据库，告诉引导管理器有哪些 Windows 可以启动)。Linux (常见发行版): \EFI\ubuntu\grubx64.efi 或 \EFI\ubuntu\shimx64.efi(Ubuntu/Debian), \EFI\fedora\grubx64.efi 或 \EFI\fedora\shimx64.efi (Fedora), \EFI\arch\grubx64.efi (Arch) 等等。还可能包含内核 vmlinuz-xxx 和初始内存盘 initramfs-xxx.img（如果使用 GRUB 等直接从 ESP 加载）。
@@ -3179,10 +3141,7 @@ GPT 分区表下的类型代码: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
 
 
 
-
-# 8/7
-
-## Mysql 密码插件报错：未加载
+# Mysql 密码插件报错：未加载
 ```plsql
 mysql> alter user  zabbix@localhost identified with mysql_native_password by 'Zabbix@123';
 ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded
@@ -3889,18 +3848,7 @@ date 可识别该参数
 
 
 
-
-# 8/9
-## 欧拉系统安装 GUI
-yum -y install dde 安装图形化
-
-systemctl set-default graphical.target 设置开机默认启动图形化界面
-
-
-
-
-
-## mysql8.0 安装后配置
+# mysql8.0 安装后配置
 
 与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
 
@@ -3908,84 +3856,36 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
 
 
 
-
-# 8/18
-## http 协议原理总结
+# http 协议原理总结
 ![[_resources/linux笔记/109d66a9732bed4014db20be12c68878_MD5.png]]
 
 
 
+## HTTP 状态码格式规范
+
+|范围|类别|含义|常见例子|
+|---|---|---|---|
+|1xx|信息响应|请求已被接收，继续处理。
+|2xx|成功|请求已成功被服务器接收、理解并接受。
+|3xx|重定向|需要客户端采取进一步的操作才能完成请求。
+|4xx|客户端错误|请求本身有问题（如语法错误、无法实现等）。
+|5xx|服务器错误|服务器处理有效请求时失败。
 
 
 
 
 
 
-## 常见服务架构框架
+
+
+
+
+
+# 常见服务架构框架
 1. LNMP: Linux Nginx MySQL PHP
 2. LNMT: Linux Nginx MySQL Tomcat  (应用较多)
 3. LAMP：Linux Apache MySQL PHP
 4. LNMP:  Linux Nginx MySQL Python
-
-
-
-
-
-
-
-## 查看某个服务的所有配置文件路径
-以 nginx 为例
-
-```bash
-[root@rocky ~]# rpm -qc nginx
-/etc/logrotate.d/nginx
-/etc/nginx/conf.d/default.conf
-/etc/nginx/fastcgi_params
-/etc/nginx/mime.types
-/etc/nginx/nginx.conf
-/etc/nginx/scgi_params
-/etc/nginx/uwsgi_params
-```
-
-还可以查看所有相关文件（不止配置文件）
-
-```bash
-[root@rocky ~]# rpm -ql nginx
-/etc/logrotate.d/nginx
-/etc/nginx
-/etc/nginx/conf.d
-/etc/nginx/conf.d/default.conf
-/etc/nginx/fastcgi_params
-/etc/nginx/mime.types
-/etc/nginx/modules
-/etc/nginx/nginx.conf
-/etc/nginx/scgi_params
-/etc/nginx/uwsgi_params
-/usr/lib/.build-id
-/usr/lib/.build-id/2f
-/usr/lib/.build-id/2f/1aebf1c44110efa44f0ddc88a30c3c35bec25c
-/usr/lib/.build-id/42
-/usr/lib/.build-id/42/201aa568b3c7e88fcc8b2734bcf8ea7899a847
-/usr/lib/systemd/system/nginx-debug.service
-/usr/lib/systemd/system/nginx.service
-/usr/lib64/nginx
-/usr/lib64/nginx/modules
-/usr/libexec/initscripts/legacy-actions/nginx
-/usr/libexec/initscripts/legacy-actions/nginx/check-reload
-/usr/libexec/initscripts/legacy-actions/nginx/upgrade
-/usr/sbin/nginx
-/usr/sbin/nginx-debug
-/usr/share/doc/nginx-1.24.0
-/usr/share/doc/nginx-1.24.0/COPYRIGHT
-/usr/share/man/man8/nginx.8.gz
-/usr/share/nginx
-/usr/share/nginx/html
-/usr/share/nginx/html/50x.html
-/usr/share/nginx/html/index.html
-/var/cache/nginx
-/var/log/nginx
-[root@rocky ~]# 
-```
 
 
 
@@ -6384,14 +6284,7 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 
 
 
-
-
-
-
-
-
-# 8/21
-## DNS 解析流程
+# DNS 解析流程
 DNS端口因为使用的是udp，所以是53号端口
 本地主机名是 rocky.linux.com
 
@@ -6406,7 +6299,7 @@ DNS端口因为使用的是udp，所以是53号端口
 
 
 
-## 云主机 Rocky9 部署 WordPress
+# 云主机 Rocky9 部署 WordPress
 腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
 
 1.安装并启用 httpd
@@ -6501,12 +6394,7 @@ define( 'DB_PASSWORD', 'Pp123456' );
 
 
 
-
-
-
-
-# 8/22
-## TCP 三次握手原理
+# TCP 三次握手原理
 
 
 ![[_resources/linux笔记/338cb5e208708cf7466e0de831fba7a5_MD5.png]]
@@ -6521,7 +6409,7 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 
 
-### 第一次握手: 客户端—请求
+## 第一次握手: 客户端—请求
 
 1. 应用程序调用 `connect()` 系统调用。
     
@@ -6538,7 +6426,7 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 
 
-### 第二次握手: 服务器—确认
+## 第二次握手: 服务器—确认
 服务器设置 ACK=1，表示确认应答
 
 设置 ack=x+1，表示已收到客户端 x 之前的数据，希望下次数据从 x+1 开始
@@ -6551,7 +6439,7 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 
 
-### 第三次握手: 客户端—确认服务器的确认
+## 第三次握手: 客户端—确认服务器的确认
 设置 ACK=1，表示确认应答
 设置 ack=y+1，表示收到服务器发来的序列号为 seq=y 的数据包，希望下次数据从 y+1 开始
 设置 seq=x+1，表示接着上一个数据包 seq=x 继续发送
@@ -6565,7 +6453,7 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 
 
-## 报文、数据包 、帧的关系
+# 报文、数据包 、帧的关系
 
 这是一个关于网络分层模型的问题。
 
@@ -6576,27 +6464,7 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 
 
-
-
-# 8/30
-
-## HTTP 状态码格式规范
-
-|范围|类别|含义|常见例子|
-|---|---|---|---|
-|1xx|信息响应|请求已被接收，继续处理。
-|2xx|成功|请求已成功被服务器接收、理解并接受。
-|3xx|重定向|需要客户端采取进一步的操作才能完成请求。
-|4xx|客户端错误|请求本身有问题（如语法错误、无法实现等）。
-|5xx|服务器错误|服务器处理有效请求时失败。
-
-
-
-
-
-
-# 9/1
-## Rocky9.6 本地部署 wordpress
+# Rocky9.6 本地部署 wordpress
 基于 LNMP 架构部署wordpress-6.7
 
 php 和 mysql 版本如下
@@ -6842,7 +6710,7 @@ server {
 
 
 
-## wordpress 重置密码
+# wordpress 重置密码
 注册时邮箱和密码都是乱填的，所以无法登录
 
 进入后端数据库，查询相关表信息并修改即可
@@ -6909,9 +6777,8 @@ MariaDB [wordpress]>
 
 
 
-# 9/5
 
-## cookie 与 session 详解
+# cookie 与 session 详解
 
 一、核心概念
 
@@ -7009,8 +6876,9 @@ set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件�
 
 
 
-# 10/7
-## 关于混合显卡与 linux 适配问题
+
+
+# 关于混合显卡与 linux 适配问题
 我的电脑是 A 卡集显和 N 卡独显组合，系统新装了一个 archlinux,在使用插件 caffine （一款 linux 息屏时间控制工具 ）时，使用 caffine 导致我的系统丢失根分区挂载入进入紧急模式，解决方案是使用之前的系统 U 盘重新挂载，将桌面用户家目录里的.local/share/gnome-shell/extensions目录下面把caffeine相关字段的目录删除，该目录是 gnome 的软件商店安装插件扩展的插件储存位置，然而这个并不是 caffine 的问题，主要原因在于，华硕提供了显卡模式的切换工具 supergfxctl，使用 yay 安装,与插件商店的 GPU Supergfxctl Switch 组合使用可以实现在右上角菜单栏里切换显卡模式为集显，混合，和独显，当时是混合模式，导致了很严重的问题，具体表现在开机时，有几率在启动加载全部完成后会黑屏卡住，原因是 A 卡集显和 N 卡独显抢占显存资源，A 卡抢占失败时就会导致 GUI 加载错误，查看系统日志可以看到上次启动失败一直在循环报错 A 卡分配显存资源失败，显卡模式设置为独显即可解决，然而又触发了一个新问题，steam 使用独显启动游戏黑屏，因为 steam 默认策略使用集成显卡打开，archwiki 的方案是切换 wayland 到 x11 规范（比如 xorg），不过有个临时解决方案，使用集显运行 steam,涉及到一个软件 switcheroo-control，该软件可选择程序使用哪张显卡启动，右键显示选项，使用 pacman 安装。
 
 
@@ -7032,13 +6900,7 @@ set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件�
 
 
 
-
-
-
-
-
-# 10/28
-## wine 字体缺失
+# wine 字体缺失
 具体表现是某些字符会显示为“口”字的状态，通常是字体缺失导致的
 使用 Winetricks 自动安装字体
 winetricks是一个辅助脚本，专门用来给 Wine 安装各种依赖库和字体。
@@ -7059,40 +6921,29 @@ winetricks cjkfonts
 
   
 后续调优（可选）  
-
-
 安装 Arch Linux 系统的 CJK 字体
-
 这个方案是在_Linux 系统层面_安装一套完整的高质量 CJK 字体。Wine (通过 Fontconfig) 理论上也能检测到并使用它们。
-
 安装 Noto CJK 字体包： `noto-fonts-cjk` 是 Google 和 Adobe 合作的开源字体，质量非常高，涵盖了中日韩所有字符。
-
 在终端运行：
-
 ```plain
 sudo pacman -S noto-fonts-cjk
 ```
 
 刷新字体缓存（通常 pacman 会自动做，但手动做一次没坏处）：
-
 ```plain
 fc-cache -fv
 ```
 
-
-
-sudo pacman -S adobe-source-han-serif-cn-fonts wqy-zenhei                   #安装几个开源中文字体 一般装上文泉驿就能解决大多wine应用中文方块的问题
-
-sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra             #安装谷歌开源字体及表情
-
+```
+sudo pacman -S adobe-source-han-serif-cn-fonts wqy-zenhei          #安装几个开源中文字体 一般装上文泉驿就能解决大多wine应用中文方块的问题
+sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌开源字体及表情
+```
 
 我感觉没球用，不如群友打包的字体包，直接塞上就用
 
 
 
-
-# 10/30
-## arch 配置 FTP 服务
+# arch 配置 FTP 服务
 给我的 kvm_win7 传文件用
 
 安装软件
@@ -7231,10 +7082,7 @@ yay -S waydroid-helper
 
 
 
-
-
-# 11/6
-## 在 wps 中使用 fcitx5 输入法
+# 在 wps 中使用 fcitx5 输入法
 网上有个方案是在~/.pam_environment 中写入
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx5
@@ -7262,8 +7110,9 @@ export XMODIFIERS=@im=fcitx
 
 
 
-# 11/7
-## Hyprland
+
+# Hyprland
+## 11/7
 开始用 hyprland 了，目前体验还不错，但是配置过程有点繁琐，我懒得写怎么装了，就简单记录一下怎么用吧
 
 
@@ -7271,7 +7120,7 @@ export XMODIFIERS=@im=fcitx
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的
 
 比如
-### 设置命令开机自启动
+## 设置命令开机自启动
 进入该配置文件，在 exec-once 开头的那一块区域写入
 exec-once=需要开机自动执行的命令
 
@@ -7283,7 +7132,7 @@ exec-once=mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多
 
 
 
-### 设置快捷键
+## 设置快捷键
 也是在这个配置文件里修改
 
 关键字是 bind 开头的行
@@ -7363,7 +7212,7 @@ hyprland 自己也有 wiki，肯定是比 archwiki 在这方面更详细的，�
 
 
 
-### waybar 美化
+## waybar 美化
 参考的别人的美化风格，整体配置比较模块化，总体文件结构如图
 
 ![[_resources/linux笔记/e5bef4dea6e712828b69b69bad2ee1b3_MD5.png]]
@@ -9482,7 +9331,7 @@ wpctl set-default "$CHOSEN_ID"
 
 
 
-### 剪切板方案
+## 剪切板方案
 sudo pacman -S --needed wl-clipboard 
 yay -S cliphist
 然后在 hyprland 配置文件里写入
@@ -9504,7 +9353,7 @@ bind = $mainMod, x, exec, cliphist list | fuzzel --dmenu --with-nth 2 | cliphist
 
 
 
-### 截图录屏方案
+## 截图录屏方案
 安装这三个包
 sudo pacman -S grim slurp wf-recorder 
 
@@ -9527,7 +9376,7 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 
 
 
-### 禁用触控板
+## 禁用触控板
 使用hyprctl devices 命令查看设备
 
 ```bash
@@ -9611,7 +9460,7 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 
 
 
-### 关于 hyprland 的浮动窗口变量设置
+## 关于 hyprland 的浮动窗口变量设置
 在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观
 
 这个空白大小是可以修改的，还是在那个 hyprland 配置文件里
@@ -9651,7 +9500,7 @@ general {
 
 
 
-### 视频壁纸方案
+## 视频壁纸方案
 项目名 mpvpape
 
 项目地址 [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)
@@ -9687,7 +9536,7 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 
 
-### 玩游戏帧率异常
+## 玩游戏帧率异常
 玩鸣潮的时候发现帧率不对劲，帧率不稳定，一战斗就掉帧
 
 看一下 nvidia-smi 回显
@@ -9735,7 +9584,7 @@ sudo nvidia-smi -pm 1 # 启用持久模式
 
 
 
-### 截屏翻译方案
+## 截屏翻译方案
 主要使用 Crow Translate 这个程序
 1.安装主程序
 yay -S crow-translate
@@ -9775,12 +9624,7 @@ URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷�
 
 
 
-
-
-
-
-# 11/10
-## 软件包降级
+# 软件包降级
 clash-verge-rev 更新后发现 tun 模式打不开了，尝试了降级软件包处理
 
 1.首先 pacman 会在本地留下软件包缓存，首先检查这个目录下有没有需要的版本
@@ -9881,17 +9725,7 @@ IgnorePkg = clash-verge-rev clash-geoip
 
 
 
-
-
-
-
-
-
-
-
-
-# 11/11
-## 微信读取系统文件夹异常
+# 微信读取系统文件夹异常
 这个和 hyprland 无关，我就单独拿出来
 
 具体就是用微信打开本地文件夹发现显示不全
@@ -9909,12 +9743,7 @@ sudo pacman -S flatseal
 
 
 
-
-
-
-
-# 11/12
-## konsole提示符异常
+# konsole提示符异常
 就是在打开窗口的时候，提示符上面不知道为啥会出现一个%号
 
 原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突
@@ -9987,7 +9816,7 @@ bash -c $curl --fail --show-error --silent --location https://raw.githubusercont
 
 
 
-## sudo 密码输入问题
+# sudo 密码输入问题
 用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码
 sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout
 
@@ -10019,17 +9848,8 @@ timestamp_timeout=30
 
 
 
-
-
-
-
-
-
-
-
-# 11/16
-## arch 和 win 双系统配置安全启动
-### 理论基础
+# arch 和 win 双系统配置安全启动
+## 理论基础
 一、 什么是安全启动？
 安全启动 (Secure Boot)是主板 UEFI 固件里的一项安全功能。
 
@@ -10092,8 +9912,8 @@ timestamp_timeout=30
 
 
 
-### 配置过程
-#### 1.GRUB 侧的配置
+## 配置过程
+### 1.GRUB 侧的配置
 首先，安装相应的软件包：shim-signed（AUR 包），sbsigntools，mokutil。
 
 使用 OpenSSL 生成一对安全启动签名密钥，记得妥善保管。
@@ -10177,7 +9997,7 @@ grub.arch,4,Arch Linux,grub,2:2.14rc1-2,https://archlinux.org/packages/core/x86_
 
 
 
-#### 2.GRUB MemDisk 和预加载脚本.
+### 2.GRUB MemDisk 和预加载脚本.
 新建文件夹 /etc/secureboot/grub-sb-stub/memdisk，然后在里面新建 fonts 文件夹。将你需要的字体的 PF2 文 件（比如 /usr/share/grub/unicode.pf2）复制到 fonts 文件夹中。
 
 ```bash
@@ -10234,7 +10054,7 @@ Signing Unsigned original image
 
 
 
-#### 3. 内核签名
+### 3. 内核签名
 新建 /etc/initcpio/post/kernel-sbsign，内容如下，并同时使用 chmod +x 给予可执行权限。
 
 ```bash
@@ -10272,7 +10092,7 @@ Signing Unsigned original image
 
 
 
-#### 4.准备重启
+### 4.准备重启
 在EFI 分区下，放入之前创建的签名密钥的 cer 文件。我将其放入到/boot/EFI/ARCH/keys/MOK.cer
 
 同时复制 Shim 相关的已签名 EFI，并添加相关的引导项
@@ -10311,7 +10131,7 @@ sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-sh
 
 
 
-#### 5. 自动更新 GRUB 的 EFI 文件和配置数据
+### 5. 自动更新 GRUB 的 EFI 文件和配置数据
 首先，准备一下 update-grub 脚本。可以通过 AUR 包的形式安装（包名为 update-grub），也可以在 /usr/local/bin 下新建一个。文件的内容可以参考[这里](https://aur.archlinux.org/cgit/aur.git/tree/update-grub?h=update-grub)
 
 :::info
@@ -10381,18 +10201,7 @@ Depends=grub
 
 
 
-
-
-
-
-
-
-
-
-
-
-# 11/21
-## Arch Linux 轻量化音乐播放系统
+# Arch Linux 轻量化音乐播放系统
 MPD + ncmpcpp + Cava
 
 
@@ -10560,17 +10369,7 @@ Categories=Audio;Player;ConsoleOnly;
 
 
 
-
-
-
-
-
-
-
-# 11/26
-
-# 11/27
-## arch 打开文件夹却显示终端
+# arch 打开文件夹却显示终端
 就是发现在某些应用，我选择打开文件夹，打开的却是我的 kitty 终端，解决方案参考如下
 ```
 ❯ xdg-mime query default inode/directory
@@ -11521,15 +11320,7 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 
 
-
-
-
-
-
-
-
-# 12/13
-## grub设置链式引导
+# grub设置链式引导
 有些系统并不希望使用grub引导，比如pop!os有自己的system76引导，所以这时就需要链式引导来让这些系统使用自己的引导程序
 参考如下内容
 ```
@@ -11571,8 +11362,14 @@ menuentry 'Pop!_OS(Chainload)' {
 `/EFI/BOOT/BOOTX64.EFI`
 是 UEFI 的“默认回退路径”，如果一块硬盘或者 U 盘插上去，主板不知道该读哪个文件夹，主板就会**默认**去读这个文件。它是所有无主系统的“收容所”，但实在找不到系统对应的引导时，就可以使用这个路径，不过多数系统是有具体路径的，比如fedora的是/EFI/fedora/shimx64.efi
 
-# 12/15
-## 蓝牙耳机有电流声
+
+
+
+
+
+
+
+# 蓝牙耳机有电流声
 **随着系统滚动更新，该修复失效了，麻了**
 **环境：** Arch Linux + Niri (Wayland) + PipeWire + 蓝牙耳机 (漫步者 W820NB, 编码器:SBC)。
 **现象：** 播放音频时，偶尔会出现剧烈的“电击式”爆音或断流。
@@ -11628,19 +11425,14 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 
 
 
-
-
-
-
-# 12/21
-## 信创适配及安全管理
-### 任务一
+# 信创适配及安全管理
+## 任务一
 主机清单
 serverA 192.168.122.10
 server1 192.168.122.11
 server2 192.168.122.12
 
-#### 1.配置DNS主服务器server1
+### 1.配置DNS主服务器server1
 1)安装软件
 `[root@server1 ~]# yum -y install bind bind-utils`
 
@@ -11740,7 +11532,7 @@ $TTL 1D
 
 
 
-#### 2.配置 Server2（从 DNS 服务器）
+### 2.配置 Server2（从 DNS 服务器）
 Server2 不需要自己写正反向解析文件（也就是不用 cp 和 vim `db.xxx` 文件），它的任务是告诉系统“我是秘书，我要找 Server1 (192.168.122.11) 下载数据
 
 1)安装软件
@@ -11789,7 +11581,7 @@ zone "50.16.172.in-addr.arpa" IN {
 
 
 
-#### 3.配置ServerA(CA中心与证书颁发)
+### 3.配置ServerA(CA中心与证书颁发)
 配置DNS服务器
 `[root@serverA ~]# vim /etc/resolv.conf`
 写入如下内容
@@ -11849,7 +11641,7 @@ Sign the certificate? [y/n]和1 out of 1 certificate requests certified, commit?
 全部输入y回车即可
 
 
-#### 4.证书分发
+### 4.证书分发
 题目要求所有 Server 的 `/etc/ssl` 目录下都要有这张证书。
 在ServerA上操作
 回到demoCA目录下
@@ -11864,7 +11656,7 @@ Sign the certificate? [y/n]和1 out of 1 certificate requests certified, commit?
 `scp server-rsa.pem server-rsa.key root@192.168.122.12:/etc/ssl/`
 
 
-#### 验证全流程
+### 验证全流程
 **验证 DNS 同步**：在 Server2 上能看到 `/var/named/slaves` 下有文件。
 **验证 DNS 解析**：`nslookup app1.system.org.cn 192.168.122.12` 能解析出 IP。
 **验证证书内容**： 在任意一台机器执行：
@@ -11874,7 +11666,7 @@ Sign the certificate? [y/n]和1 out of 1 certificate requests certified, commit?
 
 
 
-### 任务二
+## 任务二
 刷新软件源并更新软件
 `apt update`
 `apt upgrade`
@@ -11998,15 +11790,15 @@ if __name__ == '__main__':
 
 
 
-### 任务三
-#### 1.安装JDK
+## 任务三
+### 1.安装JDK
 1.在 x86 麒麟上，我们用 OpenJDK 11 代替毕昇 JDK 11。
 `sudo apt update` 
 `sudo apt install openjdk-11-jdk -y`
 验证
 `java -version`
 
-#### 2.安装达梦数据库 DM8
+### 2.安装达梦数据库 DM8
 1）官网下载达梦开发版x86，系统麒麟10,sp3
 下载后解压，传到虚拟机/root下
 `scp Downloads/dm8_20251203_x86_kylin10_sp3_64/dm8_20251203_x86_kylin10_sp3_64.iso root@192.168.122.132:/root/`
@@ -12332,8 +12124,8 @@ public class SimpleAccountTool {
 
 
 
-### 任务四
-#### 第一部分：网络内核参数加固
+## 任务四
+### 第一部分：网络内核参数加固
 这是为了防止网络攻击（DoS、ICMP攻击）
 
 编辑文件
@@ -12362,7 +12154,7 @@ net.ipv4.conf.default.log_martians=1
 生效配置
 `sysctl -p`
 
-#### 第二部分：系统访问控制
+### 第二部分：系统访问控制
 目标：禁重启、设置 umask、单用户保护
 
 **禁止 Ctrl+Alt+Del 重启(Systemd 方式)**:
@@ -12395,7 +12187,7 @@ init 3
 
 
 
-#### 第三部分：账号与密码策略
+### 第三部分：账号与密码策略
 **密码有效期策略**:
 编辑配置文件
 `vim /etc/login.defs`
@@ -12491,7 +12283,7 @@ session     required      pam_unix.so
 
 
 
-#### 第四部分：SSH 服务加固
+### 第四部分：SSH 服务加固
 编辑配置文件
 `vim /etc/ssh/sshd_config`
 查找并修改以下行
@@ -12508,7 +12300,7 @@ ClientAliveCountMax 0
 重启sshd服务
 `systemctl restart sshd`
 
-#### 第五部分：Auditd 审计配置
+### 第五部分：Auditd 审计配置
 **在日志中使用主机全名**：
 `vim /etc/audit/auditd.conf`
 修改或添加
@@ -12551,9 +12343,7 @@ ClientAliveCountMax 0
 
 
 
-
-# 12/22
-## ssh报错kex_exchange_identification
+# ssh报错kex_exchange_identification
 [[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
 ![[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg]]
 虚拟机内部的sshd服务报错是
