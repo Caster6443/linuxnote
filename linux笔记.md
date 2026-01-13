@@ -367,6 +367,91 @@ gpgkey=https://download.ceph.com/keys/release.asc
 
 
 
+## 关于openstack组件调优
+
+在平时使用OpenStack平台的时候，当同时启动大量虚拟机时，会出现排队现象，导致虚拟机启动超时从而获取不到IP地址而报错失败，请使用自行搭建的OpenStack平台。修改nova相关配置文件，使 虚拟机可以在启动完成后获取IP地址，不会因为超时而报错。
+
+vim /etc/nova/nova.conf
+
+找到如下这行
+
+vif_plugging_is_fatal=true
+
+将改行的注释去掉，并将true改为false，修改完之后如下：
+
+vif_plugging_is_fatal=false
+
+保存退出nova.conf，最后重启nova服务，也可以重启所有服务
+
+openstack-service restart
+
+//////////////////////////////////////////////////////////////////////
+
+使用自行搭建的OpenStack私有云平台，优化KVM的I/O调度算法，将默认的模式修改为none模式。
+
+必须用云主机优化，因为虚拟机没有none模式
+
+查看当前使用的调度算法
+
+cat /sys/block/vda/queue/scheduler
+
+kyber none
+
+可以看到当前的I/O调度算法mq-deadline，如果当前全是用的SSD硬盘，那么是显然none算法更合适，修改算法为none
+
+echo none > /sys/block/vda/queue/scheduler
+
+cat /sys/block/vda/queue/scheduler
+
+mq-deadline kyber
+
+可以看到当前的I/O调度算法为none模式
+
+////////////////////////////////////////////////////////////////////////
+
+Linux 服务器大并发时，往往需要预先调优 Linux 参数。默认情况下，Linux 最大文件 句柄数为 1024 个。当你的服务器在大并发达到极限时，就会报出“too many open files”。 创建一台云主机，修改相关配置，将控制节点的最大文件句柄数永久修改为 65535。
+
+永久生效
+
+cat /etc/security/limits.conf
+soft nofile 65535   
+hard nofile 65535
+
+注：_指所有用户及组，若单指某一用户或某一组，可将_更改为username或@groupname来指定某一用户或组
+
+
+
+echo "000000"| passwd --stdin root
+
+可以避免passwd的交互界面直接设定密码
+
+
+
+
+
+
+由于compute节点也报了lib的版本错误，而此时controller节点的neutron服务已经部署完毕，或许该尝试两个节点同步部署nova服务并更改lib版本，但还是感觉问题出在neutron的几种网络模式的选择上
+
+在使用openstack指令时报错
+
+![[_resources/linux笔记/c9c64d62cd96874445eea152f3d1ae2f_MD5.png]]
+
+提示需要生效环境变量
+
+即source生效/etc/xiandian/openrc.sh和/etc/keystone/admin-openrc.sh 两个脚本
+
+解决了，原因是服务重复了，删除一个就好，类似的报错都可以从这方面入手
+
+总结一下
+
+云平台报错：错误：Invalid service catalog service: identity
+
+解决方案：openstack service list发现keystone（也就是identity）重复出现，使用openstack service delete 加对应ID删除重复服务并systemctl restart httpd.service memcached.service重启服务
+
+报错原因：重复安装了keystone，由此可知关于lib版本的报错解决并不仅仅是卸载重装这么简单，还需要删除掉对应的多余服务，貌似先电2.2无法识别多余且不可用的服务，2.4没有发现
+
+搭建成功了，关于neutron的网络模式还是需要研究一下
+
 
 
 
@@ -499,118 +584,6 @@ innodb_log_file_size = 256MB //设置数据库的redo log即redo日志大小为2
 innodb_log_files_in_group = 2 //数据库的redo log文件组即redo日志的个数配置为2
 
 systemctl restart mariadb
-
-
-
-
-
-
-
-
-
-
-# 10/20
-
-## 关于openstack组件调优
-
-在平时使用OpenStack平台的时候，当同时启动大量虚拟机时，会出现排队现象，导致虚拟机启动超时从而获取不到IP地址而报错失败，请使用自行搭建的OpenStack平台。修改nova相关配置文件，使 虚拟机可以在启动完成后获取IP地址，不会因为超时而报错。
-
-vim /etc/nova/nova.conf
-
-找到如下这行
-
-vif_plugging_is_fatal=true
-
-将改行的注释去掉，并将true改为false，修改完之后如下：
-
-vif_plugging_is_fatal=false
-
-保存退出nova.conf，最后重启nova服务，也可以重启所有服务
-
-openstack-service restart
-
-//////////////////////////////////////////////////////////////////////
-
-使用自行搭建的OpenStack私有云平台，优化KVM的I/O调度算法，将默认的模式修改为none模式。
-
-必须用云主机优化，因为虚拟机没有none模式
-
-查看当前使用的调度算法
-
-cat /sys/block/vda/queue/scheduler
-
-kyber none
-
-可以看到当前的I/O调度算法mq-deadline，如果当前全是用的SSD硬盘，那么是显然none算法更合适，修改算法为none
-
-echo none > /sys/block/vda/queue/scheduler
-
-cat /sys/block/vda/queue/scheduler
-
-mq-deadline kyber
-
-可以看到当前的I/O调度算法为none模式
-
-////////////////////////////////////////////////////////////////////////
-
-Linux 服务器大并发时，往往需要预先调优 Linux 参数。默认情况下，Linux 最大文件 句柄数为 1024 个。当你的服务器在大并发达到极限时，就会报出“too many open files”。 创建一台云主机，修改相关配置，将控制节点的最大文件句柄数永久修改为 65535。
-
-永久生效
-
-cat /etc/security/limits.conf
-soft nofile 65535   
-hard nofile 65535
-
-注：_指所有用户及组，若单指某一用户或某一组，可将_更改为username或@groupname来指定某一用户或组
-
-
-
-echo "000000"| passwd --stdin root
-
-可以避免passwd的交互界面直接设定密码
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-由于compute节点也报了lib的版本错误，而此时controller节点的neutron服务已经部署完毕，或许该尝试两个节点同步部署nova服务并更改lib版本，但还是感觉问题出在neutron的几种网络模式的选择上
-
-在使用openstack指令时报错
-
-![[_resources/linux笔记/c9c64d62cd96874445eea152f3d1ae2f_MD5.png]]
-
-提示需要生效环境变量
-
-即source生效/etc/xiandian/openrc.sh和/etc/keystone/admin-openrc.sh 两个脚本
-
-解决了，原因是服务重复了，删除一个就好，类似的报错都可以从这方面入手
-
-总结一下
-
-云平台报错：错误：Invalid service catalog service: identity
-
-解决方案：openstack service list发现keystone（也就是identity）重复出现，使用openstack service delete 加对应ID删除重复服务并systemctl restart httpd.service memcached.service重启服务
-
-报错原因：重复安装了keystone，由此可知关于lib版本的报错解决并不仅仅是卸载重装这么简单，还需要删除掉对应的多余服务，貌似先电2.2无法识别多余且不可用的服务，2.4没有发现
-
-搭建成功了，关于neutron的网络模式还是需要研究一下
-
-
 
 
 
