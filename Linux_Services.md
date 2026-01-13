@@ -1,348 +1,5 @@
 
 
-# 云主机 Rocky9 部署 WordPress
-腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
-
-1.安装并启用 httpd
-```
-dnf install httpd -y
-systemctl enable --now httpd
-```
-
-
-
-2.放通防火墙
-
-（云主机把防火墙和 selinux 的功能交给安全组管理，防火墙和 selinux 都被禁用了，所以这个不用执行，但还是记下来给普通主机参考）
-```
-firewall-cmd --add-service=http --permanent  
-firewall-cmd --reload
-```
-
-
-
-3.创建数据库和用户(用户可以不创建，使用默认的 root 用户也行)
-```
-dnf -y install mariadb-server
-systemctl enable  --now mariadb.service
-mysql -uroot
-```
-
-进入数据库后
-```
-CREATE DATABASE mywordpress_db;
-CREATE USER 'wp_foc'@'localhost' IDENTIFIED BY 'Pp123456';
-GRANT ALL ON mywordpress_db.* TO 'wp_foc'@'localhost';
-FLUSH PRIVILEGES;
-```
-这里设置了:
-
-```
-Database: mywordpress_db
-User Name:wp_foc
-Password:Pp123456
-```
-
-
-
-4.下载并提取 WordPress
-```
-dnf install wget unzip -y
-wget https://wordpress.org/latest.zip
-unzip latest.zip
-mv wordpress /var/www/html/
-```
-
-5.修改用户，组和权限
-```
-chown -R apache:apache /var/www/html/wordpress
-chmod -R 775 /var/www/html/wordpress
-```
-
-
-
-6.selinux 放通 httpd（还是不用执行，上面说了原因）
-
-```plain
-[root@VM-24-6-rockylinux ~]#semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/wordpress(/.*)?"
-[root@VM-24-6-rockylinux ~]#restorecon -Rv /var/www/html/wordpress
-```
-
-
-7.修改相关配置文件，填写数据库，密码，用户名
-`vi /var/www/html/wordpress/wp-config.php`
-修改内容如下
-```
-define( 'DB_NAME', 'mywordpress_db' );  
-  /** Database username */  
-define( 'DB_USER', 'wp_foc' );  
-  /** Database password */  
-define( 'DB_PASSWORD', 'Pp123456' );
-```
-
-
-8.重启 http 并访问 WordPress 主页
-`systemctl restart httpd`
-
-访问前看一下有没有安全组有没有放通 http 规则，不过一般都默认放通常用服务协议和端口
-
-访问 url 参考[http://192.168.122.238/wordpress/wp-admin/install.php](http://192.168.122.238/wordpress/wp-admin/install.php)
-
-
-
-
-# Rocky9.6 本地部署 wordpress
-基于 LNMP 架构部署wordpress-6.7
-
-php 和 mysql 版本如下
-
-```plain
-[root@rocky ~]# mysql --version
-mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
-[root@rocky ~]# php -v
-PHP 8.2.29 (cli) (built: Jul  1 2025 16:29:21) (NTS gcc x86_64)
-Copyright (c) The PHP Group
-Zend Engine v4.2.29, Copyright (c) Zend Technologies
-    with Zend OPcache v8.2.29, Copyright (c), by Zend Technologies
-```
-
-
-
-1.安装 nginx
-
-```plain
-[root@rocky ~]# yum -y install nginx
-[root@rocky ~]# nginx -v
-nginx version: nginx/1.28.0
-```
-
-
-
-2.配置 php 源
-
-这里选用了 remi 源（个人维护的 php 软件源站点），注意版本即可
-安装 epel 源
-
-```
-dnf install [https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm) [https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm)
-```
-
-
-安装 Remi 源
-
-```
-dnf -y install [http://rpms.remirepo.net/enterprise/remi-release-9.rpm](http://rpms.remirepo.net/enterprise/remi-release-9.rpm)
-dnf -y install  dnf-utils
-```
-
-
-删除已有（可选）
-`sudo dnf -y remove php php-fpm`
-
-
-删除相关扩展包
-sudo dnf -y remove php*
-
-重置 PHP 模块列表
-sudo dnf -y module list reset php
-
-查看 PHP 版本
-sudo dnf module list php
-
-启用 PHP
-sudo dnf -y module enable php:remi-8.2
-
-
-
-
-
-
-3.安装 php，mariadb 及其必要组件
-安装 php
-`dnf -y install php php-fpm`
-
-安装拓展
-```
-dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
-```
-
-
-
-安装 mariadb
-
-```bash
-[root@rocky ~]# yum install -y mariadb-server
-[root@rocky ~]# mysql --version
-mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
-```
-
-
-
-4.从 wordpress 官网下载源码包并解压到网站目录 alice
-
-```bash
-[root@rocky ~]# wget https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
---2025-09-01 16:58:28--  https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
-正在解析主机 cn.wordpress.org (cn.wordpress.org)... 198.143.164.252
-正在连接 cn.wordpress.org (cn.wordpress.org)|198.143.164.252|:443... 已连接。
-已发出 HTTP 请求，正在等待回应... 200 OK
-长度：33984379 (32M) [application/octet-stream]
-正在保存至: “wordpress-6.7-zh_CN.tar.gz”
-
-wordpress-6.7-zh_CN.tar.gz                100%[=====================================================================================>]  32.41M  7.99MB/s  用时 4.5s    
-
-2025-09-01 16:58:34 (7.19 MB/s) - 已保存 “wordpress-6.7-zh_CN.tar.gz” [33984379/33984379])
-[root@rocky ~]# tar xf wordpress-6.7-zh_CN.tar.gz -C /alice/
-```
-
-
-
-5.创建用户用于统一管理 nginx，php
-
-避免繁杂的权限问题
-```
-[root@rocky ~]# groupadd -g 666 www  
-[root@rocky ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
-```
-
-
-
-6.修改相关用户及权限
-
-```bash
-[root@rocky ~]# grep -w user /etc/nginx/nginx.conf
-user  www;
-[root@rocky ~]# egrep '^user|^group' /etc/php-fpm.d/www.conf 
-user = www
-group = www
-[root@rocky ~]# chown www:www /alice/wordpress/
-```
-
-
-
-7.修改 php-fpm 监听端口
-
-```bash
-[root@rocky ~]# grep '^listen' /etc/php-fpm.d/www.conf 
-listen = 127.0.0.1:9000
-[root@rocky ~]# systemctl enable --now  php-fpm.service 
-Created symlink /etc/systemd/system/multi-user.target.wants/php-fpm.service → /usr/lib/systemd/system/php-fpm.service.
-[root@rocky ~]# netstat -tunlp | grep 9000
-tcp        0      0 127.0.0.1:9000          0.0.0.0:*               LISTEN      6651/php-fpm: maste 
-```
-
-
-
-测试 nginx，php 连通性
-
-```bash
-[root@rocky ~]# cat /etc/nginx/conf.d/php.conf 
-server {
-        listen 80;
-        server_name php.test.com;
-        root /php;
-        location / {
-                index index.php index.html;
-        }
-        location ~ \.php$ {
-                fastcgi_pass 127.0.0.1:9000;
-                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                include fastcgi_params;
-        }
- }
-[root@rocky ~]# cat /php/index.php 
-<?php
-     phpinfo();
-?>
-```
-
-访问网站php.test.com 测试，在 hosts 文件里做好相关映射
-
-
-
-7.书写网站配置文件
-
-```bash
-[root@rocky ~]# cat /etc/nginx/conf.d/wordpress.conf 
-server {
-        listen 80;
-        server_name php.alice.com;
-        root /alice/wordpress;
- 
-        location / {
-                 index index.php index.html;
-        }
-        # 区分大小写，定义所有.php结尾的文件属性，使其能够连接php
-        location ~ \.php$ {
-                 fastcgi_pass 127.0.0.1:9000; #指定nginx连接php端口
-                 fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                 # 为SCRIPT_FILENAME变量赋值，$document_root被赋值为上面root指定的/alice/wordpress
-                 # $fastcgi_script_name被赋值为请求的uri
-                 # uri是域名/后的内容，如www.qq.com/test.php，这里的uri就是/test.php
-                 include fastcgi_params;# # 引入标准 FastCGI 参数文件，确保所有必要参数被设置
-        }
-}
-```
-
-
-
-8.初始化 mysql 设置密码
- `[root@rocky ~]# mysqladmin password '000000'`  
-
-
-
-测试 MySQL 和 php 连通性 
-
-```bash
-[root@rocky ~]# cat /alice/mysql.php 
-<?php
-     $servername = "localhost";
-     $username = "root";
-     $password = "000000";
-
-     $conn = mysqli_connect($servername, $username, $password);
-
-     if (!$conn) {
-	     die("Connection failed: " . mysqli_connect_error());
-     }
-     echo "php可以连接MySQL~";
-?>
-<img style='width:100%;height:100%;' src=images/hx.png>
-```
-
-访问 php.alice.com/mysql.php
-
-
-
-9.创建 wordpress 所需数据库
- `[root@web01 wordpress]#mysql -uroot -p000000 -e "create database wordpress;"`  
-
-
-
-10.修改 wordpress 配置文件
-
-/alice/wordpress/wp-config-sample.php 是示例文件（很多 php 源码包都会这样设计，字段里带 sample）
-
-先把这个文件重命名为wp-config.php
-
-然后再修改指定的数据库位置，用户名密码等信息
-
-
-
-11.访问 php.alice.com 即可
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Vmware
 
 ## 虚拟机启用虚拟机引擎失败
@@ -352,6 +9,130 @@ server {
 报错：模块“VPMC”启动失败，未能启动虚拟机
 
 解决方案：在任务管理器中查看到本机CPU支持并已开启了虚拟化功能，而后在安全中心中关闭了内存完整性，成功解决（在此之前关闭了windows功能服务中的windows虚拟机监控程序平台，但并未排除报错，不知道有没有关联，不过hyprv和这个是必须关闭的）
+
+# NFS/autofs
+1.NFS 概述 定义：
+NFS 是一种允许通过网络共享文件系统的协议，使得不同机器上的文件系统能够像本地文件系统一样被访问。 工作原理：客户端通过网络请求访问 NFS 服务器上共享的目录，服务器根据权限提供访问。
+
+2.NFS 架构 客户端-服务器模式：
+NFS 使用客户端和服务器的模型，客户端通过网络访问服务器提供的共享目录。 协议：NFS 是基于 RPC（远程过程调用）协议的，客户端向服务器发起请求，服务器处理请求并返回响应。
+
+3.NFS 服务器配置 共享目录：
+通过 /etc/exports 文件配置，指定哪些目录可以共享、哪些客户端可以访问。 权限设置：通过配置选项控制客户端的读写权限、同步与否等.
+示例配置：/hello 192.168.120.0/24(rw,sync,no_all_squash)   
+/hello：共享的目录路径。
+192.168.120.0/24：允许访问的客户端网络。
+rw：读写权限。
+sync：同步写入操作。
+no_all_squash：禁用 UID/GID 映射，保持客户端原有权限。
+
+4.NFS 客户端操作 挂载共享目录：
+客户端使用 mount 命令挂载服务器共享的目录。
+示例：mount -t nfs [nfs-server-ip]:/hello /mnt/hello 访问共享文件：挂载后，客户端就可以像访问本地文件一样访问远程共享目录中的文件。
+
+5.NFS 文件操作 请求：
+客户端向服务器发起文件操作请求（如读取、写入、删除文件等）。 响应：NFS 服务器处理请求后，返回操作结果或文件数据。 文件描述符：通过文件描述符在客户端和服务器之间传输文件操作的请求和响应。
+
+6.权限管理 UID/GID 映射：
+NFS 使用 UID 和 GID 来控制文件权限。默认情况下，客户端请求的 UID 和 GID 可能会映射为 nfsnobody 用户，除非使用 no_all_squash 禁用该映射，允许客户端保持原有的 UID/GID 权限。
+
+7.同步与异步操作 同步 (sync)：
+数据写入操作必须完成并确认后，才返回响应，确保数据一致性，但可能降低性能。 异步 (async)：写操作不等待确认立即返回，虽然性能更高，但可能导致数据不一致的风险。
+
+8.NFS 协议版本 NFSv2：
+较早的版本，基于 UDP 协议，不支持强大的安全性。 NFSv3：引入了基于 TCP 的传输，支持更大文件和更强的性能。 NFSv4：提供了更强的安全性、身份验证、支持锁机制等。它是目前使用的主要版本，支持更好的跨平台兼容性和性能。
+
+9.NFS 服务的管理 启动和管理服务：
+NFS 服务器通过 nfs-server 服务提供支持，可以使用 systemctl 命令来启动、停止和查看服务状态。
+启动：systemctl start nfs-server
+停止：systemctl stop nfs-server
+状态：systemctl status nfs-server
+
+10.NFS 常用端口 2049/TCP 和 UDP：
+这是 NFS 的固定端口，主要用于文件系统操作（如读写、挂载等）。所有文件共享的操作都通过此端口进行。 111/TCP 和 UDP（portmapper 或 rpcbind）：portmapper 服务（在现代系统中通常是 rpcbind）运行在 111 端口，客户端首先通过此端口查询到 NFS 服务的实际端口号。 20048/TCP 和 UDP（nfsd）：用于 NFS 服务器的守护进程，处理客户端的文件操作请求。 32768-65535/TCP 和 UDP：这些端口用于 NFS 的其他相关服务（如锁管理等），它们是动态分配的。
+
+防火墙配置：确保这些端口在防火墙上是开放的，否则客户端将无法访问 NFS 服务。
+firewall-cmd --permanent --add-port=2049/tcp firewall-cmd --permanent --add-port=2049/udp firewall-cmd --permanent --add-port=111/tcp firewall-cmd --permanent --add-port=111/udp firewall-cmd --reload
+
+
+
+
+## 关于nfs配置文件/etc/exports的权限no_all_squash选项详解
+
+no_all_squash：这是一个与 NFS 权限映射相关的选项。默认情况下，NFS 在进行客户端访问时，可能会将客户端的用户 ID（UID）和组 ID（GID）映射为 nfsnobody（一个权限非常低的用户）。no_all_squash 选项意味着禁用这种映射，而是使用客户端请求时的原始 UID 和 GID。这允许客户端以原用户的身份访问文件系统，而不是以 nfsnobody 用户的身份。
+
+
+
+
+## autofs配置文件解析
+/etc/auto.master（主配置文件）
+作用：定义挂载点的根目录和对应的映射文件。
+格式： [挂载点根目录] [映射文件路径] [可选参数] 
+
+映射文件（如 /etc/remote.misc）
+作用：定义子目录如何挂载到远程共享。 常见格式： [子目录名] [挂载选项] [服务器:共享路径]
+
+
+
+
+## autofs使用nfs远程挂载实践
+
+
+服务端和客户端都安装nfs服务yum -y install nfs-utils rpcbind，修改服务端的nfs配置文件/etc/exports,内容示例:
+```
+[root@server ~]# cat /etc/exports
+/hello 192.168.120.0/24(rw,sync,no_all_squash)
+
+```
+
+这里指定了/hello作为远程目录,指定网段，后面的权限选项详解上面有写
+
+客户端使用showmount -e 服务端ip可验证
+
+
+```
+[root@client hello]# showmount -e server 
+Export list for server:
+/hello 192.168.120.0/24
+
+```
+
+接下来修改客户端的autofs配置文件
+```
+[root@client hello]# cat /etc/auto.master | grep "^\/m"
+/misc	/etc/auto.misc
+/mountdir /etc/remote.misc
+```
+
+
+这里指定了客户端本地挂载目录是/mountdir,作为远程目录的父目录，映射文件是remote.misc(注:这里的命名没有任何的后缀要求，只要和auto.master中指定的映射文件名保持一致即可)
+
+然后修改映射文件
+```
+[root@client hello]# cat /etc/remote.misc 
+hello -rw server:/hello
+
+```
+
+格式是[子目录名] [挂载选项] [服务器:共享路径]
+
+规范来说，这里应该指定挂载类型，但autofs会自动识别到nfs，所以就不写了
+
+然后重启autofs服务
+
+接下来需要访问挂载目录
+```
+[root@client mountdir]# cd /mountdir/hello
+[root@client hello]# ls
+nihaoa
+
+```
+服务端的hello目录会变成mountdir的子目录，使用cd访问/mountdir/hello触发autofs的自动挂载，注意，在访问之前，mountdir下面是空的，hello是tab不出来的，只有直接cd访问这个目前不存在的目录，才会触发autofs的自动挂载
+
+至此成功实现了nfs和autofs的组合使用。
+
+
+
 
 # Nginx
 
@@ -4701,7 +4482,7 @@ location 是指定了仓库地址
 
 
 # Kubernetes
-## 12/3
+
 ## K8s基础架构
 
 ![[_resources/linux笔记/602080906e00f1d43df2af815e15f692_MD5.png]]
@@ -5946,6 +5727,349 @@ ClientAliveCountMax 0
 
 
 
+Wordpress
+
+
+
+
+
+# 云主机 Rocky9 部署 WordPress
+腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
+
+1.安装并启用 httpd
+```
+dnf install httpd -y
+systemctl enable --now httpd
+```
+
+
+
+2.放通防火墙
+
+（云主机把防火墙和 selinux 的功能交给安全组管理，防火墙和 selinux 都被禁用了，所以这个不用执行，但还是记下来给普通主机参考）
+```
+firewall-cmd --add-service=http --permanent  
+firewall-cmd --reload
+```
+
+
+
+3.创建数据库和用户(用户可以不创建，使用默认的 root 用户也行)
+```
+dnf -y install mariadb-server
+systemctl enable  --now mariadb.service
+mysql -uroot
+```
+
+进入数据库后
+```
+CREATE DATABASE mywordpress_db;
+CREATE USER 'wp_foc'@'localhost' IDENTIFIED BY 'Pp123456';
+GRANT ALL ON mywordpress_db.* TO 'wp_foc'@'localhost';
+FLUSH PRIVILEGES;
+```
+这里设置了:
+
+```
+Database: mywordpress_db
+User Name:wp_foc
+Password:Pp123456
+```
+
+
+
+4.下载并提取 WordPress
+```
+dnf install wget unzip -y
+wget https://wordpress.org/latest.zip
+unzip latest.zip
+mv wordpress /var/www/html/
+```
+
+5.修改用户，组和权限
+```
+chown -R apache:apache /var/www/html/wordpress
+chmod -R 775 /var/www/html/wordpress
+```
+
+
+
+6.selinux 放通 httpd（还是不用执行，上面说了原因）
+
+```plain
+[root@VM-24-6-rockylinux ~]#semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/wordpress(/.*)?"
+[root@VM-24-6-rockylinux ~]#restorecon -Rv /var/www/html/wordpress
+```
+
+
+7.修改相关配置文件，填写数据库，密码，用户名
+`vi /var/www/html/wordpress/wp-config.php`
+修改内容如下
+```
+define( 'DB_NAME', 'mywordpress_db' );  
+  /** Database username */  
+define( 'DB_USER', 'wp_foc' );  
+  /** Database password */  
+define( 'DB_PASSWORD', 'Pp123456' );
+```
+
+
+8.重启 http 并访问 WordPress 主页
+`systemctl restart httpd`
+
+访问前看一下有没有安全组有没有放通 http 规则，不过一般都默认放通常用服务协议和端口
+
+访问 url 参考[http://192.168.122.238/wordpress/wp-admin/install.php](http://192.168.122.238/wordpress/wp-admin/install.php)
+
+
+
+
+# Rocky9.6 本地部署 wordpress
+基于 LNMP 架构部署wordpress-6.7
+
+php 和 mysql 版本如下
+
+```plain
+[root@rocky ~]# mysql --version
+mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
+[root@rocky ~]# php -v
+PHP 8.2.29 (cli) (built: Jul  1 2025 16:29:21) (NTS gcc x86_64)
+Copyright (c) The PHP Group
+Zend Engine v4.2.29, Copyright (c) Zend Technologies
+    with Zend OPcache v8.2.29, Copyright (c), by Zend Technologies
+```
+
+
+
+1.安装 nginx
+
+```plain
+[root@rocky ~]# yum -y install nginx
+[root@rocky ~]# nginx -v
+nginx version: nginx/1.28.0
+```
+
+
+
+2.配置 php 源
+
+这里选用了 remi 源（个人维护的 php 软件源站点），注意版本即可
+安装 epel 源
+
+```
+dnf install [https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm) [https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm)
+```
+
+
+安装 Remi 源
+
+```
+dnf -y install [http://rpms.remirepo.net/enterprise/remi-release-9.rpm](http://rpms.remirepo.net/enterprise/remi-release-9.rpm)
+dnf -y install  dnf-utils
+```
+
+
+删除已有（可选）
+`sudo dnf -y remove php php-fpm`
+
+
+删除相关扩展包
+sudo dnf -y remove php*
+
+重置 PHP 模块列表
+sudo dnf -y module list reset php
+
+查看 PHP 版本
+sudo dnf module list php
+
+启用 PHP
+sudo dnf -y module enable php:remi-8.2
+
+
+
+
+
+
+3.安装 php，mariadb 及其必要组件
+安装 php
+`dnf -y install php php-fpm`
+
+安装拓展
+```
+dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
+```
+
+
+
+安装 mariadb
+
+```bash
+[root@rocky ~]# yum install -y mariadb-server
+[root@rocky ~]# mysql --version
+mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
+```
+
+
+
+4.从 wordpress 官网下载源码包并解压到网站目录 alice
+
+```bash
+[root@rocky ~]# wget https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
+--2025-09-01 16:58:28--  https://cn.wordpress.org/wordpress-6.7-zh_CN.tar.gz
+正在解析主机 cn.wordpress.org (cn.wordpress.org)... 198.143.164.252
+正在连接 cn.wordpress.org (cn.wordpress.org)|198.143.164.252|:443... 已连接。
+已发出 HTTP 请求，正在等待回应... 200 OK
+长度：33984379 (32M) [application/octet-stream]
+正在保存至: “wordpress-6.7-zh_CN.tar.gz”
+
+wordpress-6.7-zh_CN.tar.gz                100%[=====================================================================================>]  32.41M  7.99MB/s  用时 4.5s    
+
+2025-09-01 16:58:34 (7.19 MB/s) - 已保存 “wordpress-6.7-zh_CN.tar.gz” [33984379/33984379])
+[root@rocky ~]# tar xf wordpress-6.7-zh_CN.tar.gz -C /alice/
+```
+
+
+
+5.创建用户用于统一管理 nginx，php
+
+避免繁杂的权限问题
+```
+[root@rocky ~]# groupadd -g 666 www  
+[root@rocky ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
+```
+
+
+
+6.修改相关用户及权限
+
+```bash
+[root@rocky ~]# grep -w user /etc/nginx/nginx.conf
+user  www;
+[root@rocky ~]# egrep '^user|^group' /etc/php-fpm.d/www.conf 
+user = www
+group = www
+[root@rocky ~]# chown www:www /alice/wordpress/
+```
+
+
+
+7.修改 php-fpm 监听端口
+
+```bash
+[root@rocky ~]# grep '^listen' /etc/php-fpm.d/www.conf 
+listen = 127.0.0.1:9000
+[root@rocky ~]# systemctl enable --now  php-fpm.service 
+Created symlink /etc/systemd/system/multi-user.target.wants/php-fpm.service → /usr/lib/systemd/system/php-fpm.service.
+[root@rocky ~]# netstat -tunlp | grep 9000
+tcp        0      0 127.0.0.1:9000          0.0.0.0:*               LISTEN      6651/php-fpm: maste 
+```
+
+
+
+测试 nginx，php 连通性
+
+```bash
+[root@rocky ~]# cat /etc/nginx/conf.d/php.conf 
+server {
+        listen 80;
+        server_name php.test.com;
+        root /php;
+        location / {
+                index index.php index.html;
+        }
+        location ~ \.php$ {
+                fastcgi_pass 127.0.0.1:9000;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                include fastcgi_params;
+        }
+ }
+[root@rocky ~]# cat /php/index.php 
+<?php
+     phpinfo();
+?>
+```
+
+访问网站php.test.com 测试，在 hosts 文件里做好相关映射
+
+
+
+7.书写网站配置文件
+
+```bash
+[root@rocky ~]# cat /etc/nginx/conf.d/wordpress.conf 
+server {
+        listen 80;
+        server_name php.alice.com;
+        root /alice/wordpress;
+ 
+        location / {
+                 index index.php index.html;
+        }
+        # 区分大小写，定义所有.php结尾的文件属性，使其能够连接php
+        location ~ \.php$ {
+                 fastcgi_pass 127.0.0.1:9000; #指定nginx连接php端口
+                 fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                 # 为SCRIPT_FILENAME变量赋值，$document_root被赋值为上面root指定的/alice/wordpress
+                 # $fastcgi_script_name被赋值为请求的uri
+                 # uri是域名/后的内容，如www.qq.com/test.php，这里的uri就是/test.php
+                 include fastcgi_params;# # 引入标准 FastCGI 参数文件，确保所有必要参数被设置
+        }
+}
+```
+
+
+
+8.初始化 mysql 设置密码
+ `[root@rocky ~]# mysqladmin password '000000'`  
+
+
+
+测试 MySQL 和 php 连通性 
+
+```bash
+[root@rocky ~]# cat /alice/mysql.php 
+<?php
+     $servername = "localhost";
+     $username = "root";
+     $password = "000000";
+
+     $conn = mysqli_connect($servername, $username, $password);
+
+     if (!$conn) {
+	     die("Connection failed: " . mysqli_connect_error());
+     }
+     echo "php可以连接MySQL~";
+?>
+<img style='width:100%;height:100%;' src=images/hx.png>
+```
+
+访问 php.alice.com/mysql.php
+
+
+
+9.创建 wordpress 所需数据库
+ `[root@web01 wordpress]#mysql -uroot -p000000 -e "create database wordpress;"`  
+
+
+
+10.修改 wordpress 配置文件
+
+/alice/wordpress/wp-config-sample.php 是示例文件（很多 php 源码包都会这样设计，字段里带 sample）
+
+先把这个文件重命名为wp-config.php
+
+然后再修改指定的数据库位置，用户名密码等信息
+
+
+
+11.访问 php.alice.com 即可
+
+
+
+
+
+
+
 
 
 
@@ -6284,142 +6408,6 @@ plugins=keyfile
 no-auto-default=*
 
 设备管理策略缺失： 没有明确声明unmanaged-devices=none，导致NetworkManager拒绝管理网络设备
-
-
-# autofs配置文件解析
-/etc/auto.master（主配置文件）
-作用：定义挂载点的根目录和对应的映射文件。
-格式： [挂载点根目录] [映射文件路径] [可选参数] 
-
-映射文件（如 /etc/remote.misc）
-作用：定义子目录如何挂载到远程共享。 常见格式： [子目录名] [挂载选项] [服务器:共享路径]
-
-
-
-
-# NFS（Network File System）总结与分析
-1.NFS 概述 定义：
-NFS 是一种允许通过网络共享文件系统的协议，使得不同机器上的文件系统能够像本地文件系统一样被访问。 工作原理：客户端通过网络请求访问 NFS 服务器上共享的目录，服务器根据权限提供访问。
-
-2.NFS 架构 客户端-服务器模式：
-NFS 使用客户端和服务器的模型，客户端通过网络访问服务器提供的共享目录。 协议：NFS 是基于 RPC（远程过程调用）协议的，客户端向服务器发起请求，服务器处理请求并返回响应。
-
-3.NFS 服务器配置 共享目录：
-通过 /etc/exports 文件配置，指定哪些目录可以共享、哪些客户端可以访问。 权限设置：通过配置选项控制客户端的读写权限、同步与否等.
-示例配置：/hello 192.168.120.0/24(rw,sync,no_all_squash)   
-/hello：共享的目录路径。
-192.168.120.0/24：允许访问的客户端网络。
-rw：读写权限。
-sync：同步写入操作。
-no_all_squash：禁用 UID/GID 映射，保持客户端原有权限。
-
-4.NFS 客户端操作 挂载共享目录：
-客户端使用 mount 命令挂载服务器共享的目录。
-示例：mount -t nfs [nfs-server-ip]:/hello /mnt/hello 访问共享文件：挂载后，客户端就可以像访问本地文件一样访问远程共享目录中的文件。
-
-5.NFS 文件操作 请求：
-客户端向服务器发起文件操作请求（如读取、写入、删除文件等）。 响应：NFS 服务器处理请求后，返回操作结果或文件数据。 文件描述符：通过文件描述符在客户端和服务器之间传输文件操作的请求和响应。
-
-6.权限管理 UID/GID 映射：
-NFS 使用 UID 和 GID 来控制文件权限。默认情况下，客户端请求的 UID 和 GID 可能会映射为 nfsnobody 用户，除非使用 no_all_squash 禁用该映射，允许客户端保持原有的 UID/GID 权限。
-
-7.同步与异步操作 同步 (sync)：
-数据写入操作必须完成并确认后，才返回响应，确保数据一致性，但可能降低性能。 异步 (async)：写操作不等待确认立即返回，虽然性能更高，但可能导致数据不一致的风险。
-
-8.NFS 协议版本 NFSv2：
-较早的版本，基于 UDP 协议，不支持强大的安全性。 NFSv3：引入了基于 TCP 的传输，支持更大文件和更强的性能。 NFSv4：提供了更强的安全性、身份验证、支持锁机制等。它是目前使用的主要版本，支持更好的跨平台兼容性和性能。
-
-9.NFS 服务的管理 启动和管理服务：
-NFS 服务器通过 nfs-server 服务提供支持，可以使用 systemctl 命令来启动、停止和查看服务状态。
-启动：systemctl start nfs-server
-停止：systemctl stop nfs-server
-状态：systemctl status nfs-server
-
-10.NFS 常用端口 2049/TCP 和 UDP：
-这是 NFS 的固定端口，主要用于文件系统操作（如读写、挂载等）。所有文件共享的操作都通过此端口进行。 111/TCP 和 UDP（portmapper 或 rpcbind）：portmapper 服务（在现代系统中通常是 rpcbind）运行在 111 端口，客户端首先通过此端口查询到 NFS 服务的实际端口号。 20048/TCP 和 UDP（nfsd）：用于 NFS 服务器的守护进程，处理客户端的文件操作请求。 32768-65535/TCP 和 UDP：这些端口用于 NFS 的其他相关服务（如锁管理等），它们是动态分配的。
-
-防火墙配置：确保这些端口在防火墙上是开放的，否则客户端将无法访问 NFS 服务。
-firewall-cmd --permanent --add-port=2049/tcp firewall-cmd --permanent --add-port=2049/udp firewall-cmd --permanent --add-port=111/tcp firewall-cmd --permanent --add-port=111/udp firewall-cmd --reload
-
-
-11.NFS 优缺点 优点：
-允许在不同操作系统之间共享文件。
-支持分布式文件系统，方便大规模数据存储和共享。
-配置简单，容易扩展。 缺点：
-性能可能受到网络延迟和同步操作的影响。
-安全性较差，需要额外的安全措施（如 NFSv4 的身份验证、加密）。
-对于大型环境，可能需要额外的性能调优。
-
-12.总结
-NFS 是一个非常有效的协议，可以使得不同系统之间共享文件系统，适用于内部网络中资源共享。 配置和管理较为简单，但需要特别注意权限设置和性能优化。 在生产环境中，使用 NFSv4 可以获得更好的安全性和性能。 了解和配置端口、服务及防火墙是确保 NFS 正常运行的重要部分。
-
-
-
-
-关于nfs配置文件/etc/exports的权限no_all_squash选项详解
-
-no_all_squash：这是一个与 NFS 权限映射相关的选项。默认情况下，NFS 在进行客户端访问时，可能会将客户端的用户 ID（UID）和组 ID（GID）映射为 nfsnobody（一个权限非常低的用户）。no_all_squash 选项意味着禁用这种映射，而是使用客户端请求时的原始 UID 和 GID。这允许客户端以原用户的身份访问文件系统，而不是以 nfsnobody 用户的身份。
-
-
-
-
-autofs使用nfs远程挂载实践
-
-
-服务端和客户端都安装nfs服务yum -y install nfs-utils rpcbind，修改服务端的nfs配置文件/etc/exports,内容示例:
-```
-[root@server ~]# cat /etc/exports
-/hello 192.168.120.0/24(rw,sync,no_all_squash)
-
-```
-
-这里指定了/hello作为远程目录,指定网段，后面的权限选项详解上面有写
-
-客户端使用showmount -e 服务端ip可验证
-
-
-```
-[root@client hello]# showmount -e server 
-Export list for server:
-/hello 192.168.120.0/24
-
-```
-
-接下来修改客户端的autofs配置文件
-```
-[root@client hello]# cat /etc/auto.master | grep "^\/m"
-/misc	/etc/auto.misc
-/mountdir /etc/remote.misc
-```
-
-
-这里指定了客户端本地挂载目录是/mountdir,作为远程目录的父目录，映射文件是remote.misc(注:这里的命名没有任何的后缀要求，只要和auto.master中指定的映射文件名保持一致即可)
-
-然后修改映射文件
-```
-[root@client hello]# cat /etc/remote.misc 
-hello -rw server:/hello
-
-```
-
-格式是[子目录名] [挂载选项] [服务器:共享路径]
-
-规范来说，这里应该指定挂载类型，但autofs会自动识别到nfs，所以就不写了
-
-然后重启autofs服务
-
-接下来需要访问挂载目录
-```
-[root@client mountdir]# cd /mountdir/hello
-[root@client hello]# ls
-nihaoa
-
-```
-服务端的hello目录会变成mountdir的子目录，使用cd访问/mountdir/hello触发autofs的自动挂载，注意，在访问之前，mountdir下面是空的，hello是tab不出来的，只有直接cd访问这个目前不存在的目录，才会触发autofs的自动挂载
-
-至此成功实现了nfs和autofs的组合使用。
-
-
 
 
 # 关于逻辑卷调整的-r参数

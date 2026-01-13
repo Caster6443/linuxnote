@@ -1136,22 +1136,6 @@ GPT 分区表下的类型代码: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
 
 
 
-# DNS 解析流程
-DNS端口因为使用的是udp，所以是53号端口
-本地主机名是 rocky.linux.com
-
-在浏览器的 url 栏中输入域名 rocky.linux.com 时，有多个流程，当前流程失败就走下一个流程
-
-![[_resources/linux笔记/f310b68af89c66d83487d5c9b5a03840_MD5.jpg]]
-
-
-
-
-
-
-
-
-
 # TCP 三次握手原理
 
 
@@ -1204,6 +1188,22 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 
 至此三次握手结束，连接建立
+
+
+
+
+
+
+
+# DNS 解析流程
+DNS端口因为使用的是udp，所以是53号端口
+本地主机名是 rocky.linux.com
+
+在浏览器的 url 栏中输入域名 rocky.linux.com 时，有多个流程，当前流程失败就走下一个流程
+
+![[_resources/linux笔记/f310b68af89c66d83487d5c9b5a03840_MD5.jpg]]
+
+
 
 
 
