@@ -1270,79 +1270,48 @@ Session（会话）：服务器端用来跟踪用户状态的一种机制。服�
 
 2.【服务端动作】服务器 接收到请求。
 服务器解析请求头，发现没有名为 PHPSESSID（或其他自定义名称）的Cookie。
- 服务器生成一个新的、唯一的Session ID（例如 sess_abc123）。
+服务器生成一个新的、唯一的Session ID（例如 sess_abc123）。
+服务器在内存或文件系统中创建一个新的Session文件，文件名通常与Session ID关联（例如 sess_abc123）。此时该文件是空的或只包含初始信息。
 
-- 服务器在内存或文件系统中创建一个新的Session文件，文件名通常与Session ID关联（例如 sess_abc123）。此时该文件是空的或只包含初始信息。
-    
-
-3. 【服务端响应】服务器 发送HTTP响应（Response）给浏览器。
-    
-
-- 在响应头（Response Headers） 中，包含一个 Set-Cookie 指令： Set-Cookie: PHPSESSID=sess_abc123; path=/; HttpOnly
-    
-- 这个指令的含义是：“浏览器，请为我这个网站保存一个键为 PHPSESSID，值为 sess_abc123 的Cookie。”
-    
-
+3.【服务端响应】服务器 发送HTTP响应（Response）给浏览器。
+在响应头（Response Headers） 中，包含一个 Set-Cookie 指令：
+Set-Cookie: PHPSESSID=sess_abc123; path=/; HttpOnly
+这个指令的含义是：“浏览器，请为我这个网站保存一个键为 PHPSESSID，值为 sess_abc123 的Cookie。”
 set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件一致
 
-4. 【客户端动作】浏览器 接收到服务器的响应。
-    
-
-- 浏览器解析响应头，看到 Set-Cookie 指令。
-    
-- 浏览器遵照指令，在自己的Cookie存储空间中创建或更新这个Cookie（键值对：PHPSESSID: sess_abc123）。
-    
+4.【客户端动作】浏览器 接收到服务器的响应。
+浏览器解析响应头，看到 Set-Cookie 指令。
+浏览器遵照指令，在自己的Cookie存储空间中创建或更新这个Cookie（键值对：PHPSESSID: sess_abc123）。
 
 至此，会话通道建立完成。 浏览器拥有了Session ID，并承诺在后续所有对该网站的请求中自动携带它。
 
 第二步：登录认证，提升会话权限（安全再生）
+1.【客户端动作】浏览器 提交登录表单（例如 POST /login.php）。    
+在发送这个请求时，浏览器自动在请求头中携带之前保存的Cookie： Cookie: PHPSESSID=sess_abc123
+表单数据（用户名、密码）放在请求体（Request Body）中。
 
-1. 【客户端动作】浏览器 提交登录表单（例如 POST /login.php）。
-    
+2.【服务端动作】服务器 接收到登录请求。
+服务器从请求头中获取 Cookie: PHPSESSID=sess_abc123，从而知道这是哪个会话。
+服务器从请求体中获取用户名和密码并进行验证。
+验证成功后，为了安全，服务器执行“会话再生”： a. 销毁旧的Session文件 sess_abc123。 b. 生成一个全新的Session ID（例如 sess_def456）。 c. 创建新的Session文件 sess_def456，并将用户的登录状态（如 user_id: 1）等重要信息写入其中。
 
-- 在发送这个请求时，浏览器自动在请求头中携带之前保存的Cookie： Cookie: PHPSESSID=sess_abc123
-    
-- 表单数据（用户名、密码）放在请求体（Request Body）中。
-    
+3.【服务端响应】服务器 发送登录成功的响应（通常是302重定向）。
+在响应头中，再次使用 Set-Cookie 指令：
+Set-Cookie: PHPSESSID=sess_def456; path=/; HttpOnly
+这个指令的含义是：“浏览器，你之前持有的 sess_abc123 已经作废，请立刻更新为这个新的 sess_def456。”
 
-2. 【服务端动作】服务器 接收到登录请求。
-    
+4.【客户端动作】浏览器 接收到响应。
+浏览器看到新的 Set-Cookie 指令，立即用新的值（sess_def456）覆盖本地存储的旧Cookie值。
 
-- 服务器从请求头中获取 Cookie: PHPSESSID=sess_abc123，从而知道这是哪个会话。
-    
-- 服务器从请求体中获取用户名和密码并进行验证。
-    
-- 验证成功后，为了安全，服务器执行“会话再生”： a. 销毁旧的Session文件 sess_abc123。 b. 生成一个全新的Session ID（例如 sess_def456）。 c. 创建新的Session文件 sess_def456，并将用户的登录状态（如 user_id: 1）等重要信息写入其中。
-    
-
-3. 【服务端响应】服务器 发送登录成功的响应（通常是302重定向）。
-    
-
-- 在响应头中，再次使用 Set-Cookie 指令： Set-Cookie: PHPSESSID=sess_def456; path=/; HttpOnly
-    
-- 这个指令的含义是：“浏览器，你之前持有的 sess_abc123 已经作废，请立刻更新为这个新的 sess_def456。”
-    
-
-4. 【客户端动作】浏览器 接收到响应。
-    
-
-- 浏览器看到新的 Set-Cookie 指令，立即用新的值（sess_def456）覆盖本地存储的旧Cookie值。
-    
 
 第三步：登录后访问，使用认证会话
+1.【客户端动作】浏览器 访问登录后的页面（例如 GET /dashboard.php）。
+在请求头中，浏览器自动携带的是更新后的、有效的Cookie：
+Cookie: PHPSESSID=sess_def456
 
-1. 【客户端动作】浏览器 访问登录后的页面（例如 GET /dashboard.php）。
-    
-
-- 在请求头中，浏览器自动携带的是更新后的、有效的Cookie： Cookie: PHPSESSID=sess_def456
-    
-
-2. 【服务端动作】服务器 接收到请求。
-    
-
-- 从Cookie中获取到 sess_def456，找到对应的Session文件。
-    
-- 读取文件内容，确认用户已认证，然后返回受保护的页面内容。
+2.【服务端动作】服务器 接收到请求。
+从Cookie中获取到 sess_def456，找到对应的Session文件。
+读取文件内容，确认用户已认证，然后返回受保护的页面内容。
 
 
 
