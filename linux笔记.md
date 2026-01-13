@@ -1,9 +1,47 @@
-
-
-
-
-
 # 2024/9/20
+
+
+# linux常用命令
+
+## 查看函数库依赖
+
+不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
+
+例：![[_resources/linux笔记/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png]]
+
+想要使用bash则需要确保拥有lib下的各个函数库文件
+
+没有依赖库但想要使用bash则会报错如下
+
+![[_resources/linux笔记/87727257087262a186f7eebb6995744f_MD5.png]]
+
+
+## 关于命令别名的设置
+以docker为例
+![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
+
+## ip a 回显解析
+
+ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以容器为例
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Vmware
+
 ## 关于虚拟机启用虚拟机引擎失败
 
 工具：centos7虚拟机，VMware17pro
@@ -461,9 +499,10 @@ echo "000000"| passwd --stdin root
 
 
 
-# 10/16
 
 
+# Ceph
+## 10/16
 ## 搭建ceph
 
 三个节点
@@ -545,15 +584,6 @@ priority=1
 解决方案：手动添加一个epel源，这里在阿里云找到了epel源Wget -O /etc/yum.repos.d/epel.repo [https://mirrors.aliyun.com/repo/epel-7.repo](https://mirrors.aliyun.com/repo/epel-7.repo)
 
 
-
-
-
-# 10/17
-
-受主机内存和云平台资源限制，从云主机改用为VM虚拟机
-
-//////////////////////////////////////
-
 ## 关于ceph-deploy new报错
 
 ![[_resources/linux笔记/809b3e0389f8e2463704220d5b877df3_MD5.png]]
@@ -564,7 +594,6 @@ priority=1
 
 创建pool命令
 ceph osd pool create <pool名> <pg值> <pg备份值>
-
 
 
 
@@ -851,47 +880,6 @@ location 是指定了仓库地址
 [[registry]] 作为主仓库标题，[[registry.mirror]] 作为备用仓库标题，当主仓库拉取失败时，按顺序向下面的备用仓库拉取镜像
 
 
-
-
-
-
-
-
-
-
-# 11/12
-
-## 查看函数库依赖
-
-不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
-
-例：![[_resources/linux笔记/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png]]
-
-想要使用bash则需要确保拥有lib下的各个函数库文件
-
-没有依赖库但想要使用bash则会报错如下
-
-![[_resources/linux笔记/87727257087262a186f7eebb6995744f_MD5.png]]
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-
-# 11/14
-
-## 关于命令别名的设置
-以docker为例
-
-![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
-
-
-
-
-
-
-# 11/19
-## ip a 回显解析
-
-ip a显示的网卡名中@左右的名称表示两个网卡之间有关联，以容器为例
 
 
 
@@ -6135,6 +6123,555 @@ php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
 
 
 
+## tomcat 图片分离
+延续上面的架构，仅使用 web02 实验
+
+web02   192.168.120.151
+
+[https://tomcat.apache.org/](https://tomcat.apache.org/)    #tomcat 的官网
+
+1.web02 部署 tomecat
+
+下载 tomcat 包
+
+```bash
+[root@web02 ~]# wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.45/bin/apache-tomcat-10.1.45.tar.gz
+[root@web02 ~]# tar xf apache-tomcat-10.1.45.tar.gz -C /usr/local/
+[root@web02 ~]# ln -s /usr/local/apache-tomcat-10.1.45/ /usr/local/tomcat
+```
+
+
+
+安装 tomcat 运行环境
+
+[root@web02 ~]#yum -y install java
+
+运行java服务
+
+[root@web02 ~]#/usr/local/tomcat/bin/startup.sh
+
+检查端口tomcat 8080  
+
+
+
+2.nginx实现代理tomcat进行图片拆分
+
+1)web02配置反向代理到自身的8080端口
+
+```bash
+[root@web02 conf.d]#cat proxy8080.conf
+upstream tom { 
+              server 172.16.1.8:8080;
+}
+server {
+        listen 80;
+        server_name tomcat.rocky.com;
+        location / {
+                    proxy_pass http://tom;
+        }
+}  
+[root@web02 conf.d]#nginx -t 
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web02 conf.d]#systemctl restart nginx  
+```
+
+ 2)hosts解析测试代理是否成功  
+
+192.168.120.151 tomcat.rocky.com
+
+3)通过配置Nginx反向代理的locatoin 将tomcat的图片拆分
+
+```bash
+[root@web02 conf.d]#vim proxy8080.conf
+ upstream tom {
+        server 192.168.120.151:8080;
+        }
+ server {
+        listen 80;
+        server_name tomcat.rocky.com;
+        location / {
+        proxy_pass http://tom;
+        }
+        # 如果访问.png.jpg...结尾的请求，则直接通过/alice/images/返回给用户
+        location ~* .(png|jpg|svg|mp4|mp3)$ {
+        root /alice/images;
+        }
+ }
+
+[root@web02 conf.d]#nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web02 conf.d]#systemctl restart nginx
+```
+
+将tomcat所有的图片复制一份到/alice/images
+```bash
+[root@web02 ~]#cd /usr/local/tomcat/webapps/ROOT
+[root@web02 ROOT]#cp *.svg *.png /alice/images/
+```
+
+ 修改目录的属主属组为nginx的启动用户www
+
+```bash
+[root@web02 webapps]# chown -R www.www /alice/images/  
+```
+
+ 测试访问tomcat.rocky.com  
+停止 tomcat 服务
+[root@web02 ROOT]#/usr/local/tomcat/bin/shutdown.sh  
+
+
+
+
+
+
+## 通过负载均衡实现动静分离
+思路：分别在 web01 上部署静态业务资源，web02 上部署动态业务资源，通过七层负载均衡 LB01 调度整体使用，防止单点故障导致业务的整体瘫痪
+
+LB01       192.168.120.153
+
+web01    192.168.120.129
+
+web02    192.168.120.151
+
+
+
+1.web01 配置静态资源
+
+```plain
+[root@web01 ~]# vim /etc/nginx/conf.d/static.conf 
+[root@web01 ~]# cat /etc/nginx/conf.d/static.conf 
+server {
+        listen 80;
+        server_name www.static.com;
+        
+        location / {
+        root /alice/test;
+        index index.html;
+        }
+        
+        location ~* .*\.(jpg|png|gif)$ {
+                    root /alice/images;
+        }
+}
+[root@web01 ~]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web01 ~]# systemctl restart nginx
+[root@web01 ~]# mkdir -pv /alice/images
+[root@web01 ~]# ls /alice/images/
+hx.png
+```
+
+
+
+2.web02 配置动态资源（使用 tomcat 代理）
+
+```plain
+[root@web02 ROOT]# cat test.jsp 
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<HTML>
+    <HEAD>
+        <TITLE>rocky JSP Page</TITLE>
+    </HEAD>
+    <BODY>
+        <%
+           Random rand = new Random();
+           out.println("<h1>生成随机数:<h1>");
+           out.println(rand.nextInt(99)+100);
+        %>
+    </BODY>
+</HTML>
+[root@web02 ROOT]# #如果访问不到页面可以重启tomcat
+[root@web02 ROOT]# #/usr/local/tomcat/bin/shutdown.sh 
+[root@web02 ROOT]# #/usr/local/tomcat/bin/startup.sh 
+```
+
+
+
+3.LB01 配置负载均衡集成动态和静态页面  
+
+```plain
+[root@LB01 ~]# cat /etc/nginx/conf.d/test.conf 
+upstream static {
+         server 192.168.120.129;
+}
+
+upstream java {
+         server 192.168.120.151:8080;
+}
+
+server {
+        listen 80;
+        server_name www.static.com;
+        root /alice;
+        index index.html;
+        
+        location ~* \.(jpg|png|gif)$ {
+                    proxy_pass http://static;
+                    proxy_set_header Host $http_host;
+        }
+
+        location ~ \.jsp {
+                   proxy_pass http://java;
+                   proxy_set_header Host $http_host;
+        }
+}
+[root@LB01 ~]# cat /alice/index.html 
+<html lang="en">
+<head>
+        <meta charset="UTF-8" />
+        <title>测试ajax和跨域访问</title>
+        <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<script type="text/javascript">
+$(document).ready(function(){
+        $.ajax({
+        type: "GET",
+        url: "http://www.static.com/test.jsp",
+        success: function(data){
+                $("#get_data").html(data)
+        },
+        error: function() {
+                alert("哎呦喂,失败了,回去检查你服务去~");
+        }
+        });
+});
+</script>
+        <body>
+               <h1>测试动静分离</h1>
+               <img src="http://www.static.com/hx.png" height="600" width="1000">
+               <div id="get_data"></div>
+        </body>
+</html>
+[root@LB01 ~]# 
+```
+
+
+
+完成后重启 nginx，配置 hosts 解析
+
+192.168.120.153 www.static.com
+
+浏览器访问
+
+![[_resources/linux笔记/2a3896318ad44a046a9bf09e86f79873_MD5.png]]
+
+
+
+模拟动态业务挂掉了
+
+```plain
+[root@web02 ROOT]# /usr/local/tomcat/bin/shutdown.sh 
+Using CATALINA_BASE:   /usr/local/tomcat
+Using CATALINA_HOME:   /usr/local/tomcat
+Using CATALINA_TMPDIR: /usr/local/tomcat/temp
+Using JRE_HOME:        /usr
+Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
+Using CATALINA_OPTS:   
+```
+
+访问网站
+
+![[_resources/linux笔记/d05a8dc4334bac00e8bbc13df88f3b90_MD5.png]]
+
+
+
+模拟静态业务挂了，动态没挂
+```plain
+ [root@web02 ROOT]# /usr/local/tomcat/bin/startup.sh
+Using CATALINA_BASE:   /usr/local/tomcat
+Using CATALINA_HOME:   /usr/local/tomcat
+Using CATALINA_TMPDIR: /usr/local/tomcat/temp
+Using JRE_HOME:        /usr
+Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
+Using CATALINA_OPTS:   
+Tomcat started.
+```
+
+```plain
+[root@web01 ~]# mv /alice/images/hx.png /alice/images/rock.png
+```
+![[_resources/linux笔记/ea688788db969be1a905c59530fcb0b9_MD5.png]]
+
+
+
+
+
+
+
+## rewrite 跳转规则
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /code/test/;
+  
+        location / {
+        rewrite /1.html /2.html;
+        rewrite /2.html /3.html;
+        }
+      
+        location /2.html {
+        rewrite /2.html /a.html;
+        }
+ 
+        location /3.html {
+        rewrite /3.html /b.html;
+        }
+}
+
+[root@web01 conf.d]# mkdir -pv /code/test
+mkdir: 已创建目录 '/code/test'
+[root@web01 conf.d]# echo 2.html > /code/test/2.html
+[root@web01 conf.d]# echo 3.html > /code/test/3.html
+[root@web01 conf.d]# echo a.html > /code/test/a.html
+[root@web01 conf.d]# echo b.html > /code/test/b.html
+[root@web01 conf.d]# vim /etc/hosts 
+[root@web01 conf.d]# cat /etc/hosts 
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1 www.admin.com www.static.com php.alice.com test.rewrite.com
+[root@web01 conf.d]# curl test.rewrite.com/1.html
+b.html
+[root@web01 conf.d]# curl test.rewrite.com/2.html
+a.html
+[root@web01 conf.d]# curl test.rewrite.com/3.html
+b.html
+```
+
+rewrite 的跳转的机制是重新发起请求，例如访问 1.html 时，向下跳转到 3.html，然后重新发起请求，匹配到 3.html，最后返回 b.html
+
+
+
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /code/test/;
+  
+        location / {
+        rewrite /1.html /2.html last;
+        rewrite /2.html /3.html;
+        }
+      
+        location /2.html {
+        rewrite /2.html /a.html;
+        }
+ 
+        location /3.html {
+        rewrite /3.html /b.html;
+        }
+}
+[root@web01 conf.d]# curl test.rewrite.com/1.html
+a.html
+```
+
+可以看待 last 标记的字段不再在同一区块继续向下匹配，而是重新发起请求访问 2.html
+
+
+
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /code/test/;
+  
+        location / {
+        rewrite /1.html /2.html break;
+        rewrite /2.html /3.html;
+        }
+      
+        location /2.html {
+        rewrite /2.html /a.html;
+        }
+ 
+        location /3.html {
+        rewrite /3.html /b.html;
+        }
+}
+[root@web01 conf.d]# curl test.rewrite.com/1.html
+2.html
+```
+
+作用是不再发起请求
+
+
+
+临时跳转 redirect
+
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /code;
+
+        location /test {
+                  rewrite ^(.*)* http://www.baidu.com redirect;
+        }
+}
+[root@web01 conf.d]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web01 conf.d]# systemctl restart nginx
+```
+
+修改相关映射后访问 test.rewrite.com/test，返回的是百度的页面
+
+但每次跳转都需要访问原 web 服务器，然后再跳转，如果停止 nginx 服务， 则无法实现跳转
+
+![[_resources/linux笔记/322a43611a5695b0880c533d4e2b01d1_MD5.png]]
+
+
+
+永久跳转permanent
+
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /code;
+
+        location /test {
+                 #rewrite ^(.*)* http://www.baidu.com redirect;
+                  rewrite ^(.*)* http://www.baidu.com permanent;
+                 #return 301 http://www.static.com;
+                 #return 302 http://www.baidu.com;
+        }
+}
+```
+
+第一次跳转之后,停止 nginx 服务，继续访问 test.rewrite.com 直接跳转到百度，但禁用缓存后仍然无法访问，所以说它是直接走的缓存，但在第一次跳转之后无需先访问 web 站点
+
+
+
+
+
+301 永久跳转
+
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /code;
+
+        location /test {
+                 #rewrite ^(.*)* http://www.baidu.com redirect;
+                 #rewrite ^(.*)* http://www.baidu.com permanent;
+                 return 301 http://www.static.com;
+                 #return 302 http://www.baidu.com;
+        }
+}
+```
+
+在第一次跳转之后，后续也是继续走的缓存
+
+
+
+302 临时跳转
+
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /code;
+
+        location /test {
+                 #rewrite ^(.*)* http://www.baidu.com redirect;
+                 #rewrite ^(.*)* http://www.baidu.com permanent;
+                 #return 301 http://www.static.com;
+                 return 302 http://www.baidu.com;
+        }
+}
+```
+
+还是和上面的临时跳转一样，每次都需要访问 web 服务器
+
+
+
+
+
+### rewrite 跳转案例
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /rewrite;
+
+        location /test {
+                  rewrite (.*) /aaa/bbb/ccc/1.html redirect;
+        }
+}
+[root@web01 conf.d]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web01 conf.d]# systemctl restart nginx
+[root@web01 conf.d]# mkdir -pv /rewrite/aaa/bbb/ccc
+mkdir: 已创建目录 '/rewrite'
+mkdir: 已创建目录 '/rewrite/aaa'
+mkdir: 已创建目录 '/rewrite/aaa/bbb'
+mkdir: 已创建目录 '/rewrite/aaa/bbb/ccc'
+[root@web01 conf.d]# echo 'this is 1.html' > /rewrite/aaa/bbb/ccc/1.html
+```
+
+访问 test.rewrite.com/test....等以 test 开头的 url 都会跳转到 1.html 的位置
+
+rewrite (.*) 和 ^(.*)$等价
+
+
+
+后项引用
+
+```plain
+[root@web01 conf.d]# cat rewrite.conf 
+server {
+        listen 80;
+        server_name test.rewrite.com;
+        root /rewrite;
+
+        location /2025 {
+                 #rewrite (.*) /aaa/bbb/ccc/1.html redirect;
+                 #rewrite ^(.*)$ /aaa/bbb/ccc/1.html redirect;
+                 rewrite ^/2025/(.*)$ /2030/$1 redirect;
+        }
+}
+[root@web01 conf.d]# mkdir -pv /rewrite/{2025,2030}
+[root@web01 conf.d]# echo 'hello,this is 2030 dir' > /rewrite/2030/hello.html
+[root@web01 conf.d]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[root@web01 conf.d]# systemctl restart nginx
+[root@web01 conf.d]# curl test.rewrite.com/2030/hello.html
+hello,this is 2030 dir
+```
+
+rewrite ^/2025/(.*)$ /2030/$1 redirect;
+
+用户访问 test.rewrite.com/2025/hello.html 时
+
+实际上是在访问test.rewrite.com/2030/hello.html
+
+访问的 url 中的(.*)$虽然会匹配任意字符，但必须是后项目录中存在的文件$1
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6818,591 +7355,6 @@ set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件�
 - 从Cookie中获取到 sess_def456，找到对应的Session文件。
     
 - 读取文件内容，确认用户已认证，然后返回受保护的页面内容。
-
-
-
-
-# 9/6
-
-# 9/10
-## tomcat 图片分离
-延续上面的架构，仅使用 web02 实验
-
-web02   192.168.120.151
-
-[https://tomcat.apache.org/](https://tomcat.apache.org/)    #tomcat 的官网
-
-1.web02 部署 tomecat
-
-下载 tomcat 包
-
-```bash
-[root@web02 ~]# wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.45/bin/apache-tomcat-10.1.45.tar.gz
-[root@web02 ~]# tar xf apache-tomcat-10.1.45.tar.gz -C /usr/local/
-[root@web02 ~]# ln -s /usr/local/apache-tomcat-10.1.45/ /usr/local/tomcat
-```
-
-
-
-安装 tomcat 运行环境
-
-[root@web02 ~]#yum -y install java
-
-运行java服务
-
-[root@web02 ~]#/usr/local/tomcat/bin/startup.sh
-
-检查端口tomcat 8080  
-
-
-
-2.nginx实现代理tomcat进行图片拆分
-
-1)web02配置反向代理到自身的8080端口
-
-```bash
-[root@web02 conf.d]#cat proxy8080.conf
-upstream tom { 
-              server 172.16.1.8:8080;
-}
-server {
-        listen 80;
-        server_name tomcat.rocky.com;
-        location / {
-                    proxy_pass http://tom;
-        }
-}  
-[root@web02 conf.d]#nginx -t 
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web02 conf.d]#systemctl restart nginx  
-```
-
- 2)hosts解析测试代理是否成功  
-
-192.168.120.151 tomcat.rocky.com
-
-3)通过配置Nginx反向代理的locatoin 将tomcat的图片拆分
-
-```bash
-[root@web02 conf.d]#vim proxy8080.conf
- upstream tom {
-        server 192.168.120.151:8080;
-        }
- server {
-        listen 80;
-        server_name tomcat.rocky.com;
-        location / {
-        proxy_pass http://tom;
-        }
-        # 如果访问.png.jpg...结尾的请求，则直接通过/alice/images/返回给用户
-        location ~* .(png|jpg|svg|mp4|mp3)$ {
-        root /alice/images;
-        }
- }
-
-[root@web02 conf.d]#nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web02 conf.d]#systemctl restart nginx
-```
-
-将tomcat所有的图片复制一份到/alice/images
-
-```bash
-[root@web02 ~]#cd /usr/local/tomcat/webapps/ROOT
-[root@web02 ROOT]#cp *.svg *.png /alice/images/
-```
-
- 
-
-修改目录的属主属组为nginx的启动用户www
-
-```bash
-[root@web02 webapps]# chown -R www.www /alice/images/  
-```
-
- 
-
-测试访问tomcat.rocky.com  
-
-
-
-停止 tomcat 服务
-
-[root@web02 ROOT]#/usr/local/tomcat/bin/shutdown.sh  
-
-
-
-
-
-
-
-## 通过负载均衡实现动静分离
-思路：分别在 web01 上部署静态业务资源，web02 上部署动态业务资源，通过七层负载均衡 LB01 调度整体使用，防止单点故障导致业务的整体瘫痪
-
-LB01       192.168.120.153
-
-web01    192.168.120.129
-
-web02    192.168.120.151
-
-
-
-1.web01 配置静态资源
-
-```plain
-[root@web01 ~]# vim /etc/nginx/conf.d/static.conf 
-[root@web01 ~]# cat /etc/nginx/conf.d/static.conf 
-server {
-        listen 80;
-        server_name www.static.com;
-        
-        location / {
-        root /alice/test;
-        index index.html;
-        }
-        
-        location ~* .*\.(jpg|png|gif)$ {
-                    root /alice/images;
-        }
-}
-[root@web01 ~]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web01 ~]# systemctl restart nginx
-[root@web01 ~]# mkdir -pv /alice/images
-[root@web01 ~]# ls /alice/images/
-hx.png
-```
-
-
-
-2.web02 配置动态资源（使用 tomcat 代理）
-
-```plain
-[root@web02 ROOT]# cat test.jsp 
-<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
-<HTML>
-    <HEAD>
-        <TITLE>rocky JSP Page</TITLE>
-    </HEAD>
-    <BODY>
-        <%
-           Random rand = new Random();
-           out.println("<h1>生成随机数:<h1>");
-           out.println(rand.nextInt(99)+100);
-        %>
-    </BODY>
-</HTML>
-[root@web02 ROOT]# #如果访问不到页面可以重启tomcat
-[root@web02 ROOT]# #/usr/local/tomcat/bin/shutdown.sh 
-[root@web02 ROOT]# #/usr/local/tomcat/bin/startup.sh 
-```
-
-
-
-3.LB01 配置负载均衡集成动态和静态页面  
-
-```plain
-[root@LB01 ~]# cat /etc/nginx/conf.d/test.conf 
-upstream static {
-         server 192.168.120.129;
-}
-
-upstream java {
-         server 192.168.120.151:8080;
-}
-
-server {
-        listen 80;
-        server_name www.static.com;
-        root /alice;
-        index index.html;
-        
-        location ~* \.(jpg|png|gif)$ {
-                    proxy_pass http://static;
-                    proxy_set_header Host $http_host;
-        }
-
-        location ~ \.jsp {
-                   proxy_pass http://java;
-                   proxy_set_header Host $http_host;
-        }
-}
-[root@LB01 ~]# cat /alice/index.html 
-<html lang="en">
-<head>
-        <meta charset="UTF-8" />
-        <title>测试ajax和跨域访问</title>
-        <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
-</head>
-<script type="text/javascript">
-$(document).ready(function(){
-        $.ajax({
-        type: "GET",
-        url: "http://www.static.com/test.jsp",
-        success: function(data){
-                $("#get_data").html(data)
-        },
-        error: function() {
-                alert("哎呦喂,失败了,回去检查你服务去~");
-        }
-        });
-});
-</script>
-        <body>
-               <h1>测试动静分离</h1>
-               <img src="http://www.static.com/hx.png" height="600" width="1000">
-               <div id="get_data"></div>
-        </body>
-</html>
-[root@LB01 ~]# 
-```
-
-
-
-完成后重启 nginx，配置 hosts 解析
-
-192.168.120.153 www.static.com
-
-浏览器访问
-
-![[_resources/linux笔记/2a3896318ad44a046a9bf09e86f79873_MD5.png]]
-
-
-
-模拟动态业务挂掉了
-
-```plain
-[root@web02 ROOT]# /usr/local/tomcat/bin/shutdown.sh 
-Using CATALINA_BASE:   /usr/local/tomcat
-Using CATALINA_HOME:   /usr/local/tomcat
-Using CATALINA_TMPDIR: /usr/local/tomcat/temp
-Using JRE_HOME:        /usr
-Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
-Using CATALINA_OPTS:   
-```
-
-访问网站
-
-![[_resources/linux笔记/d05a8dc4334bac00e8bbc13df88f3b90_MD5.png]]
-
-
-
-模拟静态业务挂了，动态没挂
-
-```plain
- [root@web02 ROOT]# /usr/local/tomcat/bin/startup.sh
-Using CATALINA_BASE:   /usr/local/tomcat
-Using CATALINA_HOME:   /usr/local/tomcat
-Using CATALINA_TMPDIR: /usr/local/tomcat/temp
-Using JRE_HOME:        /usr
-Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
-Using CATALINA_OPTS:   
-Tomcat started.
-```
-
-```plain
-[root@web01 ~]# mv /alice/images/hx.png /alice/images/rock.png
-```
-
-
-
-![[_resources/linux笔记/ea688788db969be1a905c59530fcb0b9_MD5.png]]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 9/11
-## rewrite 跳转规则
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /code/test/;
-  
-        location / {
-        rewrite /1.html /2.html;
-        rewrite /2.html /3.html;
-        }
-      
-        location /2.html {
-        rewrite /2.html /a.html;
-        }
- 
-        location /3.html {
-        rewrite /3.html /b.html;
-        }
-}
-
-[root@web01 conf.d]# mkdir -pv /code/test
-mkdir: 已创建目录 '/code/test'
-[root@web01 conf.d]# echo 2.html > /code/test/2.html
-[root@web01 conf.d]# echo 3.html > /code/test/3.html
-[root@web01 conf.d]# echo a.html > /code/test/a.html
-[root@web01 conf.d]# echo b.html > /code/test/b.html
-[root@web01 conf.d]# vim /etc/hosts 
-[root@web01 conf.d]# cat /etc/hosts 
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-127.0.0.1 www.admin.com www.static.com php.alice.com test.rewrite.com
-[root@web01 conf.d]# curl test.rewrite.com/1.html
-b.html
-[root@web01 conf.d]# curl test.rewrite.com/2.html
-a.html
-[root@web01 conf.d]# curl test.rewrite.com/3.html
-b.html
-```
-
-rewrite 的跳转的机制是重新发起请求，例如访问 1.html 时，向下跳转到 3.html，然后重新发起请求，匹配到 3.html，最后返回 b.html
-
-
-
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /code/test/;
-  
-        location / {
-        rewrite /1.html /2.html last;
-        rewrite /2.html /3.html;
-        }
-      
-        location /2.html {
-        rewrite /2.html /a.html;
-        }
- 
-        location /3.html {
-        rewrite /3.html /b.html;
-        }
-}
-[root@web01 conf.d]# curl test.rewrite.com/1.html
-a.html
-```
-
-可以看待 last 标记的字段不再在同一区块继续向下匹配，而是重新发起请求访问 2.html
-
-
-
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /code/test/;
-  
-        location / {
-        rewrite /1.html /2.html break;
-        rewrite /2.html /3.html;
-        }
-      
-        location /2.html {
-        rewrite /2.html /a.html;
-        }
- 
-        location /3.html {
-        rewrite /3.html /b.html;
-        }
-}
-[root@web01 conf.d]# curl test.rewrite.com/1.html
-2.html
-```
-
-作用是不再发起请求
-
-
-
-临时跳转 redirect
-
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /code;
-
-        location /test {
-                  rewrite ^(.*)* http://www.baidu.com redirect;
-        }
-}
-[root@web01 conf.d]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web01 conf.d]# systemctl restart nginx
-```
-
-修改相关映射后访问 test.rewrite.com/test，返回的是百度的页面
-
-但每次跳转都需要访问原 web 服务器，然后再跳转，如果停止 nginx 服务， 则无法实现跳转
-
-![[_resources/linux笔记/322a43611a5695b0880c533d4e2b01d1_MD5.png]]
-
-
-
-永久跳转permanent
-
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /code;
-
-        location /test {
-                 #rewrite ^(.*)* http://www.baidu.com redirect;
-                  rewrite ^(.*)* http://www.baidu.com permanent;
-                 #return 301 http://www.static.com;
-                 #return 302 http://www.baidu.com;
-        }
-}
-```
-
-第一次跳转之后,停止 nginx 服务，继续访问 test.rewrite.com 直接跳转到百度，但禁用缓存后仍然无法访问，所以说它是直接走的缓存，但在第一次跳转之后无需先访问 web 站点
-
-
-
-
-
-301 永久跳转
-
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /code;
-
-        location /test {
-                 #rewrite ^(.*)* http://www.baidu.com redirect;
-                 #rewrite ^(.*)* http://www.baidu.com permanent;
-                 return 301 http://www.static.com;
-                 #return 302 http://www.baidu.com;
-        }
-}
-```
-
-在第一次跳转之后，后续也是继续走的缓存
-
-
-
-302 临时跳转
-
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /code;
-
-        location /test {
-                 #rewrite ^(.*)* http://www.baidu.com redirect;
-                 #rewrite ^(.*)* http://www.baidu.com permanent;
-                 #return 301 http://www.static.com;
-                 return 302 http://www.baidu.com;
-        }
-}
-```
-
-还是和上面的临时跳转一样，每次都需要访问 web 服务器
-
-
-
-
-
-### rewrite 跳转案例
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /rewrite;
-
-        location /test {
-                  rewrite (.*) /aaa/bbb/ccc/1.html redirect;
-        }
-}
-[root@web01 conf.d]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web01 conf.d]# systemctl restart nginx
-[root@web01 conf.d]# mkdir -pv /rewrite/aaa/bbb/ccc
-mkdir: 已创建目录 '/rewrite'
-mkdir: 已创建目录 '/rewrite/aaa'
-mkdir: 已创建目录 '/rewrite/aaa/bbb'
-mkdir: 已创建目录 '/rewrite/aaa/bbb/ccc'
-[root@web01 conf.d]# echo 'this is 1.html' > /rewrite/aaa/bbb/ccc/1.html
-```
-
-访问 test.rewrite.com/test....等以 test 开头的 url 都会跳转到 1.html 的位置
-
-rewrite (.*) 和 ^(.*)$等价
-
-
-
-后项引用
-
-```plain
-[root@web01 conf.d]# cat rewrite.conf 
-server {
-        listen 80;
-        server_name test.rewrite.com;
-        root /rewrite;
-
-        location /2025 {
-                 #rewrite (.*) /aaa/bbb/ccc/1.html redirect;
-                 #rewrite ^(.*)$ /aaa/bbb/ccc/1.html redirect;
-                 rewrite ^/2025/(.*)$ /2030/$1 redirect;
-        }
-}
-[root@web01 conf.d]# mkdir -pv /rewrite/{2025,2030}
-[root@web01 conf.d]# echo 'hello,this is 2030 dir' > /rewrite/2030/hello.html
-[root@web01 conf.d]# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-[root@web01 conf.d]# systemctl restart nginx
-[root@web01 conf.d]# curl test.rewrite.com/2030/hello.html
-hello,this is 2030 dir
-```
-
-rewrite ^/2025/(.*)$ /2030/$1 redirect;
-
-用户访问 test.rewrite.com/2025/hello.html 时
-
-实际上是在访问test.rewrite.com/2030/hello.html
-
-访问的 url 中的(.*)$虽然会匹配任意字符，但必须是后项目录中存在的文件$1
-
-
-
-
-
-
-
-
-
 
 
 
