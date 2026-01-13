@@ -1,4 +1,4 @@
-# 2024/9/20
+2024/9/20
 
 
 # linux基础知识
@@ -1056,8 +1056,7 @@ d     文件在 dump 备份时会被跳过。
 
 
 
-# 9/22
-## 关于虚拟机未读取到网卡配置文件中的静态网络配置信息
+# 关于虚拟机未读取到网卡配置文件中的静态网络配置信息
 
 ![[_resources/linux笔记/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png]]
 
@@ -1089,8 +1088,8 @@ systemctl status network
 
 
 
-# 9/25
-## 以ftp配置yum源无法连接
+
+# 以ftp配置yum源无法连接
 报错:![[_resources/linux笔记/74be754693f3b8ea2a35eaeaff007871_MD5.png]]
 
 解决方案：
@@ -1108,20 +1107,6 @@ controller(通过ftp提供yum源的主机)禁用了防火墙firewalld，但未�
 
 
 
-
-
-
-
-
-
-# 9/27
-
-在安装neutron时报错缺少libxslt-1.1.28-5.el7.x86_64，本机版本为libxslt-1.1.28-6.el7.x86_64，若使用yum erase卸载libxslt-1.1.28-6.el7.x86_64重新安装libxslt-1.1.28-5.el7.x86_64后需要重新安装nova服务（iaas-install-nova。。。）。（后续补充：这个报错是因为使用了7.9的镜像，实际上先电2.4应该使用7.5）
-
-因为在卸载libxslt-1.1.28-6.el7.x86_64时也一并卸载了部分nova配置
-
-补充：
-在使用glance命令生成镜像时报错，大意是端口号被占用，配置文件错误，重装glance后解决报错，可知这个文件与glance配置也有关系，虽然在一切开始之前我就重新安装了libxslt-1.1.28-5.el7.x86_64版本，但还是报错说我版本没有变化，还是.6版本，不得已在配置过程中卸载重装了这个文件，在dashboard平台的报错弹窗（找不到镜像）也一并解决了
 
 
 
@@ -1301,6 +1286,14 @@ allow 192.168.100.0/24
 
 和server controller iburst
 
+
+
+在安装neutron时报错缺少libxslt-1.1.28-5.el7.x86_64，本机版本为libxslt-1.1.28-6.el7.x86_64，若使用yum erase卸载libxslt-1.1.28-6.el7.x86_64重新安装libxslt-1.1.28-5.el7.x86_64后需要重新安装nova服务（iaas-install-nova。。。）。（后续补充：这个报错是因为使用了7.9的镜像，实际上先电2.4应该使用7.5）
+
+因为在卸载libxslt-1.1.28-6.el7.x86_64时也一并卸载了部分nova配置
+
+补充：
+在使用glance命令生成镜像时报错，大意是端口号被占用，配置文件错误，重装glance后解决报错，可知这个文件与glance配置也有关系，虽然在一切开始之前我就重新安装了libxslt-1.1.28-5.el7.x86_64版本，但还是报错说我版本没有变化，还是.6版本，不得已在配置过程中卸载重装了这个文件，在dashboard平台的报错弹窗（找不到镜像）也一并解决了
 
 
 
@@ -1596,12 +1589,7 @@ ceph osd pool create <pool名> <pg值> <pg备份值>
 
 
 
-
-
-
-# 10/19
-
-## 关于数据库调优-my.cnf配置详解
+# 关于数据库调优-my.cnf配置详解
 
 ![[_resources/linux笔记/7a3e8731c537b0aa65c421cbd92242ef_MD5.png]]
 
@@ -2197,27 +2185,13 @@ K8s集群初始化
 
 
 
-# 12/10
-systemctl enable --now containerd # enable --now 等于 enable + start
-
-FTP服务器vsftpd的默认根目录(/var/ftp/pub)
-
-http的安装包是httpd，配置文件在/etc/httpd/conf/httpd.conf，若要修改默认访问目录，则需要将119和131行的目录修改为指定目录即可
 
 
 
 
 
 
-
-
-
-
-
-
-# 12/15
-
-## 关于不进入数据库命令行界面而实现交互
+# 关于不进入数据库命令行界面而实现交互
 
 可参考该命令mysql -uroot -proot -e " create database djangoblog;"
 
@@ -2225,10 +2199,7 @@ http的安装包是httpd，配置文件在/etc/httpd/conf/httpd.conf，若要修
 
 
 
-
-
-# 12/28
-## 关于 redis的配置文件部分参数
+# 关于 redis的配置文件部分参数
 
 bind 127.0.0.1
 
@@ -2251,7 +2222,7 @@ find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’�
 
 
 
-## 如何在不通外网且不支持 ntfs格式U盘 的系统配置本地源
+# 如何在不通外网且不支持 ntfs格式U盘 的系统配置本地源
 当因为需要使用的本地镜像过大而FAT32格式不支持时
 
 
@@ -2262,29 +2233,7 @@ find的模糊查询使用*来实现，例如通过find / -name ‘_filename_’�
 
 
 
-
-
-# 7/5
-
-## nginx和httpd的默认端口
-nginx和httpd都默认使用80端口，两个服务都部署时，就要考虑端口冲突问题
-
-
-
-
-
-
-
-## http和nginx的网页默认访问根目录
-http是/var/www/html
-
-nginx是/usr/share/html
-
-
-
-
-# 7/11
-## 网卡激活报错:未被NetworkManager托管
+# 网卡激活报错:未被NetworkManager托管
 设备:vmware虚拟机rh9.2
 
 原图
@@ -10639,10 +10588,7 @@ org.gnome.Nautilus.desktop
 
 
 
-
-
-# 12/5
-## archlinux（niri）配置
+# archlinux（niri）配置
 我的设备信息
 [[_resources/linux笔记/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg|Open: Pasted image 20251205231208.png]]
 ![[_resources/linux笔记/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg]]
@@ -10667,7 +10613,7 @@ git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fast
 
 要不是不能用yay，我全给它装上了
 
-### 1.配置基础环境
+## 1.配置基础环境
 配置yay
 编辑pacman配置文件
 sudo vim /etc/pacman.conf
@@ -10695,7 +10641,7 @@ LANG=en_US.UTF-8
 
 然后传入了我的dotfile，比如niri配置之类的
 
-#### 配置基础软件包
+### 配置基础软件包
 装梯子
 yay -S mihomo-party-bin
 
@@ -10703,11 +10649,11 @@ yay -S mihomo-party-bin
 再装个xwayland-satellite，保守一点就不装git版本的了
 yay -S xwayland-satellite
 
-很多应用默认都是用xwayland运行的，因为xwayland-satellite太垃圾了，所以这些应用都很糊，可以直接修改desktop文件，在exec处添加参数
+很多应用默认都是用xwayland运行的，因为xwayland-satellite有待完善，所以这些应用都很糊，可以直接修改desktop文件，在exec处添加参数
 `--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-wayland-ime`
 为了防止被更新覆盖，可以把desktop文件复制到.local下面对应的目录下面再修改,但是使用wayland协议可能会有别的问题，慎重使用
 
-#### 配置输入法
+### 配置输入法
 我选择雾凇拼音
 1.安装 fcitx5 框架和 rime 引擎
 `sudo pacman -S --needed fcitx5-im fcitx5-rime`
@@ -10731,7 +10677,7 @@ SDL_IM_MODULE=fcitx
 重启一下
 如果输入法没生效，使用fcitx5-configtool检查是否添加了Rime输入法，如果中文输入法不是雾凇，随便敲几个拼音，在备选框出现时按下F4可以选择切换输入法
 
-#### 配置noctalia
+### 配置noctalia
 这个直接去看官方手册，很详细的配置过程了，安装的时候要从多个依赖中选一个，我选的qt6-multimedia-ffmpeg
 在niri的环境变量中，我选择配置了QT6来管理主题，有些主题会体现图标缺失的情况，所以我选择了papirus主题
 安装主题
@@ -10740,7 +10686,7 @@ SDL_IM_MODULE=fcitx
 `qt6ct`
 在界面的图标主题中选中papirus主题并应用就行了
 
-#### 配置noctalia自动锁屏休眠
+### 配置noctalia自动锁屏休眠
 因为noctalia的锁屏界面就挺不错，所以我选择这个，使用hypridle
 1.安装hypridle
 `sudo pacman -S hypridle`
@@ -10789,7 +10735,7 @@ listener {
 我的efi分区是挂载在/efi上面的，但很多程序还是喜欢在/boot下面读取grub的配置文件，因此需要做个软链接
 `sudo ln -sf /efi/grub /boot/grub`
 
-#### 配置snapper快照
+### 配置snapper快照
 很多软件包我都在archinstall里预装了，但我还是提一下吧
 `sudo pacman -S  --needed snapper snap-pac btrfs-assistant`
 
@@ -10815,7 +10761,7 @@ listener {
 
 
 
-#### 配置swap分区
+### 配置swap分区
 我是32G内存，需要睡眠功能，因此设置38G
 `sudo btrfs filesystem mkswapfile --size 38g --uuid clear /swap/swapfile` 
 
@@ -10833,7 +10779,7 @@ listener {
 
 
 
-#### 配置greetd
+### 配置greetd
 也可以用sddm，设置sddm延迟启动
 这是针对混合显卡的优化，因为显示管理器会在显卡驱动还没加载好的时候就启动，导致电脑会黑屏卡死
 `sudo mkdir -p /etc/systemd/system/sddm.service.d`
@@ -10886,7 +10832,7 @@ sudo systemctl enable greetd
 
 
 
-#### 常用配置
+### 常用配置
 sudo pacman -S flatpak steam lutris spotify-launcher lib32-nvidia-utils lib32-vulkan-radeon
 
 spotify-launcher我在用的听歌软件
@@ -10902,7 +10848,7 @@ lib32-vulkan-radeon是给核显的 32 位 Vulkan 支持（备用）
 强制 GTK4 使用旧版 GL 渲染器 (修复 Nvidia 卡顿)
 GSK_RENDERER=gl
 
-#### 配置zsh
+### 配置zsh
 sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting
 这些包是我的zsh要用到的美化文件
 .config/starship.toml这个文件是调用的提示符美化文件,要去starship官网自己下载
@@ -10910,7 +10856,7 @@ sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting
 `chsh -s /usr/bin/zsh`
 
 
-#### 配置niri的锁屏设置
+### 配置niri的锁屏设置
 (可选，我觉得noctalia自带的锁屏就很好看，所以我没弄这个)
 sudo pacman -S swaylock-effects
 `mkdir -p ~/.config/swaylock`
@@ -10988,8 +10934,8 @@ done
 
 
 
-### 系统体验优化配置
-#### rm 安全替换与自动清理
+## 系统体验优化配置
+### rm 安全替换与自动清理
 一直用rm -rf，虽然从没出过问题，但毕竟是日常使用的系统，还是保险起见设置一下，思路是用alisa别名设置rm为trash这个工具(功能是移动文件到回收站)，因为我用的是合成器而不是完整DE，所以回收站定时清理还是需要自己写一个systemd服务
 
 1.安装工具
@@ -11047,7 +10993,7 @@ WantedBy=timers.target
 `systemctl --user list-timers --all | grep trash`
 
 
-#### 配置键盘背光
+### 配置键盘背光
 华硕提供了图形化配置工具
 `yay -S rog-control-center asusctl`
 启动服务
@@ -11056,7 +11002,7 @@ WantedBy=timers.target
 
 
 
-#### 音频提取与修改
+### 音频提取与修改
 安装这两个包
 `sudo pacman -S yt-dlp ffmpeg`
 使用方法
@@ -11096,9 +11042,9 @@ WantedBy=timers.target
 
 
 
-# 12/7
-## git的使用
-### obsidian自动化推送笔记到github备份
+
+# git的使用
+## obsidian自动化推送笔记到github备份
 是想实现我的markdown笔记云端备份，因此选择了github私有仓库
 本地仓库目录/home/caster/Documents/Study_Note
 
@@ -11159,7 +11105,7 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 
 至此完成了obsidian自动化推送markdown笔记到github的私有仓库的配置
 
-### Git仓库推送流程
+## Git仓库推送流程
 在github上弄了dotfiles仓库用于个人配置文件存储，项目地址[[https://github.com/Caster6443/dotfiles]]，前置认证流程就不记录了，这里记录一下使用方法
 
 我把本地仓库放在/home/caster/Documents/my-dotfiles处
@@ -11178,7 +11124,7 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 
 我设置了 SSH 密钥并启动了ssh-agent，Git 会自动使用我的私钥进行身份验证，不需要重复输入用户名或密码。
 
-### git 如何指定添加编译某个 pr
+## git 如何指定添加编译某个 pr
 其实是为了解决微信在 niri 环境下无法右键的问题，在 xwayland-satellite 项目下面发现了有人提交的 pr 可以解决该问题，因此需要指定该 pr 提交的代码编译进去
 
 流程如下
