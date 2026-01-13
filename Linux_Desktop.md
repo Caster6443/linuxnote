@@ -1,92 +1,33 @@
-# 混合显卡黑屏问题
-具体表现在开机时，有几率在启动加载全部完成后会黑屏卡住，原因显示管理器有概率会提前在显卡驱动加载前启动
 
-这个有两种解决方案
-一个是在mkinit 中配置 A 卡优先加载
-![[_resources/linux笔记/3d4acfcc17d6def5939c834ae1bd67cb_MD5.png]]
-就是在 MODULES 里指定加载顺序即可，当然还需要sudo mkinitcpio -P重新加载一下配置
+# 如何安全删除双系统
+以在 windows 下删除另一 ubuntu 系统为例
 
-另一个方案是把登录管理器的自启动服务添加一个 sleep 2延迟2秒启动
+在磁盘管理中将对应系统分区格式化后，可以看到一个分区名为 EFI 系统分区
 
+![[_resources/linux笔记/1ebd4602ede2f4062dc73293762d7a59_MD5.png]]
 
+该分区内残留着 ubuntu 相关文件，需要删除，windows 删除需要将该分区分配并进入才能删除，这里使用第三方工具Hasleo EasyUEFI
 
-# 在 wps 中使用 fcitx5 输入法
-网上有个方案是在~/.pam_environment 中写入
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx5
-export XMODIFIERS=@im=fcitx
-但貌似 wps 随着版本更新不再读取这个文件
+![[_resources/linux笔记/57f4d55a16245b62cc7add65a5a55bc2_MD5.png]]
 
+进入 EFI 系统分区资源管理器
 
+![[_resources/linux笔记/36174541391b4e0c4d33bfe69edf70cc_MD5.png]]
 
-所以需要在/usr/bin/wps 中的gOpt=下面一行添加如下内容即可
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx5
-export XMODIFIERS=@im=fcitx
-  
+选中对应 EFI分区并打开
 
+![[_resources/linux笔记/cb53c5f495444dd3ee4ce199a0f7865f_MD5.png]]
 
+打开后 EFI 文件夹会有一个 ubntu 相关的文件，删除即可，这里已经删除了
 
+至此完成安全删除系统
+
+后续是我手贱把 D 盘的 EFI 系统分区删除了，导致整个 D 盘被格式化，被迫重装了系统哈哈,
+
+我不想重装系统的
 
 
-
-
-
-
-
-# wine 字体缺失
-具体表现是某些字符会显示为“口”字的状态，通常是字体缺失导致的
-使用 Winetricks 自动安装字体
-winetricks是一个辅助脚本，专门用来给 Wine 安装各种依赖库和字体。
-
-安装 Winetricks
-
-```plain
-sudo pacman -S winetricks
-```
-
-使用 Winetricks 安装 CJK 字体包：
-winetricks有一个专门的包叫 cjkfonts，它会自动下载并安装 Windows 上最常用的中日韩字体（包括 msgothic,msmincho等）到你的 Wine 环境中。
-继续在终端运行：
-
-```plain
-winetricks cjkfonts
-```
-
-  
-后续调优（可选）  
-安装 Arch Linux 系统的 CJK 字体
-这个方案是在_Linux 系统层面_安装一套完整的高质量 CJK 字体。Wine (通过 Fontconfig) 理论上也能检测到并使用它们。
-安装 Noto CJK 字体包： `noto-fonts-cjk` 是 Google 和 Adobe 合作的开源字体，质量非常高，涵盖了中日韩所有字符。
-在终端运行：
-```plain
-sudo pacman -S noto-fonts-cjk
-```
-
-刷新字体缓存（通常 pacman 会自动做，但手动做一次没坏处）：
-```plain
-fc-cache -fv
-```
-
-```
-sudo pacman -S adobe-source-han-serif-cn-fonts wqy-zenhei          #安装几个开源中文字体 一般装上文泉驿就能解决大多wine应用中文方块的问题
-sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌开源字体及表情
-```
-
-我感觉没球用，不如群友打包的字体包，直接塞上就用
-
-
-
-# arch 配置 FTP 服务
-给我的 kvm_win7 传文件用
-
-安装软件
-sudo pacman -S python-pyftpdlib
-
-然后在需要共享的文件目录下运行
-python -m pyftpdlib
-具体端口号和进程等信息会自动显示
-
+最后做个总结，在某一硬盘安装系统时，该硬盘上会出现一个独立的 EFI 系统分区，该分区删除会导致整个硬盘资源定位丢失，就像被格式化了一样(也或者是硬盘分区位置在 EFI 系统分区左边的分区这样，因为 windows 有这个概念)，所以做系统最好单独用一块硬盘来做，在一块已使用的硬盘上分区用来做系统很不安全
 
 
 
@@ -3427,268 +3368,6 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 
 
-# ncmpcpp轻量化音乐播放系统
-MPD + ncmpcpp + Cava
-
-1.安装必要软件
-需要安装四个组件：后台服务(MPD)、终端客户端(ncmpcpp)、媒体键支持(mpDris2)、可视化频谱(Cava)。
-
-```bash
-# 1. 安装官方仓库软件
-sudo pacman -S mpd ncmpcpp cava
-# 2. 安装 AUR 插件 (用于支持 playerctl 和 Waybar 控制)
-yay -S mpdris2
-```
-
-
-2.环境初始化
-MPD 默认会尝试以系统服务运行，读取 `/etc/mpd.conf`，这会导致权限错误 (`Failed to open /var/lib/...`)。必须手动创建用户目录并禁用系统服务。
-
-```bash
-# 1. 停止并禁用系统级服务 (防止冲突)
-sudo systemctl stop mpd sudo systemctl disable mpd
- # 2. 创建 MPD 必须的文件夹结构 (不做这一步 MPD 会启动失败)
-mkdir -p ~/.config/mpd/playlists 
-# 3. 创建空的状态文件 (防止 MPD 报找不到文件的错） 
-touch ~/.config/mpd/{database,state,pid,sticker.sql} 
-# 4. 创建 mpDris2 和 Cava 的配置目录 
-mkdir -p ~/.config/mpdris2 mkdir -p ~/.config/cava
-```
-
-
-3.配置文件编写
-配置 MPD核心 (`~/.config/mpd/mpd.conf`)
-```bash
-# 音乐目录 (根据实际情况修改)
-music_directory    "~/Music"
-
-# 必须的运行文件定义
-playlist_directory "~/.config/mpd/playlists"
-db_file            "~/.config/mpd/database"
-log_file           "syslog"
-pid_file           "~/.config/mpd/pid"
-state_file         "~/.config/mpd/state"
-sticker_file       "~/.config/mpd/sticker.sql"
-
-# 网络设置 (仅限本机访问)
-bind_to_address    "127.0.0.1"
-port               "6600"
-
-# 自动扫描新歌 & 恢复播放状态
-auto_update        "yes"
-restore_paused     "yes"
-
-# 音频输出 1: 让你听到声音 (PipeWire/PulseAudio)
-audio_output {
-        type            "pulse"
-        name            "PulseAudio"
-}
-
-# 音频输出 2: 可视化数据流 (给 Cava 用)
-# 如果不加这个，Cava 只能读取麦克风或系统总声，不灵敏
-audio_output {
-    type                    "fifo"
-    name                    "my_fifo"
-    path                    "/tmp/mpd.fifo"
-    format                  "44100:16:2"
-}
-```
-
-
-
-配置 mpDris2 (`~/.config/mpdris2/mpdris2.conf`)
-让键盘多媒体键和 Waybar 能控制 MPD。
-```bash
-[Connection]
-host = 127.0.0.1
-port = 6600
-music_dir = ~/Music  # 必须和 MPD 音乐目录一致，用于读取封面
-
-[Bling]
-notify = false       # 切歌弹窗 (不喜欢可关)
-mmkeys = true        # 启用键盘多媒体键支持
-```
-
-
-还要配置 cava 可视化，但我之前美化 waybar 的时候已经配过了
-
-
-4.启动服务
-```bash
-# 重载配置
-systemctl --user daemon-reload
-
-# 启动并开机自启 MPD
-systemctl --user enable --now mpd
-
-# 启动并开机自启 mpDris2,不建议设置这个，因为会影响我的waybar的音频可视化
-# 模块无法正常隐藏
-# systemctl --user enable --now mpDris2
-```
-
-
-5.客户端 (ncmpcpp) 使用
-终端输入 ncmpcpp 进入界面。按 F1 可查看帮助。
-解决乱序播放/文件夹播放问题：
-1.按 1 进入播放列表。
-2.看右上角是否有 [z] 或高亮的 Random。如果有，按 z 键关闭随机模式。
-3.按 c 清空当前列表。
-4.按 2 进入文件浏览器，选中文件夹，按 空格 即可按顺序添加整张专辑。
-
-常用按键功能列表：
-1：播放列表（正在播放的歌单） 2：文件浏览（去硬盘找歌） 3：搜索（搜歌名/歌手） 空格：添加歌曲（将选中项加入列表） Enter：播放（立即播放选中项） p：暂停/继续（Pause）
- ：下一首（. 键） <：上一首（, 键） c：清空列表（Clear） u：更新数据库（下载新歌后必按） z：随机模式开关（必须关闭才能顺序播放）
-
-
-后续优化
-为了和我的 waybar 组件配合，让 waybar 的音频可视化能够识别到 MPD 播放的音频，需要打开mpDris2 服务，但如果设置开启自启动的话，waybar 模块就会被一直占用不隐藏了，杀进程又太麻烦，所以写了一个 desktop 文件，用 fuzzel 打开后会在终端运行mpDris2 和 mpd 并打开 ncmpcpp，终端关闭后mpDris2 和 mpd 进程会被杀死，不赖
-
-```bash
-❯ cat ~/.local/share/applications/ncmpcpp-temp-mpdris.desktop            
-[Desktop Entry]
-Type=Application
-Name=Ncmpcpp(本地音乐播放器)
-GenericName=Music Player
-Comment=启动 mpd + mpDris2 + ncmpcpp，窗口关闭时全部销毁
-# 核心逻辑解析：
-# 1. mpd --no-daemon & -> 启动 MPD 但不让它后台化，这样我们才能获取它的 PID
-# 2. mpDris2 &         -> 启动翻译器
-# 3. trap "kill..."    -> 退出时同时杀掉 MPD 和 mpDris2 的 PID
-# 4. ncmpcpp           -> 启动界面
-Exec=kitty --class music_player --title "Music Player" -e bash -c 'mpd --no-daemon >/dev/null 2>&1 & MPD_PID=$!; sleep 0.5; mpDris2 >/dev/null 2>&1 & DRIS_PID=$!; trap "kill $MPD_PID $DRIS_PID 2>/dev/null" EXIT HUP TERM INT; ncmpcpp'
-Icon=utilities-terminal
-Terminal=false
-Categories=Audio;Player;ConsoleOnly;
-```
-
-
-
-
-# grub设置链式引导
-有些系统并不希望使用grub引导，比如pop!os有自己的system76引导，所以这时就需要链式引导来让这些系统使用自己的引导程序
-参考如下内容
-```
-❯ cat /etc/grub.d/40_custom
-#!/bin/sh
-exec tail -n +3 $0
-# This file provides an easy way to add custom menu entries.  Simply type the
-# menu entries you want to add after this comment.  Be careful not to change
-# the 'exec tail' line above.
-
-menuentry 'Pop!_OS(Chainload)' {
-    insmod part_gpt
-    insmod fat
-    insmod chain
-    # 搜索 EFI 分区
-    search --no-floppy --fs-uuid --set=root 9D1D-A9D4
-    # 移交控制权给另一个系统的Shim 引导程序
-    chainloader /EFI/BOOT/BOOTX64.EFI
-}
-```
-
-释义
-声明菜单名 (`menuentry`)，这就是grub菜单里显示的名字
-`insmod` = Insert Module (插入模块)。
-`part_gpt`: 告诉 GRUB 怎么读 GPT 分区表
-`fat`: 告诉 GRUB 怎么读 FAT32 文件系统
-
-定位分区
-`search --no-floppy --fs-uuid --set=root 9D1D-A9D4`
-这句话像是在对 GRUB 喊话：“**全盘搜索！**”
-`--no-floppy`: 别搜软驱（节省时间）
-`--fs-uuid`: 我是用 UUID 来找的，不是用分区号（因为分区号 `/dev/sda1` 可能会变，UUID 永远不变）
-`--set=root`: 找到后，把这个分区设为当前的根目录 (root)
-9D1D-A9D4 EFI分区的UUID
-
-指定引导文件
-`chainloader /EFI/BOOT/BOOTX64.EFI`
-`chainloader`: 意思是我不直接引导内核了，我把控制权“移交”给另一个 `.efi` 文件。
-`/EFI/BOOT/BOOTX64.EFI`
-是 UEFI 的“默认回退路径”，如果一块硬盘或者 U 盘插上去，主板不知道该读哪个文件夹，主板就会**默认**去读这个文件。它是所有无主系统的“收容所”，但实在找不到系统对应的引导时，就可以使用这个路径，不过多数系统是有具体路径的，比如fedora的是/EFI/fedora/shimx64.efi
-
-
-
-
-
-
-
-
-# 蓝牙耳机有电流声
-**随着系统滚动更新，该修复失效了，麻了**
-**环境：** Arch Linux + Niri (Wayland) + PipeWire + 蓝牙耳机 (漫步者 W820NB, 编码器:SBC)。
-**现象：** 播放音频时，偶尔会出现剧烈的“电击式”爆音或断流。
-**根本原因：** 音频缓冲区耗尽
-
-解决方案：
-`pw-metadata -n settings 0 clock.force-quantum 2048`
-临时扩充缓冲区
-
-为了永久生效，我配置了systemd服务
-`systemctl --user edit --force --full force-quantum.service`
-写入如下内容
-```
-[Unit]
-Description=Force PipeWire Quantum to 2048 for Bluetooth stability
-After=pipewire.service wireplumber.service
-
-[Service]
-Type=oneshot
-# 等待几秒确保 PipeWire 完全启动后再执行，防止命令跑太快失效
-ExecStartPre=/usr/bin/sleep 5
-ExecStart=/usr/bin/pw-metadata -n settings 0 clock.force-quantum 2048
-RemainAfterExit=yes
-
-[Install]
-WantedBy=default.target
-```
-
-立刻启用
-`systemctl --user enable --now force-quantum.service`
-
-如何验证？
-`pw-top`命令查看
-[[_resources/linux笔记/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg|Open: Pasted image 20251215220719.png]]
-![[_resources/linux笔记/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg]]
-bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
-
-这个方案是用声音延迟的代价换取稳定
-原理我也不太懂，不过差不多可以这样理解
-`时间窗口=QUANT/48000Hz=xx.ms`
-我原本的QUANT是256，带入公式得到时间窗口大概是5.33ms(毫秒)
-意思是CPU必须每隔5.33毫秒就处理完一次音频数据，但是如果 Niri 渲染一帧画面抢占了 CPU 6 毫秒，音频线程就会错过截止时间。从而导致电流声等问题
-**新的时间窗口：** 2048/48000Hz​≈42.66ms
-**容错率提升:** 从 5ms 提升到 42ms（约 8 倍）。即使 Niri 发生丢帧或高负载卡顿，音频缓冲区里仍有足够的数据存货，不会断流。
-**代价:** 系统音频延迟增加约 37ms。对于视频（播放器会自动补偿）和非竞技类游戏，此延迟在人类感知阈值（<100ms）内，属于无感牺牲。
-
-不过我觉得最好还是买个有线耳机
-
-
-
-
-
-
-
-
-
-
-
-# arch 打开文件夹却显示终端
-就是发现在某些应用，我选择打开文件夹，打开的却是我的 kitty 终端，解决方案参考如下
-```
-❯ xdg-mime query default inode/directory
-kitty-open.desktop
-❯ xdg-mime default org.gnome.Nautilus.desktop inode/directory
-❯ xdg-mime query default inode/directory                     
-org.gnome.Nautilus.desktop
-```
-
-
-
-
-
-
-
-
 # archlinux（niri）配置
 我的设备信息
 [[_resources/linux笔记/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg|Open: Pasted image 20251205231208.png]]
@@ -4370,6 +4049,368 @@ sudo pacman -D --asexplicit clash-verge-rev clash-geoip
 IgnorePkg = clash-verge-rev clash-geoip
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+# grub设置链式引导
+有些系统并不希望使用grub引导，比如pop!os有自己的system76引导，所以这时就需要链式引导来让这些系统使用自己的引导程序
+参考如下内容
+```
+❯ cat /etc/grub.d/40_custom
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+
+menuentry 'Pop!_OS(Chainload)' {
+    insmod part_gpt
+    insmod fat
+    insmod chain
+    # 搜索 EFI 分区
+    search --no-floppy --fs-uuid --set=root 9D1D-A9D4
+    # 移交控制权给另一个系统的Shim 引导程序
+    chainloader /EFI/BOOT/BOOTX64.EFI
+}
+```
+
+释义
+声明菜单名 (`menuentry`)，这就是grub菜单里显示的名字
+`insmod` = Insert Module (插入模块)。
+`part_gpt`: 告诉 GRUB 怎么读 GPT 分区表
+`fat`: 告诉 GRUB 怎么读 FAT32 文件系统
+
+定位分区
+`search --no-floppy --fs-uuid --set=root 9D1D-A9D4`
+这句话像是在对 GRUB 喊话：“**全盘搜索！**”
+`--no-floppy`: 别搜软驱（节省时间）
+`--fs-uuid`: 我是用 UUID 来找的，不是用分区号（因为分区号 `/dev/sda1` 可能会变，UUID 永远不变）
+`--set=root`: 找到后，把这个分区设为当前的根目录 (root)
+9D1D-A9D4 EFI分区的UUID
+
+指定引导文件
+`chainloader /EFI/BOOT/BOOTX64.EFI`
+`chainloader`: 意思是我不直接引导内核了，我把控制权“移交”给另一个 `.efi` 文件。
+`/EFI/BOOT/BOOTX64.EFI`
+是 UEFI 的“默认回退路径”，如果一块硬盘或者 U 盘插上去，主板不知道该读哪个文件夹，主板就会**默认**去读这个文件。它是所有无主系统的“收容所”，但实在找不到系统对应的引导时，就可以使用这个路径，不过多数系统是有具体路径的，比如fedora的是/EFI/fedora/shimx64.efi
+
+
+
+
+
+
+
+
+# 混合显卡黑屏问题
+具体表现在开机时，有几率在启动加载全部完成后会黑屏卡住，原因显示管理器有概率会提前在显卡驱动加载前启动
+
+这个有两种解决方案
+一个是在mkinit 中配置 A 卡优先加载
+![[_resources/linux笔记/3d4acfcc17d6def5939c834ae1bd67cb_MD5.png]]
+就是在 MODULES 里指定加载顺序即可，当然还需要sudo mkinitcpio -P重新加载一下配置
+
+另一个方案是把登录管理器的自启动服务添加一个 sleep 2延迟2秒启动
+
+
+
+# arch 打开文件夹却显示终端
+就是发现在某些应用，我选择打开文件夹，打开的却是我的 kitty 终端，解决方案参考如下
+```
+❯ xdg-mime query default inode/directory
+kitty-open.desktop
+❯ xdg-mime default org.gnome.Nautilus.desktop inode/directory
+❯ xdg-mime query default inode/directory                     
+org.gnome.Nautilus.desktop
+```
+
+
+
+
+
+
+
+
+# 在 wps 中使用 fcitx5 输入法
+网上有个方案是在~/.pam_environment 中写入
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx5
+export XMODIFIERS=@im=fcitx
+但貌似 wps 随着版本更新不再读取这个文件
+
+
+
+所以需要在/usr/bin/wps 中的gOpt=下面一行添加如下内容即可
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx5
+export XMODIFIERS=@im=fcitx
+  
+
+
+
+
+
+
+
+
+
+
+# wine 字体缺失
+具体表现是某些字符会显示为“口”字的状态，通常是字体缺失导致的
+使用 Winetricks 自动安装字体
+winetricks是一个辅助脚本，专门用来给 Wine 安装各种依赖库和字体。
+
+安装 Winetricks
+
+```plain
+sudo pacman -S winetricks
+```
+
+使用 Winetricks 安装 CJK 字体包：
+winetricks有一个专门的包叫 cjkfonts，它会自动下载并安装 Windows 上最常用的中日韩字体（包括 msgothic,msmincho等）到你的 Wine 环境中。
+继续在终端运行：
+
+```plain
+winetricks cjkfonts
+```
+
+  
+后续调优（可选）  
+安装 Arch Linux 系统的 CJK 字体
+这个方案是在_Linux 系统层面_安装一套完整的高质量 CJK 字体。Wine (通过 Fontconfig) 理论上也能检测到并使用它们。
+安装 Noto CJK 字体包： `noto-fonts-cjk` 是 Google 和 Adobe 合作的开源字体，质量非常高，涵盖了中日韩所有字符。
+在终端运行：
+```plain
+sudo pacman -S noto-fonts-cjk
+```
+
+刷新字体缓存（通常 pacman 会自动做，但手动做一次没坏处）：
+```plain
+fc-cache -fv
+```
+
+```
+sudo pacman -S adobe-source-han-serif-cn-fonts wqy-zenhei          #安装几个开源中文字体 一般装上文泉驿就能解决大多wine应用中文方块的问题
+sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌开源字体及表情
+```
+
+我感觉没球用，不如群友打包的字体包，直接塞上就用
+
+
+
+# arch 配置 FTP 服务
+给我的 kvm_win7 传文件用
+
+安装软件
+sudo pacman -S python-pyftpdlib
+
+然后在需要共享的文件目录下运行
+python -m pyftpdlib
+具体端口号和进程等信息会自动显示
+
+
+
+
+
+
+
+
+
+
+
+
+# ncmpcpp轻量化音乐播放系统
+MPD + ncmpcpp + Cava
+
+1.安装必要软件
+需要安装四个组件：后台服务(MPD)、终端客户端(ncmpcpp)、媒体键支持(mpDris2)、可视化频谱(Cava)。
+
+```bash
+# 1. 安装官方仓库软件
+sudo pacman -S mpd ncmpcpp cava
+# 2. 安装 AUR 插件 (用于支持 playerctl 和 Waybar 控制)
+yay -S mpdris2
+```
+
+
+2.环境初始化
+MPD 默认会尝试以系统服务运行，读取 `/etc/mpd.conf`，这会导致权限错误 (`Failed to open /var/lib/...`)。必须手动创建用户目录并禁用系统服务。
+
+```bash
+# 1. 停止并禁用系统级服务 (防止冲突)
+sudo systemctl stop mpd sudo systemctl disable mpd
+ # 2. 创建 MPD 必须的文件夹结构 (不做这一步 MPD 会启动失败)
+mkdir -p ~/.config/mpd/playlists 
+# 3. 创建空的状态文件 (防止 MPD 报找不到文件的错） 
+touch ~/.config/mpd/{database,state,pid,sticker.sql} 
+# 4. 创建 mpDris2 和 Cava 的配置目录 
+mkdir -p ~/.config/mpdris2 mkdir -p ~/.config/cava
+```
+
+
+3.配置文件编写
+配置 MPD核心 (`~/.config/mpd/mpd.conf`)
+```bash
+# 音乐目录 (根据实际情况修改)
+music_directory    "~/Music"
+
+# 必须的运行文件定义
+playlist_directory "~/.config/mpd/playlists"
+db_file            "~/.config/mpd/database"
+log_file           "syslog"
+pid_file           "~/.config/mpd/pid"
+state_file         "~/.config/mpd/state"
+sticker_file       "~/.config/mpd/sticker.sql"
+
+# 网络设置 (仅限本机访问)
+bind_to_address    "127.0.0.1"
+port               "6600"
+
+# 自动扫描新歌 & 恢复播放状态
+auto_update        "yes"
+restore_paused     "yes"
+
+# 音频输出 1: 让你听到声音 (PipeWire/PulseAudio)
+audio_output {
+        type            "pulse"
+        name            "PulseAudio"
+}
+
+# 音频输出 2: 可视化数据流 (给 Cava 用)
+# 如果不加这个，Cava 只能读取麦克风或系统总声，不灵敏
+audio_output {
+    type                    "fifo"
+    name                    "my_fifo"
+    path                    "/tmp/mpd.fifo"
+    format                  "44100:16:2"
+}
+```
+
+
+
+配置 mpDris2 (`~/.config/mpdris2/mpdris2.conf`)
+让键盘多媒体键和 Waybar 能控制 MPD。
+```bash
+[Connection]
+host = 127.0.0.1
+port = 6600
+music_dir = ~/Music  # 必须和 MPD 音乐目录一致，用于读取封面
+
+[Bling]
+notify = false       # 切歌弹窗 (不喜欢可关)
+mmkeys = true        # 启用键盘多媒体键支持
+```
+
+
+还要配置 cava 可视化，但我之前美化 waybar 的时候已经配过了
+
+
+4.启动服务
+```bash
+# 重载配置
+systemctl --user daemon-reload
+
+# 启动并开机自启 MPD
+systemctl --user enable --now mpd
+
+# 启动并开机自启 mpDris2,不建议设置这个，因为会影响我的waybar的音频可视化
+# 模块无法正常隐藏
+# systemctl --user enable --now mpDris2
+```
+
+
+5.客户端 (ncmpcpp) 使用
+终端输入 ncmpcpp 进入界面。按 F1 可查看帮助。
+解决乱序播放/文件夹播放问题：
+1.按 1 进入播放列表。
+2.看右上角是否有 [z] 或高亮的 Random。如果有，按 z 键关闭随机模式。
+3.按 c 清空当前列表。
+4.按 2 进入文件浏览器，选中文件夹，按 空格 即可按顺序添加整张专辑。
+
+常用按键功能列表：
+1：播放列表（正在播放的歌单） 2：文件浏览（去硬盘找歌） 3：搜索（搜歌名/歌手） 空格：添加歌曲（将选中项加入列表） Enter：播放（立即播放选中项） p：暂停/继续（Pause）
+ ：下一首（. 键） <：上一首（, 键） c：清空列表（Clear） u：更新数据库（下载新歌后必按） z：随机模式开关（必须关闭才能顺序播放）
+
+
+后续优化
+为了和我的 waybar 组件配合，让 waybar 的音频可视化能够识别到 MPD 播放的音频，需要打开mpDris2 服务，但如果设置开启自启动的话，waybar 模块就会被一直占用不隐藏了，杀进程又太麻烦，所以写了一个 desktop 文件，用 fuzzel 打开后会在终端运行mpDris2 和 mpd 并打开 ncmpcpp，终端关闭后mpDris2 和 mpd 进程会被杀死，不赖
+
+```bash
+❯ cat ~/.local/share/applications/ncmpcpp-temp-mpdris.desktop            
+[Desktop Entry]
+Type=Application
+Name=Ncmpcpp(本地音乐播放器)
+GenericName=Music Player
+Comment=启动 mpd + mpDris2 + ncmpcpp，窗口关闭时全部销毁
+# 核心逻辑解析：
+# 1. mpd --no-daemon & -> 启动 MPD 但不让它后台化，这样我们才能获取它的 PID
+# 2. mpDris2 &         -> 启动翻译器
+# 3. trap "kill..."    -> 退出时同时杀掉 MPD 和 mpDris2 的 PID
+# 4. ncmpcpp           -> 启动界面
+Exec=kitty --class music_player --title "Music Player" -e bash -c 'mpd --no-daemon >/dev/null 2>&1 & MPD_PID=$!; sleep 0.5; mpDris2 >/dev/null 2>&1 & DRIS_PID=$!; trap "kill $MPD_PID $DRIS_PID 2>/dev/null" EXIT HUP TERM INT; ncmpcpp'
+Icon=utilities-terminal
+Terminal=false
+Categories=Audio;Player;ConsoleOnly;
+```
+
+
+
+
+# 蓝牙耳机有电流声
+**随着系统滚动更新，该修复失效了，麻了**
+**环境：** Arch Linux + Niri (Wayland) + PipeWire + 蓝牙耳机 (漫步者 W820NB, 编码器:SBC)。
+**现象：** 播放音频时，偶尔会出现剧烈的“电击式”爆音或断流。
+**根本原因：** 音频缓冲区耗尽
+
+解决方案：
+`pw-metadata -n settings 0 clock.force-quantum 2048`
+临时扩充缓冲区
+
+为了永久生效，我配置了systemd服务
+`systemctl --user edit --force --full force-quantum.service`
+写入如下内容
+```
+[Unit]
+Description=Force PipeWire Quantum to 2048 for Bluetooth stability
+After=pipewire.service wireplumber.service
+
+[Service]
+Type=oneshot
+# 等待几秒确保 PipeWire 完全启动后再执行，防止命令跑太快失效
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=/usr/bin/pw-metadata -n settings 0 clock.force-quantum 2048
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
+```
+
+立刻启用
+`systemctl --user enable --now force-quantum.service`
+
+如何验证？
+`pw-top`命令查看
+[[_resources/linux笔记/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg|Open: Pasted image 20251215220719.png]]
+![[_resources/linux笔记/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg]]
+bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
+
+这个方案是用声音延迟的代价换取稳定
+原理我也不太懂，不过差不多可以这样理解
+`时间窗口=QUANT/48000Hz=xx.ms`
+我原本的QUANT是256，带入公式得到时间窗口大概是5.33ms(毫秒)
+意思是CPU必须每隔5.33毫秒就处理完一次音频数据，但是如果 Niri 渲染一帧画面抢占了 CPU 6 毫秒，音频线程就会错过截止时间。从而导致电流声等问题
+**新的时间窗口：** 2048/48000Hz​≈42.66ms
+**容错率提升:** 从 5ms 提升到 42ms（约 8 倍）。即使 Niri 发生丢帧或高负载卡顿，音频缓冲区里仍有足够的数据存货，不会断流。
+**代价:** 系统音频延迟增加约 37ms。对于视频（播放器会自动补偿）和非竞技类游戏，此延迟在人类感知阈值（<100ms）内，属于无感牺牲。
+
+不过我觉得最好还是买个有线耳机
 
 
 
