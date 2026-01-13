@@ -4461,25 +4461,19 @@ bash -c $curl --fail --show-error --silent --location https://raw.githubusercont
 
 ## sudo 密码输入问题
 用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码
-sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout
-
+`sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout`
 在文件中写入如下内容
-Defaults timestamp_timeout=30, !tty_tickets
-
-
+`Defaults timestamp_timeout=30, !tty_tickets`
 
 为什么起99-custom-timeout这么奇怪的文件名？
-
 因为 Linux 加载 `/etc/sudoers.d/` 目录下的配置时，是按字母和数字顺序的（从 `00-` 到 `99-`）
-
 系统默认的配置（比如 `10-arch-default`）可能设置了 `timestamp_timeout=0`（0分钟超时）。
-
 我们使用 `99-` 这个最高优先级的文件名，确保我们的配置是最后一个被加载的，因此它会覆盖掉系统所有的默认设置。
 
-timestamp_timeout=30
+`timestamp_timeout=30`
 它把 `sudo` 密码的有效期从默认的（可能是0或5分钟）延长到了 30 分钟。
 
-!tty_tickets
+`!tty_tickets`
 关闭每个 Konsole 窗口都要单独输密码的规则，使得密码有效期可全局共享
 
 
