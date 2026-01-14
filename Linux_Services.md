@@ -5047,7 +5047,7 @@ MariaDB [wordpress]>
 
 
 
-## 关于K8S的命名空间
+## K8S的命名空间
 
 命名空间namespace是K8S中“组”的概念，提供同一服务的Pod应该被放置同一命名空间下，而不是混杂在一起。K8S可以用命名空间来做权限控制和资源隔离。如果不指定的话，Pod将被放置在默认的命名空间default下。
 
@@ -5075,7 +5075,7 @@ tail -f /var/log/kubeinstall.log
 
 
 
-## 关于kubectl命令行的补全
+## kubectl命令行补全
 
 与docker一样，都需要安装bash-completion
 
@@ -5088,7 +5088,7 @@ echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 
 
-## 关于kubectl管理pod
+## kubectl管理pod
 
 注意：如果不指定-n 命名空间，会默认查看default命名空间里的pod，创建pod的时候不指定命名空间，只会将pod创建在default命名空间里
 
@@ -5099,7 +5099,7 @@ echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 
 
-## 关于namespace自动注入sidecar
+## namespace自动注入sidecar
 
 Istio 作为重要的 ServiceMesh 框架，已经被越来越多的公司所使用。在 Istio 体系中，应用容器的出入流量都需要经过 Sidecar 的拦截和处理。默认地，Istio sidecar 自动注入是通过给 namespace 打 istio-injection=enabled 或 istio-injection=disabled 标签，来确定是否在该命名空间执行自动注入。
 
@@ -5110,7 +5110,7 @@ Istio 作为重要的 ServiceMesh 框架，已经被越来越多的公司所使�
 
 
 
-## 关于helm
+## helm
 
 Helm 的 Release 是 Helm 这个 Kubernetes 包管理工具的概念，而不是 Kubernetes 自身的概念。
 
@@ -5149,7 +5149,7 @@ imagePullPolicy: Never
 
 
 
-## 关于k8s各组件版本问题 [https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml](https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml)
+## k8s各组件版本问题 [https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml](https://github.com/kubernetes/kubernetes/blob/v1.22.1/build/dependencies.yaml)
 
 将该链接的版本号那一栏改为想要查询的k8s版本从而查看对应的组件版本信息
 
@@ -5246,7 +5246,7 @@ kubeadm config images list --config kubeadm.conf查看初始化所需镜像
 
 
 
-## 关于使用kubectl命令行创建网络报错8080端口或许被占用
+## 使用kubectl命令行创建网络报错8080端口或许被占用
 
 ![[_resources/linux笔记/77c7f534c0997bf20d15cb3d7a24a0bc_MD5.png]]
 
@@ -5255,7 +5255,7 @@ kubeadm config images list --config kubeadm.conf查看初始化所需镜像
 
 
 
-## 关于k8s的coredns一直处于创建中的状态
+## k8s的coredns一直处于创建中的状态
 
 ![[_resources/linux笔记/2bc2cf73efbe037270af208e41a03b20_MD5.png]]
 

@@ -3528,10 +3528,10 @@ lib32-vulkan-radeon是给核显的 32 位 Vulkan 支持（备用）
 关于GTK4应用打开慢的问题，是因为N卡渲染兼容性太差了，因此需要设置环境变量让GTK4应用用回旧的渲染器GL
 将如下内容写进/etc/environment文件
 强制 GTK4 使用旧版 GL 渲染器 (修复 Nvidia 卡顿)
-GSK_RENDERER=gl
+`GSK_RENDERER=gl`
 
 ### 配置zsh
-sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting
+`sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting`
 这些包是我的zsh要用到的美化文件
 .config/starship.toml这个文件是调用的提示符美化文件,要去starship官网自己下载
 然后设置默认shell为zsh
@@ -3540,7 +3540,7 @@ sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting
 
 ### 配置niri的锁屏设置
 (可选，我觉得noctalia自带的锁屏就很好看，所以我没弄这个)
-sudo pacman -S swaylock-effects
+`sudo pacman -S swaylock-effects`
 `mkdir -p ~/.config/swaylock`
 `vim ~/.config/swaylock/config`
 写入如下内容
@@ -3556,8 +3556,8 @@ effect-blur=10x5
 
 
 配置自动熄屏锁屏休眠
-mkdir -p ~/.config/niri/scripts
-vim ~/.config/niri/scripts/swayidle.sh
+`mkdir -p ~/.config/niri/scripts`
+`vim ~/.config/niri/scripts/swayidle.sh`
 写入如下内容
 ```
 #!/usr/bin/env bash
