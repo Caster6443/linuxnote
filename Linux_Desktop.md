@@ -2251,7 +2251,7 @@ wpctl set-default "$CHOSEN_ID"
 
 好的，已经叛逃到 niri 了，hyprland 真的回不去了，同时 waybar 也做了部分优化和为了适配 niri 的部分微调，因此这段配置，能用吧，至少作为 hyprland 的 bar 是可以的，但还是有待优化，之后单独列出 niri 的相关块，或许会顺便优化一下这里的部分通用代码逻辑吧，比如滚动切换壁纸使用 pkill 是很浪费性能的，明明 mpvpaper 就支持直接覆盖，不过还是等我后续修改吧
 
-好了，waybar也不用了，用的noctalia-shell,似乎dms更加完善，潜力更高，但它的动画效果目前是不如noctalia的，所以还是用着noctalia吧，但我认为它们的可定制性还是不如waybar，但仔细想想，waybar如果功能做得比较多了，内存占用就会更大，这时就更需要系统性的配置调优，那我为啥不直接用人家专门开发的桌面shell，主要还是现在的自己不懂开发，忙着备考专升本也没时间学，但我会去学的。
+好了，waybar也不用了，用的noctalia-shell,似乎dms更加完善，潜力更高，但它的动画效果目前是不如noctalia的，所以还是用着noctalia吧，但我认为它们的可定制性还是不如waybar，但仔细想想，waybar如果功能做得比较多了，内存占用就会更大，这时就更需要系统性的配置调优，那我为啥不直接用人家专门开发的桌面shell，主要还是现在的自己不懂开发，忙着备考也没时间学，但我会去学的。
 
 
 
@@ -2341,7 +2341,7 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 
 
 
-## 关于 hyprland 的浮动窗口变量设置
+## 浮动窗口间隙设置
 在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观
 
 这个空白大小是可以修改的，还是在那个 hyprland 配置文件里
@@ -2399,85 +2399,35 @@ ninja -C build install
 
 
 使用方法
-mpvpaper DP-2 /path/to/video
+`mpvpaper DP-2 /path/to/video`
 
 DP-2 是显示器名字，也就是说可以指定显示器播放，自己的显示器名字用 hyprctl monitors all查看所有 hyprland 检测到的显示器信息，懒得看就直接用 ALL 代替所有显示器
 
 笔记本内置屏幕名字一般是 eDP-1,我的就是
 但这个只能播放一次，需要循环播放就需要使用命令
 例如这样的
-mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4
+`mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4`
 这个命令是前台运行，所以可以在尾巴加上&，但是这样关闭终端就会杀死进程，另一种方法是加上& disown，这样即使关闭终端也不会杀死进程，不过如果要写进 exec-once 里只需要单用一个&就足够了
-mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4 &
+`mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4 &`
 这个命令就可以写进 hyprland 的 exec-once 设置开机自启
 
   
   
 
 
-
-
-## 玩游戏帧率异常
-玩鸣潮的时候发现帧率不对劲，帧率不稳定，一战斗就掉帧
-
-看一下 nvidia-smi 回显
-
-```bash
-❯ nvidia-smi           
-Sun Nov  9 15:24:01 2025        
-+-----------------------------------------------------------------------------------------+
-| NVIDIA-SMI 580.95.05              Driver Version: 580.95.05      CUDA Version: 13.0     |
-+-----------------------------------------+------------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
-|                                         |                        |               MIG M. |
-|=========================================+========================+======================|
-|   0  NVIDIA GeForce RTX 4060 ...    Off |   00000000:01:00.0 Off |                  N/A |
-| N/A   70C    P8              5W /   80W |    3944MiB /   8188MiB |      0%      Default |
-|                                         |                        |                  N/A |
-+-----------------------------------------+------------------------+----------------------+
-
-+-----------------------------------------------------------------------------------------+
-| Processes:                                                                              |
-|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
-|        ID   ID                                                               Usage      |
-|=========================================================================================|
-|    0   N/A  N/A             868      G   /usr/lib/Xorg                             4MiB |
-|    0   N/A  N/A            2280      G   Hyprland                                  2MiB |
-|    0   N/A  N/A           47172    C+G   ...n64\Client-Win64-Shipping.exe       3848MiB |
-+-----------------------------------------------------------------------------------------+
-
-
-```
-
-第 11 行，可以看到 N 卡处于 P8 状态（低功耗状态）,这时游戏挂在后台，p8 倒也没啥，不过正常玩的时候这玩意好像是一直处于 p8 状态，我也不确定
-
-运行这个命令
-sudo nvidia-smi -pm 1 # 启用持久模式
-
-就能解决了，这个我不确定是不是临时命令，但重启后也不用再次执行也能正常帧率玩鸣潮了，所以可能是 nvidia 的一点小 bug，这个命令刷新了 N 卡的状态
-
-这种系统抽风问题最难搞了，感觉我不用这个命令，N 卡都不知道自己还有个持久模式😅
-
-
-
-
-
-
-
 ## 截屏翻译方案
 主要使用 Crow Translate 这个程序
 1.安装主程序
-yay -S crow-translate
+`yay -S crow-translate`
 
 2.安装 Wayland/OCR 核心依赖
 tesseract 是引擎, slurp 是划词工具, portal 是 Wayland 门户
-sudo pacman -S tesseract slurp xdg-desktop-portal-hyprland
+`sudo pacman -S tesseract slurp xdg-desktop-portal-hyprland`
 
 
 3.安装 OCR 语言包
 我玩未来战用的，就装英韩中三个语言吧
-sudo pacman -S tesseract-data-eng tesseract-data-kor tesseract-data-chi_sim
+`sudo pacman -S tesseract-data-eng tesseract-data-kor tesseract-data-chi_sim`
 
 
 打开软件Crow Translate
@@ -2507,15 +2457,15 @@ URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷�
 # Waydroid
 ## Waydroid 初始配置
 安装 waydroid 并初始化
-sudo pacman -S waydroid
-sudo waydroid init
+`sudo pacman -S waydroid`
+`sudo waydroid init`
 //如果需要使用谷歌服务，可以指定带有谷歌服务的镜像
-sudo waydroid init -s GAPPS
+`sudo waydroid init -s GAPPS`
 
 
 原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层
 安装waydroid-script
-yay -S waydroid-script-git
+`yay -S waydroid-script-git`
 
 waydroid-scripts 项目提供了 waydroid-extras 命令来安装翻译层
 libhoudini 用于英特尔
@@ -2600,16 +2550,13 @@ waydroid upgrade --offline
 项目地址：[https://github.com/waydroid-helper/waydroid-helper/tree/main](https://github.com/waydroid-helper/waydroid-helper/tree/main)
 
 对于 archlinux 用户，直接从 aur 仓库安装即可
-
-yay -S waydroid-helper
+`yay -S waydroid-helper`
 
 这个应用功能比较齐全了，值得一提的是，在设置按键映射时，会出现一个窗口，然后在窗口里设置映射键位，这里并不是说明上说的，把映射键位放在对应按键上就行，而是根据这个窗口与 waydroid 的缩放比例，放到对应的位置，要使用映射时，需要先鼠标聚焦到映射的窗口
 
 类似这样，我映射了游戏的方向键，因为这个 b 游戏的方向键只支持滑动操作，可以看到，我的方向键在窗口中的位置是等比例缩小游戏窗口和方向键的对应位置，我需要使用映射时必须把鼠标聚焦到左下角的映射窗口
 
 ![[_resources/linux笔记/a7e2f3ce98025b7463ef958137883955_MD5.png]]
-
-
 
 这个助手还提供其他功能，比如伪装成指定机型，获取设备 id，之类的常见需求
 
@@ -2618,7 +2565,7 @@ yay -S waydroid-helper
 
 
 
-# arch 和 win 双系统配置安全启动
+# archlinux配置安全启动
 ## 理论基础
 一、 什么是安全启动？
 安全启动 (Secure Boot)是主板 UEFI 固件里的一项安全功能。
@@ -2675,9 +2622,6 @@ yay -S waydroid-helper
 ---
 
 **总结成一句话的理论：** 我们利用**微软签名**的 `shim`，来加载一个**我们自己 MOK 签名**的、**内置了驱动和路径（**`**insmod fat**`**）的独立 **`**grubx664.efi**`，这个 `grub` 再去加载**同样被 MOK 签名**的**内核**，最后用 `**pacman**`** 钩子**让这个签名过程自动化。
-
-
-
 
 
 
@@ -2802,7 +2746,7 @@ configfile grub.cfg
 上面的配置首先加载相应的模块，读取 memdisk 中的字体数据（如果不考虑复杂的 OpenGPG 签名加载方式，这是目前安全启动下 GRUB 读取字体的最好办法），之后通过 UUID 搜索包含 GRUB 配置文件的分区，并立刻读取其中的 grub.cfg 内容。因此，你必须将 search.fs_uuid 中的硬盘 UUID 换成包含 GRUB 配置文件的分区的真实 UUID。
 
 参考一下我的磁盘信息，  
-search.fs_uuid 1B9C-667B root hd0,gpt1
+`search.fs_uuid 1B9C-667B root hd0,gpt1`
 
 我选择这样填写，uuid 是我的 efi 分区，注意这里的 root 并不是指/分区，而是指 boot 分区，gpt1 则是因为 efi 分区的索引为 1
 
@@ -3357,38 +3301,40 @@ git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fast
 ## 配置基础环境
 配置yay
 编辑pacman配置文件
-sudo vim /etc/pacman.conf
+`sudo vim /etc/pacman.conf`
 写入如下内容
+```
 [archlinuxcn]
 Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+```
 
 保存退出后
 更新数据库并安装 keyring (这是为了信任 CN 源的签名)
-sudo pacman -Sy archlinuxcn-keyring
+`sudo pacman -Sy archlinuxcn-keyring`
 
 直接安装 yay
-sudo pacman -S yay
+`sudo pacman -S yay`
 
 
 生成中文 Locale
 不配置的话，中文内容会乱码
-sudo vim /etc/locale.gen
+`sudo vim /etc/locale.gen`
 找到 `zh_CN.UTF-8 UTF-8` ，把前面的 `#` 去掉，(确保 `en_US.UTF-8 UTF-8` 也是开启的)
 然后生成Locale
-sudo locale-gen
+`sudo locale-gen`
 确认 `/etc/locale.conf` 内容是
-LANG=en_US.UTF-8
+`LANG=en_US.UTF-8`
 
 
 然后传入了我的dotfile，比如niri配置之类的
 
 ### 配置基础软件包
 装梯子
-yay -S mihomo-party-bin
+`yay -S mihomo-party-bin`
 
 
 再装个xwayland-satellite，保守一点就不装git版本的了
-yay -S xwayland-satellite
+`yay -S xwayland-satellite`
 
 很多应用默认都是用xwayland运行的，因为xwayland-satellite有待完善，所以这些应用都很糊，可以直接修改desktop文件，在exec处添加参数
 `--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-wayland-ime`
@@ -3502,7 +3448,7 @@ listener {
 `sudo btrfs filesystem mkswapfile --size 38g --uuid clear /swap/swapfile` 
 
 写进fstab
-/swap/swapfile none swap defaults 0 0
+`/swap/swapfile none swap defaults 0 0`
 
 
 
@@ -3569,7 +3515,7 @@ sudo systemctl enable greetd
 
 
 ### 常用配置
-sudo pacman -S flatpak steam lutris spotify-launcher lib32-nvidia-utils lib32-vulkan-radeon
+`sudo pacman -S flatpak steam lutris spotify-launcher lib32-nvidia-utils lib32-vulkan-radeon`
 
 spotify-launcher我在用的听歌软件
 lib32-nvidia-utils用于给steam调用32位显卡驱动
@@ -3908,6 +3854,54 @@ fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
 
 
 # 常见问题
+
+## 玩游戏帧率异常
+玩鸣潮的时候发现帧率不对劲，帧率不稳定，一战斗就掉帧
+
+看一下 nvidia-smi 回显
+
+```bash
+❯ nvidia-smi           
+Sun Nov  9 15:24:01 2025        
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.95.05              Driver Version: 580.95.05      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 4060 ...    Off |   00000000:01:00.0 Off |                  N/A |
+| N/A   70C    P8              5W /   80W |    3944MiB /   8188MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A             868      G   /usr/lib/Xorg                             4MiB |
+|    0   N/A  N/A            2280      G   Hyprland                                  2MiB |
+|    0   N/A  N/A           47172    C+G   ...n64\Client-Win64-Shipping.exe       3848MiB |
++-----------------------------------------------------------------------------------------+
+
+
+```
+
+第 11 行，可以看到 N 卡处于 P8 状态（低功耗状态）,这时游戏挂在后台，p8 倒也没啥，不过正常玩的时候这玩意好像是一直处于 p8 状态，我也不确定
+
+运行这个命令
+sudo nvidia-smi -pm 1 # 启用持久模式
+
+就能解决了，这个我不确定是不是临时命令，但重启后也不用再次执行也能正常帧率玩鸣潮了，所以可能是 nvidia 的一点小 bug，这个命令刷新了 N 卡的状态
+
+这种系统抽风问题最难搞了，感觉我不用这个命令，N 卡都不知道自己还有个持久模式😅
+
+
+
+
+
+
 ## 软件包降级
 clash-verge-rev 更新后发现 tun 模式打不开了，尝试了降级软件包处理
 
