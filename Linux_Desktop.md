@@ -3439,7 +3439,8 @@ listener {
 重启后重新生成grub配置文件
 `sudo grub-mkconfig -o /efi/grub/grub.cfg`
 
-
+btrfs-assistant是快照的图形化管理工具，在其中配置需要的快照配置
+另外出于btrfs的特性，快照被删除后，仅仅是释放了逻辑空间，实际上物理空间还在被占用中，
 
 
 
