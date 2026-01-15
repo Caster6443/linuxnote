@@ -17,16 +17,20 @@ NFS 使用客户端和服务器的模型，客户端通过网络访问服务器�
 
 3.NFS 服务器配置 共享目录：
 通过 /etc/exports 文件配置，指定哪些目录可以共享、哪些客户端可以访问。 权限设置：通过配置选项控制客户端的读写权限、同步与否等.
-示例配置：/hello 192.168.120.0/24(rw,sync,no_all_squash)   
-/hello：共享的目录路径。
-192.168.120.0/24：允许访问的客户端网络。
-rw：读写权限。
-sync：同步写入操作。
-no_all_squash：禁用 UID/GID 映射，保持客户端原有权限。
+示例配置：
+`/hello 192.168.120.0/24(rw,sync,no_all_squash)`   
+`/hello`：共享的目录路径。
+`192.168.120.0/24`：允许访问的客户端网络。
+`rw`：读写权限。
+`sync`：同步写入操作。
+`no_all_squash`：禁用 UID/GID 映射，保持客户端原有权限。
 
 4.NFS 客户端操作 挂载共享目录：
 客户端使用 mount 命令挂载服务器共享的目录。
-示例：mount -t nfs [nfs-server-ip]:/hello /mnt/hello 访问共享文件：挂载后，客户端就可以像访问本地文件一样访问远程共享目录中的文件。
+示例：
+`mount -t nfs [nfs-server-ip]:/hello /mnt/hello` 
+访问共享文件：
+挂载后，客户端就可以像访问本地文件一样访问远程共享目录中的文件。
 
 5.NFS 文件操作 请求：
 客户端向服务器发起文件操作请求（如读取、写入、删除文件等）。 响应：NFS 服务器处理请求后，返回操作结果或文件数据。 文件描述符：通过文件描述符在客户端和服务器之间传输文件操作的请求和响应。
@@ -243,16 +247,11 @@ Hunk #1 succeeded at 55 (offset 17 lines).
 从这个回显也能看出来，这个--prefix 指定了 nginx 的配置文件 nginx.conf，错误日志的位置等等，添加模块也不过是在里面指定了模块文件路径，有修改某个配置文件安装时指定路径的需求时，比如把 nginx.conf 安装到/opt/下面，也可以通过编译安装的方式修改或添加指定的路径。虽然 包管理器安装后也能修改配置文件路径，但远没有编译安装自由
 
 
-
 3.make 编译
-
-[root@nginx nginx-1.28.0]# make
-
-
+`[root@nginx nginx-1.28.0]# make`
 
 4.编译安装 （支持覆盖安装）
-
-[root@nginx nginx-1.28.0]# make install
+`[root@nginx nginx-1.28.0]# make install`
 
 
 
@@ -276,8 +275,6 @@ Hunk #1 succeeded at 55 (offset 17 lines).
 systemctl start nginx
 systemctl stop nginx
 ```
-
-
 
 
 2.不被 systemctl 管理，使用绝对路径运行
@@ -447,35 +444,24 @@ server {
 
 ## nginx 常用模块
 ### 目录索引模块
-该模块默认是不开启的
-
-在配置文件中写入指令
-
-autoindex on;
-
+该模块默认是不开启的,在配置文件中写入指令
+`autoindex on;`
 来开启目录索引模块
-
 具体表现形式参考各大镜像站的资源列表
-
 根据 nginx 的区块层级，写在不同层级有不同的效果
 
 
 
 ### 密码登录验证模块
-
-
-auth_basic # 描述信息 
-
-auth_basic_user_file  # 指定用户和密码文件所在的路径  
-
+`auth_basic` # 描述信息 
+`auth_basic_user_file`  # 指定用户和密码文件所在的路径  
 密码文件需要使用htpasswd生成
 
 1.安装httpd-tools 
-[root@rocky ~]# yum -y install httpd-tools  
+`[root@rocky ~]# yum -y install httpd-tools`  
 
 2.生成密码文件  
-[root@rocky ~]# htpasswd -b -c /etc/nginx/auth_pass test 000000
-Adding password for user test
+`[root@rocky ~]# htpasswd -b -c /etc/nginx/auth_pass test 000000`
 
 3.在 location 区块中配置
 ```
@@ -522,19 +508,15 @@ stub_status;
 
 ![[_resources/linux笔记/7f3cf656e7c39d9fa76a6233699144ca_MD5.png]]
 
+```
 Active connections # 当前活动的连接数
-
 accepts # 已接收的总 TCP 连接数量
-
 handled # 已处理的 TCP 连接数量
-
 requests # 当前 http 请求数
-
 Reading # 当前读取请求头数量
-
 Writing # 当前响应的请求头数量
-
 Waiting # 等待的请求数（处于 keepalive 的 tcp 连接），开启了 keepalive
+```
 
 
 
@@ -805,7 +787,7 @@ listen.group = www
 ### 一、数据库迁移
 ```
 db01(Rocky9.6)    192.168.120.150
-web01(Rocky9.6)  192.168.120.129
+web01(Rocky9.6)   192.168.120.129
 ```
 
 基础软件源配置省略
@@ -1319,7 +1301,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ## Nginx 负载均衡
 从上面继续，添加一台 LNMP 拆分架构里的 web02，web02 部署静态页面过程省略
 ```
-Rocky_nginx      192.168.120.153
+Rocky_nginx         192.168.120.153
 web01               192.168.120.129
 web02               192.168.120.151
 ```
@@ -1421,11 +1403,11 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 
 ## Nginx 负载均衡调度算法
-1. rr 轮询
-2. 加权轮询
-3. ip_hash   ip 哈希
-4. url_hash  url 哈希
-5. 最少链接数
+1.rr 轮询
+2.加权轮询
+3.ip_hash   ip 哈希
+4.url_hash  url 哈希
+5.最少链接数
 
 
 1.rr 轮询
@@ -1706,17 +1688,17 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ## session 会话保持
 以部署 phpmyadmin 业务为例，虚拟机统一使用 rocky9.6
 
-nginx  
+nginx     192.168.120.153
 
-web01  
+web01   192.168.120.129
 
-web02  
+web02  192.168.120.151
 
-192.168.120.153
 
-192.168.120.129
 
-192.168.120.151
+
+
+
 
 1.配置 nginx
 
