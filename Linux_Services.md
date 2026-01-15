@@ -1688,20 +1688,18 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ## session 会话保持
 以部署 phpmyadmin 业务为例，虚拟机统一使用 rocky9.6
 
-nginx     192.168.120.153
+```
+nginx   192.168.120.153
 
 web01   192.168.120.129
 
-web02  192.168.120.151
-
-
-
+web02   192.168.120.151
+```
 
 
 
 
 1.配置 nginx
-
 ```bash
 [root@web01 admin]# cat /etc/nginx/conf.d/admin.conf 
 server {
@@ -1728,9 +1726,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 
 2.配置代码目录，下载代码包
-
 从官网找到的代码包phpMyAdmin-5.2.2-all-languages.zip，用 xftp 传到/alice 目录下
-
 ```bash
 [root@web01 ~]# cd /alice/
 [root@web01 alice]# unzip phpMyAdmin-5.2.2-all-languages.zip
@@ -1751,23 +1747,19 @@ drwxr-xr-x  5 www  www  4096  9月  2 20:33 wordpress
 ```
 
 
-
 3.配置数据库信息
-
 ```bash
 [root@web01 alice]# cd admin/
 [root@web01 admin]# cp config.sample.inc.php config.inc.php #带 sample 的是示例文件，不会生效
 [root@web01 admin]# grep 192.168.120.150 config.inc.php 
 $cfg['Servers'][$i]['host'] = '192.168.120.150';
 ```
-
 win11 宿主机做好 hosts 映射 web01 的 IP 后访问 www.admin.com 测试
 
 
 
-4. 快速部署WEB02 phpmyadmin业务
-
- 1.scp配置文件  
+4.快速部署WEB02 phpmyadmin业务
+1. scp配置文件  
 
 ```bash
 [root@web02 ~]# scp 192.168.120.129:/etc/nginx/conf.d/admin.conf /etc/nginx/conf.d/
@@ -1781,7 +1773,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 
 
-2.拷贝代码文件
+2. 拷贝代码文件
 
 ```bash
 [root@web02 ~]# scp 192.168.120.129:/root/phpMyAdmin-5.2.2-all-languages.zip /alice/
@@ -1942,9 +1934,6 @@ php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
 1) "PHPREDIS_SESSION:pp4fc5b21j46269632aqdevvjg"
 127.0.0.1:6379> 
 ```
-
-
-
 至此就完成了 session 会话保持，session 存储在了 redis 里
 
 
@@ -1958,9 +1947,7 @@ web02   192.168.120.151
 [https://tomcat.apache.org/](https://tomcat.apache.org/)    #tomcat 的官网
 
 1.web02 部署 tomecat
-
 下载 tomcat 包
-
 ```bash
 [root@web02 ~]# wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.45/bin/apache-tomcat-10.1.45.tar.gz
 [root@web02 ~]# tar xf apache-tomcat-10.1.45.tar.gz -C /usr/local/
@@ -1970,12 +1957,10 @@ web02   192.168.120.151
 
 
 安装 tomcat 运行环境
-
-[root@web02 ~]#yum -y install java
+`[root@web02 ~]#yum -y install java`
 
 运行java服务
-
-[root@web02 ~]#/usr/local/tomcat/bin/startup.sh
+`[root@web02 ~]#/usr/local/tomcat/bin/startup.sh`
 
 检查端口tomcat 8080  
 
@@ -1984,7 +1969,6 @@ web02   192.168.120.151
 2.nginx实现代理tomcat进行图片拆分
 
 1)web02配置反向代理到自身的8080端口
-
 ```bash
 [root@web02 conf.d]#cat proxy8080.conf
 upstream tom { 
@@ -2004,7 +1988,6 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
 
  2)hosts解析测试代理是否成功  
-
 192.168.120.151 tomcat.rocky.com
 
 3)通过配置Nginx反向代理的locatoin 将tomcat的图片拆分
@@ -2119,7 +2102,7 @@ hx.png
 
 3.LB01 配置负载均衡集成动态和静态页面  
 
-```plain
+```bash
 [root@LB01 ~]# cat /etc/nginx/conf.d/test.conf 
 upstream static {
          server 192.168.120.129;
@@ -2206,8 +2189,8 @@ Using CATALINA_OPTS:
 
 
 模拟静态业务挂了，动态没挂
-```plain
- [root@web02 ROOT]# /usr/local/tomcat/bin/startup.sh
+```bash
+[root@web02 ROOT]# /usr/local/tomcat/bin/startup.sh
 Using CATALINA_BASE:   /usr/local/tomcat
 Using CATALINA_HOME:   /usr/local/tomcat
 Using CATALINA_TMPDIR: /usr/local/tomcat/temp
@@ -2523,27 +2506,21 @@ Adhoc
 Ansible 的 ad-hoc 命令是一种快速、临时执行任务的方式，无需编写完整的 Playbook。它适用于执行一次性任务、进行快速测试或在多台主机上同步执行简单命令。这种方法非常灵活，能够利用 Ansible 的模块库来完成各种任务。
 
 Ansible ad-hoc 命令语法解析
-
-ansible [pattern] -i [inventory] -m [module] -a "[module options]" [--become]
+`ansible [pattern] -i [inventory] -m [module] -a "[module options]" [--become]`
 
 pattern选项 指定要操作的主机或主机组的模式。
 
 常见的 pattern 语法
-
-[root@server ansible]# cat node.ini [node] node1 node2 [root@server ansible]#
+`[root@server ansible]# cat node.ini [node] node1 node2`
 
 由于主机密钥检查问题暂时没有好的解决办法，这里的举例使用 在 ansible 的配置文件中禁用 ansible 的密钥检查
-
-[defaults] host_key_checking = False
+`[defaults] host_key_checking = False`
 
 1. 全量匹配 all 或 *：选择所有主机
-    
-
-ansible all -m ping
+	`ansible all -m ping`
 
 2. 单主机/主机组
-    
-
+```
 -i：指定库存文件的位置。
 
 -m：指定要使用的模块（例如 ping, shell, copy 等）。
@@ -2551,27 +2528,23 @@ ansible all -m ping
 -a：指定模块的参数。
 
 --become：使用 sudo 提权执行命令（需要适当的权限配置）。
+```
 
 pipx的安装
-
-python3 -m pip install --user pipx
-
-python3 -m pipx ensurepath
+`python3 -m pip install --user pipx`
+`python3 -m pipx ensurepath`
 
 
 
 ## ansible 模块
-ansible-doc -l
-
+`ansible-doc -l`
 列出 ansible-core 的模块列表，不加 l 可以查看指定模块
 
 setup 模块 在 剧本执行前,ansible 会自动调用 setup 模块采集目标清单的 fact(事实信息集合)（可禁用自动调用，在剧本的属性中添加gather_facts: no），采集到的 fact 使用该模块的内置变量以键值对的形式存储，格式为 json 格式，剧本调用 setup 模块的内置变量的子属性时，使用' . '来连接父属性和子属性，这个格式使用的是 嵌套字典的形式，例如内置变量 ansible_devices,它的子属性有 vda，vda 的子属性有 size，那么调用 size 变量就需要使用嵌套字典表示 : ansible_devices.vda.size，等价于 python 的嵌套字典语法 ansible_devices['vda']['size'](https://www.google.com/search?q=%E4%B8%8D%E6%98%AF%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84%EF%BC%8C%E6%98%AF%E5%AD%97%E5%85%B8%E5%B5%8C%E5%A5%97)
 
 - name: get vda_info lineinfile: path: /root/hwreport.txt regexp: "disk_vda_size" line: "{{ ansible_devices.vda.size | default ('none') }}"
     
-
 查看指定模块的使用帮助 ansible-navigator doc 模块名 -m stdout
-
 比 ansible-doc 更完善
 
 
@@ -3061,23 +3034,22 @@ zabbix-agent 以进程的形式运行在主机的 10050 端口
 
 基础架构组件介绍
 
-Zabbix Server
+==Zabbix Server==
 是 Zabbix 的核心组件，其功能为将 Agent 采集到的数据持久化 存储到数据库里。
 
-数据库存储
+==数据库存储==
 存储所有由 Agent 采集到的数据，Zabbix 支持多种数据存储，例如: Mysql,Oracle,PostgreSQL,Elasticsearch 等。
 
-Web 界面
+==Web 界面==
 Zabbix 提供了友好的 Web 界面方便我们操作，Web 界面的运行环境可以是 Nginx+PHP或者Apache+PHP服务组成。Web界面也是ZabbixServer的一部分。
 
-Proxy 代理端 
+==Proxy 代理端== 
 对于分布式环境，Zabbix 也提供了代理的方案，可以代替 Zabbie Server 收集 多个 Agent 的数据，然后在将收集到的数据汇总到 Zabbix Server，Proxy 可以 起到分担 Zabbix Server 负载的作用。
 
-Agent 客户端
+==Agent 客户端==
 Zabbix Agent 被部署在需要监控主机上，用于采集监控数据并发送到 Zabbix Server 端。
 
-Server 服务端
-
+==Server 服务端==
 Zabbix Server 是 C 语言开发的 Zabbix 服务端，有着 强悍的采集和计算性能，而且资源使用率很低。主要的功能如下：
 
 定时读取 Zabbix 数据库，同步 Zabbix UI 配置的信息到缓存，下发到 Zabbix Agent 或者 Zabbix Proxy。
@@ -3150,7 +3122,7 @@ gpgcheck=1
 
 
 开始安装组件
-[root@localhost ~]# dnf -y  install zabbix-server-mysql zabbix-web-mysql zabbix-apache-conf zabbix-sql-scripts zabbix-selinux-policy zabbix-agent
+`[root@localhost ~]# dnf -y  install zabbix-server-mysql zabbix-web-mysql zabbix-apache-conf zabbix-sql-scripts zabbix-selinux-policy zabbix-agent`
 
 
 创建初始数据库
