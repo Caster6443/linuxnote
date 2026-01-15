@@ -3440,7 +3440,17 @@ listener {
 `sudo grub-mkconfig -o /efi/grub/grub.cfg`
 
 btrfs-assistant是快照的图形化管理工具，在其中配置需要的快照配置
-另外出于btrfs的特性，快照被删除后，仅仅是释放了逻辑空间，实际上物理空间还在被占用中，
+另外出于btrfs的特性，Btrfs 以 **Chunk (块组/通常 1GiB)** 为单位向底层磁盘申请空间。删除数据后，这些 Chunk 依然处于“被文件系统征用”的状态，只是内部变空了（碎片化），因此必须通过 **Balance (平衡)** 操作，将低利用率 Chunk 中的有效数据迁移，并把空出的 Chunk 归还给底层设备，才能真正释放物理空间。
+一句话总结：定期回收那些因快照删除而产生的‘已分配但未使用的’僵尸空间。
+手动执行 Balance 容易导致全盘重写（极慢且伤盘），应配置自动增量维护
+
+安装后端脚本btrfsmaintenance
+`paru -S btrfsmaintenance`   
+安装后打开btrfs-assistant会看到新增了一个选项卡btrfs maintenance
+在里面设置如下（其实是默认配置，balance和Scrub选中挂载点都为/）
+[[_resources/Linux_Desktop/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg|Open: Pasted image 20260115141145.png]]
+![[_resources/Linux_Desktop/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg]]
+
 
 
 
