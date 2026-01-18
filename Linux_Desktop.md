@@ -3699,7 +3699,7 @@ WantedBy=timers.target
 华硕提供了图形化配置工具
 `yay -S rog-control-center asusctl`
 启动服务
-`sudo systemctl start asusd
+`sudo systemctl start asusd`
 然后打开rog控制中心配置就行了
 
 
