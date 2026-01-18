@@ -3972,26 +3972,24 @@ cd clash-verge-rev
 
 
 3.切换到旧版本提交
-git checkout b6503cb  # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希
+`git checkout b6503cb`  # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希
 
 4.构建和安装提交的版本
-makepkg -si
-
+`makepkg -si`
 
 构建过程中出现了源文件校验和失败的问题，clash-verge-service.tar.gz 的 SHA512 校验和不匹配，这通常是因为源文件在服务器上已被更新，但 PKGBUILD 中的校验和还是旧值
-sudo pacman -S pacman-contrib
+`sudo pacman -S pacman-contrib`
 
 在项目目录中运行
-updpkgsums
+`updpkgsums`
 这个命令会自动计算当前下载的源文件的 SHA512 校验和，并更新 PKGBUILD 中的 sha512sums 数组
 
 然后重新构建并安装
-makepkg -si
-
+`makepkg -si`
 
 
 然而 pacman -Syu 未来还是必要的，所以在这个问题修复前，我就让 clash-verge-rev 不要跟着一起更新吧
-sudo pacman -D --asexplicit clash-verge-rev clash-geoip
+`sudo pacman -D --asexplicit clash-verge-rev clash-geoip`
 这个命令的作用是将包标记为显式安装，而不是依赖安装
 
 通过手动构建安装的包，有时会被 pacman 错误标记为依赖包，如果卸载某些软件，该软件包被视为依赖，就会被 pacman 自动清理，标记为显示安装后，pacman 不会自动清理它
@@ -4149,7 +4147,7 @@ Categories=Audio;Player;ConsoleOnly;
 给我的 kvm_win7 传文件用
 
 安装软件
-sudo pacman -S python-pyftpdlib
+`sudo pacman -S python-pyftpdlib`
 
 然后在需要共享的文件目录下运行
 python -m pyftpdlib
