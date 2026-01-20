@@ -806,3 +806,391 @@ Depends=grub
 重新安装 GRUB，看看是否有执行 pacman hook，如果成功执行则配置成功。  
 注意看 1/5 和 3/5,钩子执行成功了  
 ![e958a4e711bd12a528ab5a5ce2093e19_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e958a4e711bd12a528ab5a5ce2093e19_MD5.png)  
+
+
+
+# KVM/QEMU虚拟机
+
+1.安装qemu，图形界面， TPM，网络组件  
+`sudo pacman -S qemu-full virt-manager swtpm dnsmasq`  
+
+2.开启libvirtd系统服务  
+`sudo systemctl enable --now libvirtd`  
+我感觉没必要弄开机自启，我用这个频率并不高，不用的时候，这玩意的进程会阻挠系统快速关机  
+
+3.开启NAT default网络  
+
+```
+
+sudo virsh net-start default
+sudo virsh net-autostart default
+
+```
+
+4.添加组权限 需要登出  
+`sudo usermod -a -G libvirt $(whoami)`  
+
+5.可选：如果运行出现异常的话编辑配置文件提高权限  
+
+```
+
+sudo vim /etc/libvirt/qemu.conf
+把user = "libvirt-qemu"改为user = "用户名"
+把group = "libvirt-qemu"改为group = "libvirt"
+取消这两行的注释
+sudo systemctl restart libvirtd
+
+```
+
+有一个注意点，virtmanager默认的连接是系统范围的，如果需要用户范围的话需要左上角新增一个用户会话连接。  
+
+## 嵌套虚拟化
+
+临时生效  
+`modprobe kvm_amd nested=1`  
+
+永久生效  
+
+```
+
+sudo vim /etc/modprobe.d/kvm_amd.conf
+写入
+options kvm_amd nested=1
+
+```
+
+重新生成initramfs  
+`sudo mkinitcpio -P`  
+
+## KVM显卡直通
+
+前置的win11虚拟机安装，virtio-win驱动安装不再赘述  
+virtio-win驱动下载链接参考  
+https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.285-1/virtio-win-0.1.285.iso  
+
+1.确认iommu是否开启，有输出说明开启  
+`sudo dmesg | grep -e DMAR -e IOMMU`  
+现代设备通常都支持IOMMU且默认开启，BIOS里的选项通常为Intel VT-d、AMD-V或者IOMMU。如果没有的话搜索一下自己的cpu和主板型号看看是否支持。  
+![0213e11d14c3c5017942db2882b877b0_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/0213e11d14c3c5017942db2882b877b0_MD5.jpg)  
+
+
+
+2.获取显卡的硬件id，显卡所在group的所有设备的id都记下  
+
+```
+
+for d in /sys/kernel/iommu_groups/*/devices/*; do 
+    n=${d#*/iommu_groups/*}; n=${n%%/*}
+    printf 'IOMMU Group %s ' "$n"
+    lspci -nns "${d##*/}"
+done
+
+```
+
+这里获得了我的显卡所在组和对应id  
+[[41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg|Open: Pasted image 20251213134113.png]]  
+![41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
+
+3.隔离GPU  
+`echo 'options vfio-pci ids=10de:28e0,10de:22be' | sudo tee /etc/modprobe.d/vfio.conf`  
+
+4.编辑内核参数让vfio-pci抢先加载  
+sudo vim /etc/mkinitcpio.conf  
+MODULES=（）`里面写入`vfio_pci vfio vfio_iommu_type1  
+`MODULES=(... vfio_pci vfio vfio_iommu_type1  ...)`  
+
+另外还要确认HOOKS=()里面有modconf  
+`HOOKS=(... modconf ...)`  
+
+5.重新生成initramfs  
+`sudo mkinitcpio -P`  
+
+6.安装和配置ovmf  
+`sudo pacman -S --needed edk2-ovmf`  
+编辑配置文件  
+`sudo vim /etc/libvirt/qemu.conf`  
+搜索nvram，在合适的地方写入：  
+
+```
+
+nvram = [
+"/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
+]
+
+```
+
+7.重启电脑  
+记得把显示器查到核显输出的口上。我的华硕天选4貌似有dp和hdmi两个独显插口  
+
+
+8.添加显卡到虚拟机  
+这里重启后可以看到N卡已经被独立出去了，在win11虚拟机配置中，添加pci硬件设备，选择被独立出的4060  
+![62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg)  
+
+开机后装上n卡驱动，在设备管理器上可以看到n卡成功安装使用了  
+![099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg)  
+
+### moonlight远程连接方案(不建议使用)
+
+删除虚拟机的硬件的显示协议和QXL的显卡，然后添加鼠标和键盘，键盘随便拿了个外接键盘，鼠标就用我现在的雷柏，直通开机后，我直通进去的鼠标键盘就会被虚拟机独占了，所以我的笔记本可以使用自带键盘和触摸板  
+![a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg)  
+
+开机后显示输出会出现在外接显示器中，之后会尝试hdmi欺骗器，因为这个显示器分辨率不行，但是hdmi欺骗器还没送到，所以现在还是先用外接屏吧  
+
+开机进入系统基础设置界面，按下shfit F10打开cmd，输入oobe\bypasssnro来跳过微软账号登录  
+然后安装两个东西，sunshine和virtual display driver，这两个都是github上的项目，一个远程桌面一个虚拟桌面，按照官方文档配置就行了，sunshine打开后会进入一个网页开始基础配置然后可以在这个网页管理连接，然后linux端下载moonlight，这是远程桌面sunshine的客户端，打开后一般它会自动检测到kvm的虚拟桌面，  
+然后右上角设置里调整分辨率，刷新率，码率，码率我设置的50,这个看个人网速吧，重点是并不是设置得高越好，码率这种东西，越高越接近设定的原生画质，但它会受到网络波动的影响，比如网速是90mbps，但这个90是平均值，如果我把码率也设置成90的话，如果网络突然波动到低于90mbps，就可能会有数据的丢包和传输速度的降低，从而导致串流的画面出现画面撕裂和掉帧的现象，所以这里我设定为50,属于是为了帧率牺牲了一些画面分辨率  
+
+然后连接虚拟桌面，会提示让你虚拟机登录那个网页打开pin码设置进行连接，密码就是moonlight提供的pin码，设备名随便设置，先把虚拟桌面设置为主桌面，因为moonlight默认连接的是主桌面。然后连接成功就能进入桌面了，连接后虚拟桌面放着不管，它会自动下线的，如果出现这种情况其实挺难搞的，貌似是和windows的电源管理策略相关，所以我不想用这个了，退出桌面的快捷键是ctrl alt shift q，全屏/窗口 化切换的快捷键是ctrl alt shift x  
+到了这里，就不需要给虚拟机接入设备了，因为操作都是通过串流画面交互的，我把接入的鼠标键盘设备都移除了。  
+
+### looking glass画面串流方案
+
+这个我觉得比日月组合(sunshine+moonlight)好用多了，不吃网速，虽然同样有虚拟桌面长时间不动后自动掉线的问题，但looking glass能拉回来，而且还支持无头模式（这个我不确定moonlight是否同样支持），也就是说我不需要买hdmi欺骗器了  
+
+#### 写在前面的简略理论基础
+
+1.关于 /dev/shm(Linux 的共享内存机制)  
+在 Linux 系统中，为了满足不同程序之间高速交换数据的需求，同时避免频繁读写硬盘造成瓶颈，Linux 设计了一个特殊的机制—— `/dev/shm` 目录。  
+
+**虚拟挂载，而非物理分割**：  
+`/dev/shm` 挂载的 `tmpfs` 文件系统，并不像硬盘分区那样物理占用了内存的一半。它仅仅是向操作系统申请了一个 **“最高可用 50% 内存的记账额度”**。  
+
+**动态分配机制**：  
+在 Looking Glass 没运行（或没写入文件）时，`/dev/shm` 占用的物理内存实际上是 **0**。这部分内存完全开放给系统其他软件使用。只有当文件真正写入时，内核才会从物理内存池中动态抓取空闲的内存页来存储数据。  
+
+**设备本质**：  
+`/dev/shm` 虽位于设备目录 `/dev` 下，但它不是物理设备文件，而是一个**内存对象**的接口。它让用户能像操作普通磁盘文件一样（打开、读写、关闭），直接操作分散在 RAM 中的内存页。  
+**本质**：它的挂载点虽然像个磁盘目录，但其文件系统格式为 `tmpfs`，背后的物理存储介质完全是 **内存 (RAM)**。  
+**约束**：为了防止临时文件无限制地占满物理内存导致死机，Linux 默认将此目录的大小限制为物理总内存的 **50%**。这是一种**安全限额**——用多少占多少，但绝不允许超过这个上限（一旦超过会直接报错，不会溢出到其他区域）。  
+**特性**：由于内存断电即失的物理特性，这个目录下的文件在重启后会自动消失，非常适合存放无需永久保存的临时数据。  
+
+2.Systemd 临时文件管理 (systemd-tmpfiles)  
+Linux 系统中专门用于在开机时**自动创建、恢复或清理**那些“断电即失”（易失性）文件的标准化管理机制。  
+
+通过在/etc/tmpfiles.d/下书写配置文件（`.conf`）声明“我需要什么文件、什么权限”，系统开机时会自动帮你把这些文件“变”出来，无需人工干预或编写复杂脚本。  
+
+主要针对内存挂载目录（如 `/dev/shm`、`/run`、`/tmp`）下的文件。这些文件在重启后会消失，但应用程序（如 Looking Glass）启动时又必须依赖它们。  
+
+
+
+
+3.Looking Glass 的工作原理  
+实际上还要更复杂一些，涉及到内存映射等一系列技术，我这里只谈我作为使用者能直接接触到的  
+
+Looking Glass 利用了上述机制来实现“零延迟”的画面传输：  
+**共享白板**：Looking Glass 在 `/dev/shm` 下创建了一个文件（也就是划定了一块内存区域）。这块区域成为了虚拟机（Host）和宿主机（Client）的**公共白板**。  
+**流程**：  
+1. 虚拟机内的显卡渲染好画面后，通过 IVSHMEM 驱动直接把画面数据“写”进这块内存。  
+2. 宿主机的 Looking Glass 客户端直接从这块内存里“读”取数据并显示。  
+
+**为什么用 `/dev/shm`**：  
+**极速**：读写内存的速度远超硬盘。  
+**共享**：它是极少数能让两个隔离的系统（Linux 和 Windows VM）同时访问的“虫洞”。  
+**自动清理**：配合 `systemd-tmpfiles` 和 `tmpfs` 的特性，保证了每次重启后环境的干净，不会留下垃圾文件。  
+
+
+
+win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://github.com/VirtualDrivers/Virtual-Display-Driver)  
+
+#### 开始实施
+
+1.计算需要的共享内存大小, 具体可以看官方档案，我是2560x1440@165hz 非HDR，需要大小是64M  
+2.设置共享内存设备 打开virt-manager，点击编辑 > 首选项，勾选启用xml编辑。 打开虚拟机配置，找到xml底部的 `</devices>`，在 `</devices>`的上面添加设备，size记得该成自己需要的，参考如下内容写入适当的位置：  
+
+```
+
+<devices>
+    ...
+  <shmem name='looking-glass'>
+    <model type='ivshmem-plain'/>
+    <size unit='M'>64</size> 
+  </shmem>
+</devices>
+
+```
+
+3.在终端中加入桌面用户到kvm组  
+`sudo gpasswd -a $USER kvm`  
+重启电脑后使用groups命令确认自己在kvm组里  
+
+4.设置共享内存设备对应的文件的规则  
+`sudo vim /etc/tmpfiles.d/10-looking-glass.conf`  
+写入如下内容  
+`f /dev/shm/looking-glass 0660 caster kvm -`  
+`f` 代表定文件规则 `/dev/shm/looking-glass`是共享内存文件的路径 `0660` 设置所有者和所属组的读写权限 `caster` 设置所有者 `kvm` 设置所属组  
+
+这个conf文件它定义了一个每次开机就仅执行一次的服务，生成的/dev/shm/looking-glass文件，就是这个划分的内存的入口  
+
+本来是每次开机触发一次，但可以立刻手动创建这个文件  
+`sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf`  
+
+4.回到虚拟机设置  
+设置spice协议  
+确认有spice显示协议，显卡设置为none  
+
+键鼠传输  
+添加virtio键盘和virtio鼠标（要在xml里面更改bus=“ps2”为bus=“virtio”）加上这个，外部鼠标键盘才能映射到虚拟机的串流画面上  
+
+剪贴板同步（可选）  
+确认有spice信道设备，没有的话添加，设备类型为spice  
+
+声音传输  
+确认有ich9声卡，点击概况，去到xml底部，在里面找到下面这段，确认type为spice，不是的话自己手动改  
+`<audio id='1' type='spice'/>`  
+配置结束大概是这样  
+![52a72e57902a24011dcd312b0bdf4e83_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/52a72e57902a24011dcd312b0bdf4e83_MD5.jpg)  
+
+
+5.开启虚拟机，安装looking glass 服务端  
+浏览器搜索 looking glass，点击download，下载bleeding-edge的windows host binary，解压后双击exe安装  
+
+6.linux安装客户端  
+服务端和客户端的版本要匹配，bleeding-edge对应git包  
+`yay -S looking-glass-git`  
+
+桌面快捷方式打开lookingglass即可连接  
+
+win11老是没事更新，对虚拟机会有很大问题，关闭了自动更新还不保险，同时也为了预防其他问题，我这里设置了一个虚拟机克隆用于日常使用  
+
+写了个脚本用于切换显卡归属，没有内存大页的设置，因为我觉得我目前还没这个需求，谁知道呢，说不定过几天就搞内存大页，然后就要重新写这个脚本  
+
+```
+
+❯ cat /usr/local/bin/switch-gpu-owner 
+
+#!/bin/bash
+
+# 配置
+VFIO_IDS="10de:28e0,10de:22be"
+MKINIT="/etc/mkinitcpio.conf"
+VFIO_CONF="/etc/modprobe.d/vfio.conf"
+
+# 颜色
+R=$(tput sgr0)
+B=$(tput bold)
+BLUE=$(tput setaf 4)
+GREEN=$(tput setaf 2)
+GRAY=$(tput setaf 8)
+PURPLE=$(tput setaf 5)
+RED=$(tput setaf 1)
+CYAN=$(tput setaf 6)
+
+I_NV="🐧"
+I_VF="⚙️"
+
+[ "$EUID" -ne 0 ] && printf "${RED}错误: 请使用 sudo${R}\n" && exit 1
+
+clear
+
+printf "${BLUE}╭────────────────────────────────╮${R}\n"
+printf "${BLUE}│${R}          ${B}独显归属切换${R}          ${BLUE}│${R}\n"
+printf "${BLUE}╰────────────────────────────────╯${R}\n\n"
+
+if grep -q "vfio_pci" "$MKINIT"; then
+    TARGET="HOST"
+    printf "${GRAY}╭── 当前状态 ────────────────────╮${R}\n"
+    printf "${GRAY}│  ${I_VF}  显卡直通                  │${R}\n" 
+    printf "${GRAY}╰────────────────────────────────╯${R}\n"
+    printf "                ${B}⬇️${R}\n"
+    printf "${GREEN}╭── 即将切换 ────────────────────╮${R}\n"
+    printf "${GREEN}│  ${I_NV}  linux主机使用             │${R}\n"
+    printf "${GREEN}╰────────────────────────────────╯${R}\n"
+else
+    TARGET="VM"
+    printf "${GRAY}╭── 当前状态 ────────────────────╮${R}\n"
+    printf "${GRAY}│  ${I_NV}  linux主机使用             │${R}\n"
+    printf "${GRAY}╰────────────────────────────────╯${R}\n"
+    printf "                ${B}⬇️${R}\n"
+    printf "${PURPLE}╭── 即将切换 ────────────────────╮${R}\n"
+    printf "${PURPLE}│  ${I_VF}  显卡直通                  │${R}\n"
+    printf "${PURPLE}╰────────────────────────────────╯${R}\n"
+fi
+
+printf "\n${B}确认切换? [y/N]: ${R}"
+read CONFIRM
+[[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]] && printf "\n${GRAY}取消。${R}\n" && exit 0
+
+printf "\n${GRAY}────────────────────────────────${R}\n"
+printf "${BLUE}正在修改配置...${R}\n"
+
+if [ "$TARGET" == "HOST" ]; then
+    truncate -s 0 "$VFIO_CONF"
+    printf " ${GREEN}✔${R} 清空 ${CYAN}%s${R}\n" "$VFIO_CONF"
+    
+    sed -i 's/^MODULES=(.*)/MODULES=(amdgpu)/' "$MKINIT"
+    printf " ${GREEN}✔${R} 修改 ${CYAN}%s${R}: MODULES=(amdgpu)\n" "$MKINIT"
+else
+    echo "options vfio-pci ids=$VFIO_IDS" > "$VFIO_CONF"
+    echo "softdep nvidia pre: vfio-pci" >> "$VFIO_CONF"
+    echo "softdep nouveau pre: vfio-pci" >> "$VFIO_CONF"
+    printf " ${GREEN}✔${R} 写入 ${CYAN}%s${R}: 绑定 ID $VFIO_IDS\n" "$VFIO_CONF"
+    
+    sed -i 's/^MODULES=(.*)/MODULES=(vfio_pci vfio vfio_iommu_type1 amdgpu)/' "$MKINIT"
+    printf " ${GREEN}✔${R} 修改 ${CYAN}%s${R}: MODULES=(vfio...)\n" "$MKINIT"
+fi
+
+printf "\n${BLUE}重建内核 (mkinitcpio)...${R}\n${GRAY}"
+
+mkinitcpio -P
+if [ $? -eq 0 ]; then
+    printf "${R}\n${B}${GREEN}✅ 完成。${R} 请重启。\n"
+    read -p "立即重启? [y/N]: " RB
+    [[ "$RB" == "y" || "$RB" == "Y" ]] && reboot
+else
+    printf "${R}\n${RED}❌ 失败！请检查日志。${R}\n"
+    exit 1
+fi
+
+```
+
+## KVM虚拟机性能优化和伪装
+
+从这里开始的配置就在克隆系统中进行  
+
+### 禁用memballoon
+
+[libvirt/QEMU Installation — Looking Glass B7 documentation](https://looking-glass.io/docs/B7/install_libvirt/#memballoon)  
+
+memlbaloon的目的是提高内存的利用率，但是由于它会不停地“取走”和“归还”虚拟机内存，导致显卡 直通时虚拟机内存性能极差。  
+
+将虚拟机xml里面的memballoon改为none，这将显著提高low帧。  
+
+```
+
+<memballoon model="none"/>
+
+```
+
+### 虚拟机镜像优化
+
+原因是虚拟机的特性与btrfs的写时复制(COW)机制有一定冲突，在虚拟机内部，windows在qcow2镜像内部进行微小的块写入，但是每当qcow2文件发生修改，就会触发btrfs的COW，btrfs就会在物理硬盘上找个新位置重新写入该块，后果就是，一个原本逻辑上连续的100GB镜像文件，在物理上被拆成了几十万个不连续的碎片，碎片数量可以通过`sudo filefrag -v win11.qcow2`命令查看，这个问题会导致严重的性能损耗，  
+**寻址压力**：内核必须维护几十万条映射记录。读取文件时，CPU 需要频繁查询 B-Tree 索引，造成系统负载波动  
+**IO 随机化**：原本是顺序读取的操作，被强制变成了海量的随机读取，极大限制了 SSD 的吞吐能力。  
+
+一般来说，只要使用chattr +C 命令给qcow2文件设置禁止写时复制就行了，但要在虚拟机刚开始用的时候设置，如果已经用了一段时间，则需要强制物理重写（数据搬家）  
+
+1.由于 `chattr +C`（NOCOW 属性）只对新文件生效，我们必须采用“先设目录，后创文件”的策略。  
+赋予存放镜像的目录 NOCOW 属性，让其下的新文件自动继承  
+`sudo chattr +C /var/lib/libvirt/images`  
+
+2.强制物理重写（数据搬家）  
+`cd /var/lib/libvirt/images`  
+创建一个标记为 +C 的空文件  
+`sudo touch win11-fixed.qcow2`  
+`sudo chattr +C win11-fixed.qcow2`  
+强制物理拷贝，禁用 reflink (克隆)，--sparse=always 保证镜像文件中的空洞不被填满，节省物理空间  
+`sudo cp --reflink=never --sparse=always win11-original.qcow2 win11-fixed.qcow2`  
+
+3.深度整理（最后压实）  
+即使重写后，受限于磁盘剩余空间的碎片化，可能仍有残余碎片。使用 Btrfs 专用的整理工具进行最后修复。  
+告诉内核寻找至少 32MB 连续空间的“大地盘”进行整理  
+`sudo btrfs filesystem defragment -v -t 32M win11-fixed.qcow2`  
+然后把新创建的qocw2改名为旧的取代即可  
+
+### 共享存储
+
+首先确认启用了内存共享(Virtio-FS 强依赖共享内存)  
+添加文件系统类型的硬件  
+![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3c515fd8863a183782d1c8f03217cd43_MD5.jpg)  
+就是这样，然后进入虚拟机内部，安装winfsp驱动，在github的项目地址下面找，后缀名msi，安装成功后，打开windows的服务管理，启动Virtio-FS Service服务，默认是手动启动的，但也可以设置自动启动，不过感觉有点小风险？启动成功后可以找到一个独立的盘，盘名就是设置的目标路径  
