@@ -5049,20 +5049,35 @@ dnf -y install  dnf-utils
 
 
 删除已有（可选）
-`sudo dnf -y remove php php-fpm`
+
+```
+sudo dnf -y remove php php-fpm
+```
 
 
 删除相关扩展包
+
+```
 sudo dnf -y remove php*
+```
 
 重置 PHP 模块列表
+
+```
 sudo dnf -y module list reset php
+```
 
 查看 PHP 版本
+
+```
 sudo dnf module list php
+```
 
 启用 PHP
+
+```
 sudo dnf -y module enable php:remi-8.2
+```
 
 
 
@@ -5071,7 +5086,10 @@ sudo dnf -y module enable php:remi-8.2
 
 3.安装 php，mariadb 及其必要组件
 安装 php
-`dnf -y install php php-fpm`
+
+```
+dnf -y install php php-fpm
+```
 
 安装拓展
 
@@ -5211,7 +5229,10 @@ server {
 
 
 8.初始化 mysql 设置密码
- `[root@rocky ~]# mysqladmin password '000000'`  
+
+```
+mysqladmin password '000000'  
+```
 
 
 
@@ -5240,7 +5261,10 @@ server {
 
 
 9.创建 wordpress 所需数据库
- `[root@web01 wordpress]#mysql -uroot -p000000 -e "create database wordpress;"`  
+
+```
+mysql -uroot -p000000 -e "create database wordpress;"  
+```
 
 
 
@@ -5398,11 +5422,15 @@ tail -f /var/log/kubeinstall.log
 
 与docker一样，都需要安装bash-completion
 
+```
 source <(kubectl completion bash)
+```
 
 在bash中设置当前shell的自动补全，要先安装bash-completion包。
 
+```
 echo "source <(kubectl completion bash)" >> ~/.bashrc
+```
 
 
 
@@ -5422,7 +5450,11 @@ echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 Istio 作为重要的 ServiceMesh 框架，已经被越来越多的公司所使用。在 Istio 体系中，应用容器的出入流量都需要经过 Sidecar 的拦截和处理。默认地，Istio sidecar 自动注入是通过给 namespace 打 istio-injection=enabled 或 istio-injection=disabled 标签，来确定是否在该命名空间执行自动注入。
 
-示例：kubectl label ns exam istio-injection=enabled
+示例：
+
+```
+kubectl label ns exam istio-injection=enabled
+```
 
 注：ns是指代命名空间，在kubectl create ns中也是这个作用，该命名空间名字叫exam
 
@@ -5446,22 +5478,26 @@ Release 包含了 Chart 的配置信息、部署的 Kubernetes 资源对象以�
 
 ## k8s镜像下载策略有哪些
 
+```
 [root@k8s231.oldboyedu.com pods]# cat 06-nginx-imagePullPolicy.yaml
 
 apiVersion: v1 kind: Pod metadata: name: linux85-web-imagepullpolicy-001 spec: nodeName: k8s233.oldboyedu.com containers:
 
 - name: nginx image: [harbor.oldboyedu.com/web/linux85-web:v0.1](https://www.google.com/search?q=https://harbor.oldboyedu.com/web/linux85-web:v0.1)
+```
     
 指定镜像的下载策略，有效值为: Always, Never, IfNotPresent
+```
 Always:
-    # 默认值，表示始终拉取最新的镜像。
+默认值，表示始终拉取最新的镜像。
 IfNotPresent:
-    如果本地有镜像，则不去远程仓库拉取镜像，若本地没有，才会去远程仓库拉取镜像。
+如果本地有镜像，则不去远程仓库拉取镜像，若本地没有，才会去远程仓库拉取镜像。
 Never:
-    如果本地有镜像则尝试启动，若本地没有镜像，也不会去远程仓库拉取镜像。
+如果本地有镜像则尝试启动，若本地没有镜像，也不会去远程仓库拉取镜像。
 imagePullPolicy: Always
 imagePullPolicy: IfNotPresent
 imagePullPolicy: Never
+```
 
 
 
@@ -5486,15 +5522,20 @@ imagePullPolicy: Never
 
 1、删除这个路径下的文件
 
+```
 rm -rf $HOME/.kube
+```
 
 2、重新执行命令
 
+```
 mkdir -p $HOME/.kube
 
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 
 sudo chown (id−u):(id -g) $HOME/.kube/config
+
+```
 
 3、重新查看节点
 
