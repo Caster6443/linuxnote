@@ -145,70 +145,53 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 
 一个个介绍吧  
 
+```
 center-test.jsonc 
 是我用来临时检测我的 arch 图标有没有居中，用 waybar -c ~/.config/waybar/center-test.jsonc 测试，会在当前的 bar 下面再显示出一个临时的居中 arch 图标，以此来检测上面的 arch 图标有没有居中  
-
 
 colors.css 
 用于声明各种颜色变量以供调用  
 关于这个，konsole 支持鼠标指针放颜色代码上去可以预览颜色，很方便我修改  
 
-
 config.jsonc 
 是整体框架，模块定义在别的文件里写  
-waybar_config/config.jsonc  
-
 
 modules-dividers.jsonc 
 定义了各种图形，用于不同模块之间的图形衔接，在 css 中具体调色  
-waybar_config/modules-dividers.jsonc  
 
+modules.jsonc
+里是各种模块的定义，注释已经很清楚了  
 
-modules.jsonc 里是各种模块的定义，注释已经很清楚了  
-waybar_config/modules.jsonc  
-
-
-style.css 包含了模块和连接符的美化  
+style.css 
+包含了模块和连接符的美化  
 比如custom/left_div#9 连接符，它的左右颜色是根据 color 和 background-color 决定的  
-waybar_config/style.css  
-
-
 
 script 里面都是模块调用的脚本  
-scripts/cava.sh 是音频可视化调用的脚本文件  
+scripts/cava.sh 
+音频可视化调用的脚本文件 
 
+metadata.sh 
+辅助音频可视化，实现悬停显示正在播放的音频名称
 
-metadata.sh 辅助音频可视化，实现悬停显示正在播放的音频名称
-
-
-
-
-
-get-clock.sh 就是简单的悬停获取时间的脚本， 时钟模块调用的  
-
+get-clock.sh 
+就是简单的悬停获取时间的脚本， 时钟模块调用的  
 
 下面两个是截屏调用的脚本，因为脚本在 hyprland 快捷键里早就有使用，所以我就拿来复用了  
 screenshot_edit.sh
-
-
 screenshot_quick.sh
 
-
-
-
-set_wallpaper.sh 快捷切换壁纸脚本，和下面的脚本结合使用
-
+set_wallpaper.sh 
+快捷切换壁纸脚本，和下面的脚本结合使用
 
 wallpaper_scroll.sh  
 壁纸目录应当存放在$HOME/Pictures/anime/wallpapers 下  
 
+wf-recorder.sh
+录屏菜单脚本
 
-
-
-wf-recorder.sh 录屏菜单脚本
-
-switch-audio-output.sh 快捷选择音频输出设备  
-
+switch-audio-output.sh 
+快捷选择音频输出设备  
+```
 
 桌面美化效果预览如下  
 
@@ -216,12 +199,8 @@ switch-audio-output.sh 快捷选择音频输出设备
 
 有个小瑕疵，就是那个控制息屏的模块，它的两个状态切换的图标大小是不一样的，当前是启用息屏，中间的图标正好居中，我切换到另一个状态，图标就小了一点，中间的图标就会往左移动一些，但我也懒得改了，不过修改也简单，改成大小一致的图标就行，但我还没找到合适的，另一个方案是用 css 的 padding 字段，严格控制该字符的边距就行了，但我暂时也不改了  
 
-过一段时间或许会去试试 niri，感觉挺不错的  
+这段配置，算是能用吧，至少作为 hyprland 的 bar 是可以的，但还是有待优化，代码逻辑有的就有效率问题，比如滚动切换壁纸使用 pkill 是很浪费性能的，明明 mpvpaper 就支持直接覆盖，不过还是等后续修改吧  
 
-
-好的，已经叛逃到 niri 了，hyprland 真的回不去了，同时 waybar 也做了部分优化和为了适配 niri 的部分微调，因此这段配置，能用吧，至少作为 hyprland 的 bar 是可以的，但还是有待优化，之后单独列出 niri 的相关块，或许会顺便优化一下这里的部分通用代码逻辑吧，比如滚动切换壁纸使用 pkill 是很浪费性能的，明明 mpvpaper 就支持直接覆盖，不过还是等我后续修改吧  
-
-好了，waybar也不用了，用的noctalia-shell,似乎dms更加完善，潜力更高，但它的动画效果目前是不如noctalia的，所以还是用着noctalia吧，但我认为它们的可定制性还是不如waybar，但仔细想想，waybar如果功能做得比较多了，内存占用就会更大，这时就更需要系统性的配置调优，那我为啥不直接用人家专门开发的桌面shell，主要还是现在的自己不懂开发，忙着备考也没时间学，但我会去学的。  
 
 ## 禁用触控板
 
@@ -251,8 +230,12 @@ scroll factor: -1.00
 ```
 
 可以看到触控板设备名为asuf1204:00-2808:0202-touchpad  
-hyprctl keyword 'device[asuf1204:00-2808:0202-touchpad]:enabled' 'false'这条命令可以关闭触控板，设置为 true 就打开  
 
+```
+hyprctl keyword 'device[asuf1204:00-2808:0202-touchpad]:enabled' 'false'
+```
+
+这条命令可以关闭触控板，设置为 true 就打开  
 那就可以写个 shell 脚本再通过 bind 绑定键位  
 
 ```bash
@@ -286,15 +269,16 @@ fi
 ```
 
 加上执行权限  
-`sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh`  
+
+```
+sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh  
+```
 
 在 hyprland 配置文件上绑定键位 ctrl+f10  
 
 ```bash
-
 # 切换触控板 (Ctrl + F10)
 bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
-
 ```
 
 ## 浮动窗口间隙设置
@@ -303,7 +287,6 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 这个空白大小是可以修改的，还是在那个 hyprland 配置文件里  
 
 ```bash
-
 # https://wiki.hypr.land/Configuring/Variables/#general
 general {
     gaps_in = 5
@@ -338,7 +321,11 @@ general {
 
 项目地址 [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)  
 这个项目要求三个前置软件包  
+
+```
 sudo pacman -S --needed ninja meson mpv  
+```
+
 然后克隆构建和安装  
 
 ```
@@ -352,15 +339,27 @@ ninja -C build install
 ```
 
 使用方法  
-`mpvpaper DP-2 /path/to/video`  
+
+```
+mpvpaper DP-2 /path/to/video  
+```
+
 DP-2 是显示器名字，也就是说可以指定显示器播放，自己的显示器名字用 hyprctl monitors all查看所有 hyprland 检测到的显示器信息，懒得看就直接用 ALL 代替所有显示器  
 
 笔记本内置屏幕名字一般是 eDP-1,我的就是  
 但这个只能播放一次，需要循环播放就需要使用命令  
 例如这样的  
-`mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4`  
+
+```
+mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4  
+```
+
 这个命令是前台运行，所以可以在尾巴加上&，但是这样关闭终端就会杀死进程，另一种方法是加上& disown，这样即使关闭终端也不会杀死进程，不过如果要写进 exec-once 里只需要单用一个&就足够了  
-`mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4 &`  
+
+```
+mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4 &  
+```
+
 这个命令就可以写进 hyprland 的 exec-once 设置开机自启  
 
   
@@ -370,16 +369,25 @@ DP-2 是显示器名字，也就是说可以指定显示器播放，自己的显
 
 主要使用 Crow Translate 这个程序  
 1.安装主程序  
-`yay -S crow-translate`  
+
+```
+yay -S crow-translate  
+```
 
 2.安装 Wayland/OCR 核心依赖  
 tesseract 是引擎, slurp 是划词工具, portal 是 Wayland 门户  
-`sudo pacman -S tesseract slurp xdg-desktop-portal-hyprland`  
+
+```
+sudo pacman -S tesseract slurp xdg-desktop-portal-hyprland  
+```
 
 
 3.安装 OCR 语言包  
 我玩未来战用的，就装英韩中三个语言吧  
-`sudo pacman -S tesseract-data-eng tesseract-data-kor tesseract-data-chi_sim`  
+
+```
+sudo pacman -S tesseract-data-eng tesseract-data-kor tesseract-data-chi_sim  
+```
 
 
 打开软件Crow Translate  
@@ -404,24 +412,36 @@ URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷�
 ## Waydroid 初始配置
 
 安装 waydroid 并初始化  
-`sudo pacman -S waydroid`  
-`sudo waydroid init`  
+
+```
+sudo pacman -S waydroid  
+sudo waydroid init  
+```
+
 //如果需要使用谷歌服务，可以指定带有谷歌服务的镜像  
-`sudo waydroid init -s GAPPS`  
+
+```
+sudo waydroid init -s GAPPS  
+```
 
 
 原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层  
 安装waydroid-script  
-`yay -S waydroid-script-git`  
 
-waydroid-scripts 项目提供了 waydroid-extras 命令来安装翻译层  
-libhoudini 用于英特尔  
-libndk 用于 AMD  
+```
+yay -S waydroid-script-git  
+```
+
+waydroid-scripts 项目提供了 waydroid-extras 命令来安装翻译层,   libhoudini 用于英特尔,libndk 用于 AMD  
 
 不过在某些程序无法运行时，两个都可以装上试试看  
-
 我是 A 卡  
-sudo waydroid-extras 跟着提示一步步走选择安装libndk就行了  
+
+```
+sudo waydroid-extras 
+```
+
+跟着提示一步步走选择安装libndk就行了  
 
 使用谷歌商店会出现此设备不能安装的情况，需要将设备 id 加入谷歌设备中  
 这个项目同样提供了获取设备 id 和提供添加 id 的谷歌官网链接，也在 waydroid-extras 命令中  
@@ -495,7 +515,10 @@ waydroid upgrade --offline
 项目地址：[https://github.com/waydroid-helper/waydroid-helper/tree/main](https://github.com/waydroid-helper/waydroid-helper/tree/main)  
 
 对于 archlinux 用户，直接从 aur 仓库安装即可  
-`yay -S waydroid-helper`  
+
+```
+yay -S waydroid-helper  
+```
 
 这个应用功能比较齐全了，值得一提的是，在设置按键映射时，会出现一个窗口，然后在窗口里设置映射键位，这里并不是说明上说的，把映射键位放在对应按键上就行，而是根据这个窗口与 waydroid 的缩放比例，放到对应的位置，要使用映射时，需要先鼠标聚焦到映射的窗口  
 
@@ -681,7 +704,10 @@ configfile grub.cfg
 上面的配置首先加载相应的模块，读取 memdisk 中的字体数据（如果不考虑复杂的 OpenGPG 签名加载方式，这是目前安全启动下 GRUB 读取字体的最好办法），之后通过 UUID 搜索包含 GRUB 配置文件的分区，并立刻读取其中的 grub.cfg 内容。因此，你必须将 search.fs_uuid 中的硬盘 UUID 换成包含 GRUB 配置文件的分区的真实 UUID。  
 
 参考一下我的磁盘信息，  
-`search.fs_uuid 1B9C-667B root hd0,gpt1`  
+
+```
+search.fs_uuid 1B9C-667B root hd0,gpt1  
+```
 
 我选择这样填写，uuid 是我的 efi 分区，注意这里的 root 并不是指/分区，而是指 boot 分区，gpt1 则是因为 efi 分区的索引为 1  
 
@@ -777,7 +803,10 @@ sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-sh
 ### 5. 自动更新 GRUB 的 EFI 文件和配置数据
 
 首先，准备一下 update-grub 脚本。可以通过 AUR 包的形式安装（包名为 update-grub），也可以在 /usr/local/bin 下新建一个。文件的内容可以参考[这里](https://aur.archlinux.org/cgit/aur.git/tree/update-grub?h=update-grub)  
-`yay -S update-grub`  
+
+```
+yay -S update-grub  
+```
 
 在 /etc/pacman.d/hooks 文件夹下（没有则新建），新建两个文件（pacman hooks）。  
 /etc/pacman.d/hooks/1-update-grub-efi.hook，用于实时更新 GRUB EFI 文件  
@@ -829,10 +858,17 @@ Depends=grub
 # KVM/QEMU虚拟机
 
 1.安装qemu，图形界面， TPM，网络组件  
-`sudo pacman -S qemu-full virt-manager swtpm dnsmasq`  
+
+```
+sudo pacman -S qemu-full virt-manager swtpm dnsmasq  
+```
 
 2.开启libvirtd系统服务  
-`sudo systemctl enable --now libvirtd`  
+
+```
+sudo systemctl enable --now libvirtd  
+```
+
 我感觉没必要弄开机自启，我用这个频率并不高，不用的时候，这玩意的进程会阻挠系统快速关机  
 
 3.开启NAT default网络  
@@ -845,7 +881,10 @@ sudo virsh net-autostart default
 ```
 
 4.添加组权限 需要登出  
-`sudo usermod -a -G libvirt $(whoami)`  
+
+```
+sudo usermod -a -G libvirt $(whoami)  
+```
 
 5.可选：如果运行出现异常的话编辑配置文件提高权限  
 
@@ -864,7 +903,10 @@ sudo systemctl restart libvirtd
 ## 嵌套虚拟化
 
 临时生效  
-`modprobe kvm_amd nested=1`  
+
+```
+modprobe kvm_amd nested=1  
+```
 
 永久生效  
 
@@ -877,7 +919,10 @@ options kvm_amd nested=1
 ```
 
 重新生成initramfs  
-`sudo mkinitcpio -P`  
+
+```
+sudo mkinitcpio -P  
+```
 
 ## KVM显卡直通
 
@@ -886,7 +931,11 @@ virtio-win驱动下载链接参考
 https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.285-1/virtio-win-0.1.285.iso  
 
 1.确认iommu是否开启，有输出说明开启  
-`sudo dmesg | grep -e DMAR -e IOMMU`  
+
+```
+sudo dmesg | grep -e DMAR -e IOMMU  
+```
+
 现代设备通常都支持IOMMU且默认开启，BIOS里的选项通常为Intel VT-d、AMD-V或者IOMMU。如果没有的话搜索一下自己的cpu和主板型号看看是否支持。  
 ![0213e11d14c3c5017942db2882b877b0_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/0213e11d14c3c5017942db2882b877b0_MD5.jpg)  
 
@@ -909,23 +958,42 @@ done
 ![41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
 
 3.隔离GPU  
-`echo 'options vfio-pci ids=10de:28e0,10de:22be' | sudo tee /etc/modprobe.d/vfio.conf`  
+
+```
+echo 'options vfio-pci ids=10de:28e0,10de:22be' | sudo tee /etc/modprobe.d/vfio.conf  
+```
 
 4.编辑内核参数让vfio-pci抢先加载  
+```
 sudo vim /etc/mkinitcpio.conf  
-MODULES=（）`里面写入`vfio_pci vfio vfio_iommu_type1  
-`MODULES=(... vfio_pci vfio vfio_iommu_type1  ...)`  
+MODULES=（）里面写入`vfio_pci vfio vfio_iommu_type1  
+MODULES=(... vfio_pci vfio vfio_iommu_type1  ...)
+```
 
 另外还要确认HOOKS=()里面有modconf  
-`HOOKS=(... modconf ...)`  
+
+```
+HOOKS=(... modconf ...)  
+```
 
 5.重新生成initramfs  
-`sudo mkinitcpio -P`  
+
+```
+sudo mkinitcpio -P  
+```
 
 6.安装和配置ovmf  
-`sudo pacman -S --needed edk2-ovmf`  
+
+```
+sudo pacman -S --needed edk2-ovmf  
+```
+
 编辑配置文件  
-`sudo vim /etc/libvirt/qemu.conf`  
+
+```
+sudo vim /etc/libvirt/qemu.conf  
+```
+
 搜索nvram，在合适的地方写入：  
 
 ```
@@ -1028,7 +1096,11 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
 ```
 
 3.在终端中加入桌面用户到kvm组  
-`sudo gpasswd -a $USER kvm`  
+
+```
+sudo gpasswd -a $USER kvm  
+```
+
 重启电脑后使用groups命令确认自己在kvm组里  
 
 4.设置共享内存设备对应的文件的规则  
