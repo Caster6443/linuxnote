@@ -1,7 +1,7 @@
+
 # Hyprland
 开始用 hyprland 了，目前体验还不错，但是配置过程有点繁琐，懒得写怎么装了，就简单记录一下怎么用吧
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的
-
 
 ## 设置命令开机自启动
 进入该配置文件，在 exec-once 开头的那一块区域写入
