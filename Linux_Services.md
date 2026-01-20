@@ -5539,13 +5539,17 @@ sudo chown (id−u):(id -g) $HOME/.kube/config
 
 3、重新查看节点
 
-[root@master ~]# kubectl get nodes
+```
+kubectl get nodes
+```
 
 解决方法2：
 
+```
 echo export KUBECONFIG=/etc/kubernetes/kubelet.conf >> ~/.bashrc
 
 source ~/.bashrc
+```
 
 另外，以下报错也是出于该原因
 
@@ -5582,7 +5586,6 @@ source ~/.bashrc
 K8s镜像源在这里使用阿里云的镜像仓库，下一次使用harbor仓库实现本地拉取镜像，应该只是指定标签的问题，还有另一个更为简便的方法，就是用ctr创建一个命名空间名为k8s.io（ctr ns create k8s.io），再把需要的镜像导入进去（ctr -n k8s.io image import k8s/k8s-images.tar），由于镜像命名是aliyun的，所以在初始化时要指定阿里云镜像仓库（--image-repository [registry.aliyuncs.com/google_containers](https://www.google.com/search?q=https://registry.aliyuncs.com/google_containers)）离线包有harbor-offline-installer-v2.11.2.tgz k8s-1.25.9.tar.gz
 
 1. 基础环境配置
-    
 
 解压两个安装包，配置阿里云的基础源和docker源（docker是非必须，镜像管理的功能被ctr代替了，但harbor部署还需要它，而基础源可以用7.9镜像代替，都可以实现本地部署），k8s的包解压后的配置文件都拷贝到对应位置
 
@@ -5598,11 +5601,17 @@ K8s镜像源在这里使用阿里云的镜像仓库，下一次使用harbor仓�
 
 K8s初始化时会在命名空间中搜索是否有需要的本地镜像，找不到再去外网寻找，所以在k8s使用本地镜像时需要将镜像用ctr导入到命名空间中，因此猜想k8s从外网拉取镜像时也是先拉到命名空间中再使用的，而使用的镜像包可以用docker commit生成，ctr暂时不知道是使用什么命令生成
 
+```
 kubeadm config images list
+```
 
 使用这条命令可以查看初始化需要的镜像，然后也可以通过改标签的方式让k8s以为本地的镜像是官方镜像
 
-kubeadm config images list --config kubeadm.conf查看初始化所需镜像
+查看初始化所需镜像
+
+```
+kubeadm config images list --config kubeadm.conf
+```
 
 
 
@@ -5656,7 +5665,7 @@ containerd 相比于docker , 多了namespace概念, 每个image和container 都�
 
 经Al解析得知是因为找不到名为eth0的接口，因为本地的网卡名为ens33，在kube-flannel.yml配置文件中将iface=eth0参数修改为iface=ens33（不修改的话也可以仿openstack搭建前在虚拟机开机时添加参数net.ifnames=0 devbiosname=0,将网卡设置为eth0），且该配置文件中的另一个参数Network要指定为集群初始化时--pod-network-cidr的参数
 
-而后kubeadm reset
+而后`kubeadm reset`
 
 再重启配置flannel网络
 
@@ -5721,16 +5730,26 @@ K8s集群初始化
 
 ## 任务一
 主机清单
+
+```
 serverA 192.168.122.10
 server1 192.168.122.11
 server2 192.168.122.12
+```
 
 ### 1.配置DNS主服务器server1
 1)安装软件
-`[root@server1 ~]# yum -y install bind bind-utils`
+
+```
+[root@server1 ~]# yum -y install bind bind-utils
+```
 
 2).配置主配置文件 /etc/named.conf 修改监听地址和允许查询范围
-`vim /etc/named.conf`
+
+```
+vim /etc/named.conf
+```
+
 修改后面有注释的行
 
 ```
@@ -5768,9 +5787,15 @@ zone "50.16.172.in-addr.arpa" IN {
 
 (2) 编写正向解析文件
 复制模板
-`cp -p /var/named/named.localhost /var/named/db.system.org.cn`
 
+```
+cp -p /var/named/named.localhost /var/named/db.system.org.cn
+```
+
+```
 `vim /var/named/db.system.org.cn`
+```
+
 修改为如下内容
 
 ```
@@ -5794,9 +5819,17 @@ sts     A       172.16.50.103
 
 (3) 编写反向解析文件
 复制模板
-`cp -p /var/named/db.system.org.cn /var/named/db.50.16.172`
+
+```
+cp -p /var/named/db.system.org.cn /var/named/db.50.16.172
+```
+
 编辑文件
-`vim /var/named/db.50.16.172`
+
+```
+vim /var/named/db.50.16.172
+```
+
 写入如下内容
 
 ```
