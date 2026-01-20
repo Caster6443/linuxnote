@@ -1000,7 +1000,12 @@ linux的/etc/skel目录
 
 ```
 [root@server ~]# gcc -o zombine code/zombine.c
-[root@server ~]# ./zombine [Parent] PID 2378 running [Parent] Created child PID 2379 [Parent] Sleeping for 60 seconds without calling wait()... [Child] PID 2379 started [Child] Exiting immediately...
+[root@server ~]# ./zombine 
+[Parent] PID 2378 running 
+[Parent] Created child PID 2379 
+[Parent] Sleeping for 60 seconds without calling wait()... 
+[Child] PID 2379 started 
+[Child] Exiting immediately...
 
 ```
 
@@ -1009,7 +1014,8 @@ linux的/etc/skel目录
 ```
 
 [root@server ~]# ps aux | grep zombine
-root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 pts/0 Z+ 16:22 0:00 [zombine]  root 2381 0.0 0.1 221680 2448 pts/1 S+ 16:22 0:00 grep --color=auto zombine 
+root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 pts/0 Z+ 16:22 0:00 [zombine]  
+root 2381 0.0 0.1 221680 2448 pts/1 S+ 16:22 0:00 grep --color=auto zombine 
 [root@server ~]# pstree -p | grep 2378 
 |-sshd(988)-+-sshd(2094)---sshd(2130)---bash(2140)---zombine(2378)---zombine(2379) 
 
@@ -1043,7 +1049,9 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 [root@server ~]# 
 [Orphan] PID 2472 now has PPID=1 (init process) 
 [Orphan] Running for 60 seconds...
-[root@server ~]# ps aux | grep orphan root 2472 0.0 0.0 2628 88 pts/1 S 16:46 0:00 ./orphan root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan 
+[root@server ~]# ps aux | grep orphan 
+root 2472 0.0 0.0 2628 88 pts/1 S 16:46 0:00 ./orphan 
+root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan 
 [root@server ~]# pstree -p | grep 2472 |-orphan(2472)
 
 ```

@@ -488,6 +488,7 @@ waydroid upgrade --offline
 
 这个助手还提供其他功能，比如伪装成指定机型，获取设备 id，之类的常见需求  
 
+
 # archlinux配置安全启动
 
 ## 理论基础
@@ -807,8 +808,6 @@ Depends=grub
 ![e958a4e711bd12a528ab5a5ce2093e19_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e958a4e711bd12a528ab5a5ce2093e19_MD5.png)  
 
 
-
-至此配置完毕  
 
 # KVM/QEMU虚拟机
 
@@ -1195,6 +1194,8 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 添加文件系统类型的硬件  
 ![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3c515fd8863a183782d1c8f03217cd43_MD5.jpg)  
 就是这样，然后进入虚拟机内部，安装winfsp驱动，在github的项目地址下面找，后缀名msi，安装成功后，打开windows的服务管理，启动Virtio-FS Service服务，默认是手动启动的，但也可以设置自动启动，不过感觉有点小风险？启动成功后可以找到一个独立的盘，盘名就是设置的目标路径  
+
+
 
 # archlinux（niri）配置
 
@@ -1676,6 +1677,8 @@ WantedBy=timers.target
 `sudo pacman -S python-mutagen`  
 该工具导出命令mutagen-inspect用于查看歌曲元数据，mid3v2用于修改元数据  
 
+
+
 # git的使用
 
 ## obsidian自动化推送笔记到github备份
@@ -1795,6 +1798,8 @@ fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
 重启 Niri 生效  
 `niri msg action quit`  
 (或者直接重启电脑)  
+
+
 
 # 常见问题
 
@@ -2120,6 +2125,7 @@ menuentry 'Pop!_OS(Chainload)' {
 `/EFI/BOOT/BOOTX64.EFI`  
 是 UEFI 的“默认回退路径”，如果一块硬盘或者 U 盘插上去，主板不知道该读哪个文件夹，主板就会**默认**去读这个文件。它是所有无主系统的“收容所”，但实在找不到系统对应的引导时，就可以使用这个路径，不过多数系统是有具体路径的，比如fedora的是/EFI/fedora/shimx64.efi  
 
+
 ## 混合显卡黑屏问题
 
 具体表现在开机时，有几率在启动加载全部完成后会黑屏卡住，原因是显示管理器有概率会提前在显卡驱动加载前启动  
@@ -2273,6 +2279,8 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 
 不过我觉得最好还是买个有线耳机  
 
+
+
 ## 微信读取系统文件夹异常
 
 这个和 hyprland 无关，我就单独拿出来  
@@ -2280,8 +2288,10 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 具体就是用微信打开本地文件夹发现显示不全  
 
 看了一下我的微信是 flatpak 版的，关于 flatpak 沙盒，需要单独安装组件来管理应用权限问题，比如文件读取权限  
-sudo pacman -S flatseal  
+`sudo pacman -S flatseal`  
 安装这个应用。是图形化的，打开后操作比较简单，找到微信，打开对应权限开关就行了  
+
+
 
 ## konsole提示符异常
 
@@ -2289,8 +2299,7 @@ sudo pacman -S flatseal
 
 原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突  
 
-```bash
-#设 置 历 史 记 录
+```
 HISTFILE=~/.zsh_history
 HISTSIZE=1000
 SAVEHIST=1000
@@ -2299,37 +2308,25 @@ setoptHIST_IGNORE_SPACE
 setoptSHARE_HISTORY
 setoptAPPEND_HISTORY
 setoptEXTENDED_HISTORY
-
-#别 名 与 颜 色
 alias ls='ls --color=auto'
 alias l='ls -CF --color=auto'
 alias la='ls -A --color=auto'
 alias ll='ls -lA --color=auto'
 eval"$(dircolors -b)"
-
-#补 全 样 式 
 zstyle':completion:*' menu select
 zstyle':completion:*:default' list-colors $LS_COLORS
-
-#加 载  Zsh 自 动 建 议 插 件 
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-#激 活  Starship 提 示 符 
 eval"$(starship init zsh)"
-
-#自 动 补 全 
 autoload -Uz compinit
 compinit
-
-#加 载 语 法 高 亮 插 件 
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
 ```
 
 临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能  
 我的方案是使用Zsh 插件管理器：Zinit  
 执行如下命令，脚本会自动处理  
 `bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh`
+
 用了几天发现这玩意也没鸟用，正好要移除 plasma，顺手给 konselo 卸载换 kitty 了，不过排查思路是对的，确实是因为这俩玩意冲突，更底层的原因就不懂了
 
 ## sudo 密码输入问题
