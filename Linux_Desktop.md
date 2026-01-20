@@ -5,11 +5,18 @@
 ## 设置命令开机自启动
 
 进入该配置文件，在 exec-once 开头的那一块区域写入  
+
+```
 exec-once=需要开机自动执行的命令  
+```
 
 比如我在使用mpvpaper 这个视频壁纸项目  
 我就把它提供的设置播放视频壁纸的命令写进了配置文件里设置开机自启  
+
+```
 exec-once=mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4 &  
+```
+
 其实这个写哪里应该是无所谓，但还是美观一些吧  
 
 ## 设置快捷键
@@ -42,16 +49,22 @@ bind = $mainMod, J, togglesplit, # dwindle
 
 比如我自定义的 ctrl + t 打开 konsole（$terminal 也在这个配置文件里修改，默认是 kitty，我改成 konsole 了）  
 然后在 bind 里引用该变量  
-`$control = ctrl # by myself`  
-`bind = $control, t, exec, $terminal`  
+
+```
+$control = ctrl
+bind = $control, t, exec, $terminal  
+```
 
 另一个是重启任务栏waybar 的快捷键，我设置成了 super + F2,命令逻辑比较简单就不解释了  
-ctrl + ; 也是个快捷键，快捷打开剪切板，上次帮人家做作业，学校官网不准粘贴，我无意中粘贴成功了，或许当时按的就是这个键位，以后有机会再试试吧  
 
 这个配置文件还有很多功能，环境变量之类的我还没用到  
-`$terminal = konsole`  
-`$fileManager = thunar`  
-`$menu = fuzzel`  
+
+```
+$terminal = konsole  
+$fileManager = thunar  
+$menu = fuzzel  
+```
+
 这三个变量，终端，文件管理器，菜单都被我改成这些了，因为默认的不太习惯,当然修改之前对应的包都要装上
 
 
@@ -73,15 +86,18 @@ super + s				快速最小化当前桌面窗口，再次使用就会回来
 
 关于这个 super + s 快捷键，我是这样理解的，所有的工作区都是桌面的不同区域，而 super s 则是把当前使用的桌面上的所有窗口收进下面的抽屉里，再次按下就会当前使用的桌面上展开，也就是从抽屉里拿出来放上  
 
-
 hyprland 自己也有 wiki，肯定是比 archwiki 在这方面更详细的，可以多看看  
 [https://wiki.hypr.land/](https://wiki.hypr.land/)  
 
 ## 剪切板方案
+安装需要的软件
 
-`sudo pacman -S --needed wl-clipboard`  
-`yay -S cliphist`  
-然后在 hyprland 配置文件里写入  
+```
+sudo pacman -S --needed wl-clipboard  
+yay -S cliphist  
+```
+
+然后在 hyprland 配置文件里写入  如下内容
 
 ```
 exec-once = wl-paste --type text --watch cliphist store # Stores only text data
@@ -100,7 +116,10 @@ bind = $mainMod, x, exec, cliphist list | fuzzel --dmenu --with-nth 2 | cliphist
 ## 截图录屏方案
 
 安装这三个包  
-`sudo pacman -S grim slurp wf-recorder`
+
+```
+sudo pacman -S grim slurp wf-recorder
+```
 
 然后在 hyprland 配置文件里绑定快捷键  
 
@@ -126,24 +145,22 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 
 一个个介绍吧  
 
+center-test.jsonc 
+是我用来临时检测我的 arch 图标有没有居中，用 waybar -c ~/.config/waybar/center-test.jsonc 测试，会在当前的 bar 下面再显示出一个临时的居中 arch 图标，以此来检测上面的 arch 图标有没有居中  
 
-center-test.jsonc 是我用来临时检测我的 arch 图标有没有居中，用 waybar -c ~/.config/waybar/center-test.jsonc 测试，会在当前的 bar 下面再显示出一个临时的居中 arch 图标，以此来检测上面的 arch 图标有没有居中  
-waybar_config/center-test.jsonc  
 
-
-colors.css 用于声明各种颜色变量以供调用  
+colors.css 
+用于声明各种颜色变量以供调用  
 关于这个，konsole 支持鼠标指针放颜色代码上去可以预览颜色，很方便我修改  
-waybar_config/color.css
 
 
-config.jsonc 是整体框架，模块定义在别的文件里写  
+config.jsonc 
+是整体框架，模块定义在别的文件里写  
 waybar_config/config.jsonc  
 
 
-
-
-
-modules-dividers.jsonc 定义了各种图形，用于不同模块之间的图形衔接，在 css 中具体调色  
+modules-dividers.jsonc 
+定义了各种图形，用于不同模块之间的图形衔接，在 css 中具体调色  
 waybar_config/modules-dividers.jsonc  
 
 
