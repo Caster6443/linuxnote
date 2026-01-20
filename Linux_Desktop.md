@@ -2289,11 +2289,8 @@ sudo pacman -S flatseal
 
 原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突  
 
-```plain
-
-# 1. 设 置 历 史 记 录e
-
-# -----------------------------------------------------------------
+```
+# 设 置 历 史 记 录
 HISTFILE=~/.zsh_history
 HISTSIZE=1000
 SAVEHIST=1000
@@ -2303,29 +2300,21 @@ setoptSHARE_HISTORY
 setoptAPPEND_HISTORY
 setoptEXTENDED_HISTORY
 
-# 2. 别 名 与 颜 色D
-
-# -----------------------------------------------------------------
+# 别 名 与 颜 色
 alias ls='ls --color=auto'
 alias l='ls -CF --color=auto'
 alias la='ls -A --color=auto'
 alias ll='ls -lA --color=auto'
 eval"$(dircolors -b)"
 
-# 3. 补 全 样 式 o
-
-# -----------------------------------------------------------------
+# 补 全 样 式 
 zstyle':completion:*' menu select
 zstyle':completion:*:default' list-colors $LS_COLORS
 
-# 4. 加 载  Zsh 自 动 建 议 插 件 a
-
-# -----------------------------------------------------------------
+# 加 载  Zsh 自 动 建 议 插 件 
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-# 5. 激 活  Starship 提 示 符 u
-
-# -----------------------------------------------------------------
+# 激 活  Starship 提 示 符 
 eval"$(starship init zsh)"
 
 # 6. 自 动 补 全 s
