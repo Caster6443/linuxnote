@@ -583,17 +583,14 @@ return 0;
 
 ## 特殊重定向的使用
 
+```
 1>
 1可以视为进程的默认出口，不加1和>也没区别
-
 作用是仅将正确信息覆盖重定向到指定文件，错误信息会输出到终端,处理顺序是先清空后写入
 
 2>
 2可以视为进程的默认错误出口
-
 仅将错误信息覆盖重定向到指定文件，不会在shell上显示
-
-
 
 1>和2>的组合使用和变种
 可以实现同时记录正常输出与错误输出
@@ -602,15 +599,17 @@ echo hello >> hello.log	2>> hell.log
 这个功能实现还有多种写法
 echo hello >> hello.log 2>&1
 
-
 echo hello &>> hello.log
 无论正确错误，都会追加重定向到指定文件，不在shell上显示
+```
 
 在定时任务中常用，同时记录正确和错误信息
 
 ## 使用管道非交互式修改用户密码
 
+```
 echo "000000" | passwd --stdin user
+```
 
 ## linux的用户与组提权
 
@@ -671,22 +670,26 @@ crontab -u 指定用户 -e 开始编辑定时任务
 分 时 日 月 周 待执行命令
 
 用*代替指定时间段
- `* * * * * echo hello`
+
+```
+ * * * * * echo hello
+```
 
 代表每分钟执行一次echo hello命令
-
 可以加除号指定每xx时间段执行
 
+```
 */3 * * * * echo hello
+```
 
 代表每三分钟执行一次echo hello
-
 以此类推
 
 ## semanager port
 
 用来管理端口安全上下文
 
+```
 -a添加规则
 
 -t指定标签类型
@@ -694,6 +697,7 @@ crontab -u 指定用户 -e 开始编辑定时任务
 -p指定协议tcp/udp
 
 -l列出所有端口安全上下文
+```
 
 ## 关于su和ssh特性
 
@@ -772,9 +776,15 @@ systemd 在固定的路径下按优先级顺序查找单元文件。高优先级
 
 以前的Linux启动都是用init进程。启动服务：
 
-`$ sudo /etc/init.d/apache2 start`
+```
+$ sudo /etc/init.d/apache2 start
+```
+
 或者
-`$ service apache2 start`
+
+```
+service apache2 start
+```
 
 缺点：
 启动时间长。init进程是串行启动，只有前一个进程启动完，才会启动下一个进程。 启动脚本复杂。init进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。
@@ -797,15 +807,21 @@ rwSr--r--：无执行权限时显示大写 S
 
 经典应用：
 
-ls -l /usr/bin/passwd 输出：-rwsr-xr-x 1 root root 59976 Nov 24 2022 /usr/bin/passwd
+```
+ls -l /usr/bin/passwd 
+输出：
+-rwsr-xr-x 1 root root 59976 Nov 24 2022 /usr/bin/passwd
+
+```
 
 普通用户执行 passwd 时，临时获得 root 权限修改 /etc/shadow
 
 设置方法：
 
+```
 符号法 chmod u+s filename
-
 数字法（4755 = SUID + rwxr-xr-x） chmod 4755 filename
+```
 
 二、SGID (Set Group ID)
 
@@ -819,19 +835,28 @@ ls -l /usr/bin/passwd 输出：-rwsr-xr-x 1 root root 59976 Nov 24 2022 /usr/bin
 
 假设共享目录 /project 属于 dev-team 组：
 
+```
 sudo chmod g+s /project # 设置SGID sudo chgrp dev-team /project
+```
 
 用户A（主组为 groupA）在 /project 创建文件时：
 
-touch /project/file.txt ls -l /project/file.txt 输出：-rw-r--r-- 1 userA dev-team 0 Jul 14 10:00 file.txt
+```
+touch /project/file.txt 
+ls -l /project/file.txt 
+输出：
+-rw-r--r-- 1 userA dev-team 0 Jul 14 10:00 file.txt
+```
 
 文件自动属于 dev-team 组，而非用户的主组
 
 设置方法：
 
+```
 符号法 chmod g+s directory
 
 数字法（2775 = SGID + rwxrwsr-x） chmod 2775 directory
+```
 
 三、Sticky Bit (粘滞位)
 
@@ -839,15 +864,21 @@ touch /project/file.txt ls -l /project/file.txt 输出：-rw-r--r-- 1 userA dev-
 
 经典应用：
 
-ls -ld /tmp 输出：drwxrwxrwt 12 root root 4096 Jul 14 09:30 /tmp
+```
+ls -ld /tmp 
+输出：
+drwxrwxrwt 12 root root 4096 Jul 14 09:30 /tmp
+```
 
 所有用户可在 /tmp 创建文件 但只能删除自己创建的文件（防止用户随意删除他人文件）
 
 设置方法：
 
+```
 符号法 chmod +t directory
 
 数字法（1777 = Sticky + rwxrwxrwt） chmod 1777 directory
+```
 
 关于linux设置普通用户密码策略
 
@@ -855,7 +886,10 @@ ls -ld /tmp 输出：drwxrwxrwt 12 root root 4096 Jul 14 09:30 /tmp
 
 配置文件和具体参数如下
 
-[root@node1 ~]# grep ^PASS /etc/login.defs PASS_MAX_DAYS 25 PASS_MIN_DAYS 0 PASS_WARN_AGE 7
+```
+[root@node1 ~]# grep ^PASS /etc/login.defs 
+PASS_MAX_DAYS 25 PASS_MIN_DAYS 0 PASS_WARN_AGE 7
+```
 
 PASS_MAX_DAYS:用于设置普通用户的密码有效期 PASS_MIN_DAYS用于设置普通用户的密码修改最小间隔时间 PASS_WARN_AGE 7用于设置普通用户的密码过期前的警告提前期 单位都是天
 
@@ -879,7 +913,7 @@ rwx rwx rwx → 用户(u) 组(g) 其他(o) 111 111 111 = 777 (八进制)
 
 umask 是反向掩码： 它的二进制位表示 需要强制关闭的权限（1=关闭，0=保留）。
 
-关键认知： 权限值（如 755）是人类可读的八进制抽象，而 umask 是操作系统内核直接处理的二进制掩码。
+关键： 权限值（如 755）是人类可读的八进制抽象，而 umask 是操作系统内核直接处理的二进制掩码。
 
 计算公式： 最终权限 = 最大权限 & (~umask) （& 表示按位与，~ 表示按位取反）
 
@@ -888,11 +922,22 @@ umask 是反向掩码： 它的二进制位表示 需要强制关闭的权限（
 至于进制换算有个通用公式，参考下面这个十进制拆解 123 = 1 * 10^2 + 2 * 10^1 + 3 * 10^0
 
 不加参数会显示当前用户的权限值
-[root@node1 ~]# umask 0022
+
+```
+[root@node1 ~]# umask 
+0022
+```
 
 第一个 0 表示是 8 进制，后面的三位数字用 8 进制表示
 加上-S选项会以字符形式显示权限
-[root@node1 ~]# umask -S u=rwx,g=rx,o=rx
+
+```
+[root@node1 ~]# umask -S 
+u=rwx,g=rx,o=rx
+```
+
+总的来说:
+
 通常目录文件的默认权限是777(rwxrwxrwx)，普通文件的默认权限是666(rw-rw-rw-)
 
 在此基础上受umask的影响 umask为0022(第一位是特殊权限位)3 那么以022为例 0表示文件所属者权限不变，2代表对应所有者权限减2(即w权限) 那么022对应的目录权限就是755（rwxr-xr-x）,文件就是644（rw-r--r--）
@@ -922,11 +967,16 @@ block块(数据块): 存放数据
 ## 管道的一些特性
 
  管道无法将接收的数据流转化为后续命令的参数，如果一定要使用管道，可以在管道后面加上xargs，把前面命令传递过来的字符串转换为后面命令可以识别的参数
+ 
+```
 [root@server ~]# mkdir -pv testdir
 [root@server ~]# touch testdir/{1,2,3}.ddd
-[root@server ~]# find testdir/ -name "*.ddd" |xargs ls -lh -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/1.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/2.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/3.ddd
+[root@server ~]# find testdir/ -name "*.ddd" |xargs ls -lh 
+-rw-r--r--. 1 root root 0 7月 16 14:59 testdir/1.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/2.ddd 
+-rw-r--r--. 1 root root 0 7月 16 14:59 testdir/3.ddd
 [root@server ~]# find testdir/ -name "*.txt" |xargs cp -t matchfile_dir/ [root@server ~]# ls matchfile_dir/ 10.txt 1.txt 2.txt 3.txt 4.txt 5.txt 6.txt 7.txt 8.txt 9.txt
-[root@server ~]#
+```
+
 
 有时管道会将某些命令的标准输出视为错误输出不予传递
 
@@ -948,15 +998,20 @@ linux的/etc/skel目录
 
 这里用ai写了一个linux僵尸进程的C程序模拟
 
+```
 [root@server ~]# gcc -o zombine code/zombine.c
 [root@server ~]# ./zombine [Parent] PID 2378 running [Parent] Created child PID 2379 [Parent] Sleeping for 60 seconds without calling wait()... [Child] PID 2379 started [Child] Exiting immediately...
+
+```
 
 此时前台阻塞中，再开一个bash进程来操作
 
 ```
 
 [root@server ~]# ps aux | grep zombine
-root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 pts/0 Z+ 16:22 0:00 [zombine]  root 2381 0.0 0.1 221680 2448 pts/1 S+ 16:22 0:00 grep --color=auto zombine [root@server ~]# pstree -p | grep 2378 |-sshd(988)-+-sshd(2094)---sshd(2130)---bash(2140)---zombine(2378)---zombine(2379) 
+root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 pts/0 Z+ 16:22 0:00 [zombine]  root 2381 0.0 0.1 221680 2448 pts/1 S+ 16:22 0:00 grep --color=auto zombine 
+[root@server ~]# pstree -p | grep 2378 
+|-sshd(988)-+-sshd(2094)---sshd(2130)---bash(2140)---zombine(2378)---zombine(2379) 
 
 ```
 
@@ -1320,25 +1375,37 @@ systemctl status network
 
 解决方案:
 1.修复主配置
-`sudo sed -i '/^\[main\]/a plugins=keyfile\nno-auto-default=*' \`
-`/etc/NetworkManager/NetworkManager.conf`
+
+```
+sudo sed -i '/^\[main\]/a plugins=keyfile\nno-auto-default=*' \
+/etc/NetworkManager/NetworkManager.conf
+```
 
 
 2.设置全局托管策略
-`sudo echo -e "\nunmanaged-devices=none" > \`
-`/etc/NetworkManager/conf.d/manage-all.conf`
+
+```
+sudo echo -e "\nunmanaged-devices=none" > \
+/etc/NetworkManager/conf.d/manage-all.conf
+```
 
 
 3.完全重置状态
-`sudo systemctl stop NetworkManager`
-`sudo rm -rf /var/lib/NetworkManager/*`
-`sudo systemctl start NetworkManager`
+
+```
+sudo systemctl stop NetworkManager
+sudo rm -rf /var/lib/NetworkManager/*
+sudo systemctl start NetworkManager
+```
 
 
 4.重建连接配置
-`sudo nmcli connection add type ethernet ifname ens160 \`
-`con-name ens160-primary ipv4.method auto`
-`sudo nmcli connection up ens160-primary`
+
+```
+sudo nmcli connection add type ethernet ifname ens160 \
+con-name ens160-primary ipv4.method auto
+sudo nmcli connection up ens160-primary
+```
 
 
 
