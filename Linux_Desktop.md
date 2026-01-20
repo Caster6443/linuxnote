@@ -79,7 +79,7 @@ hyprland 自己也有 wiki，肯定是比 archwiki 在这方面更详细的，�
 
 ## 剪切板方案
 
-`sudo pacman -S --needed wl-clipboard`
+`sudo pacman -S --needed wl-clipboard`  
 `yay -S cliphist`  
 然后在 hyprland 配置文件里写入  
 
@@ -127,7 +127,7 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 一个个介绍吧  
 
 
-center-test.jsonc 是我用来临时检测我的 arch 图标有没有居中，用 waybar -c ~/.config/waybar/center-test.jsonc 测试，会在当前的 bar 下面再显示出一个临时的居中 arch 图标，以此来检测上面的 arch 图标有没有居中
+center-test.jsonc 是我用来临时检测我的 arch 图标有没有居中，用 waybar -c ~/.config/waybar/center-test.jsonc 测试，会在当前的 bar 下面再显示出一个临时的居中 arch 图标，以此来检测上面的 arch 图标有没有居中  
 waybar_config/center-test.jsonc  
 
 
@@ -136,7 +136,7 @@ colors.css 用于声明各种颜色变量以供调用
 waybar_config/color.css
 
 
-config.jsonc 是整体框架，模块定义在别的文件里写
+config.jsonc 是整体框架，模块定义在别的文件里写  
 waybar_config/config.jsonc  
 
 
@@ -182,7 +182,7 @@ screenshot_quick.sh
 set_wallpaper.sh 快捷切换壁纸脚本，和下面的脚本结合使用
 
 
-wallpaper_scroll.sh
+wallpaper_scroll.sh  
 壁纸目录应当存放在$HOME/Pictures/anime/wallpapers 下  
 
 
@@ -515,7 +515,7 @@ MOK (Machine Owner Key) 是我们自己创建的一对“签名密钥”（公�
 总结：`UEFI(信任) -> 微软(签名) -> shim(信任) -> MOK(签名) -> 我们的GRUB`。这条信任链就通了。  
 
 
-独立的 GRUB
+独立的 GRUB  
 信任链是通了，但 `shim` 只会验证 `grubx64.efi` 这一个文件。但常规的 GRUB 启动时，需要从磁盘上读取几十个零散的模块（比如 `fat.mod`, `btrfs.mod`）和配置文件 (`grub.cfg`)。`shim` 无法验证这几十个文件。  
 解决方案：我们不能用常规的 GRUB。我们必须用 `grub-mkimage` 命令，手动创建一个“独立自主”的 `grubx64.efi`。  
 理论：  
@@ -668,7 +668,7 @@ configfile grub.cfg
 
 上面的配置首先加载相应的模块，读取 memdisk 中的字体数据（如果不考虑复杂的 OpenGPG 签名加载方式，这是目前安全启动下 GRUB 读取字体的最好办法），之后通过 UUID 搜索包含 GRUB 配置文件的分区，并立刻读取其中的 grub.cfg 内容。因此，你必须将 search.fs_uuid 中的硬盘 UUID 换成包含 GRUB 配置文件的分区的真实 UUID。  
 
-参考一下我的磁盘信息，
+参考一下我的磁盘信息，  
 `search.fs_uuid 1B9C-667B root hd0,gpt1`  
 
 我选择这样填写，uuid 是我的 efi 分区，注意这里的 root 并不是指/分区，而是指 boot 分区，gpt1 则是因为 efi 分区的索引为 1  
@@ -965,7 +965,7 @@ nvram = [
 1.关于 /dev/shm(Linux 的共享内存机制)  
 在 Linux 系统中，为了满足不同程序之间高速交换数据的需求，同时避免频繁读写硬盘造成瓶颈，Linux 设计了一个特殊的机制—— `/dev/shm` 目录。  
 
-**虚拟挂载，而非物理分割**：
+**虚拟挂载，而非物理分割**：  
 `/dev/shm` 挂载的 `tmpfs` 文件系统，并不像硬盘分区那样物理占用了内存的一半。它仅仅是向操作系统申请了一个 **“最高可用 50% 内存的记账额度”**。  
 
 **动态分配机制**：  
@@ -1023,7 +1023,7 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
 ```
 
 3.在终端中加入桌面用户到kvm组  
-`sudo gpasswd -a $USER kvm`
+`sudo gpasswd -a $USER kvm`  
 重启电脑后使用groups命令确认自己在kvm组里  
 
 4.设置共享内存设备对应的文件的规则  
@@ -1183,13 +1183,13 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 一般来说，只要使用chattr +C 命令给qcow2文件设置禁止写时复制就行了，但要在虚拟机刚开始用的时候设置，如果已经用了一段时间，则需要强制物理重写（数据搬家）  
 
 1.由于 `chattr +C`（NOCOW 属性）只对新文件生效，我们必须采用“先设目录，后创文件”的策略。  
-赋予存放镜像的目录 NOCOW 属性，让其下的新文件自动继承
+赋予存放镜像的目录 NOCOW 属性，让其下的新文件自动继承  
 `sudo chattr +C /var/lib/libvirt/images`  
 
 2.强制物理重写（数据搬家）  
 `cd /var/lib/libvirt/images`  
 创建一个标记为 +C 的空文件  
-`sudo touch win11-fixed.qcow2`
+`sudo touch win11-fixed.qcow2`  
 `sudo chattr +C win11-fixed.qcow2`  
 强制物理拷贝，禁用 reflink (克隆)，--sparse=always 保证镜像文件中的空洞不被填满，节省物理空间  
 `sudo cp --reflink=never --sparse=always win11-original.qcow2 win11-fixed.qcow2`  
@@ -1214,8 +1214,8 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 我是用archinstall安装的，并安装了显卡驱动，它支持安装niri的初始环境，不过感觉不如最小化安装，但是装都装好了，在此基础上开始我的配置  
 在archinstall的过程中，我设置了根分区文件系统类型为btrfs，子卷及其挂载情况如下  
-@ -> /
-@home -> /home
+@ -> /  
+@home -> /home  
 @pkg -> /var/cache/pacman/pkg  
 @log -> /var/log  
 @swap -> /swap  
@@ -1393,7 +1393,7 @@ btrfs-assistant是快照的图形化管理工具，在其中配置需要的快�
 手动执行 Balance 容易导致全盘重写（极慢且伤盘），应配置自动增量维护  
 一句话总结：可以使用btrfsmaintenance定期回收那些因快照删除而产生的‘已分配但未使用的’僵尸空间。  
 安装后端脚本btrfsmaintenance  
-`paru -S btrfsmaintenance`
+`paru -S btrfsmaintenance`  
 安装后打开btrfs-assistant会看到新增了一个选项卡btrfs maintenance  
 在里面设置如下（其实是默认配置，balance和Scrub选中挂载点都为/）  
 ![3cffcf9af553ff1be660276dffd6b4de_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg)  
@@ -1670,7 +1670,7 @@ WantedBy=timers.target
 
 下载的歌曲的元数据信息经常不尽人意，所以需要再引入工具eyeD3来修改歌曲元数据  
 安装工具  
-`yay -S python-eyed3`
+`yay -S python-eyed3`  
 使用说明  
 `-a 修改歌手`  
 `-A 修改专辑名`  
@@ -1764,7 +1764,7 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 `git status`  
 检查本地与上游git仓库的文件变化，查看本地相较于git仓库多了哪些变化  
 确定无误后  
-`git add .`
+`git add .`  
 暂存所有修改，准备提交  
 
 `git commit -m "这里写点描述"`  
@@ -1791,10 +1791,10 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281  
 
 3.拉取并切换到 PR #281  
-从 GitHub 拉取 281 号 PR 的代码，并存到一个叫 pr-281 的新分支里
+从 GitHub 拉取 281 号 PR 的代码，并存到一个叫 pr-281 的新分支里  
 `git fetch origin pull/281/head:pr-281`  
 
-切换到这个分支
+切换到这个分支  
 `git checkout pr-281`  
 
 4.编译  
@@ -1819,7 +1819,7 @@ fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
 可以看到 N 卡处于 P8 状态（低功耗状态）,这时游戏挂在后台，p8 倒也没啥，不过正常玩的时候这玩意好像是一直处于 p8 状态，我也不确定  
 
 运行这个命令  
-`sudo nvidia-smi -pm 1`
+`sudo nvidia-smi -pm 1`  
 启用持久模式  
 
 就能解决了，这个我不确定是不是临时命令，但重启后也不用再次执行也能正常帧率玩鸣潮了，所以可能是 nvidia 的一点小 bug，这个命令刷新了 N 卡的状态  
@@ -2218,7 +2218,7 @@ winetricks cjkfonts
 ```
 
   
-后续调优（可选）
+后续调优（可选）  
 安装 Arch Linux 系统的 CJK 字体  
 这个方案是在_Linux 系统层面_安装一套完整的高质量 CJK 字体。Wine (通过 Fontconfig) 理论上也能检测到并使用它们。  
 安装 Noto CJK 字体包： `noto-fonts-cjk` 是 Google 和 Adobe 合作的开源字体，质量非常高，涵盖了中日韩所有字符。  
