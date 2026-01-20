@@ -215,7 +215,6 @@ wallpaper_scroll.sh
 
 wf-recorder.sh 录屏菜单脚本   
 
-
 switch-audio-output.sh 快捷选择音频输出设备  
 
 
