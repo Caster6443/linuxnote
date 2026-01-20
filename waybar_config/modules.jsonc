@@ -1,0 +1,226 @@
+{
+//工作区
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "active": "󰜋",
+      "default": ""
+    }
+  },
+//音频可视化
+"custom/cava": {
+    "exec": "~/.config/waybar/scripts/cava.sh",
+    "format": "{}",
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "playerctl --ignore-player=mpvpaper play-pause",
+    "on-scroll-up": "playerctl --ignore-player=mpvpaper previous",
+    "on-scroll-down": "playerctl --ignore-player=mpvpaper next"
+  },
+
+/* "custom/cava": {
+    "tooltip": false,
+    "format": "{}",
+    "exec": "~/.config/waybar/scripts/cava.sh"
+  },
+*/
+//系统托盘
+  "tray": {
+    "icon-size": 22,
+    "spacing": 7
+  },
+
+//剪贴板历史
+  "custom/clipboard": {
+    "format": "📋",
+    "on-click": "cliphist list | fuzzel --dmenu --with-nth 2 | cliphist decode | wl-copy",
+    "tooltip": false
+  },
+
+//Emoji 选择器
+  "custom/emoji": {
+    "format": "😎",
+    "on-click": "rofi -show emoji -modi emoji",
+    "tooltip": false
+  },
+
+//截图模块
+ "custom/screenshot": {
+  "format": "",
+  "tooltip-format": "左键: 全屏截图并保存 | 右键: 区域截图并编辑",
+  "interval": 3600,
+  "on-click": "~/.config/waybar/scripts/screenshot_quick.sh",
+  "on-click-right": "~/.config/waybar/scripts/screenshot_edit.sh"
+},
+
+//录屏模块
+  "custom/wfrec": {
+    "format": "",
+    "tooltip-format": "点击开始/停止录屏",
+    "on-click": "/home/Caster/.config/waybar/scripts/wf-recorder.sh toggle &"
+  },
+
+//息屏管理 
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "",
+      "deactivated": ""
+    },
+    "tooltip-format-activated": "status: 禁止息屏",
+    "tooltip-format-deactivated": "status: 启用息屏"
+  },
+
+//Arch 更新模块
+  "custom/updates": {
+    "format": "{icon}",
+    "return-type": "json",
+    "format-icons": {
+      "has-updates": "",
+      "updated": "󰏖"
+    },
+    "exec-if": "which waybar-module-pacman-updates",
+    "exec": "waybar-module-pacman-updates --no-zero-output",
+    "on-click": "kitty -e yay"
+  },
+
+//电源模式模块
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Performance mode:{profile}",
+    "tooltip": true,
+    "format-icons": {
+      "performance": "󰂅",
+      "balanced": "",
+      "power-saver": ""
+    }
+  },
+
+//logo+程序启动器+壁纸切换器
+  "custom/applauncher": {
+    "tooltip-format": "左键:程序菜单 | 右键:切换壁纸 |滚轮: 快捷切换壁纸",
+    "format": "󰣇",
+    "on-click": "fuzzel",
+    "on-click-right": "~/.config/waybar/scripts/set_wallpaper.sh",
+    "on-scroll-up": "~/.config/waybar/scripts/wallpaper_scroll.sh next",
+    "on-scroll-down": "~/.config/waybar/scripts/wallpaper_scroll.sh prev"
+  },
+
+//Waybar 内置时钟模块
+  "clock": {
+    "format": " {:%H:%M}",
+    "tooltip-format": "{:%Y年%m月%d日 %A}",
+    "interval": 1
+  },
+
+//内存使用率 
+  "memory": {
+    "interval": 2,
+    "format": "󰍛", 
+    "format-alt": "󰍛",
+    "on-click-right": "mode",
+    "tooltip": true,
+    "tooltip-format": "Memory: {used:0.1f}G / {total:0.1f}G ({swapUsed:0.1f}G Swap)"
+  },
+
+//CPU 温度
+  "temperature": {
+    "interval": 2,
+    "thermal-zone": 0,
+    "format": "", 
+    "critical-threshold": 80,
+    "format-critical": "CPU", 
+    "tooltip": true,
+    "tooltip-format": "CPU 温度: {temperatureC}°C"
+  },
+
+
+  "battery": {
+    "interval": 2, 
+    "states": {
+      "critical": 20 
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}% ",
+    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "tooltip-format": "󰂍 {power} | {timeTo}" 
+  },
+
+
+//音频组
+  "group/audio": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 300,
+      "transition-left-to-right": false
+    },
+    "modules": [
+      "pulseaudio" 
+    ]
+  },
+
+  "pulseaudio": {
+    "format": "{icon}",
+    "format-muted": "",
+    "tooltip-format": "音量: {volume}%",
+    "format-icons": {
+      "headphone": "󰋋",
+      "hands-free": "󰋋",
+      "headset": "󰋋",
+      "default": ["", "", ""]
+    },
+
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-click-right": "/home/Caster/.config/waybar/scripts/switch-audio-output.sh",
+    "on-click-middle": "pavucontrol",
+    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+  },
+
+  "backlight": {
+    "format": "{icon}",
+    "tooltip-format": "亮度: {percent}%", 
+    "format-icons": ["", "", "", "", "", "", "", "", ""],
+    "tooltip": true,
+    "on-scroll-up": "brightnessctl set 5%+",
+    "on-scroll-down": "bash -c 'VAL=$(brightnessctl g); MAX=$(brightnessctl m); PCT=$((VAL * 100 / MAX)); if [ $PCT -lt 6 ]; then brightnessctl set 1%; else brightnessctl set 5%-; fi'"
+  },
+
+  "group/powermenu": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 300,
+      "transition-left-to-right": false
+    },
+    "modules": [
+      "custom/wlogout",
+      "custom/reboot",
+      "custom/logout",
+      "custom/lockscreen"
+    ]
+  },
+
+  "custom/wlogout": {
+    "tooltip": false,
+    "format": "󰐥",
+    "on-click": "systemctl poweroff"
+  },
+
+  "custom/reboot": {
+    "tooltip": false,
+    "format": "",
+    "on-click": "systemctl reboot"
+  },
+
+  "custom/logout": {
+    "format": "󰈆",
+    "on-click": "hyprctl dispatch exit",
+    "tooltip": false
+  },
+
+  "custom/lockscreen": {
+    "tooltip": false,
+    "format": "",
+    "on-click": "hyprlock" 
+  }
+}
