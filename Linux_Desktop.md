@@ -609,8 +609,6 @@ pacman -Syu` 会用未签名的新内核覆盖掉旧的已签名内核。
 GRUB 钩子：
 监视 `grub` 包。一旦更新，立刻自动运行 `update-sb-grub-efi.sh`，重新生成那个“独立管家” `grubx64.efi` 并自动签名。
 
----
-
 总结成一句话： 我们利用微软签名的 `shim`，来加载一个我们自己 MOK 签名的、内置了驱动和路径（`insmod fat`）的独立`grubx664.efi`，这个 `grub` 再去加载同样被 MOK 签名的内核，最后用 `pacman` 钩子让这个签名过程自动化。
 
 
@@ -1139,18 +1137,17 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
 `sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf`
 
 4.回到虚拟机设置
-- 设置spice协议
-    确认有spice显示协议，显卡设置为none
-    
-- 键鼠传输
-    添加virtio键盘和virtio鼠标（要在xml里面更改bus=“ps2”为bus=“virtio”）加上这个，外部鼠标键盘才能映射到虚拟机的串流画面上
-    
-    
-- 剪贴板同步（可选）
-    确认有spice信道设备，没有的话添加，设备类型为spice
+设置spice协议
+确认有spice显示协议，显卡设置为none
 
-- 声音传输
-    确认有ich9声卡，点击概况，去到xml底部，在里面找到下面这段，确认type为spice，不是的话自己手动改
+键鼠传输
+添加virtio键盘和virtio鼠标（要在xml里面更改bus=“ps2”为bus=“virtio”）加上这个，外部鼠标键盘才能映射到虚拟机的串流画面上
+
+剪贴板同步（可选）
+确认有spice信道设备，没有的话添加，设备类型为spice
+
+声音传输
+确认有ich9声卡，点击概况，去到xml底部，在里面找到下面这段，确认type为spice，不是的话自己手动改
 `<audio id='1' type='spice'/>`
 配置结束大概是这样
 ![52a72e57902a24011dcd312b0bdf4e83_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/52a72e57902a24011dcd312b0bdf4e83_MD5.jpg)
