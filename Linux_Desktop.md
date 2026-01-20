@@ -1,9 +1,11 @@
 
 # Hyprland
+
 开始用 hyprland 了，目前体验还不错，但是配置过程有点繁琐，懒得写怎么装了，就简单记录一下怎么用吧
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的
 
 ## 设置命令开机自启动
+
 进入该配置文件，在 exec-once 开头的那一块区域写入
 exec-once=需要开机自动执行的命令
 
@@ -16,6 +18,7 @@ exec-once=mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多
 
 
 ## 设置快捷键
+
 也是在这个配置文件里修改
 关键字是 bind 开头的行
 
@@ -90,8 +93,9 @@ hyprland 自己也有 wiki，肯定是比 archwiki 在这方面更详细的，�
 
 
 ## 剪切板方案
-sudo pacman -S --needed wl-clipboard 
-yay -S cliphist
+
+`sudo pacman -S --needed wl-clipboard` 
+`yay -S cliphist`
 然后在 hyprland 配置文件里写入
 
 ```bash
@@ -115,6 +119,7 @@ bind = $mainMod, x, exec, cliphist list | fuzzel --dmenu --with-nth 2 | cliphist
 
 
 ## 截图录屏方案
+
 安装这三个包
 `sudo pacman -S grim slurp wf-recorder` 
 
@@ -142,6 +147,7 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 
 
 ## waybar 美化
+
 参考的别人的美化风格，整体配置比较模块化，总体文件结构如图
 
 ![e5bef4dea6e712828b69b69bad2ee1b3_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e5bef4dea6e712828b69b69bad2ee1b3_MD5.png)
@@ -2436,6 +2442,7 @@ wpctl set-default "$CHOSEN_ID"
 
 
 ## 禁用触控板
+
 使用hyprctl devices 命令查看设备
 ```bash
 ❯ hyprctl devices                                                  
@@ -2520,6 +2527,7 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 
 
 ## 浮动窗口间隙设置
+
 在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观
 这个空白大小是可以修改的，还是在那个 hyprland 配置文件里
 ```bash
@@ -2559,6 +2567,7 @@ general {
 
 
 ## 视频壁纸方案
+
 项目名 mpvpaper
 
 项目地址 [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)
@@ -2595,6 +2604,7 @@ DP-2 是显示器名字，也就是说可以指定显示器播放，自己的显
 
 
 ## 截屏翻译方案
+
 主要使用 Crow Translate 这个程序
 1.安装主程序
 `yay -S crow-translate`
@@ -2636,6 +2646,7 @@ URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷�
 # Waydroid
 
 ## Waydroid 初始配置
+
 安装 waydroid 并初始化
 `sudo pacman -S waydroid`
 `sudo waydroid init`
@@ -2666,6 +2677,7 @@ sudo waydroid-extras 跟着提示一步步走选择安装libndk就行了
 
 
 ## Waydroid 画面撕裂问题
+
 具体表现形式是类似花屏和撕裂，不过只有黑色色调
 
 还是混合显卡的问题，是 waydroid 默认使用显卡和桌面环境使用的显卡不一致导致的，我的 plasma 桌面环境默认使用 N 卡（可以用watch -n 1 nvidia-smi 查看哪些进程在使用 N 卡，每秒实时刷新），waydroid 在使用 A 卡集显，需要切换 waydroid 的显卡使用策略，为此 GitHub 上有个项目提供解决方案脚本
@@ -2727,6 +2739,7 @@ waydroid upgrade --offline
 
 
 ## waydroid 按键映射
+
 之前无法解决 waydroid 没有滑动映射的问题，在 github 上看到了一个项目，还算能用，
 
 项目地址：[https://github.com/waydroid-helper/waydroid-helper/tree/main](https://github.com/waydroid-helper/waydroid-helper/tree/main)
@@ -2750,6 +2763,7 @@ waydroid upgrade --offline
 # archlinux配置安全启动
 
 ## 理论基础
+
 一、 什么是安全启动？
 安全启动 (Secure Boot)是主板 UEFI 固件里的一项安全功能。
 
@@ -2812,6 +2826,7 @@ waydroid upgrade --offline
 ## 配置过程
 
 ### 1.GRUB 侧的配置
+
 首先，安装相应的软件包：shim-signed（AUR 包），sbsigntools，mokutil。
 
 使用 OpenSSL 生成一对安全启动签名密钥，记得妥善保管。
@@ -2901,7 +2916,8 @@ grub.arch,4,Arch Linux,grub,2:2.14rc1-2,https://archlinux.org/packages/core/x86_
 
 
 
-### 2.GRUB MemDisk 和预加载脚本.
+### 2.GRUB MemDisk 和预加载脚本
+
 新建文件夹 /etc/secureboot/grub-sb-stub/memdisk，然后在里面新建 fonts 文件夹。将你需要的字体的 PF2 文 件（比如 /usr/share/grub/unicode.pf2）复制到 fonts 文件夹中。
 
 ```bash
@@ -2963,6 +2979,7 @@ Signing Unsigned original image
 
 
 ### 3. 内核签名
+
 新建 /etc/initcpio/post/kernel-sbsign，内容如下，并同时使用 chmod +x 给予可执行权限。
 
 ```bash
@@ -3005,6 +3022,7 @@ Signing Unsigned original image
 
 
 ### 4.准备重启
+
 在EFI 分区下，放入之前创建的签名密钥的 cer 文件。我将其放入到/boot/EFI/ARCH/keys/MOK.cer
 
 同时复制 Shim 相关的已签名 EFI，并添加相关的引导项
@@ -3051,6 +3069,7 @@ sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-sh
 
 
 ### 5. 自动更新 GRUB 的 EFI 文件和配置数据
+
 首先，准备一下 update-grub 脚本。可以通过 AUR 包的形式安装（包名为 update-grub），也可以在 /usr/local/bin 下新建一个。文件的内容可以参考[这里](https://aur.archlinux.org/cgit/aur.git/tree/update-grub?h=update-grub)
 `yay -S update-grub`
 
@@ -3108,6 +3127,7 @@ Depends=grub
 
 
 # KVM/QEMU虚拟机
+
 1.安装qemu，图形界面， TPM，网络组件
 `sudo pacman -S qemu-full virt-manager swtpm dnsmasq`
 
@@ -3142,6 +3162,7 @@ sudo systemctl restart libvirtd
 有一个注意点，virtmanager默认的连接是系统范围的，如果需要用户范围的话需要左上角新增一个用户会话连接。
 
 ## 嵌套虚拟化
+
 临时生效
 `modprobe kvm_amd nested=1`
 
@@ -3160,6 +3181,7 @@ options kvm_amd nested=1
 
 
 ## KVM显卡直通
+
 前置的win11虚拟机安装，virtio-win驱动安装不再赘述
 virtio-win驱动下载链接参考
 https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.285-1/virtio-win-0.1.285.iso
@@ -3228,6 +3250,7 @@ nvram = [
 
 
 ### moonlight远程连接方案(不建议使用)
+
 删除虚拟机的硬件的显示协议和QXL的显卡，然后添加鼠标和键盘，键盘随便拿了个外接键盘，鼠标就用我现在的雷柏，直通开机后，我直通进去的鼠标键盘就会被虚拟机独占了，所以我的笔记本可以使用自带键盘和触摸板
 ![a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg)
 
@@ -3242,6 +3265,7 @@ nvram = [
 
 
 ### looking glass画面串流方案
+
 这个我觉得比日月组合(sunshine+moonlight)好用多了，不吃网速，虽然同样有虚拟桌面长时间不动后自动掉线的问题，但looking glass能拉回来，而且还支持无头模式（这个我不确定moonlight是否同样支持），也就是说我不需要买hdmi欺骗器了
 
 #### 写在前面的简略理论基础
@@ -3449,9 +3473,11 @@ fi
 
 
 ## KVM虚拟机性能优化和伪装
+
 从这里开始的配置就在克隆系统中进行
 
 ### 禁用memballoon
+
 [libvirt/QEMU Installation — Looking Glass B7 documentation](https://looking-glass.io/docs/B7/install_libvirt/#memballoon)
 
 memlbaloon的目的是提高内存的利用率，但是由于它会不停地“取走”和“归还”虚拟机内存，导致显卡 直通时虚拟机内存性能极差。
@@ -3468,6 +3494,7 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 
 ### 虚拟机镜像优化
+
 原因是虚拟机的特性与btrfs的写时复制(COW)机制有一定冲突，在虚拟机内部，windows在qcow2镜像内部进行微小的块写入，但是每当qcow2文件发生修改，就会触发btrfs的COW，btrfs就会在物理硬盘上找个新位置重新写入该块，后果就是，一个原本逻辑上连续的100GB镜像文件，在物理上被拆成了几十万个不连续的碎片，碎片数量可以通过`sudo filefrag -v win11.qcow2`命令查看，这个问题会导致严重的性能损耗，
 **寻址压力**：内核必须维护几十万条映射记录。读取文件时，CPU 需要频繁查询 B-Tree 索引，造成系统负载波动
 **IO 随机化**：原本是顺序读取的操作，被强制变成了海量的随机读取，极大限制了 SSD 的吞吐能力。
@@ -3498,6 +3525,7 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 
 ### 共享存储
+
 首先确认启用了内存共享(Virtio-FS 强依赖共享内存)
 添加文件系统类型的硬件
 ![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3c515fd8863a183782d1c8f03217cd43_MD5.jpg)
@@ -3517,6 +3545,7 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 
 # archlinux（niri）配置
+
 我的设备信息
 ![05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg)
 
@@ -3543,6 +3572,7 @@ git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fast
 
 
 ## 配置基础环境
+
 配置yay
 编辑pacman配置文件
 `sudo vim /etc/pacman.conf`
@@ -3576,6 +3606,7 @@ Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 然后传入了我的dotfile，比如niri配置之类的
 
 ### 配置基础软件包
+
 装梯子
 `yay -S mihomo-party-bin`
 
@@ -3588,6 +3619,7 @@ Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 为了防止被更新覆盖，可以把desktop文件复制到.local下面对应的目录下面再修改,但是使用wayland协议可能会有别的问题，慎重使用
 
 ### 配置输入法
+
 我选择雾凇拼音
 1.安装 fcitx5 框架和 rime 引擎
 `sudo pacman -S --needed fcitx5-im fcitx5-rime`
@@ -3615,6 +3647,7 @@ SDL_IM_MODULE=fcitx
 如果输入法没生效，使用fcitx5-configtool检查是否添加了Rime输入法，如果中文输入法不是雾凇，随便敲几个拼音，在备选框出现时按下F4可以选择切换输入法
 
 ### 配置noctalia
+
 这个直接去看官方手册，很详细的配置过程了，安装的时候要从多个依赖中选一个，我选的qt6-multimedia-ffmpeg
 在niri的环境变量中，我选择配置了QT6来管理主题，有些主题会体现图标缺失的情况，所以我选择了papirus主题
 安装主题
@@ -3624,6 +3657,7 @@ SDL_IM_MODULE=fcitx
 在界面的图标主题中选中papirus主题并应用就行了
 
 ### 配置noctalia自动锁屏休眠
+
 因为noctalia的锁屏界面就挺不错，所以我选择这个，使用hypridle
 1.安装hypridle
 `sudo pacman -S hypridle`
@@ -3671,6 +3705,7 @@ listener {
 `sudo ln -sf /efi/grub /boot/grub`
 
 ### 配置snapper快照
+
 很多软件包我都在archinstall里预装了，但我还是提一下吧
 `sudo pacman -S  --needed snapper snap-pac btrfs-assistant`
 
@@ -3706,6 +3741,7 @@ btrfs-assistant是快照的图形化管理工具，在其中配置需要的快�
 
 
 ### 配置swap分区
+
 我是32G内存，需要睡眠功能，因此设置38G
 `sudo btrfs filesystem mkswapfile --size 38g --uuid clear /swap/swapfile` 
 
@@ -3724,6 +3760,7 @@ btrfs-assistant是快照的图形化管理工具，在其中配置需要的快�
 
 
 ### 配置greetd
+
 也可以用sddm，设置sddm延迟启动
 这是针对混合显卡的优化，因为显示管理器会在显卡驱动还没加载好的时候就启动，导致电脑会黑屏卡死
 `sudo mkdir -p /etc/systemd/system/sddm.service.d`
@@ -3794,6 +3831,7 @@ sudo systemctl enable greetd
 
 
 ### 常用配置
+
 `sudo pacman -S flatpak steam lutris spotify-launcher lib32-nvidia-utils lib32-vulkan-radeon`
 
 spotify-launcher我在用的听歌软件
@@ -3810,6 +3848,7 @@ lib32-vulkan-radeon是给核显的 32 位 Vulkan 支持（备用）
 `GSK_RENDERER=gl`
 
 ### 配置zsh
+
 `sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting`
 这些包是我的zsh要用到的美化文件
 .config/starship.toml这个文件是调用的提示符美化文件,要去starship官网自己下载
@@ -3818,6 +3857,7 @@ lib32-vulkan-radeon是给核显的 32 位 Vulkan 支持（备用）
 
 
 ### 配置niri的锁屏设置
+
 (可选，我觉得noctalia自带的锁屏就很好看，所以我没弄这个)
 `sudo pacman -S swaylock-effects`
 `mkdir -p ~/.config/swaylock`
@@ -3914,6 +3954,7 @@ done
 ## 系统体验优化配置
 
 ### rm 安全替换与自动清理
+
 一直用rm -rf，虽然从没出过问题，但毕竟是日常使用的系统，还是保险起见设置一下，思路是用alisa别名设置rm为trash这个工具(功能是移动文件到回收站)，因为我用的是合成器而不是完整DE，所以回收站定时清理还是需要自己写一个systemd服务
 
 1.安装工具
@@ -3980,6 +4021,7 @@ WantedBy=timers.target
 
 
 ### 配置键盘背光
+
 华硕提供了图形化配置工具
 `yay -S rog-control-center asusctl`
 启动服务
@@ -3989,6 +4031,7 @@ WantedBy=timers.target
 
 
 ### 音频提取与修改
+
 安装这两个包
 `sudo pacman -S yt-dlp ffmpeg`
 使用方法
@@ -4028,6 +4071,7 @@ WantedBy=timers.target
 # git的使用
 
 ## obsidian自动化推送笔记到github备份
+
 是想实现我的markdown笔记云端备份，因此选择了github私有仓库
 本地仓库目录/home/caster/Documents/Study_Note
 
@@ -4091,6 +4135,7 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 至此完成了obsidian自动化推送markdown笔记到github的私有仓库的配置
 
 ## Git仓库推送流程
+
 在github上弄了dotfiles仓库用于个人配置文件存储，项目地址[[https://github.com/Caster6443/dotfiles]]，前置认证流程就不记录了，这里记录一下使用方法
 
 我把本地仓库放在/home/caster/Documents/my-dotfiles处
@@ -4110,6 +4155,7 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 我设置了 SSH 密钥并启动了ssh-agent，Git 会自动使用我的私钥进行身份验证，不需要重复输入用户名或密码。
 
 ## git 如何指定添加编译某个 pr
+
 其实是为了解决微信在 niri 环境下无法右键的问题，在 xwayland-satellite 项目下面发现了有人提交的 pr 可以解决该问题，因此需要指定该 pr 提交的代码编译进去
 
 流程如下
@@ -4153,10 +4199,9 @@ fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
 # 常见问题
 
 ## 玩游戏帧率异常
+
 玩鸣潮的时候发现帧率不对劲，帧率不稳定，一战斗就掉帧
-
 看一下 nvidia-smi 回显
-
 ```bash
 ❯ nvidia-smi           
 Sun Nov  9 15:24:01 2025        
@@ -4200,6 +4245,7 @@ sudo nvidia-smi -pm 1 # 启用持久模式
 
 
 ## 软件包降级
+
 clash-verge-rev 更新后发现 tun 模式打不开了，尝试了降级软件包处理
 
 1.首先 pacman 会在本地留下软件包缓存，首先检查这个目录下有没有需要的版本
@@ -4301,6 +4347,7 @@ IgnorePkg = clash-verge-rev clash-geoip
 
 
 ## ncmpcpp轻量化音乐播放系统
+
 MPD + ncmpcpp + Cava
 
 1.安装必要软件
@@ -4462,6 +4509,7 @@ Categories=Audio;Player;ConsoleOnly;
 
 
 ## arch 配置 FTP 服务
+
 给我的 kvm_win7 传文件用
 
 安装软件
@@ -4483,6 +4531,7 @@ python -m pyftpdlib
 
 
 ## grub设置链式引导
+
 有些系统并不希望使用grub引导，比如pop!os有自己的system76引导，所以这时就需要链式引导来让这些系统使用自己的引导程序
 参考如下内容
 
@@ -4537,6 +4586,7 @@ menuentry 'Pop!_OS(Chainload)' {
 
 
 ## 混合显卡黑屏问题
+
 具体表现在开机时，有几率在启动加载全部完成后会黑屏卡住，原因是显示管理器有概率会提前在显卡驱动加载前启动
 
 这个有两种解决方案
@@ -4549,6 +4599,7 @@ menuentry 'Pop!_OS(Chainload)' {
 
 
 ## arch 打开文件夹却显示终端
+
 就是发现在某些应用，我选择打开文件夹，打开的却是我的 kitty 终端，解决方案参考如下
 
 ```
@@ -4569,6 +4620,7 @@ org.gnome.Nautilus.desktop
 
 
 ## wps 无法切换中文
+
 准确地说是让wps支持使用我的 fcitx5 输入法
 网上有个方案是在~/.pam_environment 中写入
 
@@ -4605,6 +4657,7 @@ export XMODIFIERS=@im=fcitx
 
 
 ## wine 字体缺失
+
 具体表现是某些字符会显示为“口”字的状态，通常是字体缺失导致的
 使用 Winetricks 自动安装字体
 winetricks是一个辅助脚本，专门用来给 Wine 安装各种依赖库和字体。
@@ -4656,6 +4709,7 @@ sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌
 
 
 ## 蓝牙耳机有电流声
+
 **随着系统滚动更新，该修复失效了，麻了**
 **环境：** Arch Linux + Niri (Wayland) + PipeWire + 蓝牙耳机 (漫步者 W820NB, 编码器:SBC)。
 **现象：** 播放音频时，偶尔会出现剧烈的“电击式”爆音或断流。
@@ -4718,6 +4772,7 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 
 
 ## 微信读取系统文件夹异常
+
 这个和 hyprland 无关，我就单独拿出来
 
 具体就是用微信打开本地文件夹发现显示不全
@@ -4736,6 +4791,7 @@ sudo pacman -S flatseal
 
 
 ## konsole提示符异常
+
 就是在打开窗口的时候，提示符上面不知道为啥会出现一个%号
 
 原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突
@@ -4817,6 +4873,7 @@ bash -c $curl --fail --show-error --silent --location https://raw.githubusercont
 
 
 ## sudo 密码输入问题
+
 用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码
 `sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout`
 在文件中写入如下内容
