@@ -1104,15 +1104,26 @@ sudo gpasswd -a $USER kvm
 重启电脑后使用groups命令确认自己在kvm组里  
 
 4.设置共享内存设备对应的文件的规则  
-`sudo vim /etc/tmpfiles.d/10-looking-glass.conf`  
+
+```
+sudo vim /etc/tmpfiles.d/10-looking-glass.conf  
+```
+
 写入如下内容  
-`f /dev/shm/looking-glass 0660 caster kvm -`  
+
+```
+f /dev/shm/looking-glass 0660 caster kvm -  
+```
+
 `f` 代表定文件规则 `/dev/shm/looking-glass`是共享内存文件的路径 `0660` 设置所有者和所属组的读写权限 `caster` 设置所有者 `kvm` 设置所属组  
 
 这个conf文件它定义了一个每次开机就仅执行一次的服务，生成的/dev/shm/looking-glass文件，就是这个划分的内存的入口  
 
 本来是每次开机触发一次，但可以立刻手动创建这个文件  
-`sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf`  
+
+```
+sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf  
+```
 
 4.回到虚拟机设置  
 设置spice协议  
@@ -1126,7 +1137,11 @@ sudo gpasswd -a $USER kvm
 
 声音传输  
 确认有ich9声卡，点击概况，去到xml底部，在里面找到下面这段，确认type为spice，不是的话自己手动改  
-`<audio id='1' type='spice'/>`  
+
+```
+<audio id='1' type='spice'/>  
+```
+
 配置结束大概是这样  
 ![52a72e57902a24011dcd312b0bdf4e83_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/52a72e57902a24011dcd312b0bdf4e83_MD5.jpg)  
 
@@ -1136,7 +1151,10 @@ sudo gpasswd -a $USER kvm
 
 6.linux安装客户端  
 服务端和客户端的版本要匹配，bleeding-edge对应git包  
-`yay -S looking-glass-git`  
+
+```
+yay -S looking-glass-git  
+```
 
 桌面快捷方式打开lookingglass即可连接  
 
@@ -1261,20 +1279,38 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 1.由于 `chattr +C`（NOCOW 属性）只对新文件生效，我们必须采用“先设目录，后创文件”的策略。  
 赋予存放镜像的目录 NOCOW 属性，让其下的新文件自动继承  
-`sudo chattr +C /var/lib/libvirt/images`  
+
+```
+sudo chattr +C /var/lib/libvirt/images  
+```
 
 2.强制物理重写（数据搬家）  
-`cd /var/lib/libvirt/images`  
+
+```
+cd /var/lib/libvirt/images  
+```
+
 创建一个标记为 +C 的空文件  
-`sudo touch win11-fixed.qcow2`  
-`sudo chattr +C win11-fixed.qcow2`  
-强制物理拷贝，禁用 reflink (克隆)，--sparse=always 保证镜像文件中的空洞不被填满，节省物理空间  
-`sudo cp --reflink=never --sparse=always win11-original.qcow2 win11-fixed.qcow2`  
+
+```
+sudo touch win11-fixed.qcow2  
+sudo chattr +C win11-fixed.qcow2  
+```
+
+强制物理拷贝，禁用 reflink (克隆)，--sparse=always 保证镜像文件中的空洞不被填满，节省物理空间 
+
+```
+sudo cp --reflink=never --sparse=always win11-original.qcow2 win11-fixed.qcow2  
+```
 
 3.深度整理（最后压实）  
 即使重写后，受限于磁盘剩余空间的碎片化，可能仍有残余碎片。使用 Btrfs 专用的整理工具进行最后修复。  
 告诉内核寻找至少 32MB 连续空间的“大地盘”进行整理  
-`sudo btrfs filesystem defragment -v -t 32M win11-fixed.qcow2`  
+
+```
+sudo btrfs filesystem defragment -v -t 32M win11-fixed.qcow2  
+```
+
 然后把新创建的qocw2改名为旧的取代即可  
 
 ### 共享存储
@@ -1293,21 +1329,32 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 我是用archinstall安装的，并安装了显卡驱动，它支持安装niri的初始环境，不过感觉不如最小化安装，但是装都装好了，在此基础上开始我的配置  
 在archinstall的过程中，我设置了根分区文件系统类型为btrfs，子卷及其挂载情况如下  
+
+```
 @ -> /  
 @home -> /home  
 @pkg -> /var/cache/pacman/pkg  
 @log -> /var/log  
 @swap -> /swap  
+```
+
 efi分区挂载在/efi上，引导程序用的grub  
 esp挂载在/efi上  
 还要选择Mark/Unmark as ESP和Mark/Unmark as bootable标记一下  
 
 驱动安装选择的Nvidia (proprietary)，剩余的驱动可以开机后补充安装  
-`sudo pacman -S --needed mesa lib32-mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon`  
+
+```
+sudo pacman -S --needed mesa lib32-mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon  
+```
+
 显示管理器用的sddm  
 
 archinstall提供了预装软件的功能，我这里预装了这些软件包  
+
+```
 git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fastfetch btop openssh pipewire wireplumber pipewire-pulse pavucontrol bluez bluez-utils fcitx5-im fcitx5-rime fcitx5-chinese-addons noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd wl-clipboard xdg-desktop-portal-gnome polkit-gnome niri fuzzel mako grim slurp swappy snapper snap-pac btrfs-assistant gnome-software grub-btrfs inotify-tools nvidia-prime gst-plugins-bad gst-plugins-ugly gst-libav mpv  
+```
 
 要不是不能用yay，我全给它装上了  
 
@@ -1315,7 +1362,11 @@ git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fast
 
 配置yay  
 编辑pacman配置文件  
-`sudo vim /etc/pacman.conf`  
+
+```
+sudo vim /etc/pacman.conf  
+```
+
 写入如下内容  
 
 ```
@@ -1327,46 +1378,78 @@ Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 
 保存退出后  
 更新数据库并安装 keyring (这是为了信任 CN 源的签名)  
-`sudo pacman -Sy archlinuxcn-keyring`  
+
+```
+sudo pacman -Sy archlinuxcn-keyring  
+```
 
 直接安装 yay  
-`sudo pacman -S yay`  
+
+```
+sudo pacman -S yay  
+```
 
 
 生成中文 Locale  
-不配置的话，中文内容会乱码  
-`sudo vim /etc/locale.gen`  
+不配置的话，中文内容会乱码 
+
+```
+sudo vim /etc/locale.gen  
+```
+
 找到 `zh_CN.UTF-8 UTF-8` ，把前面的 `#` 去掉，(确保 `en_US.UTF-8 UTF-8` 也是开启的)  
 然后生成Locale  
-`sudo locale-gen`  
-确认 `/etc/locale.conf` 内容是  
-`LANG=en_US.UTF-8`  
+
+```
+sudo locale-gen  
+```
+
+确认 `/etc/locale.conf` 内容是 
+
+```
+LANG=en_US.UTF-8  
+```
 
 
 然后传入了我的dotfile，比如niri配置之类的  
 
 ### 配置基础软件包
 
-装梯子  
-`yay -S mihomo-party-bin`  
+接下来我要装一个需要七个木棍合成的妙妙工具
 
+```
+yay -S mihomo-party-bin  
+```
 
-再装个xwayland-satellite，保守一点就不装git版本的了  
-`yay -S xwayland-satellite`  
+再装个xwayland-satellite,这是niri推荐使用的xwayland
+
+```
+yay -S xwayland-satellite  
+```
 
 很多应用默认都是用xwayland运行的，因为xwayland-satellite有待完善，所以这些应用都很糊，可以直接修改desktop文件，在exec处添加参数  
-`--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-wayland-ime`  
+
+```
+--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-wayland-ime  
+```
+
 为了防止被更新覆盖，可以把desktop文件复制到.local下面对应的目录下面再修改,但是使用wayland协议可能会有别的问题，慎重使用  
 
 ### 配置输入法
 
 我选择雾凇拼音  
 1.安装 fcitx5 框架和 rime 引擎  
-`sudo pacman -S --needed fcitx5-im fcitx5-rime`  
+
+```
+sudo pacman -S --needed fcitx5-im fcitx5-rime  
+```
 
 2.从 AUR 安装雾凇拼音 (自动配置版)  
 这个包会自动把配置文件放到正确的位置，省去手动下载解压的麻烦  
-`yay -S rime-ice-git`  
+
+```
+yay -S rime-ice-git  
+```
 
 3.配置环境变量  
 在/etc/environment内写入如下内容  
@@ -1380,9 +1463,12 @@ SDL_IM_MODULE=fcitx
 ```
 
 4.配置在 Niri 中自启动  
-在niri配置文件内自动启动区块写入如下内容  
-`spawn-at-startup "fcitx5" "-d"  
-`  
+在niri配置文件内自动启动区块写入如下内容 
+
+```
+spawn-at-startup "fcitx5" "-d"  
+```
+
 重启一下  
 如果输入法没生效，使用fcitx5-configtool检查是否添加了Rime输入法，如果中文输入法不是雾凇，随便敲几个拼音，在备选框出现时按下F4可以选择切换输入法  
 
@@ -1391,20 +1477,35 @@ SDL_IM_MODULE=fcitx
 这个直接去看官方手册，很详细的配置过程了，安装的时候要从多个依赖中选一个，我选的qt6-multimedia-ffmpeg  
 在niri的环境变量中，我选择配置了QT6来管理主题，有些主题会体现图标缺失的情况，所以我选择了papirus主题  
 安装主题  
-`yay -S papirus-icon-theme`  
+
+```
+yay -S papirus-icon-theme  
+```
+
 使用qt6图形化界面配置  
-`qt6ct`  
+
+```
+qt6ct  
+```
+
 在界面的图标主题中选中papirus主题并应用就行了  
 
 ### 配置noctalia自动锁屏休眠
 
 因为noctalia的锁屏界面就挺不错，所以我选择这个，使用hypridle  
 1.安装hypridle  
-`sudo pacman -S hypridle`  
+
+```
+sudo pacman -S hypridle  
+```
 
 2.创建配置  
-`mkdir -p ~/.config/hypr`  
-`vim ~/.config/hypr/hypridle.conf`  
+
+```
+mkdir -p ~/.config/hypr  
+vim ~/.config/hypr/hypridle.conf  
+```
+
 写入如下内容  
 
 ```
@@ -1436,43 +1537,71 @@ listener {
 
 3.配置niri自动启动hypridle  
 在niri配置文件中写入  
-`spawn-at-startup "hypridle"`  
+
+```
+spawn-at-startup "hypridle"  
+```
 
 
 
 
 我的efi分区是挂载在/efi上面的，但很多程序还是喜欢在/boot下面读取grub的配置文件，因此需要做个软链接  
-`sudo ln -sf /efi/grub /boot/grub`  
+
+```
+sudo ln -sf /efi/grub /boot/grub  
+```
 
 ### 配置snapper快照
 
 很多软件包我都在archinstall里预装了，但我还是提一下吧  
-`sudo pacman -S  --needed snapper snap-pac btrfs-assistant`  
+
+```
+sudo pacman -S  --needed snapper snap-pac btrfs-assistant  
+```
 
 自动生成快照启动项  
-`sudo pacman -S grub-btrfs inotify-tools`  
-`sudo systemctl enable --now grub-btrfsd`  
+
+```
+sudo pacman -S grub-btrfs inotify-tools  
+sudo systemctl enable --now grub-btrfsd  
+```
 
 设置覆盖文件系统  
 因为snapper快照是只读的，所以需要设置一个overlayfs在内存中创建一个临时可写的类似live-cd的环境，否则可能无法正常从快照启动项进入系统。  
 编辑`/etc/mkinitcpio.conf`  
-`sudo vim /etc/mkinitcpio.conf`  
+
+```
+sudo vim /etc/mkinitcpio.conf  
+```
 
 在HOOKS里添加`grub-btrfs-overlayfs`  
-`HOOKS= ( ...... grub-btrfs-overlayfs )`  
+
+```
+HOOKS= ( ...... grub-btrfs-overlayfs )  
+```
 
 重新生成initramfs  
-`sudo mkinitcpio -P`  
 
-重启后重新生成grub配置文件  
+```
+sudo mkinitcpio -P  
+```
+
+重启后重新生成grub配置文件
+
+```
 `sudo grub-mkconfig -o /efi/grub/grub.cfg`  
+```
 
 btrfs-assistant是快照的图形化管理工具，在其中配置需要的快照配置  
 另外出于btrfs的特性，Btrfs 以 **Chunk (块组/通常 1GiB)** 为单位向底层磁盘申请空间。删除数据后，这些 Chunk 依然处于“被文件系统征用”的状态，只是内部变空了（碎片化），因此必须通过 **Balance (平衡)** 操作，将低利用率 Chunk 中的有效数据迁移，并把空出的 Chunk 归还给底层设备，才能真正释放物理空间。  
 手动执行 Balance 容易导致全盘重写（极慢且伤盘），应配置自动增量维护  
 一句话总结：可以使用btrfsmaintenance定期回收那些因快照删除而产生的‘已分配但未使用的’僵尸空间。  
 安装后端脚本btrfsmaintenance  
-`paru -S btrfsmaintenance`  
+
+```
+paru -S btrfsmaintenance  
+```
+
 安装后打开btrfs-assistant会看到新增了一个选项卡btrfs maintenance  
 在里面设置如下（其实是默认配置，balance和Scrub选中挂载点都为/）  
 ![3cffcf9af553ff1be660276dffd6b4de_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg)  
@@ -1480,23 +1609,44 @@ btrfs-assistant是快照的图形化管理工具，在其中配置需要的快�
 ### 配置swap分区
 
 我是32G内存，需要睡眠功能，因此设置38G  
-`sudo btrfs filesystem mkswapfile --size 38g --uuid clear /swap/swapfile`
 
-写进fstab  
-`/swap/swapfile none swap defaults 0 0`  
+```
+sudo btrfs filesystem mkswapfile --size 38g --uuid clear /swap/swapfile
+```
+
+在/etc/fstab文件内写入如下内容  
+
+```
+/swap/swapfile none swap defaults 0 0  
+```
 
 ### 配置greetd
 
 也可以用sddm，设置sddm延迟启动  
 这是针对混合显卡的优化，因为显示管理器会在显卡驱动还没加载好的时候就启动，导致电脑会黑屏卡死  
-`sudo mkdir -p /etc/systemd/system/sddm.service.d`  
+
+```
+sudo mkdir -p /etc/systemd/system/sddm.service.d  
+```
+
 添加以下内容  
-❯ cat /etc/systemd/system/sddm.service.d/delay.conf `[Service]`  
-`ExecStartPre=/usr/bin/sleep 2`  
+
+```
+❯ cat /etc/systemd/system/sddm.service.d/delay.conf 
+[Service]  
+ExecStartPre=/usr/bin/sleep 2  
+```
 
 sddm搞着麻烦，我换greetd再配置自动登录  
-`sudo pacman -S greetd greetd-tuigreet`  
-`sudo vim /etc/greetd/config.toml`  
+
+```
+sudo pacman -S greetd greetd-tuigreet  
+```
+
+```
+sudo vim /etc/greetd/config.toml  
+```
+
 文件内容参考如下  
 
 ```
@@ -1506,12 +1656,12 @@ sddm搞着麻烦，我换greetd再配置自动登录
 # 在第1个虚拟终端运行，避免启动时的闪烁
 vt = 1
 
-# --- 1. 开机自动登录配置 (Initial Session) ---
+# 开机自动登录配置
 [initial_session]
 command = "niri-session"
 user = "caster"
 
-# --- 2. 注销后的登录界面 (Default Session) ---
+# 注销后的登录界面
 [default_session]
 
 # 使用 tuigreet 界面
@@ -1531,7 +1681,11 @@ user = "greeter"
 ```
 
 然后配置它延迟两秒启动，说到底它也是个显示管理器，也会导致问题，所以需要设置  
-`sudo systemctl edit greetd`  
+
+```
+sudo systemctl edit greetd  
+```
+
 在里面写入  
 
 ```
@@ -1541,8 +1695,7 @@ ExecStartPre=/usr/bin/sleep 2
 
 ```
 
-其实这个和之前sddm的方式是类似的，最终它们都会生成对应的服务.d目录下的配置覆盖文件  
-然后把之前的sddm的systemd服务禁用，启用greetd  
+其实这个和之前sddm的方式是类似的，最终它们都会生成对应的服务.d目录下的配置覆盖文件  ,然后把之前的sddm的systemd服务禁用，启用greetd  
 
 ```
 
@@ -1553,35 +1706,58 @@ sudo systemctl enable greetd
 
 ### 常用配置
 
-`sudo pacman -S flatpak steam lutris spotify-launcher lib32-nvidia-utils lib32-vulkan-radeon`  
+```
+sudo pacman -S flatpak steam lutris spotify-launcher lib32-nvidia-utils lib32-vulkan-radeon  
+```
 
 spotify-launcher我在用的听歌软件  
 lib32-nvidia-utils用于给steam调用32位显卡驱动  
 lib32-vulkan-radeon是给核显的 32 位 Vulkan 支持（备用）  
 
 配置 Flatpak 源  
-`flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`  
+
+```
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo  
+```
 
 
 关于GTK4应用打开慢的问题，是因为N卡渲染兼容性太差了，因此需要设置环境变量让GTK4应用用回旧的渲染器GL  
-将如下内容写进/etc/environment文件  
-强制 GTK4 使用旧版 GL 渲染器 (修复 Nvidia 卡顿)  
-`GSK_RENDERER=gl`  
+将如下内容写进/etc/environment文件   
+
+```
+GSK_RENDERER=gl  
+```
 
 ### 配置zsh
 
-`sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting`  
+```
+sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting  
+```
+
 这些包是我的zsh要用到的美化文件  
 .config/starship.toml这个文件是调用的提示符美化文件,要去starship官网自己下载  
 然后设置默认shell为zsh  
-`chsh -s /usr/bin/zsh`  
+
+```
+chsh -s /usr/bin/zsh  
+```
 
 ### 配置niri的锁屏设置
 
 (可选，我觉得noctalia自带的锁屏就很好看，所以我没弄这个)  
-`sudo pacman -S swaylock-effects`  
-`mkdir -p ~/.config/swaylock`  
-`vim ~/.config/swaylock/config`  
+
+```
+sudo pacman -S swaylock-effects  
+```
+
+```
+mkdir -p ~/.config/swaylock  
+```
+
+```
+vim ~/.config/swaylock/config  
+```
+
 写入如下内容  
 
 ```
@@ -1596,8 +1772,15 @@ effect-blur=10x5
 ```
 
 配置自动熄屏锁屏休眠  
-`mkdir -p ~/.config/niri/scripts`  
-`vim ~/.config/niri/scripts/swayidle.sh`  
+
+```
+mkdir -p ~/.config/niri/scripts  
+```
+
+```
+vim ~/.config/niri/scripts/swayidle.sh  
+```
+
 写入如下内容  
 
 ```
