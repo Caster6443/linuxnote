@@ -12,7 +12,6 @@
 
 ![87727257087262a186f7eebb6995744f_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/87727257087262a186f7eebb6995744f_MD5.png)
 
-
 ## sed命令
 
 -i参数：
@@ -20,10 +19,6 @@ sed命令对文件内容的增删改查都是在内存空间中进行的，并�
 
 -n参数：
 由于sed命令的默认机制，即使某行文本未被匹配，也会被打印到终端上，因此在不想显示不匹配文本内容时，需要-n参数来取消sed命令的默认输出
-
-
-
-
 
 ## awk命令
 
@@ -44,8 +39,10 @@ FILENAME：被处理的文件名。
 
 RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取的资料切割成许多条记录,而awk一次仅读入一条记录,以进行处理。预设值是’\n’
 ```
+
 在使用awk命令的过程中,可以使用逻辑操作符“&&”表示“与”、“||”表示“或”、“!”表示“非”；还可以进行简单的数学运算，如`+、-、*、/、%、^`分别表示加、减、乘、除、取余和乘方
 打印所有偶数行
+
 ```
 [root@master ~]# awk '(NR%2)=0 {print}' test.txt 
 第二行
@@ -83,11 +80,6 @@ RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取
 在这里筛选出了第三个字段小于10的字符串（给$3<10打个括号更美观一些）
 
 `awk -F ":" '!($3<200){print}' /etc/passwd` #输出第3个字段的值不小于200的行
-
-
-
-
-
 
 ## find命令
 
@@ -129,9 +121,8 @@ find /oldboy/find/ -type f -name '*.txt' -exec ls -lh {} \;
 \;是该选项的固定格式,表示命令结束
 ```
 
-
-
 ## chattr 命令
+
 写这个是因为有个 b 把我搭的网站给黑了，还给他的 ssh 密钥设置了 chattr 属性留了后门，这种东西，普通云服务的查杀功能是不起作用的，只能是自己找然后去除属性后删除
 
 Linux chattr 命令用于改变文件或目录的属性，这些属性可以控制文件系统的行为，提供更高级的文件管理功能。
@@ -159,18 +150,14 @@ u     文件被删除后，其内容仍可恢复（与 s 相反）。
 d     文件在 dump 备份时会被跳过。
 ```
 
-`+C`  NOCOW禁止写时复制。允许修改，但必须**原地覆盖**。
-
+`+C` NOCOW禁止写时复制。允许修改，但必须**原地覆盖**。
 
 ## tee命令
+
 在处理输入输出流时功能类似T型管，一方面它会通过标准输入读取，另一方面它会将标准输入重定向到指定文件(默认是覆盖重定向，加-a选项是追加重定向)，在这个过程中间，它还会将标准输入输出到标准输出(一般是当前shell)
 
-
-
-
-
-
 ## tar命令
+
 tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数实现
 
 ```
@@ -185,8 +172,6 @@ tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数�
 
 ```
 
-
-
 ## yum/rpm命令
 
 yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，像ftp，http，file一样；
@@ -199,12 +184,12 @@ yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，�
 
 有时候需要将高版本的依赖降级到低版本，降级命令如下
 
-`yum downgrade <package_name>` 
+`yum downgrade <package_name>`
 
 对于有依赖的，yum不会自动降级，需要手动降级依赖项
 
-
 ### yum本地安装
+
 `yum -y localinstall`
 
 后面跟rpm安装包名，例：
@@ -213,8 +198,8 @@ yum 解决依赖关系问题，自动下载软件包。yum是基于C/S架构，�
 
 指定安装了该文件夹下所有的rpm包
 
-
 ### yum 查找指定命令的所在软件包
+
 以查找 zcat 命令的软件包为例
 
 ```bash
@@ -235,6 +220,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 ```
 
 ### 查看某个服务的所有配置文件路径
+
 以 nginx 为例
 
 ```bash
@@ -290,9 +276,8 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 ```
 
-
-
 ### Linux RPM包统一命名规则
+
  RPM 二进制包命名的一般格式如下： 包名-版本号-发布次数-发行商-Linux平台-适合的硬件平台-包扩展名
 
 有些 rpm 包用于生成软件源，它们的格式一般如下:
@@ -307,18 +292,10 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 命名模式：
 <软件名>-<功能词>-<系统版本>.noarch.rpm
 
-
-
-
-
-
-
 ## alisa命令别名
+
 以docker为例
 ![55b91cf1ca8373b5e6b33246b327e1f7_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png)
-
-
-
 
 ## 正则表达式
 
@@ -340,9 +317,6 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 ![215f862977ebe34f865d059a684c4d22_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/215f862977ebe34f865d059a684c4d22_MD5.png)
 
-
-
-
 ## ipvs
 
 启动ipvs的要求：
@@ -351,7 +325,9 @@ k8s版本 >= v1.11
 
 使用ipvs需要安装相应的工具来处理
 
-`yum install ipset ipvsadm -y`
+```
+yum install ipset ipvsadm -y
+```
 
 确保 ipvs已经加载内核模块
 
@@ -360,12 +336,6 @@ ip_vs、ip_vs_rr、ip_vs_wrr、ip_vs_sh、nf_conntrack_ipv4。
 ```
 
 如果这些内核模块不加载，当kube-proxy启动后，会退回到iptables模式。
-
-
-
-
-
-
 
 ## 命令替换
 
@@ -377,10 +347,6 @@ shell中命令替换符有两种
 ```
 
 反单引号适用于任何类unix平台，它的适用性比较高。
-
-
-
-
 
 ## linux常用的系统环境变量
 
@@ -406,12 +372,9 @@ PS2：定义多行命令的提示符的格式。
 
 使用env命令显示当前用户的所有环境变量，使用set命令查看所有本地定义的环境变量
 
-
-
 ## 关于echo $PATH的回显释义
 
 ![91238653c6e8e6603e279c474409f9ab_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/91238653c6e8e6603e279c474409f9ab_MD5.png)
-
 
 ## 关于逻辑卷调整的-r参数
 
@@ -424,16 +387,14 @@ PS2：定义多行命令的提示符的格式。
 收缩逻辑卷： 无 -r 参数：需先手动收缩文件系统，再收缩LV 有 -r 参数：自动先收缩文件系统，再收缩LV空间
 
 文件系统必须支持在线调整：
-
 - 支持：ext2/3/4, XFS（仅扩展）, Btrfs
-    
 - 不支持：NTFS, FAT32 等
-    
 - XFS 文件系统只能扩展不能收缩
-    
+
 
 常见不支持 -r 选项的文件系统：
 
+```
 NTFS： 扩容支持：在线/离线 收缩支持：离线 工具：ntfsresize
 
 FAT32/VFAT： 扩容支持：离线 收缩支持：离线 工具：fatresize
@@ -445,44 +406,76 @@ ZFS： 扩容支持：在线 收缩支持：在线 工具：zfs set
 APFS： 扩容支持：在线 收缩支持：在线 工具：macOS 磁盘工具
 
 加密LUKS： 扩容支持：需先调整加密层 收缩支持：高风险 工具：cryptsetup + fs工具
+```
 
 扩容不支持-r选项的文件系统的逻辑卷
-1.扩展逻辑卷 (扩展10G) 
-`sudo lvextend -L +10G /dev/vg01/lv_data`
+1.扩展逻辑卷 (扩展10G)
+
+```
+sudo lvextend -L +10G /dev/vg01/lv_data
+```
 
 2.手动扩展文件系统
-如果是 NTFS (需安装 ntfs-3g)： 
-`sudo ntfsresize /dev/vg01/lv_data # 离线操作需要卸载`
+如果是 NTFS (需安装 ntfs-3g)：
+
+```
+sudo ntfsresize /dev/vg01/lv_data # 离线操作需要卸载
+```
 
 如果是 FAT32：
-`sudo fatresize -s +10G /dev/vg01/lv_data`
 
-如果是 ReiserFS： `sudo resize_reiserfs /dev/vg01/lv_data`
+```
+sudo fatresize -s +10G /dev/vg01/lv_data
+```
 
-如果是加密卷 (LUKS)： 
-`sudo cryptsetup resize crypt_data # 先调整加密层` 
-`sudo ntfsresize /dev/mapper/crypt_data`
+如果是 ReiserFS：
+
+```
+sudo resize_reiserfs /dev/vg01/lv_data
+```
+
+如果是加密卷 (LUKS)：
+
+```
+sudo cryptsetup resize crypt_data # 先调整加密层 
+sudo ntfsresize /dev/mapper/crypt_data
+
+```
 
 缩容不支持-r选项的文件系统的逻辑卷(风险极高不建议使用)
-1.卸载文件系统 
-`sudo umount /mnt/data`
+1.卸载文件系统
+
+```
+sudo umount /mnt/data
+```
+
 2.检查文件系统 (以NTFS为例)
-`sudo ntfsfix /dev/vg01/lv_data`
+
+```
+sudo ntfsfix /dev/vg01/lv_data
+```
+
 3.收缩文件系统 (目标缩小到15G)
-`sudo ntfsresize -s 15G /dev/vg01/lv_data`
-4.收缩逻辑卷 (必须精确匹配文件系统新大小) 
-`sudo lvreduce -L 15G /dev/vg01/lv_data`
-5.重新挂载 
-`sudo mount /dev/vg01/lv_data /mnt/data`
 
+```
+sudo ntfsresize -s 15G /dev/vg01/lv_data
+```
 
-## namespance分类 
+4.收缩逻辑卷 (必须精确匹配文件系统新大小)
+
+```
+sudo lvreduce -L 15G /dev/vg01/lv_data
+```
+
+5.重新挂载
+
+```
+sudo mount /dev/vg01/lv_data /mnt/data
+```
+
+## namespance分类
+
 ![21d6eb1b235d93b35c05bff409736782_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/21d6eb1b235d93b35c05bff409736782_MD5.png)
-
-
-
-
-
 
 ## 基于插入内核进程的直接生效流量转发
 
@@ -499,7 +492,6 @@ sysctl -p
 
 ```
 
-
 ## 关于dm
 
 dm是Device Mapper的缩写，Device Mapper 是 Linux 2.6 内核中提供的一种从逻辑设备到物理设备的映射框架机制，在该机制下，用户可以很方便的根据自己的需要制定实现存储资源的管理策略，当前比较流行的 Linux 下的逻辑卷管理器如 LVM2（Linux Volume Manager 2 version)、EVMS(Enterprise Volume Management System)、dmraid(Device Mapper Raid Tool)等都是基于该机制实现的。
@@ -510,9 +502,6 @@ dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
 
 参考文章：linux dm-0 dm-1 设备映射 简介-CSDN博客 ([https://blog.csdn.net/whatday/article/details/106354092](https://blog.csdn.net/whatday/article/details/106354092))
 
-
-
-
 ## 关于vim搜索指定字符串和指定多行注释
 
 在命令模式下（默认进入vim时就是命令模式，shift加：是末行模式）按下/可以进入搜索模式，输入指定字符串并回车进行查找，按下n跳转到下一个匹配字符串
@@ -520,15 +509,9 @@ dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
 指定多行注释是在末行模式中进行，格式是 起始行号,结束行号s/^/#/g
 g是全局匹配，不加g仅替换每行的第一个匹配项
 
-
 ## 关于&和&&的使用
 
 在dockerfile的CMD指令中需要指定一个前台运行的指令来保障容器的运行，例如在编写mysql的dockerfile用初始化脚本时使用mysqld --user=root来启动mysql，但该命令是前台运行会导致阻塞，所以需要&来而不是&&来衔接下一条指令，&的使用可以保证即使前一条指令未执行完毕也能够继续执行下一条指令，&&则必须要前一条指令执行成功才能继续执行下一条指令
-
-
-
-
-
 
 ## 如何设置ssh连接后执行指定可执行文件
 
@@ -538,7 +521,9 @@ g是全局匹配，不加g仅替换每行的第一个匹配项
 
 例如
 
+```
 if [ -n "$SSH_CONNECTION" ]; then /path/可执行文件 fi
+```
 
 上述命令实现了ssh连接后在cli执行指定的可执行文件,-n参数是限制仅"$SSH_CONNECTION" 一个判断条件
 
@@ -550,33 +535,23 @@ SSH_CONNECTION变量在ssh连接成功后会被自动赋值，内容格式为:
 
 基于这些原理，就可以设置指定用户ssh登录时自动执行指定的可执行文件
 
-
-
-
-
-
-
 ## 在linux系统的cli中如何实现字体属性设置
 
 这里用C程序举例（使用echo时要加-e选项，参数要加双引号)
 
 终端字体设置
-\#include <stdio.h>
+
+```
+#include <stdio.h>
 int main()
-{ puts("\033[5;33m黄色字体,属性是闪烁\033[0m"); /*固定模板是\033[<属性代码>;<前景色代码>;<背景色代码>m 后接需要应用的文本 / 属性代码: 重置(恢复默认)-0 加粗(亮色)-1 淡色(暗色)-2 斜体-3 下划线-4 闪烁-5 反显(反白)-7 隐藏文字-8 前景色和对应代码: 黑色-30 红色-31 绿色-32 黄色-33 蓝色-34 洋红色(品红)-35 青色-36 白色-37 背景色和对应代码: 黑色-40 红色-41 绿色-42 黄色-43 蓝色-44 洋红色(品红)-45 青色-46 白色-47 */ 
-return 0; 
+{ puts("\033[5;33m黄色字体,属性是闪烁\033[0m"); /*固定模板是\033[<属性代码>;<前景色代码>;<背景色代码>m 后接需要应用的文本 / 属性代码: 重置(恢复默认)-0 加粗(亮色)-1 淡色(暗色)-2 斜体-3 下划线-4 闪烁-5 反显(反白)-7 隐藏文字-8 前景色和对应代码: 黑色-30 红色-31 绿色-32 黄色-33 蓝色-34 洋红色(品红)-35 青色-36 白色-37 背景色和对应代码: 黑色-40 红色-41 绿色-42 黄色-43 蓝色-44 洋红色(品红)-45 青色-46 白色-47 */
+return 0;
 }
-
-
-
-
+```
 
 ## 使用ifconfig临时修改网卡配置
 
 格式: ifconfig 网卡名 参数
-
-
-
 
 ## FQDN
 
@@ -584,30 +559,30 @@ return 0;
 
 它分为以下几个部分：
 
+```
 ［hostname］.［domain］.［tld］
+```
 
 例如，以下是如何分解完全限定域名，www.WordPress 站群.com。The 第一部分(“www”)是主机名。第二部分(“WordPress 站群”)是域名。最后一部分(“com”)是 TLD(顶级域)
 
 可以将完全限定域名视为地址。这个地址的目的是在 DNS 系统中指定位置。使用 FQDN，网站或其他线上实体的位置有都自己的唯一识别符号和位置。
 
-
-
-
 ## 私网ip地址范围
+
+```
 10.0.0.0-10.255.255.255
 
 172.16.0.0-172.31.255.255
 
 192.168.0.0-192.168.255.255
-
-
-
+```
 
 ## 为什么空目录的硬链接索引值默认为2
+
 一个是自身目录，另一个是特殊文件'.'，就是代表当前目录的'.'，它和".."是linux中的特殊文件，'.'是当前目录的特殊硬链接文件，".."是对当前目录的父目录的特殊硬链接文件，以此类推，当一个目录为空时,该目录只有一个'.'和自身，所以硬链接索引值为2，当该目录存在一个空的子文件夹时，又多了一个该子文件夹下的".."文件作为又一个硬链接
 
-
 ## 特殊重定向的使用
+
 1>
 1可以视为进程的默认出口，不加1和>也没区别
 
@@ -622,10 +597,10 @@ return 0;
 
 1>和2>的组合使用和变种
 可以实现同时记录正常输出与错误输出
-echo hello  >> hello.log	2>> hell.log
+echo hello >> hello.log	2>> hell.log
 
 这个功能实现还有多种写法
-echo hello   >> hello.log   2>&1
+echo hello >> hello.log 2>&1
 
 
 echo hello &>> hello.log
@@ -633,14 +608,12 @@ echo hello &>> hello.log
 
 在定时任务中常用，同时记录正确和错误信息
 
-
-
 ## 使用管道非交互式修改用户密码
+
 echo "000000" | passwd --stdin user
 
-
-
 ## linux的用户与组提权
+
 有临时提权和永久提权，就是允许sudo的使用
 
 临时提权
@@ -649,7 +622,7 @@ echo "000000" | passwd --stdin user
 永久提权
 修改/etc/sudoers文件第108行（可以通过visudo命令直接进入该配置文件）
 
-格式是:     用户名  ALL=(ALL)       ALL
+格式是: 用户名 ALL=(ALL) ALL
 
 (其实在配置文件内部都有参考,包括组提权，参考wheel组）
 
@@ -687,12 +660,9 @@ hello!
 
 ```
 
-
-
-
-
 ## cron定时任务
-/etc/crontab  计划任务列表配置文件
+
+/etc/crontab 计划任务列表配置文件
 
 crontab -u 指定用户 -e 开始编辑定时任务
 
@@ -713,11 +683,8 @@ crontab -u 指定用户 -e 开始编辑定时任务
 
 以此类推
 
-
-
-
-
 ## semanager port
+
 用来管理端口安全上下文
 
 -a添加规则
@@ -728,12 +695,8 @@ crontab -u 指定用户 -e 开始编辑定时任务
 
 -l列出所有端口安全上下文
 
-
-
-
-
-
 ## 关于su和ssh特性
+
 1. su 切换用户的环境问题  
 使用 su wallah 从 root 切换到 wallah 用户。这种方式 不会完全重置环境变量（如 XDG_RUNTIME_DIR），会继承 root 的部分环境。  
 
@@ -745,8 +708,7 @@ Podman 可正常访问运行时目录，因此认证成功。
 3. 根本原因总结  
 su 命令的缺陷：不加载目标用户的完整环境（尤其 systemd 相关的登录会话）。
 
-
-##  systemd
+## systemd
 
 在较新的linux系统上，都使用systemd 取代了init（红帽在 rhel7 之后使用 systemd），成为系统的第一个进程（PID 等于 1），其他进程都是它的子进程。systemd为系统启动和管理提供了完整的解决方案。它提供了一组命令。字母d是守护进程（daemon）的缩写
 
@@ -806,13 +768,7 @@ systemd 在固定的路径下按优先级顺序查找单元文件。高优先级
 
 [系统与配置] 重载单元文件：daemon-reload (示例：systemctl --user daemon-reload) 查看默认目标：get-default (示例：systemctl get-default) 设定默认目标：set-default (示例：sudo systemctl set-default multi-user.target) 重启/关机：reboot / poweroff (示例：sudo systemctl reboot) 列出定时器：list-timers (示例：systemctl --user list-timers)
 
-
-
-
-
-
-
-##  init
+## init
 
 以前的Linux启动都是用init进程。启动服务：
 
@@ -824,7 +780,6 @@ systemd 在固定的路径下按优先级顺序查找单元文件。高优先级
 启动时间长。init进程是串行启动，只有前一个进程启动完，才会启动下一个进程。 启动脚本复杂。init进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。
 
 以红帽系统为例，在 rhel7 之后使用 systemd 代替 init 启动
-
 
 ## linux文件特殊权限 suid、sgid、sticky
 
@@ -906,11 +861,6 @@ PASS_MAX_DAYS:用于设置普通用户的密码有效期 PASS_MIN_DAYS用于设�
 
 另外还有 PASS_MIN_LEN用于设置密码最小长度，对root账户无效 使用chage -l user查看指定用户密码策略信息
 
-
-
-
-
-
 ## umask
 
 umask 不是文件属性 错误理解："查看文件的 umask" 正确理解："查看当前会话的 umask 设置" umask 是 Shell 进程的环境变量，影响新创建的文件/目录
@@ -949,11 +899,7 @@ umask 是反向掩码： 它的二进制位表示 需要强制关闭的权限（
 
 可以通过在指定用户的.bashrc文件内写入umask xxxx并source声明设置环境变量
 
-
-
-
 ## linux各种引号的作用
-
 
 1.单引号' ' 单引号里面的内容会原封不动输出，全都视为普通字符进行处理
 
@@ -962,14 +908,6 @@ umask 是反向掩码： 它的二进制位表示 需要强制关闭的权限（
 3.不加引号 和双引号类似，额外支持通配符（匹配文件）*.log {1..10}
 
 4.反引号 优先执行，先执行反引号里面的命令，相较于$()，两者作用相同，但反引号在类unix平台适用性更高
-
-
-
-
-
-
-
-
 
 ## 文件属性inode和block
 
@@ -981,17 +919,13 @@ inode inode是一个空间，inode号是空间的位置,类似于身份证,inode
 
 block块(数据块): 存放数据
 
-
-
-
-
-
 ## 管道的一些特性
+
  管道无法将接收的数据流转化为后续命令的参数，如果一定要使用管道，可以在管道后面加上xargs，把前面命令传递过来的字符串转换为后面命令可以识别的参数
-[root@server ~]# mkdir -pv testdir 
-[root@server ~]# touch testdir/{1,2,3}.ddd 
+[root@server ~]# mkdir -pv testdir
+[root@server ~]# touch testdir/{1,2,3}.ddd
 [root@server ~]# find testdir/ -name "*.ddd" |xargs ls -lh -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/1.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/2.ddd -rw-r--r--. 1 root root 0 7月 16 14:59 testdir/3.ddd
-[root@server ~]# find testdir/ -name "*.txt" |xargs cp -t matchfile_dir/ [root@server ~]# ls matchfile_dir/ 10.txt 1.txt 2.txt 3.txt 4.txt 5.txt 6.txt 7.txt 8.txt 9.txt 
+[root@server ~]# find testdir/ -name "*.txt" |xargs cp -t matchfile_dir/ [root@server ~]# ls matchfile_dir/ 10.txt 1.txt 2.txt 3.txt 4.txt 5.txt 6.txt 7.txt 8.txt 9.txt
 [root@server ~]#
 
 有时管道会将某些命令的标准输出视为错误输出不予传递
@@ -1008,16 +942,13 @@ linux的/etc/skel目录
 
 该目录下方存放着所有新用户的家目录模板
 
-
-
-
 ## 异常进程分类
 
 僵尸进程 僵尸进程是当子进程比父进程先结束，而父进程又没有回收子进程，释放子进程占用的资源，此时子进程将成为一个僵尸进程。 由于各种原因导致某个进程挂掉了，但是进程本身仍然存在，还占用着系统资源
 
 这里用ai写了一个linux僵尸进程的C程序模拟
 
-[root@server ~]# gcc -o zombine code/zombine.c 
+[root@server ~]# gcc -o zombine code/zombine.c
 [root@server ~]# ./zombine [Parent] PID 2378 running [Parent] Created child PID 2379 [Parent] Sleeping for 60 seconds without calling wait()... [Child] PID 2379 started [Child] Exiting immediately...
 
 此时前台阻塞中，再开一个bash进程来操作
@@ -1064,28 +995,20 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 
 这里可以看到该进程被系统接管,直接kill -9杀掉就行
 
-
-
-
-
-
 ## linux 调用历史命令
+
 有两种方式
 1.使用 history 命令查看执行过的命令，输入对应历史命令的序号，前面加上！即可快速执行该命令
 ![0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png)
 
 2.直接使用 ！
-使用  '!关键字'  可以快速查找并执行 最后一次执行的 以该关键字开头的命令
+使用 '!关键字' 可以快速查找并执行 最后一次执行的 以该关键字开头的命令
 ![4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png)
 没用的小知识又增加了
 
-
-
-
 # http 协议原理总结
+
 ![109d66a9732bed4014db20be12c68878_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/109d66a9732bed4014db20be12c68878_MD5.png)
-
-
 
 ## HTTP 状态码格式规范
 
@@ -1096,19 +1019,6 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 |3xx|重定向|需要客户端采取进一步的操作才能完成请求。
 |4xx|客户端错误|请求本身有问题（如语法错误、无法实现等）。
 |5xx|服务器错误|服务器处理有效请求时失败。
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # EFI 系统分区
 
@@ -1141,23 +1051,7 @@ GPT 分区表下的类型代码: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
     
 4. 驱动： 一些必要的 UEFI 驱动程序（`.efi` 文件），可能用于在操作系统加载前访问特定的硬件（如某些 RAID 卡、特殊文件系统）。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # TCP 三次握手原理
-
 
 ![338cb5e208708cf7466e0de831fba7a5_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/338cb5e208708cf7466e0de831fba7a5_MD5.png)
 
@@ -1170,8 +1064,6 @@ Ack=1       确认收到了客户端信息
 ack            报文确认序号，代表希望收到的下一个数据的第一个字节的序号
 
 ```
-
-
 
 ## 第一次握手: 客户端—请求
 
@@ -1187,10 +1079,8 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
         
 3. 数据链路层将数据帧排入发送队列，套接字的状态从 `CLOSED` 更新为 `SYN-SENT`（状态转换是“将SYN报文成功交付给下层协议（即本地协议栈）”的结果，而不是“数据帧被网卡物理发送到链路上”的结果。），最后由网卡驱动程序将数据帧发送到网络链路上。
 
-
-
-
 ## 第二次握手: 服务器—确认
+
 服务器设置 ACK=1，表示确认应答
 
 设置 ack=x+1，表示已收到客户端 x 之前的数据，希望下次数据从 x+1 开始
@@ -1201,9 +1091,8 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 此时服务器处于同步已接收 SYN-RCVD 状态
 
-
-
 ## 第三次握手: 客户端—确认服务器的确认
+
 设置 ACK=1，表示确认应答
 设置 ack=y+1，表示收到服务器发来的序列号为 seq=y 的数据包，希望下次数据从 y+1 开始
 设置 seq=x+1，表示接着上一个数据包 seq=x 继续发送
@@ -1211,23 +1100,14 @@ ack            报文确认序号，代表希望收到的下一个数据的第�
 
 至此三次握手结束，连接建立
 
-
-
 # DNS 解析流程
+
 DNS端口因为使用的是udp，所以是53号端口
 本地主机名是 rocky.linux.com
 
 在浏览器的 url 栏中输入域名 rocky.linux.com 时，有多个流程，当前流程失败就走下一个流程
 
 ![f310b68af89c66d83487d5c9b5a03840_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/f310b68af89c66d83487d5c9b5a03840_MD5.jpg)
-
-
-
-
-
-
-
-
 
 # 报文、数据包 、帧的关系
 
@@ -1236,10 +1116,6 @@ DNS端口因为使用的是udp，所以是53号端口
 报文 (Segment)： 这是传输层（TCP层） 的协议数据单元（PDU）。它包含TCP头（源/目的端口、序列号、确认号、标志位SYN/ACK等）和可选的应用层数据。在三次握手期间，SYN和ACK报文不携带任何应用层数据，它们的“数据”部分长度为0。 数据包 (Packet)： 这通常指的是网络层（IP层） 的协议数据单元。一个TCP报文在发送前，会被封装到一个IP数据包中。IP数据包由IP头（源/目的IP地址）和“载荷”组成，这个“载荷”就是整个TCP报文。 帧 (Frame)： 再往下，IP数据包又会被数据链路层封装成“帧”，添加MAC地址等信息，最后变成比特流由物理层发送出去。
 
 它们的关系是层层封装的： [ 帧头 | IP头 | TCP头 (SYN=1) | (数据) | 帧尾 ]
-
-
-
-
 
 # cookie 与 session 详解
 
@@ -1272,7 +1148,7 @@ set-cookie 那一行，可以看到 id 与上面服务器本地创建的文件�
 至此，会话通道建立完成。 浏览器拥有了Session ID，并承诺在后续所有对该网站的请求中自动携带它。
 
 第二步：登录认证，提升会话权限（安全再生）
-1.【客户端动作】浏览器 提交登录表单（例如 POST /login.php）。    
+1.【客户端动作】浏览器 提交登录表单（例如 POST /login.php）。
 在发送这个请求时，浏览器自动在请求头中携带之前保存的Cookie： Cookie: PHPSESSID=sess_abc123
 表单数据（用户名、密码）放在请求体（Request Body）中。
 
@@ -1299,10 +1175,8 @@ Cookie: PHPSESSID=sess_def456
 从Cookie中获取到 sess_def456，找到对应的Session文件。
 读取文件内容，确认用户已认证，然后返回受保护的页面内容。
 
-
-
-
 # Btrfs写时复制(COW)
+
 我们可以用“**改作业**”来打比方:
 **传统文件系统 (如 Ext4, NTFS)**：像用铅笔在原稿上改。你要改一个字，就把原字擦掉，在原来的位置写上新字
 _风险_：如果你刚擦完字，还没来得及写，电脑突然断电了。结果：原稿上的字没了，新字也没上去，文件损坏了（损坏发生在文件系统层面）
@@ -1343,31 +1217,10 @@ btrfs文件系统的COW在每个时期的动作是怎样的，可以参考如下
 5. 拒绝回收: 1001号格子的"关注人数"降到了1，因为不是0，所以Btrfs绝不回收1001号格子
 结果: 你的硬盘里同时存在"hello"(1001号)和"bye"(2002号)，这就是空间占用翻倍的根本原因
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 常见问题
 
 ## ssh报错kex_exchange_identification
+
 [[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
 ![ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
 虚拟机内部的sshd服务报错是
@@ -1401,24 +1254,14 @@ SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）**
 写入以下内容
 `d /run/sshd 0755 root root`
 
-
-
-
-
-
 ## 命令行变为bash-5.1$
 
 原因: 用户家目录下面的配置文件没了这两个: ~/.bashrc，~/.bash_profile
 
 解决: /etc/skel目录下方存放着所有新用户的家目录模板,将缺失文件复制到指定用户的家目录
 
-[root@server ~]# su testuser bash-5.1$ cp /etc/skel/.bash* ~/ bash-5.1$ bash [testuser@server root]$ cd ~ 
+[root@server ~]# su testuser bash-5.1$ cp /etc/skel/.bash* ~/ bash-5.1$ bash [testuser@server root]$ cd ~
 [testuser@server ~]$
-
-
-
-
-
 
 ## centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
 
@@ -1444,10 +1287,6 @@ SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）**
 
 这是要修复的 XFS 文件系统的设备路径。在这个例子中，/dev/dm-0 表示一个使用设备映射（device-mapper）的逻辑卷。
 
-
-
-
-
 ## NetworkManager与network冲突问题
 
 ![bc77c767c2a42758bf93c8dd27ce79b7_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png)
@@ -1471,18 +1310,8 @@ systemctl status network
 在CentOS系统上，目前有NetworkManager和network
 两种网络管理工具。如果两种都配置会引起冲突，而且NetworkManager在网络断开的时候，会清理路由，如果一些自定义的路由，没有加入到NetworkManager的配置文件中，路由就被清理掉，网络连接后需要自定义添加上去。（补充：NetworkManager有一个图形化配置网络的功能，对应指令是：nmtui）(后续补充：在centos9stream版本中网络配置主工具改为了NetworkManager)
 
-
-
-
-
-
-
-
-
-
-
-
 ## 网卡激活报错:未被NetworkManager托管
+
 设备:vmware虚拟机rh9.2
 
 原图
@@ -1514,20 +1343,12 @@ systemctl status network
 
 
 根本原因分析
-NetworkManager配置缺陷： 
+NetworkManager配置缺陷：
 主配置文件/etc/NetworkManager/NetworkManager.conf缺少关键配置项 未启用keyfile插件导致设备管理功能异常 缺少全局设备托管策略
 
 配置状态不完整
-缺少必要配置项 
+缺少必要配置项
 plugins=keyfile
 no-auto-default=*
 
 设备管理策略缺失： 没有明确声明unmanaged-devices=none，导致NetworkManager拒绝管理网络设备
-
-
-
-
-
-
-
-
