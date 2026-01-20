@@ -1,0 +1,53 @@
+{
+    "include": [
+        "modules.jsonc",
+        "modules-dividers.jsonc"
+    ],
+    
+    "position": "top",
+    "fixed-center": true,
+    "height": 30,
+    "reload_style_on_change": true,
+
+    "modules-left": [
+        "hyprland/workspaces",//工作区
+        "custom/right_div#5",
+	      "custom/cava",//音频可视化
+        "custom/right_div#6"
+    ],
+    
+    "modules-center": [
+	      "custom/left_div#99",
+        "custom/clipboard",//剪切板
+        "custom/emoji",//表情包
+	      "custom/left_div#97",
+        "custom/wfrec",//录屏
+        "custom/screenshot",//截屏
+        "custom/left_div#2",
+        "idle_inhibitor",//常亮模块
+        "custom/updates",//系统更新
+        "power-profiles-daemon",//电源模式
+        "custom/left_div#11",
+        "custom/left_div#1",
+        "custom/applauncher",//中心图标，支持打开fuzzel，快捷切换壁纸
+        "custom/right_div#1",
+        "custom/right_div#11",
+        "clock",//时间
+        "custom/right_div#2",
+        "memory",//内存使用情况
+        "temperature",//cpu温度
+        "custom/right_div#3",
+        "battery",//电量
+        "custom/right_div#4"
+    ],
+
+    "modules-right": [
+	"custom/left_div#98",
+	"pulseaudio",//音频控制
+  "backlight",//亮度调节
+  "custom/left_div#96",
+  "tray",//系统托盘
+	"custom/left_inv#1",
+  "group/powermenu"//电源操作菜单
+    ]
+}

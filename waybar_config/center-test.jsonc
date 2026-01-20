@@ -1,0 +1,24 @@
+{
+  //该模块用于生成一个临时的居中arch图标，当基准线用
+  "layer": "overlay",
+  "position": "top",
+  "height": 30, 
+
+  "exclusive": false, 
+
+  "modules-left": [],   
+  "modules-center": [
+    "custom/applauncher"
+  ],
+  "modules-right": [], 
+
+  // 
+  "custom/applauncher": {
+    "format": "󰣇",
+    "font-size": 25,
+    "padding": "0px 7px",
+    // 
+    "color": "red" 
+  }
+}
+
