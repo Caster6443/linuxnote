@@ -707,7 +707,7 @@ modules.jsonc 里是各种模块的定义，注释已经很清楚了
 
 
 style.css 包含了模块和连接符的美化
-比如custom/left_div#9 连接符，它的左右颜色是根据 color 和 background-color 决定的          
+比如custom/left_div#9 连接符，它的左右颜色是根据 color 和 background-color 决定的
 ```css
 @import "colors.css"; 
 
@@ -1098,7 +1098,6 @@ tooltip label {
 
 script 里面都是模块调用的脚本
 scripts/cava.sh 是音频可视化调用的脚本文件
-
 ```bash
 
 #!/bin/bash
@@ -1174,7 +1173,6 @@ done
 
 
 metadata.sh 辅助音频可视化，实现悬停显示正在播放的音频名称 
-
 ```bash
 
 #!/bin/bash
@@ -1185,7 +1183,6 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 
 
 这两个是对应的 cava 配置文件
-
 ```bash
 
 ## Configuration file for CAVA.
@@ -1645,7 +1642,6 @@ horizontal_gradient_color_5 = '#6d3351'
 
 
 get-clock.sh 就是简单的悬停获取时间的脚本， 时钟模块调用的
-
 ```bash
 
 #!/bin/bash
@@ -1662,9 +1658,7 @@ printf '{"text": "%s %s", "tooltip": "%s"}\n' "$ICON" "$TIME" "$TOOLTIP"
 
 
 下面两个是截屏调用的脚本，因为脚本在 hyprland 快捷键里早就有使用，所以我就拿来复用了
-
 screenshot_edit.sh 
-
 ```bash
 
 #!/usr/bin/env bash
@@ -1677,7 +1671,6 @@ screenshot_edit.sh
 
 
 screenshot_quick.sh 
-
 ```bash
 
 #!/usr/bin/env bash
@@ -1690,7 +1683,6 @@ screenshot_quick.sh
 
 
 screenshot_edit.sh
-
 ```bash
 
 #!/usr/bin/env bash
@@ -1737,7 +1729,6 @@ exit 0
 
 
 screenshot_quick.sh 
-
 ```bash
 
 #!/usr/bin/env bash
@@ -1767,7 +1758,6 @@ fi
 
 
 set_wallpaper.sh 快捷切换壁纸脚本，和下面的脚本结合使用                  
-
 ```bash
 
 #!/usr/bin/env bash
@@ -1811,7 +1801,6 @@ fi
 
 wallpaper_scroll.sh   
 壁纸目录应当存放在$HOME/Pictures/anime/wallpapers 下
-
 ```bash
 
 #!/usr/bin/env bash
@@ -1872,7 +1861,6 @@ fi
 
 
 wf-recorder.sh 录屏菜单脚本 
-
 ```bash
 
 #!/usr/bin/env bash
@@ -2407,7 +2395,6 @@ esac
 
 
 switch-audio-output.sh 快捷选择音频输出设备
-
 ```bash
 
 #!/bin/bash
@@ -2450,7 +2437,6 @@ wpctl set-default "$CHOSEN_ID"
 
 ## 禁用触控板
 使用hyprctl devices 命令查看设备
-
 ```bash
 ❯ hyprctl devices                                                  
 mice:
@@ -2478,7 +2464,6 @@ scroll factor: -1.00
 hyprctl keyword 'device[asuf1204:00-2808:0202-touchpad]:enabled' 'false'这条命令可以关闭触控板，设置为 true 就打开
 
 那就可以写个 shell 脚本再通过 bind 绑定键位
-
 ```bash
 
 #!/usr/bin/env bash
@@ -2510,10 +2495,9 @@ fi
 ```
 
 加上执行权限
-sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh
+`sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh`
 
 在 hyprland 配置文件上绑定键位 ctrl+f10
-
 ```bash
 
 # 切换触控板 (Ctrl + F10)
@@ -2537,9 +2521,7 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 
 ## 浮动窗口间隙设置
 在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观
-
 这个空白大小是可以修改的，还是在那个 hyprland 配置文件里
-
 ```bash
 
 # https://wiki.hypr.land/Configuring/Variables/#general
@@ -2577,7 +2559,7 @@ general {
 
 
 ## 视频壁纸方案
-项目名 mpvpape
+项目名 mpvpaper
 
 项目地址 [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)
 这个项目要求三个前置软件包
@@ -2598,7 +2580,6 @@ ninja -C build install
 
 使用方法
 `mpvpaper DP-2 /path/to/video`
-
 DP-2 是显示器名字，也就是说可以指定显示器播放，自己的显示器名字用 hyprctl monitors all查看所有 hyprland 检测到的显示器信息，懒得看就直接用 ALL 代替所有显示器
 
 笔记本内置屏幕名字一般是 eDP-1,我的就是
@@ -3071,14 +3052,9 @@ sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-sh
 
 ### 5. 自动更新 GRUB 的 EFI 文件和配置数据
 首先，准备一下 update-grub 脚本。可以通过 AUR 包的形式安装（包名为 update-grub），也可以在 /usr/local/bin 下新建一个。文件的内容可以参考[这里](https://aur.archlinux.org/cgit/aur.git/tree/update-grub?h=update-grub)
-
-:::info
-yay -S update-grub
-
-:::
+`yay -S update-grub`
 
 在 /etc/pacman.d/hooks 文件夹下（没有则新建），新建两个文件（pacman hooks）。
-
 /etc/pacman.d/hooks/1-update-grub-efi.hook，用于实时更新 GRUB EFI 文件
 
 ```bash
@@ -3096,10 +3072,7 @@ Exec=/bin/sh -c '/etc/secureboot/update-sb-grub-efi.sh'
 
 ```
 
-
-
 /etc/pacman.d/hooks/999-update-grub-cfg.hook，用于在适时的时候重新生成 /boot/grub/grub.cfg
-
 ```bash
 [Trigger]
 Operation=Install
@@ -3124,9 +3097,7 @@ Depends=grub
 
 
 重新安装 GRUB，看看是否有执行 pacman hook，如果成功执行则配置成功。
-
 注意看 1/5 和 3/5,钩子执行成功了
-
 ![e958a4e711bd12a528ab5a5ce2093e19_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e958a4e711bd12a528ab5a5ce2093e19_MD5.png)
 
 
@@ -3250,17 +3221,14 @@ nvram = [
 
 8.添加显卡到虚拟机
 这里重启后可以看到N卡已经被独立出去了，在win11虚拟机配置中，添加pci硬件设备，选择被独立出的4060
-[[62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg|Open: Pasted image 20251213135843.png]]
 ![62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg)
 
 开机后装上n卡驱动，在设备管理器上可以看到n卡成功安装使用了
-[[099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg|Open: Pasted image 20251213143143.png]]
 ![099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg)
 
 
 ### moonlight远程连接方案(不建议使用)
 删除虚拟机的硬件的显示协议和QXL的显卡，然后添加鼠标和键盘，键盘随便拿了个外接键盘，鼠标就用我现在的雷柏，直通开机后，我直通进去的鼠标键盘就会被虚拟机独占了，所以我的笔记本可以使用自带键盘和触摸板
-[[a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg|Open: Pasted image 20251213144357.png]]
 ![a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg)
 
 开机后显示输出会出现在外接显示器中，之后会尝试hdmi欺骗器，因为这个显示器分辨率不行，但是hdmi欺骗器还没送到，所以现在还是先用外接屏吧
@@ -3374,7 +3342,6 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
     确认有ich9声卡，点击概况，去到xml底部，在里面找到下面这段，确认type为spice，不是的话自己手动改
 `<audio id='1' type='spice'/>`
 配置结束大概是这样
-[[52a72e57902a24011dcd312b0bdf4e83_MD5.jpg|Open: Pasted image 20251214003246.png]]
 ![52a72e57902a24011dcd312b0bdf4e83_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/52a72e57902a24011dcd312b0bdf4e83_MD5.jpg)
 
 
@@ -3533,7 +3500,6 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 ### 共享存储
 首先确认启用了内存共享(Virtio-FS 强依赖共享内存)
 添加文件系统类型的硬件
-[[3c515fd8863a183782d1c8f03217cd43_MD5.jpg|Open: Pasted image 20251217225758.png]]
 ![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3c515fd8863a183782d1c8f03217cd43_MD5.jpg)
 就是这样，然后进入虚拟机内部，安装winfsp驱动，在github的项目地址下面找，后缀名msi，安装成功后，打开windows的服务管理，启动Virtio-FS Service服务，默认是手动启动的，但也可以设置自动启动，不过感觉有点小风险？启动成功后可以找到一个独立的盘，盘名就是设置的目标路径
 
@@ -3552,7 +3518,6 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 
 # archlinux（niri）配置
 我的设备信息
-[[05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg|Open: Pasted image 20251205231208.png]]
 ![05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg)
 
 我是用archinstall安装的，并安装了显卡驱动，它支持安装niri的初始环境，不过感觉不如最小化安装，但是装都装好了，在此基础上开始我的配置
@@ -3735,7 +3700,6 @@ btrfs-assistant是快照的图形化管理工具，在其中配置需要的快�
 `paru -S btrfsmaintenance`   
 安装后打开btrfs-assistant会看到新增了一个选项卡btrfs maintenance
 在里面设置如下（其实是默认配置，balance和Scrub选中挂载点都为/）
-[[3cffcf9af553ff1be660276dffd6b4de_MD5.jpg|Open: Pasted image 20260115141145.png]]
 ![3cffcf9af553ff1be660276dffd6b4de_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg)
 
 
@@ -4074,7 +4038,6 @@ WantedBy=timers.target
 一路回车即可
 
 在github上创建私有仓库linuxnote
-[[b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg|Open: Pasted image 20260106114924.png]]
 ![b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg)
 
 **2.将密钥配置到 GitHub 仓库**
@@ -4730,7 +4693,6 @@ WantedBy=default.target
 
 如何验证？
 `pw-top`命令查看
-[[fac656bba474cf4bdd53348fe1d1c242_MD5.jpg|Open: Pasted image 20251215220719.png]]
 ![fac656bba474cf4bdd53348fe1d1c242_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg)
 bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 
