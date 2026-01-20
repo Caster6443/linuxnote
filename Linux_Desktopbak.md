@@ -1194,3 +1194,485 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 添加文件系统类型的硬件  
 ![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3c515fd8863a183782d1c8f03217cd43_MD5.jpg)  
 就是这样，然后进入虚拟机内部，安装winfsp驱动，在github的项目地址下面找，后缀名msi，安装成功后，打开windows的服务管理，启动Virtio-FS Service服务，默认是手动启动的，但也可以设置自动启动，不过感觉有点小风险？启动成功后可以找到一个独立的盘，盘名就是设置的目标路径  
+
+
+
+# archlinux（niri）配置
+
+我的设备信息  
+![05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg)  
+
+我是用archinstall安装的，并安装了显卡驱动，它支持安装niri的初始环境，不过感觉不如最小化安装，但是装都装好了，在此基础上开始我的配置  
+在archinstall的过程中，我设置了根分区文件系统类型为btrfs，子卷及其挂载情况如下  
+@ -> /  
+@home -> /home  
+@pkg -> /var/cache/pacman/pkg  
+@log -> /var/log  
+@swap -> /swap  
+efi分区挂载在/efi上，引导程序用的grub  
+esp挂载在/efi上  
+还要选择Mark/Unmark as ESP和Mark/Unmark as bootable标记一下  
+
+驱动安装选择的Nvidia (proprietary)，剩余的驱动可以开机后补充安装  
+`sudo pacman -S --needed mesa lib32-mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon`  
+显示管理器用的sddm  
+
+archinstall提供了预装软件的功能，我这里预装了这些软件包  
+git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fastfetch btop openssh pipewire wireplumber pipewire-pulse pavucontrol bluez bluez-utils fcitx5-im fcitx5-rime fcitx5-chinese-addons noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd wl-clipboard xdg-desktop-portal-gnome polkit-gnome niri fuzzel mako grim slurp swappy snapper snap-pac btrfs-assistant gnome-software grub-btrfs inotify-tools nvidia-prime gst-plugins-bad gst-plugins-ugly gst-libav mpv  
+
+要不是不能用yay，我全给它装上了  
+
+## 配置基础环境
+
+配置yay  
+编辑pacman配置文件  
+`sudo vim /etc/pacman.conf`  
+写入如下内容  
+
+```
+
+[archlinuxcn]
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+
+```
+
+保存退出后  
+更新数据库并安装 keyring (这是为了信任 CN 源的签名)  
+`sudo pacman -Sy archlinuxcn-keyring`  
+
+直接安装 yay  
+`sudo pacman -S yay`  
+
+
+生成中文 Locale  
+不配置的话，中文内容会乱码  
+`sudo vim /etc/locale.gen`  
+找到 `zh_CN.UTF-8 UTF-8` ，把前面的 `#` 去掉，(确保 `en_US.UTF-8 UTF-8` 也是开启的)  
+然后生成Locale  
+`sudo locale-gen`  
+确认 `/etc/locale.conf` 内容是  
+`LANG=en_US.UTF-8`  
+
+
+然后传入了我的dotfile，比如niri配置之类的  
+
+### 配置基础软件包
+
+装梯子  
+`yay -S mihomo-party-bin`  
+
+
+再装个xwayland-satellite，保守一点就不装git版本的了  
+`yay -S xwayland-satellite`  
+
+很多应用默认都是用xwayland运行的，因为xwayland-satellite有待完善，所以这些应用都很糊，可以直接修改desktop文件，在exec处添加参数  
+`--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-wayland-ime`  
+为了防止被更新覆盖，可以把desktop文件复制到.local下面对应的目录下面再修改,但是使用wayland协议可能会有别的问题，慎重使用  
+
+### 配置输入法
+
+我选择雾凇拼音  
+1.安装 fcitx5 框架和 rime 引擎  
+`sudo pacman -S --needed fcitx5-im fcitx5-rime`  
+
+2.从 AUR 安装雾凇拼音 (自动配置版)  
+这个包会自动把配置文件放到正确的位置，省去手动下载解压的麻烦  
+`yay -S rime-ice-git`  
+
+3.配置环境变量  
+在/etc/environment内写入如下内容  
+
+```
+
+QT_IM_MODULE=fcitx
+XMODIFIERS=@im=fcitx
+SDL_IM_MODULE=fcitx
+
+```
+
+4.配置在 Niri 中自启动  
+在niri配置文件内自动启动区块写入如下内容  
+`spawn-at-startup "fcitx5" "-d"  
+`  
+重启一下  
+如果输入法没生效，使用fcitx5-configtool检查是否添加了Rime输入法，如果中文输入法不是雾凇，随便敲几个拼音，在备选框出现时按下F4可以选择切换输入法  
+
+### 配置noctalia
+
+这个直接去看官方手册，很详细的配置过程了，安装的时候要从多个依赖中选一个，我选的qt6-multimedia-ffmpeg  
+在niri的环境变量中，我选择配置了QT6来管理主题，有些主题会体现图标缺失的情况，所以我选择了papirus主题  
+安装主题  
+`yay -S papirus-icon-theme`  
+使用qt6图形化界面配置  
+`qt6ct`  
+在界面的图标主题中选中papirus主题并应用就行了  
+
+### 配置noctalia自动锁屏休眠
+
+因为noctalia的锁屏界面就挺不错，所以我选择这个，使用hypridle  
+1.安装hypridle  
+`sudo pacman -S hypridle`  
+
+2.创建配置  
+`mkdir -p ~/.config/hypr`  
+`vim ~/.config/hypr/hypridle.conf`  
+写入如下内容  
+
+```
+
+general {
+    lock_cmd = qs -c noctalia-shell ipc call lockScreen lock
+    before_sleep_cmd = qs -c noctalia-shell ipc call lockScreen lock
+
+    after_sleep_cmd = niri msg action power-on-monitors
+}
+
+listener {
+    timeout = 300
+    on-timeout = qs -c noctalia-shell ipc call lockScreen lock
+}
+
+listener {
+    timeout = 330
+    on-timeout = niri msg action power-off-monitors
+    on-resume = niri msg action power-on-monitors
+}
+
+listener {
+    timeout = 1200
+    on-timeout = qs -c noctalia-shell ipc call sessionMenu lockAndSuspend
+}
+
+```
+
+3.配置niri自动启动hypridle  
+在niri配置文件中写入  
+`spawn-at-startup "hypridle"`  
+
+
+
+
+我的efi分区是挂载在/efi上面的，但很多程序还是喜欢在/boot下面读取grub的配置文件，因此需要做个软链接  
+`sudo ln -sf /efi/grub /boot/grub`  
+
+### 配置snapper快照
+
+很多软件包我都在archinstall里预装了，但我还是提一下吧  
+`sudo pacman -S  --needed snapper snap-pac btrfs-assistant`  
+
+自动生成快照启动项  
+`sudo pacman -S grub-btrfs inotify-tools`  
+`sudo systemctl enable --now grub-btrfsd`  
+
+设置覆盖文件系统  
+因为snapper快照是只读的，所以需要设置一个overlayfs在内存中创建一个临时可写的类似live-cd的环境，否则可能无法正常从快照启动项进入系统。  
+编辑`/etc/mkinitcpio.conf`  
+`sudo vim /etc/mkinitcpio.conf`  
+
+在HOOKS里添加`grub-btrfs-overlayfs`  
+`HOOKS= ( ...... grub-btrfs-overlayfs )`  
+
+重新生成initramfs  
+`sudo mkinitcpio -P`  
+
+重启后重新生成grub配置文件  
+`sudo grub-mkconfig -o /efi/grub/grub.cfg`  
+
+btrfs-assistant是快照的图形化管理工具，在其中配置需要的快照配置  
+另外出于btrfs的特性，Btrfs 以 **Chunk (块组/通常 1GiB)** 为单位向底层磁盘申请空间。删除数据后，这些 Chunk 依然处于“被文件系统征用”的状态，只是内部变空了（碎片化），因此必须通过 **Balance (平衡)** 操作，将低利用率 Chunk 中的有效数据迁移，并把空出的 Chunk 归还给底层设备，才能真正释放物理空间。  
+手动执行 Balance 容易导致全盘重写（极慢且伤盘），应配置自动增量维护  
+一句话总结：可以使用btrfsmaintenance定期回收那些因快照删除而产生的‘已分配但未使用的’僵尸空间。  
+安装后端脚本btrfsmaintenance  
+`paru -S btrfsmaintenance`  
+安装后打开btrfs-assistant会看到新增了一个选项卡btrfs maintenance  
+在里面设置如下（其实是默认配置，balance和Scrub选中挂载点都为/）  
+![3cffcf9af553ff1be660276dffd6b4de_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg)  
+
+### 配置swap分区
+
+我是32G内存，需要睡眠功能，因此设置38G  
+`sudo btrfs filesystem mkswapfile --size 38g --uuid clear /swap/swapfile`
+
+写进fstab  
+`/swap/swapfile none swap defaults 0 0`  
+
+### 配置greetd
+
+也可以用sddm，设置sddm延迟启动  
+这是针对混合显卡的优化，因为显示管理器会在显卡驱动还没加载好的时候就启动，导致电脑会黑屏卡死  
+`sudo mkdir -p /etc/systemd/system/sddm.service.d`  
+添加以下内容  
+❯ cat /etc/systemd/system/sddm.service.d/delay.conf `[Service]`  
+`ExecStartPre=/usr/bin/sleep 2`  
+
+sddm搞着麻烦，我换greetd再配置自动登录  
+`sudo pacman -S greetd greetd-tuigreet`  
+`sudo vim /etc/greetd/config.toml`  
+文件内容参考如下  
+
+```
+
+[terminal]
+
+# 在第1个虚拟终端运行，避免启动时的闪烁
+vt = 1
+
+# --- 1. 开机自动登录配置 (Initial Session) ---
+[initial_session]
+command = "niri-session"
+user = "caster"
+
+# --- 2. 注销后的登录界面 (Default Session) ---
+[default_session]
+
+# 使用 tuigreet 界面
+
+# --remember: 记住你上次选的桌面
+
+# --time: 右上角显示时间
+
+# --sessions: 告诉它去哪里找桌面列表 (Wayland 和 X11)
+
+# --cmd: 如果你没选桌面直接回车，默认进 Niri
+command = "tuigreet --cmd niri-session --remember --time --sessions /usr/share/wayland-sessions:/usr/share/xsessions"
+
+# 运行登录界面的用户 (这是 greetd 的专用用户，不要改)
+user = "greeter"
+
+```
+
+然后配置它延迟两秒启动，说到底它也是个显示管理器，也会导致问题，所以需要设置  
+`sudo systemctl edit greetd`  
+在里面写入  
+
+```
+
+[Service]
+ExecStartPre=/usr/bin/sleep 2
+
+```
+
+其实这个和之前sddm的方式是类似的，最终它们都会生成对应的服务.d目录下的配置覆盖文件  
+然后把之前的sddm的systemd服务禁用，启用greetd  
+
+```
+
+sudo systemctl disable sddm
+sudo systemctl enable greetd
+
+```
+
+### 常用配置
+
+`sudo pacman -S flatpak steam lutris spotify-launcher lib32-nvidia-utils lib32-vulkan-radeon`  
+
+spotify-launcher我在用的听歌软件  
+lib32-nvidia-utils用于给steam调用32位显卡驱动  
+lib32-vulkan-radeon是给核显的 32 位 Vulkan 支持（备用）  
+
+配置 Flatpak 源  
+`flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`  
+
+
+关于GTK4应用打开慢的问题，是因为N卡渲染兼容性太差了，因此需要设置环境变量让GTK4应用用回旧的渲染器GL  
+将如下内容写进/etc/environment文件  
+强制 GTK4 使用旧版 GL 渲染器 (修复 Nvidia 卡顿)  
+`GSK_RENDERER=gl`  
+
+### 配置zsh
+
+`sudo pacman -S starship zsh-autosuggestions zsh-syntax-highlighting`  
+这些包是我的zsh要用到的美化文件  
+.config/starship.toml这个文件是调用的提示符美化文件,要去starship官网自己下载  
+然后设置默认shell为zsh  
+`chsh -s /usr/bin/zsh`  
+
+### 配置niri的锁屏设置
+
+(可选，我觉得noctalia自带的锁屏就很好看，所以我没弄这个)  
+`sudo pacman -S swaylock-effects`  
+`mkdir -p ~/.config/swaylock`  
+`vim ~/.config/swaylock/config`  
+写入如下内容  
+
+```
+
+screenshots
+clock
+indicator
+indicator-radius=200
+indicator-thickness=15
+effect-blur=10x5
+
+```
+
+配置自动熄屏锁屏休眠  
+`mkdir -p ~/.config/niri/scripts`  
+`vim ~/.config/niri/scripts/swayidle.sh`  
+写入如下内容  
+
+```
+
+#!/usr/bin/env bash
+
+# 定义 PID 变量
+PID=0
+
+# 启动函数
+start_swayidle() {
+    # 只有当 PID 为 0 或进程不存在时才启动
+    if [[ $PID -eq 0 ]] || ! kill -0 "$PID" 2>/dev/null; then
+        swayidle -w \
+            timeout 300  'swaylock -f' \
+            timeout 600  'niri msg action power-off-monitors' \
+            resume       'niri msg action power-on-monitors' \
+            timeout 1200 'systemctl suspend' &
+        PID=$! # 记录 swayidle 的进程 ID
+    fi
+}
+
+# 停止函数 (关机触发)
+cleanup() {
+    # 如果有 PID，直接杀掉
+    if [[ $PID -ne 0 ]]; then
+        kill -9 "$PID" 2>/dev/null
+    fi
+    exit 0
+}
+
+# 捕捉信号：一旦收到关机信号，立即跳转到 cleanup
+trap cleanup SIGTERM SIGINT
+
+echo "Swayidle Manager Started..."
+
+while true; do
+    # 使用 timeout 防止 systemd-inhibit 在关机时卡死
+    if timeout 2s systemd-inhibit --list --no-pager | grep -q "Manually activated by user"; then
+        # === 发现抑制锁 ===
+        if [[ $PID -ne 0 ]] && kill -0 "$PID" 2>/dev/null; then
+            kill "$PID" 2>/dev/null
+            PID=0
+        fi
+    else
+        # === 正常状态 ===
+        start_swayidle
+    fi
+
+    #将 sleep 放入后台并 wait，这样信号能瞬间打断等待
+    sleep 5 &
+    wait $!
+done
+
+```
+
+## 系统体验优化配置
+
+### rm 安全替换与自动清理
+
+一直用rm -rf，虽然从没出过问题，但毕竟是日常使用的系统，还是保险起见设置一下，思路是用alisa别名设置rm为trash这个工具(功能是移动文件到回收站)，因为我用的是合成器而不是完整DE，所以回收站定时清理还是需要自己写一个systemd服务  
+
+1.安装工具  
+`sudo pacman -S trash-cli  
+`  
+
+2.配置别名  
+在.zshrc中写入  
+`alias rm='trash-put'`  
+然后生效  
+`source .zshrc`  
+原生rm被替换，如果某些大文件想直接删除，可以用`\rm`命令，利用linux中 \ 的特性忽略别名设置  
+
+3.配置 Systemd 定时清理 (每月一次)  
+创建一个**用户级**服务，不需要 sudo 权限，也不会污染系统目录。  
+创建服务文件,这个文件定义“**做什么**”（清理超过 30 天的文件）  
+
+创建目录  
+`mkdir -pv ~/.config/systemd/user/`  
+创建并编辑文件  
+`vim ~/.config/systemd/user/trash-clean.service`  
+写入如下内容  
+
+```
+
+[Unit]
+Description=清理回收站中存放超过30天的文件
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/trash-empty 30
+
+```
+
+创建定时器文件,这个文件定义“**什么时候做**”（每月运行一次）  
+创建并编辑文件：  
+`vim ~/.config/systemd/user/trash-clean.timer`  
+写入如下内容  
+
+```
+
+[Unit]
+Description=Run trash-clean monthly
+
+[Timer]
+
+# 调度规则：每月运行一次 (通常是每月1号)
+OnCalendar=monthly
+
+# 如果那时关机了，下次开机立刻补做
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+
+```
+
+激活并验证  
+
+启动定时器  
+`systemctl --user enable --now trash-clean.timer`  
+验证是否成功,检查一下定时器是否在列表里：  
+`systemctl --user list-timers --all | grep trash`  
+
+### 配置键盘背光
+
+华硕提供了图形化配置工具  
+`yay -S rog-control-center asusctl`  
+启动服务  
+`sudo systemctl start asusd`  
+然后打开rog控制中心配置就行了  
+
+### 音频提取与修改
+
+安装这两个包  
+`sudo pacman -S yt-dlp ffmpeg`  
+使用方法  
+`yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail 视频链接`  
+**`-x`**: 下载完成后，将视频提取/转换为音频。  
+**`--audio-format mp3`**: 指定输出格式为 MP3  
+**`--no-playlist`**: 如果你给的链接是一个播放列表里的某一首歌，只下载这一首，不要把整个列表几百首歌都下下来  
+**`--embed-metadata`**: 自动抓取 YouTube（或其他平台）的 标题、歌手、专辑信息，写入 MP3 的 ID3 标签中  
+**`--embed-thumbnail`**: 下载视频封面并将其嵌入为音频文件的封面图  
+
+我这里在zshrc里把这条超长命令配置了别名为getaudio  
+`alias getaudio='yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail'`  
+
+下载的歌曲的元数据信息经常不尽人意，所以需要再引入工具eyeD3来修改歌曲元数据  
+安装工具  
+`yay -S python-eyed3`  
+使用说明  
+`-a 修改歌手`  
+`-A 修改专辑名`  
+`-t 修改歌曲标题`  
+`--add-image /path/to/picture.jpg:FRONT_COVER music.mp3 修改歌曲图片`  
+案例  
+`eyeD3 -a "周杰伦" -t "夜曲" -A "十一月的肖邦" --add-image cover.jpg:FRONT_COVER music.mp3`  
+有时会因为元数据里的“编码声明”太旧（Latin-1）不支持中文编码，这时需要显式指定编码  
+使用这个参数  
+`--encoding utf16`  
+
+对于某些已经有歌曲封面的元数据，eyeD3添加图片并不会替换掉原有图片，因为原有图片与替换图标描述不同，所以eyeD3并不会实现替换，这时需要添加参数使在添加图片前先删除当前图片  
+`--remove-all-images`  
+
+因为arch滚动更新的特性，有时作者更新不及时导致工具不可用，也可以用mutagen，可执行文件是mid3v2,用法选项大体与eyeD3相同，安装命令如下  
+`sudo pacman -S python-mutagen`  
+该工具导出命令mutagen-inspect用于查看歌曲元数据，mid3v2用于修改元数据  
