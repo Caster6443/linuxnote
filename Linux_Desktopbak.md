@@ -1799,3 +1799,328 @@ fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
 `niri msg action quit`  
 (或者直接重启电脑)  
 
+
+
+# 常见问题
+
+## 玩游戏帧率异常
+
+玩鸣潮的时候发现帧率不对劲，帧率不稳定，一战斗就掉帧  
+看一下 nvidia-smi 回显  
+可以看到 N 卡处于 P8 状态（低功耗状态）,这时游戏挂在后台，p8 倒也没啥，不过正常玩的时候这玩意好像是一直处于 p8 状态，我也不确定  
+
+运行这个命令  
+`sudo nvidia-smi -pm 1`  
+启用持久模式  
+
+就能解决了，这个我不确定是不是临时命令，但重启后也不用再次执行也能正常帧率玩鸣潮了，所以可能是 nvidia 的一点小 bug，这个命令刷新了 N 卡的状态  
+
+这种系统抽风问题最难搞了，感觉我不用这个命令，N 卡都不知道自己还有个持久模式😅  
+
+## 软件包降级
+
+clash-verge-rev 更新后发现 tun 模式打不开了，尝试了降级软件包处理  
+
+1.首先 pacman 会在本地留下软件包缓存，首先检查这个目录下有没有需要的版本  
+
+```bash
+❯ ls /var/cache/pacman/pkg/ | grep clash
+clash-geoip-202510300021-1-any.pkg.tar.zst
+clash-geoip-202510300021-1-any.pkg.tar.zst.sig
+clash-geoip-202511060021-1-any.pkg.tar.zst
+clash-geoip-202511060021-1-any.pkg.tar.zst.sig
+clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst
+clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst.sig
+
+#发现只有clash-geoip这个包有旧版本，于是尝试先把这个降级
+❯ sudo pacman -U /var/cache/pacman/pkg/clash-geoip-202510300021-1-any.pkg.tar.zst
+
+#发现没啥用，还是打不开tun模式，而本地又没有clash-verge-rev这个包的旧缓存，所以只能去aur仓库找
+
+```
+
+2.克隆 AUR 仓库并检测出旧版本  
+
+```bash
+git clone https://aur.archlinux.org/clash-verge-rev.git
+cd clash-verge-rev
+
+```
+
+```bash
+❯ git log --oneline --graph --decorate
+● 7f0a825 (HEAD -> master, origin/master, origin/HEAD) [lilac] updated to 2.4.3-1
+● 8168c5c [lilac] updated to 2.4.2-2
+● 8bd360b Update sha512sums
+● 4adeec4 [lilac] updated to 2.4.2-1
+● 417ee86 [lilac] updated to 2.4.1-1
+● 36a1a2e [lilac] updated to 2.4.0-1
+● 93bfde8 [lilac] updated to 2.3.2-1
+● a0a5484 [lilac] updated to 2.3.1-1
+● b6503cb [lilac] updated to 2.3.0-2
+● 9c4bd9a [lilac] updated to 2.3.0-1
+● 3c510dd [lilac] updated to 2.2.3-3
+● 3a2253d [lilac] updated to 2.2.3-2
+● 0a10265 [lilac] updated to 2.2.3-1
+● 29c9da4 [lilac] updated to 2.2.2-3
+● 1fa194f [lilac] updated to 2.2.2-2
+● 8f1ee0e [lilac] updated to 2.2.2-1
+● fcec89c [lilac] updated to 2.2.1-2
+● d01e243 [lilac] updated to 2.2.0-1
+● 0b19316 Update from archlinuxcn
+● 5719888 Update AUR package
+● fb5473c Update AUR package
+● 37a5344 Update AUR package
+● f74a444 update
+● 3443147 Update AUR package
+● 11538b8 Update AUR package
+● af53270 init
+● 2d856f3 init
+
+#开头的字符串是提交哈希
+
+```
+
+3.切换到旧版本提交  
+`git checkout b6503cb` # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希  
+
+4.构建和安装提交的版本  
+`makepkg -si`  
+
+构建过程中出现了源文件校验和失败的问题，clash-verge-service.tar.gz 的 SHA512 校验和不匹配，这通常是因为源文件在服务器上已被更新，但 PKGBUILD 中的校验和还是旧值  
+`sudo pacman -S pacman-contrib`  
+
+在项目目录中运行  
+`updpkgsums`  
+这个命令会自动计算当前下载的源文件的 SHA512 校验和，并更新 PKGBUILD 中的 sha512sums 数组  
+
+然后重新构建并安装  
+`makepkg -si`  
+
+
+然而 pacman -Syu 未来还是必要的，所以在这个问题修复前，我就让 clash-verge-rev 不要跟着一起更新吧  
+`sudo pacman -D --asexplicit clash-verge-rev clash-geoip`  
+这个命令的作用是将包标记为显式安装，而不是依赖安装  
+
+通过手动构建安装的包，有时会被 pacman 错误标记为依赖包，如果卸载某些软件，该软件包被视为依赖，就会被 pacman 自动清理，标记为显示安装后，pacman 不会自动清理它  
+
+```plain
+❯ sudo echo 'IgnorePkg = clash-verge-rev clash-geoip' | sudo tee /etc/pacman.d/ignore.conf
+
+IgnorePkg = clash-verge-rev clash-geoip
+
+```
+
+## ncmpcpp轻量化音乐播放系统
+
+MPD + ncmpcpp + Cava  
+
+1.安装必要软件  
+需要安装四个组件：后台服务(MPD)、终端客户端(ncmpcpp)、媒体键支持(mpDris2)、可视化频谱(Cava)。  
+
+```bash
+
+# 1. 安装官方仓库软件
+sudo pacman -S mpd ncmpcpp cava
+
+# 2. 安装 AUR 插件 (用于支持 playerctl 和 Waybar 控制)
+yay -S mpdris2
+
+```
+
+2.环境初始化  
+MPD 默认会尝试以系统服务运行，读取 `/etc/mpd.conf`，这会导致权限错误 (`Failed to open /var/lib/...`)。必须手动创建用户目录并禁用系统服务。  
+
+```bash
+
+# 1. 停止并禁用系统级服务 (防止冲突)
+sudo systemctl stop mpd sudo systemctl disable mpd
+ # 2. 创建 MPD 必须的文件夹结构 (不做这一步 MPD 会启动失败)
+mkdir -p ~/.config/mpd/playlists 
+
+# 3. 创建空的状态文件 (防止 MPD 报找不到文件的错） 
+touch ~/.config/mpd/{database,state,pid,sticker.sql} 
+
+# 4. 创建 mpDris2 和 Cava 的配置目录 
+mkdir -p ~/.config/mpdris2 mkdir -p ~/.config/cava
+
+```
+
+3.配置文件编写  
+配置 MPD核心 (`~/.config/mpd/mpd.conf`)  
+
+```bash
+
+# 音乐目录 (根据实际情况修改)
+music_directory    "~/Music"
+
+# 必须的运行文件定义
+playlist_directory "~/.config/mpd/playlists"
+db_file            "~/.config/mpd/database"
+log_file           "syslog"
+pid_file           "~/.config/mpd/pid"
+state_file         "~/.config/mpd/state"
+sticker_file       "~/.config/mpd/sticker.sql"
+
+# 网络设置 (仅限本机访问)
+bind_to_address    "127.0.0.1"
+port               "6600"
+
+# 自动扫描新歌 & 恢复播放状态
+auto_update        "yes"
+restore_paused     "yes"
+
+# 音频输出 1: 让你听到声音 (PipeWire/PulseAudio)
+audio_output {
+        type            "pulse"
+        name            "PulseAudio"
+}
+
+# 音频输出 2: 可视化数据流 (给 Cava 用)
+
+# 如果不加这个，Cava 只能读取麦克风或系统总声，不灵敏
+audio_output {
+    type                    "fifo"
+    name                    "my_fifo"
+    path                    "/tmp/mpd.fifo"
+    format                  "44100:16:2"
+}
+
+```
+
+配置 mpDris2 (`~/.config/mpdris2/mpdris2.conf`)  
+让键盘多媒体键和 Waybar 能控制 MPD。  
+
+```bash
+[Connection]
+host = 127.0.0.1
+port = 6600
+music_dir = ~/Music  # 必须和 MPD 音乐目录一致，用于读取封面
+
+[Bling]
+notify = false       # 切歌弹窗 (不喜欢可关)
+mmkeys = true        # 启用键盘多媒体键支持
+
+```
+
+还要配置 cava 可视化，但我之前美化 waybar 的时候已经配过了  
+
+
+4.启动服务  
+
+```bash
+
+# 重载配置
+systemctl --user daemon-reload
+
+# 启动并开机自启 MPD
+systemctl --user enable --now mpd
+
+# 启动并开机自启 mpDris2,不建议设置这个，因为会影响我的waybar的音频可视化
+
+# 模块无法正常隐藏
+
+# systemctl --user enable --now mpDris2
+
+```
+
+5.客户端 (ncmpcpp) 使用  
+终端输入 ncmpcpp 进入界面。按 F1 可查看帮助。  
+解决乱序播放/文件夹播放问题：  
+1.按 1 进入播放列表。  
+2.看右上角是否有 [z] 或高亮的 Random。如果有，按 z 键关闭随机模式。  
+3.按 c 清空当前列表。  
+4.按 2 进入文件浏览器，选中文件夹，按 空格 即可按顺序添加整张专辑。  
+
+常用按键功能列表：  
+1：播放列表（正在播放的歌单） 2：文件浏览（去硬盘找歌） 3：搜索（搜歌名/歌手） 空格：添加歌曲（将选中项加入列表） Enter：播放（立即播放选中项） p：暂停/继续（Pause）  
+ ：下一首（. 键） <：上一首（, 键） c：清空列表（Clear） u：更新数据库（下载新歌后必按） z：随机模式开关（必须关闭才能顺序播放）  
+
+
+后续优化  
+为了和我的 waybar 组件配合，让 waybar 的音频可视化能够识别到 MPD 播放的音频，需要打开mpDris2 服务，但如果设置开启自启动的话，waybar 模块就会被一直占用不隐藏了，杀进程又太麻烦，所以写了一个 desktop 文件，用 fuzzel 打开后会在终端运行mpDris2 和 mpd 并打开 ncmpcpp，终端关闭后mpDris2 和 mpd 进程会被杀死，不赖  
+
+```bash
+❯ cat ~/.local/share/applications/ncmpcpp-temp-mpdris.desktop            
+[Desktop Entry]
+Type=Application
+Name=Ncmpcpp(本地音乐播放器)
+GenericName=Music Player
+Comment=启动 mpd + mpDris2 + ncmpcpp，窗口关闭时全部销毁
+
+# 核心逻辑解析：
+
+# 1. mpd --no-daemon & -> 启动 MPD 但不让它后台化，这样我们才能获取它的 PID
+
+# 2. mpDris2 &         -> 启动翻译器
+
+# 3. trap "kill..."    -> 退出时同时杀掉 MPD 和 mpDris2 的 PID
+
+# 4. ncmpcpp           -> 启动界面
+Exec=kitty --class music_player --title "Music Player" -e bash -c 'mpd --no-daemon >/dev/null 2>&1 & MPD_PID=$!; sleep 0.5; mpDris2 >/dev/null 2>&1 & DRIS_PID=$!; trap "kill $MPD_PID $DRIS_PID 2>/dev/null" EXIT HUP TERM INT; ncmpcpp'
+Icon=utilities-terminal
+Terminal=false
+Categories=Audio;Player;ConsoleOnly;
+
+```
+
+## arch 配置 FTP 服务
+
+给我的 kvm_win7 传文件用  
+
+安装软件  
+`sudo pacman -S python-pyftpdlib`  
+
+然后在需要共享的文件目录下运行  
+python -m pyftpdlib  
+具体端口号和进程等信息会自动显示  
+
+## grub设置链式引导
+
+有些系统并不希望使用grub引导，比如pop!os有自己的system76引导，所以这时就需要链式引导来让这些系统使用自己的引导程序  
+参考如下内容  
+
+```
+
+❯ cat /etc/grub.d/40_custom
+
+#!/bin/sh
+exec tail -n +3 $0
+
+# This file provides an easy way to add custom menu entries.  Simply type the
+
+# menu entries you want to add after this comment.  Be careful not to change
+
+# the 'exec tail' line above.
+
+menuentry 'Pop!_OS(Chainload)' {
+    insmod part_gpt
+    insmod fat
+    insmod chain
+    # 搜索 EFI 分区
+    search --no-floppy --fs-uuid --set=root 9D1D-A9D4
+    # 移交控制权给另一个系统的Shim 引导程序
+    chainloader /EFI/BOOT/BOOTX64.EFI
+}
+
+```
+
+释义  
+声明菜单名 (`menuentry`)，这就是grub菜单里显示的名字  
+`insmod` = Insert Module (插入模块)。  
+`part_gpt`: 告诉 GRUB 怎么读 GPT 分区表  
+`fat`: 告诉 GRUB 怎么读 FAT32 文件系统  
+
+定位分区  
+`search --no-floppy --fs-uuid --set=root 9D1D-A9D4`  
+这句话像是在对 GRUB 喊话：“**全盘搜索！**”  
+`--no-floppy`: 别搜软驱（节省时间）  
+`--fs-uuid`: 我是用 UUID 来找的，不是用分区号（因为分区号 `/dev/sda1` 可能会变，UUID 永远不变）  
+`--set=root`: 找到后，把这个分区设为当前的根目录 (root)  
+9D1D-A9D4 EFI分区的UUID  
+
+指定引导文件  
+`chainloader /EFI/BOOT/BOOTX64.EFI`  
+`chainloader`: 意思是我不直接引导内核了，我把控制权“移交”给另一个 `.efi` 文件。  
+`/EFI/BOOT/BOOTX64.EFI`  
+是 UEFI 的“默认回退路径”，如果一块硬盘或者 U 盘插上去，主板不知道该读哪个文件夹，主板就会**默认**去读这个文件。它是所有无主系统的“收容所”，但实在找不到系统对应的引导时，就可以使用这个路径，不过多数系统是有具体路径的，比如fedora的是/EFI/fedora/shimx64.efi  
