@@ -1844,14 +1844,24 @@ done
 一直用rm -rf，虽然从没出过问题，但毕竟是日常使用的系统，还是保险起见设置一下，思路是用alisa别名设置rm为trash这个工具(功能是移动文件到回收站)，因为我用的是合成器而不是完整DE，所以回收站定时清理还是需要自己写一个systemd服务  
 
 1.安装工具  
-`sudo pacman -S trash-cli  
-`  
+
+```
+sudo pacman -S trash-cli  
+```
 
 2.配置别名  
 在.zshrc中写入  
-`alias rm='trash-put'`  
+
+```
+alias rm='trash-put'  
+```
+
 然后生效  
-`source .zshrc`  
+
+```
+source .zshrc  
+```
+
 原生rm被替换，如果某些大文件想直接删除，可以用`\rm`命令，利用linux中 \ 的特性忽略别名设置  
 
 3.配置 Systemd 定时清理 (每月一次)  
@@ -1859,9 +1869,17 @@ done
 创建服务文件,这个文件定义“**做什么**”（清理超过 30 天的文件）  
 
 创建目录  
-`mkdir -pv ~/.config/systemd/user/`  
+
+```
+mkdir -pv ~/.config/systemd/user/  
+```
+
 创建并编辑文件  
-`vim ~/.config/systemd/user/trash-clean.service`  
+
+```
+vim ~/.config/systemd/user/trash-clean.service  
+```
+
 写入如下内容  
 
 ```
@@ -1877,7 +1895,11 @@ ExecStart=/usr/bin/trash-empty 30
 
 创建定时器文件,这个文件定义“**什么时候做**”（每月运行一次）  
 创建并编辑文件：  
-`vim ~/.config/systemd/user/trash-clean.timer`  
+
+```
+vim ~/.config/systemd/user/trash-clean.timer  
+```
+
 写入如下内容  
 
 ```
@@ -1901,24 +1923,45 @@ WantedBy=timers.target
 激活并验证  
 
 启动定时器  
-`systemctl --user enable --now trash-clean.timer`  
-验证是否成功,检查一下定时器是否在列表里：  
-`systemctl --user list-timers --all | grep trash`  
 
-### 配置键盘背光
+```
+systemctl --user enable --now trash-clean.timer  
+```
+
+验证是否成功,检查一下定时器是否在列表里：  
+
+```
+systemctl --user list-timers --all | grep trash  
+```
+
+### ASUS配置键盘背光
 
 华硕提供了图形化配置工具  
-`yay -S rog-control-center asusctl`  
+
+```
+yay -S rog-control-center asusctl  
+```
+
 启动服务  
-`sudo systemctl start asusd`  
+
+```
+sudo systemctl start asusd  
+```
+
 然后打开rog控制中心配置就行了  
 
 ### 音频提取与修改
 
 安装这两个包  
-`sudo pacman -S yt-dlp ffmpeg`  
+
+```
+sudo pacman -S yt-dlp ffmpeg  
+```
+
 使用方法  
-`yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail 视频链接`  
+
+`yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail 视频链接` 
+
 **`-x`**: 下载完成后，将视频提取/转换为音频。  
 **`--audio-format mp3`**: 指定输出格式为 MP3  
 **`--no-playlist`**: 如果你给的链接是一个播放列表里的某一首歌，只下载这一首，不要把整个列表几百首歌都下下来  
@@ -1930,7 +1973,11 @@ WantedBy=timers.target
 
 下载的歌曲的元数据信息经常不尽人意，所以需要再引入工具eyeD3来修改歌曲元数据  
 安装工具  
-`yay -S python-eyed3`  
+
+```
+yay -S python-eyed3  
+```
+
 使用说明  
 `-a 修改歌手`  
 `-A 修改专辑名`  
@@ -1946,7 +1993,11 @@ WantedBy=timers.target
 `--remove-all-images`  
 
 因为arch滚动更新的特性，有时作者更新不及时导致工具不可用，也可以用mutagen，可执行文件是mid3v2,用法选项大体与eyeD3相同，安装命令如下  
-`sudo pacman -S python-mutagen`  
+
+```
+sudo pacman -S python-mutagen  
+```
+
 该工具导出命令mutagen-inspect用于查看歌曲元数据，mid3v2用于修改元数据  
 
 
@@ -1959,9 +2010,17 @@ WantedBy=timers.target
 本地仓库目录/home/caster/Documents/Study_Note  
 
 进入目录  
-`cd /home/caster/Documents/Study_Note`  
+
+```
+cd /home/caster/Documents/Study_Note  
+```
+
 **1.生成该仓库专用的独立密钥**  
-`ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_obsidian -C "linux_note_key"`  
+
+```
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_obsidian -C "linux_note_key"  
+```
+
 一路回车即可  
 
 在github上创建私有仓库linuxnote  
@@ -1969,7 +2028,10 @@ WantedBy=timers.target
 
 **2.将密钥配置到 GitHub 仓库**  
 查看并复制公钥  
-`cat ~/.ssh/id_ed25519_obsidian.pub`  
+
+```
+cat ~/.ssh/id_ed25519_obsidian.pub  
+```
 
 去网页端设置  
 打开GitHub 仓库 `linuxnote` 页面  
@@ -1982,7 +2044,11 @@ WantedBy=timers.target
 
 **3.配置 SSH Config (让 Git 认识新密钥)**  
 编辑配置文件  
-`vim ~/.ssh/config`  
+
+```
+vim ~/.ssh/config  
+```
+
 写入如下内容  
 
 ```
@@ -1996,21 +2062,32 @@ Host github-notes
 
 **4.初始化并提交笔记**  
 初始化与设置身份  
-`git init`  
-`git config user.email "dzy5864@gmail.com"`  
-`git config user.name "Caster6443"`  
+
+```
+git init  
+git config user.email "github绑定邮箱@gmail.com"  
+git config user.name "github用户名"  
+```
 
 添加文件并提交  
-`echo ".obsidian/" >> .gitignore`  
-`git add .`  
-`git commit -m "Initial commit: my linux notes with independent key"`  
+
+```
+echo ".obsidian/" >> .gitignore  
+git add .  
+git commit -m "Initial commit: my linux notes with independent key"  
+```
 
 **关联远程仓库（使用别名）**： 注意！这里的地址用刚才在 config 里起的别名 `github-notes`  
-`git branch -M main`  
-`git remote add origin git@github-notes:Caster6443/linuxnote.git`  
+```
+git branch -M main  
+git remote add origin git@github-notes:Caster6443/linuxnote.git  
+```
 
 推送  
-`git push -u origin main`  
+
+```
+git push -u origin main  
+```
 
 obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推送间隔，其余的该插件都会自动检测  
 
@@ -2022,16 +2099,30 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 
 我把本地仓库放在/home/caster/Documents/my-dotfiles处  
 进入本地目录后  
-`git status`  
+
+```
+git status  
+```
+
 检查本地与上游git仓库的文件变化，查看本地相较于git仓库多了哪些变化  
 确定无误后  
-`git add .`  
+
+```
+git add .  
+```
+
 暂存所有修改，准备提交  
 
-`git commit -m "这里写点描述"`  
+```
+git commit -m "这里写点描述"  
+```
+
 将暂存区的更改打包成一个历史记录点，并附上一条描述。  
 
-`git push origin main`  
+```
+git push origin main  
+```
+
 推送更改  
 
 我设置了 SSH 密钥并启动了ssh-agent，Git 会自动使用我的私钥进行身份验证，不需要重复输入用户名或密码。  
@@ -2043,32 +2134,59 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 流程如下  
 
 1.安装编译依赖  
-`sudo pacman -S --needed rust cargo git`  
+
+```
+sudo pacman -S --needed rust cargo git  
+```
 
 2.克隆仓库  
-`git clone https://github.com/Supreeeme/xwayland-satellite.git`  
-`cd xwayland-satellite`  
+
+```
+git clone https://github.com/Supreeeme/xwayland-satellite.git  
+cd xwayland-satellite  
+```
 
 fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281  
 
 3.拉取并切换到 PR #281  
-从 GitHub 拉取 281 号 PR 的代码，并存到一个叫 pr-281 的新分支里  
-`git fetch origin pull/281/head:pr-281`  
+从 GitHub 拉取 281 号 PR 的代码，并存到一个叫 pr-281 的新分支里
+
+```
+git fetch origin pull/281/head:pr-281  
+```
 
 切换到这个分支  
-`git checkout pr-281`  
+
+```
+git checkout pr-281  
+```
 
 4.编译  
-`cargo build --release`  
+
+```
+cargo build --release  
+```
 
 
 5.替换并生效  
 备份旧的  
-`sudo mv /usr/bin/xwayland-satellite /usr/bin/xwayland-satellite.bak`  
+
+```
+sudo mv /usr/bin/xwayland-satellite /usr/bin/xwayland-satellite.bak  
+```
+
 替换新的（注意路径是 target/release/）  
-`sudo cp target/release/xwayland-satellite /usr/bin/`  
+
+```
+sudo cp target/release/xwayland-satellite /usr/bin/  
+```
+
 重启 Niri 生效  
-`niri msg action quit`  
+
+```
+niri msg action quit  
+```
+
 (或者直接重启电脑)  
 
 
@@ -2081,13 +2199,13 @@ fix: popup position #281 这是 pr 的标题，后面是 pr 的编号 281
 看一下 nvidia-smi 回显  
 可以看到 N 卡处于 P8 状态（低功耗状态）,这时游戏挂在后台，p8 倒也没啥，不过正常玩的时候这玩意好像是一直处于 p8 状态，我也不确定  
 
-运行这个命令  
-`sudo nvidia-smi -pm 1`  
-启用持久模式  
+运行这个命令,启用持久模式  
 
-就能解决了，这个我不确定是不是临时命令，但重启后也不用再次执行也能正常帧率玩鸣潮了，所以可能是 nvidia 的一点小 bug，这个命令刷新了 N 卡的状态  
+```
+sudo nvidia-smi -pm 1  
+```
 
-这种系统抽风问题最难搞了，感觉我不用这个命令，N 卡都不知道自己还有个持久模式😅  
+解决了，这个我不确定是不是临时命令，但重启后也不用再次执行也能正常帧率玩鸣潮了，所以可能是 nvidia 的一点小 bug，这个命令刷新了 N 卡的状态 ,这种系统抽风问题最难搞了，感觉我不用这个命令，N 卡都不知道自己还有个持久模式😅  
 
 ## 软件包降级
 
@@ -2154,24 +2272,46 @@ cd clash-verge-rev
 ```
 
 3.切换到旧版本提交  
-`git checkout b6503cb` # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希  
 
-4.构建和安装提交的版本  
-`makepkg -si`  
+切换到 2.3.0-2 版本 指定的是对应版本的提交哈希  
 
-构建过程中出现了源文件校验和失败的问题，clash-verge-service.tar.gz 的 SHA512 校验和不匹配，这通常是因为源文件在服务器上已被更新，但 PKGBUILD 中的校验和还是旧值  
-`sudo pacman -S pacman-contrib`  
+```
+git checkout b6503cb 
+```
+
+4.构建和安装提交的版本
+
+```
+makepkg -si  
+```
+
+构建过程中出现了源文件校验和失败的问题，clash-verge-service.tar.gz 的 SHA512 校验和不匹配，这通常是因为源文件在服务器上已被更新，但 PKGBUILD 中的校验和还是旧值 
+
+```
+sudo pacman -S pacman-contrib  
+```
 
 在项目目录中运行  
-`updpkgsums`  
+
+```
+updpkgsums  
+```
+
 这个命令会自动计算当前下载的源文件的 SHA512 校验和，并更新 PKGBUILD 中的 sha512sums 数组  
 
-然后重新构建并安装  
-`makepkg -si`  
+然后重新构建并安装 
+
+```
+makepkg -si  
+```
 
 
 然而 pacman -Syu 未来还是必要的，所以在这个问题修复前，我就让 clash-verge-rev 不要跟着一起更新吧  
-`sudo pacman -D --asexplicit clash-verge-rev clash-geoip`  
+
+```
+sudo pacman -D --asexplicit clash-verge-rev clash-geoip  
+```
+
 这个命令的作用是将包标记为显式安装，而不是依赖安装  
 
 通过手动构建安装的包，有时会被 pacman 错误标记为依赖包，如果卸载某些软件，该软件包被视为依赖，就会被 pacman 自动清理，标记为显示安装后，pacman 不会自动清理它  
@@ -2341,10 +2481,17 @@ Categories=Audio;Player;ConsoleOnly;
 给我的 kvm_win7 传文件用  
 
 安装软件  
-`sudo pacman -S python-pyftpdlib`  
+
+```
+sudo pacman -S python-pyftpdlib  
+```
 
 然后在需要共享的文件目录下运行  
-python -m pyftpdlib  
+
+```
+`python -m pyftpdlib`  
+```
+
 具体端口号和进程等信息会自动显示  
 
 ## grub设置链式引导
@@ -2457,18 +2604,16 @@ winetricks是一个辅助脚本，专门用来给 Wine 安装各种依赖库和�
 
 安装 Winetricks  
 
-```plain
+```
 sudo pacman -S winetricks
-
 ```
 
 使用 Winetricks 安装 CJK 字体包：  
 winetricks有一个专门的包叫 cjkfonts，它会自动下载并安装 Windows 上最常用的中日韩字体（包括 msgothic,msmincho等）到你的 Wine 环境中。  
 继续在终端运行：  
 
-```plain
+```
 winetricks cjkfonts
-
 ```
 
 后续调优（可选）  
@@ -2477,23 +2622,19 @@ winetricks cjkfonts
 安装 Noto CJK 字体包： `noto-fonts-cjk` 是 Google 和 Adobe 合作的开源字体，质量非常高，涵盖了中日韩所有字符。  
 在终端运行：  
 
-```plain
+```
 sudo pacman -S noto-fonts-cjk
-
 ```
 
 刷新字体缓存（通常 pacman 会自动做，但手动做一次没坏处）：  
 
-```plain
+```
 fc-cache -fv
-
 ```
 
 ```
-
 sudo pacman -S adobe-source-han-serif-cn-fonts wqy-zenhei          #安装几个开源中文字体 一般装上文泉驿就能解决大多wine应用中文方块的问题
 sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌开源字体及表情
-
 ```
 
 我感觉没球用，不如群友打包的字体包，直接塞上就用  
@@ -2506,11 +2647,19 @@ sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌
 **根本原因：** 音频缓冲区耗尽  
 
 解决方案：  
-`pw-metadata -n settings 0 clock.force-quantum 2048`  
+
+```
+pw-metadata -n settings 0 clock.force-quantum 2048  
+```
+
 临时扩充缓冲区  
 
 为了永久生效，我配置了systemd服务  
-`systemctl --user edit --force --full force-quantum.service`  
+
+```
+systemctl --user edit --force --full force-quantum.service  
+```
+
 写入如下内容  
 
 ```
@@ -2533,7 +2682,10 @@ WantedBy=default.target
 ```
 
 立刻启用  
-`systemctl --user enable --now force-quantum.service`  
+
+```
+systemctl --user enable --now force-quantum.service  
+```
 
 如何验证？  
 `pw-top`命令查看  
@@ -2559,8 +2711,12 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 
 具体就是用微信打开本地文件夹发现显示不全  
 
-看了一下我的微信是 flatpak 版的，关于 flatpak 沙盒，需要单独安装组件来管理应用权限问题，比如文件读取权限  
-`sudo pacman -S flatseal`  
+看了一下我的微信是 flatpak 版的，关于 flatpak 沙盒，需要单独安装组件来管理应用权限问题，比如文件读取权限 
+
+```
+sudo pacman -S flatseal  
+```
+
 安装这个应用。是图形化的，打开后操作比较简单，找到微信，打开对应权限开关就行了  
 
 
@@ -2597,16 +2753,26 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能  
 我的方案是使用Zsh 插件管理器：Zinit  
 执行如下命令，脚本会自动处理  
-`bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh`
+
+```
+bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh
+```
 
 用了几天发现这玩意也没鸟用，正好要移除 plasma，顺手给 konselo 卸载换 kitty 了，不过排查思路是对的，确实是因为这俩玩意冲突，更底层的原因就不懂了
 
 ## sudo 密码输入问题
 
 用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码  
-`sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout`  
-在文件中写入如下内容  
+
+```
+sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout  
+```
+
+在文件中写入如下内容 
+
+```
 `Defaults timestamp_timeout=30, !tty_tickets`  
+```
 
 为什么起99-custom-timeout这么奇怪的文件名？  
 因为 Linux 加载 `/etc/sudoers.d/` 目录下的配置时，是按字母和数字顺序的（从 `00-` 到 `99-`）  
