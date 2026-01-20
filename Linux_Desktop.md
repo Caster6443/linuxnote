@@ -2289,8 +2289,8 @@ sudo pacman -S flatseal
 
 原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突  
 
-```
-# 设 置 历 史 记 录
+```bash
+#设 置 历 史 记 录
 HISTFILE=~/.zsh_history
 HISTSIZE=1000
 SAVEHIST=1000
@@ -2300,41 +2300,36 @@ setoptSHARE_HISTORY
 setoptAPPEND_HISTORY
 setoptEXTENDED_HISTORY
 
-# 别 名 与 颜 色
+#别 名 与 颜 色
 alias ls='ls --color=auto'
 alias l='ls -CF --color=auto'
 alias la='ls -A --color=auto'
 alias ll='ls -lA --color=auto'
 eval"$(dircolors -b)"
 
-# 补 全 样 式 
+#补 全 样 式 
 zstyle':completion:*' menu select
 zstyle':completion:*:default' list-colors $LS_COLORS
 
-# 加 载  Zsh 自 动 建 议 插 件 
+#加 载  Zsh 自 动 建 议 插 件 
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-# 激 活  Starship 提 示 符 
+#激 活  Starship 提 示 符 
 eval"$(starship init zsh)"
 
-# 自 动 补 全 
+#自 动 补 全 
 autoload -Uz compinit
 compinit
 
-# 加 载 语 法 高 亮 插 件 t
+#加 载 语 法 高 亮 插 件 
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 ```
 
 临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能  
-
-
 我的方案是使用Zsh 插件管理器：Zinit  
-
 执行如下命令，脚本会自动处理  
-bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh
-
-
+`bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh`
 用了几天发现这玩意也没鸟用，正好要移除 plasma，顺手给 konselo 卸载换 kitty 了，不过排查思路是对的，确实是因为这俩玩意冲突，更底层的原因就不懂了
 
 ## sudo 密码输入问题

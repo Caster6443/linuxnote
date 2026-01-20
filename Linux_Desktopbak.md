@@ -2292,3 +2292,70 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 安装这个应用。是图形化的，打开后操作比较简单，找到微信，打开对应权限开关就行了  
 
 
+
+## konsole提示符异常
+
+就是在打开窗口的时候，提示符上面不知道为啥会出现一个%号  
+
+原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突  
+
+```bash
+#设 置 历 史 记 录
+HISTFILE=~/.zsh_history
+HISTSIZE=1000
+SAVEHIST=1000
+setoptHIST_IGNORE_DUPS
+setoptHIST_IGNORE_SPACE
+setoptSHARE_HISTORY
+setoptAPPEND_HISTORY
+setoptEXTENDED_HISTORY
+
+#别 名 与 颜 色
+alias ls='ls --color=auto'
+alias l='ls -CF --color=auto'
+alias la='ls -A --color=auto'
+alias ll='ls -lA --color=auto'
+eval"$(dircolors -b)"
+
+#补 全 样 式 
+zstyle':completion:*' menu select
+zstyle':completion:*:default' list-colors $LS_COLORS
+
+#加 载  Zsh 自 动 建 议 插 件 
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+#激 活  Starship 提 示 符 
+eval"$(starship init zsh)"
+
+#自 动 补 全 
+autoload -Uz compinit
+compinit
+
+#加 载 语 法 高 亮 插 件 
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+```
+
+临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能  
+我的方案是使用Zsh 插件管理器：Zinit  
+执行如下命令，脚本会自动处理  
+`bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh`
+用了几天发现这玩意也没鸟用，正好要移除 plasma，顺手给 konselo 卸载换 kitty 了，不过排查思路是对的，确实是因为这俩玩意冲突，更底层的原因就不懂了
+
+## sudo 密码输入问题
+
+用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码  
+`sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout`  
+在文件中写入如下内容  
+`Defaults timestamp_timeout=30, !tty_tickets`  
+
+为什么起99-custom-timeout这么奇怪的文件名？  
+因为 Linux 加载 `/etc/sudoers.d/` 目录下的配置时，是按字母和数字顺序的（从 `00-` 到 `99-`）  
+系统默认的配置（比如 `10-arch-default`）可能设置了 `timestamp_timeout=0`（0分钟超时）。  
+我们使用 `99-` 这个最高优先级的文件名，确保我们的配置是最后一个被加载的，因此它会覆盖掉系统所有的默认设置。  
+
+`timestamp_timeout=30`  
+它把 `sudo` 密码的有效期从默认的（可能是0或5分钟）延长到了 30 分钟。  
+
+`!tty_tickets`  
+关闭每个 Konsole 窗口都要单独输密码的规则，使得密码有效期可全局共享  
