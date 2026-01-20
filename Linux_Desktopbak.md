@@ -2124,3 +2124,157 @@ menuentry 'Pop!_OS(Chainload)' {
 `chainloader`: 意思是我不直接引导内核了，我把控制权“移交”给另一个 `.efi` 文件。  
 `/EFI/BOOT/BOOTX64.EFI`  
 是 UEFI 的“默认回退路径”，如果一块硬盘或者 U 盘插上去，主板不知道该读哪个文件夹，主板就会**默认**去读这个文件。它是所有无主系统的“收容所”，但实在找不到系统对应的引导时，就可以使用这个路径，不过多数系统是有具体路径的，比如fedora的是/EFI/fedora/shimx64.efi  
+
+
+## 混合显卡黑屏问题
+
+具体表现在开机时，有几率在启动加载全部完成后会黑屏卡住，原因是显示管理器有概率会提前在显卡驱动加载前启动  
+
+这个有两种解决方案  
+一个是在mkinit 中配置 A 卡优先加载  
+![3d4acfcc17d6def5939c834ae1bd67cb_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3d4acfcc17d6def5939c834ae1bd67cb_MD5.png)  
+就是在 MODULES 里指定加载顺序即可，当然还需要sudo mkinitcpio -P重新加载一下配置  
+
+另一个方案是把登录管理器的自启动服务添加一个 sleep 2延迟2秒启动  
+
+## arch 打开文件夹却显示终端
+
+就是发现在某些应用，我选择打开文件夹，打开的却是我的 kitty 终端，解决方案参考如下  
+
+```
+
+❯ xdg-mime query default inode/directory
+kitty-open.desktop
+❯ xdg-mime default org.gnome.Nautilus.desktop inode/directory
+❯ xdg-mime query default inode/directory                     
+org.gnome.Nautilus.desktop
+
+```
+
+## wps 无法切换中文
+
+准确地说是让wps支持使用我的 fcitx5 输入法  
+网上有个方案是在~/.pam_environment 中写入  
+
+```
+
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx5
+export XMODIFIERS=@im=fcitx
+
+```
+
+但貌似 wps 随着版本更新不再读取这个文件  
+
+
+所以需要在/usr/bin/wps 中的gOpt=下面一行添加如下内容即可  
+
+```
+
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx5
+export XMODIFIERS=@im=fcitx
+
+```
+
+## wine 字体缺失
+
+具体表现是某些字符会显示为“口”字的状态，通常是字体缺失导致的  
+使用 Winetricks 自动安装字体  
+winetricks是一个辅助脚本，专门用来给 Wine 安装各种依赖库和字体。  
+
+安装 Winetricks  
+
+```plain
+sudo pacman -S winetricks
+
+```
+
+使用 Winetricks 安装 CJK 字体包：  
+winetricks有一个专门的包叫 cjkfonts，它会自动下载并安装 Windows 上最常用的中日韩字体（包括 msgothic,msmincho等）到你的 Wine 环境中。  
+继续在终端运行：  
+
+```plain
+winetricks cjkfonts
+
+```
+
+后续调优（可选）  
+安装 Arch Linux 系统的 CJK 字体  
+这个方案是在_Linux 系统层面_安装一套完整的高质量 CJK 字体。Wine (通过 Fontconfig) 理论上也能检测到并使用它们。  
+安装 Noto CJK 字体包： `noto-fonts-cjk` 是 Google 和 Adobe 合作的开源字体，质量非常高，涵盖了中日韩所有字符。  
+在终端运行：  
+
+```plain
+sudo pacman -S noto-fonts-cjk
+
+```
+
+刷新字体缓存（通常 pacman 会自动做，但手动做一次没坏处）：  
+
+```plain
+fc-cache -fv
+
+```
+
+```
+
+sudo pacman -S adobe-source-han-serif-cn-fonts wqy-zenhei          #安装几个开源中文字体 一般装上文泉驿就能解决大多wine应用中文方块的问题
+sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌开源字体及表情
+
+```
+
+我感觉没球用，不如群友打包的字体包，直接塞上就用  
+
+## 蓝牙耳机有电流声
+
+**随着系统滚动更新，该修复失效了，麻了**  
+**环境：** Arch Linux + Niri (Wayland) + PipeWire + 蓝牙耳机 (漫步者 W820NB, 编码器:SBC)。  
+**现象：** 播放音频时，偶尔会出现剧烈的“电击式”爆音或断流。  
+**根本原因：** 音频缓冲区耗尽  
+
+解决方案：  
+`pw-metadata -n settings 0 clock.force-quantum 2048`  
+临时扩充缓冲区  
+
+为了永久生效，我配置了systemd服务  
+`systemctl --user edit --force --full force-quantum.service`  
+写入如下内容  
+
+```
+
+[Unit]
+Description=Force PipeWire Quantum to 2048 for Bluetooth stability
+After=pipewire.service wireplumber.service
+
+[Service]
+Type=oneshot
+
+# 等待几秒确保 PipeWire 完全启动后再执行，防止命令跑太快失效
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=/usr/bin/pw-metadata -n settings 0 clock.force-quantum 2048
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
+
+```
+
+立刻启用  
+`systemctl --user enable --now force-quantum.service`  
+
+如何验证？  
+`pw-top`命令查看  
+![fac656bba474cf4bdd53348fe1d1c242_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg)  
+bluez_output那一行是我的蓝牙耳机输出，从256变成了2048  
+
+这个方案是用声音延迟的代价换取稳定  
+原理我也不太懂，不过差不多可以这样理解  
+`时间窗口=QUANT/48000Hz=xx.ms`  
+我原本的QUANT是256，带入公式得到时间窗口大概是5.33ms(毫秒)  
+意思是CPU必须每隔5.33毫秒就处理完一次音频数据，但是如果 Niri 渲染一帧画面抢占了 CPU 6 毫秒，音频线程就会错过截止时间。从而导致电流声等问题  
+**新的时间窗口：** 2048/48000Hz≈42.66ms  
+**容错率提升:** 从 5ms 提升到 42ms（约 8 倍）。即使 Niri 发生丢帧或高负载卡顿，音频缓冲区里仍有足够的数据存货，不会断流。  
+**代价:** 系统音频延迟增加约 37ms。对于视频（播放器会自动补偿）和非竞技类游戏，此延迟在人类感知阈值（<100ms）内，属于无感牺牲。  
+
+不过我觉得最好还是买个有线耳机  
