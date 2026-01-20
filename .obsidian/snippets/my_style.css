@@ -1,0 +1,104 @@
+/* ======================================================
+   Obsidian 暗色模式专用增强 (Dark Mode Enhanced)
+   适配：Arch Linux / Niri / 极客暗色主题
+   ====================================================== */
+
+/* 只有在「暗色模式」下才会生效，防止亮色模式瞎眼 */
+.theme-dark {
+
+  /* ====================================================
+     🎨 核心配色：北极极光 (Nord - Dark Mode Optimized)
+     ==================================================== */
+  --h1-color: #88c0d0;  /* 冰河蓝 (清爽醒目) */
+  --h2-color: #81a1c1;  /* 天空蓝 */
+  --h3-color: #ebcb8b;  /* 柔和黄 (用于提亮) */
+  --h4-color: #a3be8c;  /* 抹茶绿 */
+  
+  --text-bold: #d08770; /* 铁锈红 (重点强调) */
+  --text-code: #eceff4; /* 代码文字 (雪白) */
+  
+  /* ✨ 关键优化：使用半透明背景，完美融入你的暗色主题 */
+  --bg-code:   rgba(0, 0, 0, 0.3);       /* 代码块：深邃的半透明黑 */
+  --bg-quote:  rgba(136, 192, 208, 0.1); /* 引用块：极淡的蓝色微光 */
+  --quote-line:#88c0d0;                  /* 引用块左侧竖线 */
+
+  /* ====================================================
+     📏 排版优化
+     ==================================================== */
+  --font-base: 18px;
+  --line-height: 1.7;
+}
+
+/* ------------------------------------------------------
+   以下样式自动引用上面的变量，无需修改
+   ------------------------------------------------------ */
+
+/* 1. 标题 (Headers) */
+.theme-dark .markdown-preview-view h1, 
+.theme-dark .HyperMD-header-1 {
+  color: var(--h1-color) !important;
+  font-size: 1.8em !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* 极细微的白线 */
+  padding-bottom: 0.3em;
+  margin-top: 1.2em !important;
+}
+
+.theme-dark .markdown-preview-view h2, 
+.theme-dark .HyperMD-header-2 {
+  color: var(--h2-color) !important;
+  font-size: 1.5em !important;
+  margin-top: 1.2em !important;
+}
+
+.theme-dark .markdown-preview-view h3, 
+.theme-dark .HyperMD-header-3 {
+  color: var(--h3-color) !important;
+  font-size: 1.3em !important;
+}
+
+.theme-dark .markdown-preview-view h4, 
+.theme-dark .HyperMD-header-4 {
+  color: var(--h4-color) !important;
+}
+
+/* 2. 正文与粗体 (Body & Bold) */
+.theme-dark .markdown-preview-view p, 
+.theme-dark .cm-line {
+  font-size: var(--font-base) !important;
+  line-height: var(--line-height) !important;
+  color: #d8dee9; /* 稍微降低纯白的亮度，护眼灰白 */
+}
+
+.theme-dark strong, 
+.theme-dark b, 
+.theme-dark .cm-strong {
+  color: var(--text-bold) !important;
+  font-weight: 700;
+}
+
+/* 3. 代码块与行内代码 (Code) */
+.theme-dark code {
+  color: var(--h1-color) !important; /* 行内代码用青色 */
+  background-color: rgba(255, 255, 255, 0.08) !important; /* 微弱的白色背景 */
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.theme-dark .markdown-preview-view pre, 
+.theme-dark .HyperMD-codeblock {
+  background-color: var(--bg-code) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05); /* 几乎看不见的边框 */
+  border-radius: 8px;
+  padding: 15px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 4. 引用块 (Blockquote) */
+.theme-dark blockquote {
+  border-left: 3px solid var(--quote-line) !important;
+  background-color: var(--bg-quote) !important;
+  color: #e5e9f0;
+  padding: 8px 16px !important;
+  border-radius: 0 6px 6px 0;
+}
