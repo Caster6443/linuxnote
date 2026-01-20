@@ -2317,17 +2317,12 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 # 激 活  Starship 提 示 符 
 eval"$(starship init zsh)"
 
-# 6. 自 动 补 全 s
-
-# -----------------------------------------------------------------
+# 自 动 补 全 
 autoload -Uz compinit
 compinit
 
-# 7. 加 载 语 法 高 亮 插 件 t
-
-# -----------------------------------------------------------------
+# 加 载 语 法 高 亮 插 件 t
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
 
 ```
 
