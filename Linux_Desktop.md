@@ -1,11 +1,7 @@
 # Hyprland
 开始用 hyprland 了，目前体验还不错，但是配置过程有点繁琐，懒得写怎么装了，就简单记录一下怎么用吧
-
-
-
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的
 
-比如
 
 ## 设置命令开机自启动
 进入该配置文件，在 exec-once 开头的那一块区域写入
@@ -46,31 +42,22 @@ bind = $mainMod, J, togglesplit, # dwindle
 
 可以看到，这个快捷键设置其实就是自定义变量的值为某个键位，然后在 bind 里引用该变量并与其他变量和键位组合使用（后续使用发现一些常见键位并不需要赋值给变量，比如 CTRL 、SHIFT、F10 之类的直接写也能识别）
 
-
-
 比如我自定义的 ctrl + t 打开 konsole（$terminal 也在这个配置文件里修改，默认是 kitty，我改成 konsole 了）
-
 然后在 bind 里引用该变量
-$control = ctrl # by myself
-bind = $control, t, exec, $terminal
-
-
+`$control = ctrl # by myself`
+`bind = $control, t, exec, $terminal`
 
 另一个是重启任务栏waybar 的快捷键，我设置成了 super + F2,命令逻辑比较简单就不解释了
-
 ctrl + ; 也是个快捷键，快捷打开剪切板，上次帮人家做作业，学校官网不准粘贴，我无意中粘贴成功了，或许当时按的就是这个键位，以后有机会再试试吧
 
-
-
 这个配置文件还有很多功能，环境变量之类的我还没用到
-$terminal = konsole
-$fileManager = thunar
-$menu = fuzzel
+`$terminal = konsole`
+`$fileManager = thunar`
+`$menu = fuzzel`
 这三个变量，终端，文件管理器，菜单都被我改成这些了，因为默认的不太习惯,当然修改之前对应的包都要装上  
 
 
 关于桌面快捷键的事，虽然配置文件的 bind 的注释里都写清楚用途，但我还是记录一下常用的默认配置和我的自定义的快捷键配置
-
 ```
 
 super + e				打开 thunar 文件管理器
@@ -91,7 +78,6 @@ super + s				快速最小化当前桌面窗口，再次使用就会回来
 
 
 hyprland 自己也有 wiki，肯定是比 archwiki 在这方面更详细的，可以多看看
-
 [https://wiki.hypr.land/](https://wiki.hypr.land/)
 
 
@@ -366,10 +352,7 @@ config.jsonc 是整体框架，模块定义在别的文件里写
 
 
 
-
-
 modules-dividers.jsonc 定义了各种图形，用于不同模块之间的图形衔接，在 css 中具体调色
-
 ```json
 {
 	/*-------------------
@@ -491,7 +474,6 @@ modules-dividers.jsonc 定义了各种图形，用于不同模块之间的图形
 
 
 modules.jsonc 里是各种模块的定义，注释已经很清楚了
-
 ```json
 {
 //工作区
@@ -725,8 +707,7 @@ modules.jsonc 里是各种模块的定义，注释已经很清楚了
 
 
 style.css 包含了模块和连接符的美化
-比如custom/left_div#9 连接符，它的左右颜色是根据 color 和 background-color 决定的                    
-
+比如custom/left_div#9 连接符，它的左右颜色是根据 color 和 background-color 决定的          
 ```css
 @import "colors.css"; 
 
