@@ -38,7 +38,6 @@ bind = $mainMod, J, togglesplit, # dwindle
 
 ```
 
-
 可以看到，这个快捷键设置其实就是自定义变量的值为某个键位，然后在 bind 里引用该变量并与其他变量和键位组合使用（后续使用发现一些常见键位并不需要赋值给变量，比如 CTRL 、SHIFT、F10 之类的直接写也能识别）  
 
 比如我自定义的 ctrl + t 打开 konsole（$terminal 也在这个配置文件里修改，默认是 kitty，我改成 konsole 了）  
@@ -57,6 +56,7 @@ ctrl + ; 也是个快捷键，快捷打开剪切板，上次帮人家做作业�
 
 
 关于桌面快捷键的事，虽然配置文件的 bind 的注释里都写清楚用途，但我还是记录一下常用的默认配置和我的自定义的快捷键配置  
+
 ```
 super + e				打开 thunar 文件管理器
 super + c				关闭当前窗口
@@ -93,7 +93,7 @@ bind = $mainMod, x, exec, cliphist list | fuzzel --dmenu --with-nth 2 | cliphist
 #如果用的文件管理器是 fuzzel 的话
 ```
 
-如果是其他文件管理器，对应的键位绑定配置就去看 hyprland 的 wiki  [https://wiki.hypr.land/Useful-Utilities/Clipboard-Managers/](https://wiki.hypr.land/Useful-Utilities/Clipboard-Managers/)  
+如果是其他文件管理器，对应的键位绑定配置就去看 hyprland 的 wiki [https://wiki.hypr.land/Useful-Utilities/Clipboard-Managers/](https://wiki.hypr.land/Useful-Utilities/Clipboard-Managers/)  
   
   
 
@@ -209,6 +209,7 @@ switch-audio-output.sh 快捷选择音频输出设备
 ## 禁用触控板
 
 使用hyprctl devices 命令查看设备  
+
 ```bash
 ❯ hyprctl devices                                                  
 mice:
@@ -236,6 +237,7 @@ scroll factor: -1.00
 hyprctl keyword 'device[asuf1204:00-2808:0202-touchpad]:enabled' 'false'这条命令可以关闭触控板，设置为 true 就打开  
 
 那就可以写个 shell 脚本再通过 bind 绑定键位  
+
 ```bash
 
 #!/usr/bin/env bash
@@ -270,6 +272,7 @@ fi
 `sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh`  
 
 在 hyprland 配置文件上绑定键位 ctrl+f10  
+
 ```bash
 
 # 切换触控板 (Ctrl + F10)
@@ -281,6 +284,7 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 
 在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观  
 这个空白大小是可以修改的，还是在那个 hyprland 配置文件里  
+
 ```bash
 
 # https://wiki.hypr.land/Configuring/Variables/#general
@@ -329,8 +333,6 @@ ninja -C build
 ninja -C build install
 
 ```
-
-
 
 使用方法  
 `mpvpaper DP-2 /path/to/video`  
@@ -397,7 +399,7 @@ URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷�
 
 waydroid-scripts 项目提供了 waydroid-extras 命令来安装翻译层  
 libhoudini 用于英特尔  
-libndk       用于 AMD  
+libndk 用于 AMD  
 
 不过在某些程序无法运行时，两个都可以装上试试看  
 
@@ -557,8 +559,6 @@ sudo openssl x509 -outform DER -in "$KEYPAIR_PATH/MOK.crt" -out "$KEYPAIR_PATH/M
 
 ```
 
-
-
 现在，我们来编写具有 GRUB EFI 生成和自动签名脚本。  
 
 ```bash
@@ -576,8 +576,6 @@ mok_sign() {
 }
 
 ```
-
-
 
 然后在/etc/secureboot 这个文件夹下，新建 update-sb-grub-efi.sh 文件内容如下  
 
@@ -614,8 +612,6 @@ mok_sign /boot/EFI/ARCH/grubx64.efi
 
 ```
 
-
-
 复制 /usr/share/grub/sbat.csv 到 /etc/secureboot/grub-sbat.csv，并可对文件做部分修改，以避免出现 SBAT 问题。不过其实也没啥好改的  
 
 真想改的话，就把倒数两行的 grub,4 和 grub.arch,4 中的 4 改成 5  
@@ -647,8 +643,6 @@ cd /etc/secureboot/grub-sb-stub
 tar -cf memdisk.tar -C memdisk .
 
 ```
-
-
 
 创建文件 /etc/secureboot/grub-sb-stub/grub-pre.cfg，根据前面的脚本的配置的设置，这个 GRUB 脚本文件将在 GRUB 启动时立刻执行。  
 
@@ -756,10 +750,6 @@ sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-sh
 
 ```
 
-
-
-
-
 一切完成之后，重启，进入 UEFI 配置选项，打开安全启动，并经由 arch-shim 启动项启动 GRUB。  
 
 在这个界面，找到并选中我们复制的 MOK.cer，并导入到 Machine Owner Key 列表中，重新启动，配置即可完成。  
@@ -790,6 +780,7 @@ Exec=/bin/sh -c '/etc/secureboot/update-sb-grub-efi.sh'
 ```
 
 /etc/pacman.d/hooks/999-update-grub-cfg.hook，用于在适时的时候重新生成 /boot/grub/grub.cfg  
+
 ```bash
 [Trigger]
 Operation=Install
@@ -810,8 +801,6 @@ Exec=/bin/sh -c '/usr/bin/update-grub'
 Depends=grub
 
 ```
-
-
 
 重新安装 GRUB，看看是否有执行 pacman hook，如果成功执行则配置成功。  
 注意看 1/5 和 3/5,钩子执行成功了  
@@ -1228,7 +1217,7 @@ esp挂载在/efi上
 显示管理器用的sddm  
 
 archinstall提供了预装软件的功能，我这里预装了这些软件包  
-git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fastfetch btop openssh pipewire wireplumber pipewire-pulse pavucontrol bluez bluez-utils fcitx5-im fcitx5-rime fcitx5-chinese-addons noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd wl-clipboard xdg-desktop-portal-gnome polkit-gnome niri fuzzel mako grim  slurp  swappy snapper snap-pac btrfs-assistant gnome-software grub-btrfs inotify-tools nvidia-prime gst-plugins-bad gst-plugins-ugly gst-libav mpv  
+git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fastfetch btop openssh pipewire wireplumber pipewire-pulse pavucontrol bluez bluez-utils fcitx5-im fcitx5-rime fcitx5-chinese-addons noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd wl-clipboard xdg-desktop-portal-gnome polkit-gnome niri fuzzel mako grim slurp swappy snapper snap-pac btrfs-assistant gnome-software grub-btrfs inotify-tools nvidia-prime gst-plugins-bad gst-plugins-ugly gst-libav mpv  
 
 要不是不能用yay，我全给它装上了  
 
@@ -1412,7 +1401,7 @@ btrfs-assistant是快照的图形化管理工具，在其中配置需要的快�
 这是针对混合显卡的优化，因为显示管理器会在显卡驱动还没加载好的时候就启动，导致电脑会黑屏卡死  
 `sudo mkdir -p /etc/systemd/system/sddm.service.d`  
 添加以下内容  
-❯ cat /etc/systemd/system/sddm.service.d/delay.conf                                   `[Service]`  
+❯ cat /etc/systemd/system/sddm.service.d/delay.conf `[Service]`  
 `ExecStartPre=/usr/bin/sleep 2`  
 
 sddm搞着麻烦，我换greetd再配置自动登录  
@@ -1515,8 +1504,6 @@ indicator-thickness=15
 effect-blur=10x5
 
 ```
-
-
 
 配置自动熄屏锁屏休眠  
 `mkdir -p ~/.config/niri/scripts`  
@@ -1732,7 +1719,6 @@ Host github-notes
 
 ```
 
-
 **4.初始化并提交笔记**  
 初始化与设置身份  
 `git init`  
@@ -1890,10 +1876,8 @@ cd clash-verge-rev
 
 ```
 
-
-
 3.切换到旧版本提交  
-`git checkout b6503cb`  # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希  
+`git checkout b6503cb` # 切换到 2.3.0-2 版本 指定的是对应版本的提交哈希  
 
 4.构建和安装提交的版本  
 `makepkg -si`  
@@ -1939,7 +1923,6 @@ yay -S mpdris2
 
 ```
 
-
 2.环境初始化  
 MPD 默认会尝试以系统服务运行，读取 `/etc/mpd.conf`，这会导致权限错误 (`Failed to open /var/lib/...`)。必须手动创建用户目录并禁用系统服务。  
 
@@ -1957,7 +1940,6 @@ touch ~/.config/mpd/{database,state,pid,sticker.sql}
 mkdir -p ~/.config/mpdris2 mkdir -p ~/.config/cava
 
 ```
-
 
 3.配置文件编写  
 配置 MPD核心 (`~/.config/mpd/mpd.conf`)  
@@ -2001,8 +1983,6 @@ audio_output {
 
 ```
 
-
-
 配置 mpDris2 (`~/.config/mpdris2/mpdris2.conf`)  
 让键盘多媒体键和 Waybar 能控制 MPD。  
 
@@ -2017,7 +1997,6 @@ notify = false       # 切歌弹窗 (不喜欢可关)
 mmkeys = true        # 启用键盘多媒体键支持
 
 ```
-
 
 还要配置 cava 可视化，但我之前美化 waybar 的时候已经配过了  
 
@@ -2039,7 +2018,6 @@ systemctl --user enable --now mpd
 # systemctl --user enable --now mpDris2
 
 ```
-
 
 5.客户端 (ncmpcpp) 使用  
 终端输入 ncmpcpp 进入界面。按 F1 可查看帮助。  
@@ -2193,8 +2171,6 @@ export XMODIFIERS=@im=fcitx
 
 ```
 
-  
-
 ## wine 字体缺失
 
 具体表现是某些字符会显示为“口”字的状态，通常是字体缺失导致的  
@@ -2217,7 +2193,6 @@ winetricks cjkfonts
 
 ```
 
-  
 后续调优（可选）  
 安装 Arch Linux 系统的 CJK 字体  
 这个方案是在_Linux 系统层面_安装一套完整的高质量 CJK 字体。Wine (通过 Fontconfig) 理论上也能检测到并使用它们。  
@@ -2366,7 +2341,6 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 
 ```
-
 
 临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能  
 
