@@ -2288,59 +2288,7 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 具体就是用微信打开本地文件夹发现显示不全  
 
 看了一下我的微信是 flatpak 版的，关于 flatpak 沙盒，需要单独安装组件来管理应用权限问题，比如文件读取权限  
-sudo pacman -S flatseal  
+`sudo pacman -S flatseal`  
 安装这个应用。是图形化的，打开后操作比较简单，找到微信，打开对应权限开关就行了  
 
-## konsole提示符异常
 
-就是在打开窗口的时候，提示符上面不知道为啥会出现一个%号  
-
-原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突  
-
-```
-# 设 置 历 史 记 录
-HISTFILE=~/.zsh_history
-HISTSIZE=1000
-SAVEHIST=1000
-setoptHIST_IGNORE_DUPS
-setoptHIST_IGNORE_SPACE
-setoptSHARE_HISTORY
-setoptAPPEND_HISTORY
-setoptEXTENDED_HISTORY
-
-# 别 名 与 颜 色
-alias ls='ls --color=auto'
-alias l='ls -CF --color=auto'
-alias la='ls -A --color=auto'
-alias ll='ls -lA --color=auto'
-eval"$(dircolors -b)"
-
-# 补 全 样 式 
-zstyle':completion:*' menu select
-zstyle':completion:*:default' list-colors $LS_COLORS
-
-# 加 载  Zsh 自 动 建 议 插 件 
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# 激 活  Starship 提 示 符 
-eval"$(starship init zsh)"
-
-# 自 动 补 全 
-autoload -Uz compinit
-compinit
-
-# 加 载 语 法 高 亮 插 件 t
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-```
-
-临时方案是rm -f ~/.zcompdump 删除缓存，但需要每次关闭前都删除一次，可以写进 zshrc 里面，但影响性能  
-
-
-我的方案是使用Zsh 插件管理器：Zinit  
-
-执行如下命令，脚本会自动处理  
-bash -c $curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh
-
-
-用了几天发现这玩意也没鸟用，正好要移除 plasma，顺手给 konselo 卸载换 kitty 了，不过排查思路是对的，确实是因为这俩玩意冲突，更底层的原因就不懂了
