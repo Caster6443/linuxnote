@@ -487,3 +487,322 @@ waydroid upgrade --offline
 ![a7e2f3ce98025b7463ef958137883955_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/a7e2f3ce98025b7463ef958137883955_MD5.png)  
 
 这个助手还提供其他功能，比如伪装成指定机型，获取设备 id，之类的常见需求  
+
+
+# archlinux配置安全启动
+
+## 理论基础
+
+一、 什么是安全启动？  
+安全启动 (Secure Boot)是主板 UEFI 固件里的一项安全功能。  
+
+它的唯一目的是在操作系统（Arch / Windows）启动之前，阻止任何“不受信任”的代码运行。这主要是为了防御在开机阶段就加载的恶意软件（如 Rootkit）。  
+
+理论依据：它的工作原理非常简单：UEFI 固中内置了一个“可信签名数据库”。当你开机时，UEFI 会像个“保安”一样，检查要加载的第一个启动文件（Bootloader）有没有“可信的签名”。  
+默认情况下，UEFI 只信任一个签名：微软 (Microsoft) 的。  
+
+如果启动文件（比如 `grubx664.efi`）没有微软签名，UEFI 会拒绝加载它，启动过程当场中止。  
+
+
+
+二、 Arch Linux 的解决方案  
+
+整套方案，核心理论就是**“信任接力”。我们利用一个微软信任的程序，来“引荐”我们自己的程序  
+`shimx64.efi` 是一个由微软官方签名的小型引导程序,它有微软签名，所以“保安”(UEFI) 会允许它启动,shim 启动后的唯一任务，就是去加载下一个程序（也就是我们的 GRUB）。  
+
+
+MOK (我们自己的“签名”)  
+MOK (Machine Owner Key) 是我们自己创建的一对“签名密钥”（公钥/私钥）。  
+`shim` 也不是什么都加载。它只会加载那些被“它信任的密钥”签过的文件。  
+我们把 MOK 的“公钥”注册（Enroll）到主板里，`shim` 就会“认识”它。从此，`shim` 就会信任任何被我们 MOK“私钥”签过的文件。  
+总结：`UEFI(信任) -> 微软(签名) -> shim(信任) -> MOK(签名) -> 我们的GRUB`。这条信任链就通了。  
+
+
+独立的 GRUB  
+信任链是通了，但 `shim` 只会验证 `grubx64.efi` 这一个文件。但常规的 GRUB 启动时，需要从磁盘上读取几十个零散的模块（比如 `fat.mod`, `btrfs.mod`）和配置文件 (`grub.cfg`)。`shim` 无法验证这几十个文件。  
+解决方案：我们不能用常规的 GRUB。我们必须用 `grub-mkimage` 命令，手动创建一个“独立自主”的 `grubx64.efi`。  
+理论：  
+打包模块:  
+我们把所有未来可能用到的驱动模块（`fat`, `part_gpt`, `btrfs` 等）提前打包并嵌入到 `grubx64.efi`文件内部。  
+
+硬编码配置：  
+我们把一个迷你的“启动脚本”（即 `grub-pre.cfg`）也硬编码进 `grubx64.efi` 的“大脑”里。  
+这个“大脑”（`grub-pre.cfg`）的唯一任务，就是加载它“后备箱”里打包的正确驱动（比如 `insmod fat`），然后用正确的路径（比如 `set prefix=($root)/grub`），去找到那个真正的菜单 (`grub.cfg`)。  
+
+
+`pacman` 钩子  
+这个信任链必须全程维护。`grubx64.efi` 需要 MOK 签名，`vmlinuz-linux` (内核) 也同样需要 MOK 签名。  
+pacman -Syu` 会用未签名的新内核覆盖掉旧的已签名内核。  
+`pacman` 钩子 (Hook) 是一个自动化脚本。它在更新后，立即自动重签。  
+内核钩子：  
+监视 `linux-zen` 包。一旦更新，立刻自动运行 `sbsign` 命令，用你的 MOK 私钥给新的 `vmlinuz-linux-zen` 签名。  
+
+GRUB 钩子：  
+监视 `grub` 包。一旦更新，立刻自动运行 `update-sb-grub-efi.sh`，重新生成那个“独立管家” `grubx64.efi` 并自动签名。  
+
+总结成一句话： 我们利用微软签名的 `shim`，来加载一个我们自己 MOK 签名的、内置了驱动和路径（`insmod fat`）的独立`grubx664.efi`，这个 `grub` 再去加载同样被 MOK 签名的内核，最后用 `pacman` 钩子让这个签名过程自动化。  
+
+## 配置过程
+
+### 1.GRUB 侧的配置
+
+首先，安装相应的软件包：shim-signed（AUR 包），sbsigntools，mokutil。  
+
+使用 OpenSSL 生成一对安全启动签名密钥，记得妥善保管。  
+
+```bash
+sudo mkdir /etc/secureboot/keys
+
+# Generate key pair
+KEYPAIR_PATH='/etc/secureboot/keys'
+sudo openssl req -newkey rsa:4096 -nodes -keyout "$KEYPAIR_PATH/MOK.key" -new -x509 -sha256 -days 3650 -subj "/CN=My Arch Linux Machine Owner Key/" -out "$KEYPAIR_PATH/MOK.crt"
+sudo openssl x509 -outform DER -in "$KEYPAIR_PATH/MOK.crt" -out "$KEYPAIR_PATH/MOK.cer"
+
+```
+
+现在，我们来编写具有 GRUB EFI 生成和自动签名脚本。  
+
+```bash
+> sudo mkdir -pv /etc/secureboot/libs/
+> cat /etc/secureboot/libs/mok_sign.sh
+mok_sign() {
+    KEYPAIR_PATH='/etc/secureboot/keys'
+    # sign if not already done so.
+    if ! /usr/bin/sbverify --list "$1" 2>/dev/null | /usr/bin/grep -q "signature certificates"; then
+        printf 'Signing %s...\n' "$1"
+        sudo sbsign --key "$KEYPAIR_PATH/MOK.key" --cert "$KEYPAIR_PATH/MOK.crt" --output "$1" "$1"
+    else
+        printf 'Skip sign: %s\n' "$1"
+    fi
+}
+
+```
+
+然后在/etc/secureboot 这个文件夹下，新建 update-sb-grub-efi.sh 文件内容如下  
+
+```bash
+ #! /bin/bash
+ 
+set -u
+ 
+BASIC_MODULES="all_video boot btrfs cat chain configfile echo efifwsetup efinet ext2 fat
+ font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus iso9660 jpeg 
+ keystatus loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd
+ normal ntfs part_apple part_msdos part_gpt password_pbkdf2 png probe read reboot regexp
+ search search_fs_uuid search_fs_file search_label sleep smbios squash4 test true video videoinfo
+ xfs zfs zstd zfscrypt zfsinfo cpuid play tpm usb tar"
+ 
+GRUB_MODULES="$BASIC_MODULES cryptodisk crypto gcry_arcfour gcry_blowfish gcry_camellia
+ gcry_cast5 gcry_crc gcry_des gcry_dsa gcry_idea gcry_md4 gcry_md5 gcry_rfc2268 gcry_rijndael
+ gcry_rmd160 gcry_rsa gcry_seed gcry_serpent gcry_sha1 gcry_sha256 gcry_sha512 gcry_tiger 
+ gcry_twofish gcry_whirlpool luks lvm mdraid09 mdraid1x raid5rec raid6rec"
+ 
+SCRIPT_PATH="$(dirname "$(realpath $0)")"
+ 
+sudo grub-mkimage -c "$SCRIPT_PATH/grub-sb-stub/grub-pre.cfg" \
+    -o /boot/efi/EFI/arch/grubx64.efi -O x86_64-efi \
+    --sbat "$SCRIPT_PATH/grub-sbat.csv" \
+    -m "$SCRIPT_PATH/grub-sb-stub/memdisk.tar" \
+    $GRUB_MODULES
+ 
+source "$(dirname "$0")/libs/mok_sign.sh"
+ 
+mok_sign /boot/EFI/ARCH/grubx64.efi
+
+#这里的实际路径要检查一下自己的系统的EFI分区挂载的的具体路径
+
+```
+
+复制 /usr/share/grub/sbat.csv 到 /etc/secureboot/grub-sbat.csv，并可对文件做部分修改，以避免出现 SBAT 问题。不过其实也没啥好改的  
+
+真想改的话，就把倒数两行的 grub,4 和 grub.arch,4 中的 4 改成 5  
+
+```bash
+❯ cat /etc/secureboot/grub-sbat.csv        
+sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
+grub,4,Free Software Foundation,grub,2:2.14rc1-2,https//www.gnu.org/software/grub/
+grub.arch,4,Arch Linux,grub,2:2.14rc1-2,https://archlinux.org/packages/core/x86_64/grub/
+
+```
+
+反正我是改成 5 了  
+
+### 2.GRUB MemDisk 和预加载脚本
+
+新建文件夹 /etc/secureboot/grub-sb-stub/memdisk，然后在里面新建 fonts 文件夹。将你需要的字体的 PF2 文 件（比如 /usr/share/grub/unicode.pf2）复制到 fonts 文件夹中。  
+
+```bash
+sudo mkdir -pv /etc/secureboot/grub-sb-stub/memdisk/fonts
+sudo cp /usr/share/grub/unicode.pf2 /etc/secureboot/grub-sb-stub/memdisk/fonts/
+
+```
+
+随后修改当前路径到 /etc/secureboot/grub-sb-stub，执行 tar -cf memdisk.tar -C memdisk .。该命令会创建一个 memdisk，包含我们的字体文件数据，并给前面我们创建的签名脚本使用。  
+
+```bash
+cd /etc/secureboot/grub-sb-stub
+tar -cf memdisk.tar -C memdisk .
+
+```
+
+创建文件 /etc/secureboot/grub-sb-stub/grub-pre.cfg，根据前面的脚本的配置的设置，这个 GRUB 脚本文件将在 GRUB 启动时立刻执行。  
+
+```bash
+insmod part_msdos
+insmod part_gpt
+insmod font
+insmod fat
+ 
+loadfont /fonts/unicode.pf2
+ 
+search.fs_uuid 1B9C-667B root hd0,gpt1
+set prefix=($root)/grub
+configfile grub.cfg
+
+```
+
+上面的配置首先加载相应的模块，读取 memdisk 中的字体数据（如果不考虑复杂的 OpenGPG 签名加载方式，这是目前安全启动下 GRUB 读取字体的最好办法），之后通过 UUID 搜索包含 GRUB 配置文件的分区，并立刻读取其中的 grub.cfg 内容。因此，你必须将 search.fs_uuid 中的硬盘 UUID 换成包含 GRUB 配置文件的分区的真实 UUID。  
+
+参考一下我的磁盘信息，  
+`search.fs_uuid 1B9C-667B root hd0,gpt1`  
+
+我选择这样填写，uuid 是我的 efi 分区，注意这里的 root 并不是指/分区，而是指 boot 分区，gpt1 则是因为 efi 分区的索引为 1  
+
+![b3ade282afba90d071c64eae7e0094b2_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/b3ade282afba90d071c64eae7e0094b2_MD5.png)  
+
+
+
+如果之后希望读取更多字体，只需要将相应的 PF2 文件复制到上面创建的 memdisk 中，并在 grub-pre.cfg 中使用 loadfont 命令加载，并重新生成 GRUB EFI 文件，即可正常显示对应字体。  
+
+完成上述操作之后，回到 /etc/secureboot 文件夹，执行 update-sb-grub-efi.sh。不出意外的话你会看到下面两行输出，即代表没有问题：  
+
+```bash
+> sudo ./update-sb-grub-efi.sh
+Signing /boot/EFI/ARCH/grubx64.efi...
+Signing Unsigned original image
+
+```
+
+### 3. 内核签名
+
+新建 /etc/initcpio/post/kernel-sbsign，内容如下，并同时使用 chmod +x 给予可执行权限。  
+
+```bash
+
+#!/usr/bin/env bash
+ 
+kernel="$1"
+[[ -n "$kernel" ]] || exit 0
+ 
+
+# use already installed kernel if it exists
+[[ ! -f "$KERNELDESTINATION" ]] || kernel="$KERNELDESTINATION"
+ 
+keypairs=(/etc/secureboot/keys/MOK.key /etc/secureboot/keys/MOK.crt)
+ 
+for (( i=0; i<${#keypairs[@]}; i+=2 )); do
+    key="${keypairs[$i]}" cert="${keypairs[(( i + 1 ))]}"
+    if ! sbverify --cert "$cert" "$kernel" &>/dev/null; then
+        sbsign --key "$key" --cert "$cert" --output "$kernel" "$kernel"
+    fi
+done
+
+```
+
+之后，立刻使用 pacman 重新安装所有已经安装的内核，不仅可以给内核打上安全启动签名，还可以确认脚本的正确性。如果在重新安装内核时，确认有下面的输出，即算配置正确。  
+
+```bash
+==> Initcpio image generation successful
+==> Running post hooks
+  -> Running post hook: [kernel-sbsign]
+Signing Unsigned original image
+==> Post processing done
+
+```
+
+### 4.准备重启
+
+在EFI 分区下，放入之前创建的签名密钥的 cer 文件。我将其放入到/boot/EFI/ARCH/keys/MOK.cer  
+
+同时复制 Shim 相关的已签名 EFI，并添加相关的引导项  
+
+```bash
+
+# 复制cer文件
+sudo mkdir /boot/EFI/ARCH/keys
+sudo cp /etc/secureboot/keys/MOK.cer /boot/EFI/ARCH/keys
+ 
+
+# 或使用mokutil进行签名导入
+mokutil --import /etc/secureboot/keys/MOK.cer
+ 
+
+# 复制mmx64.efi和shimx64.efi
+sudo cp /usr/share/shim-signed/mmx64.efi /boot/EFI/ARCH/
+sudo cp /usr/share/shim-signed/shimx64.efi //boot/EFI/ARCH/
+ 
+
+# 添加Shim引导选项
+
+# /dev/nvme0n1记得改为你的EFI分区所在硬盘对应的block文件
+
+# --part后面的1记得改成EFI分区所在分区的位置(以1开始)
+sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-shim" --loader '\EFI\ARCH\shimx64.efi'
+
+```
+
+一切完成之后，重启，进入 UEFI 配置选项，打开安全启动，并经由 arch-shim 启动项启动 GRUB。  
+
+在这个界面，找到并选中我们复制的 MOK.cer，并导入到 Machine Owner Key 列表中，重新启动，配置即可完成。  
+
+![3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png)  
+
+### 5. 自动更新 GRUB 的 EFI 文件和配置数据
+
+首先，准备一下 update-grub 脚本。可以通过 AUR 包的形式安装（包名为 update-grub），也可以在 /usr/local/bin 下新建一个。文件的内容可以参考[这里](https://aur.archlinux.org/cgit/aur.git/tree/update-grub?h=update-grub)  
+`yay -S update-grub`  
+
+在 /etc/pacman.d/hooks 文件夹下（没有则新建），新建两个文件（pacman hooks）。  
+/etc/pacman.d/hooks/1-update-grub-efi.hook，用于实时更新 GRUB EFI 文件  
+
+```bash
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Type=Package
+Target=grub
+ 
+[Action]
+Description=Update GRUB UEFI binaries
+When=PostTransaction
+NeedsTargets
+Exec=/bin/sh -c '/etc/secureboot/update-sb-grub-efi.sh'
+
+```
+
+/etc/pacman.d/hooks/999-update-grub-cfg.hook，用于在适时的时候重新生成 /boot/grub/grub.cfg  
+
+```bash
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Type=Package
+Target=grub
+Target=linux
+Target=linux-lts
+Target=linux-zen
+Target=linux-hardened
+ 
+[Action]
+Description=Update GRUB configuration file
+When=PostTransaction
+NeedsTargets
+Exec=/bin/sh -c '/usr/bin/update-grub'
+Depends=grub
+
+```
+
+重新安装 GRUB，看看是否有执行 pacman hook，如果成功执行则配置成功。  
+注意看 1/5 和 3/5,钩子执行成功了  
+![e958a4e711bd12a528ab5a5ce2093e19_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e958a4e711bd12a528ab5a5ce2093e19_MD5.png)  
