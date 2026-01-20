@@ -78,7 +78,9 @@ no_all_squash：这是一个与 NFS 权限映射相关的选项。默认情况�
 
 
 服务端和客户端都安装nfs服务yum -y install nfs-utils rpcbind，修改服务端的nfs配置文件/etc/exports,内容示例:
+
 ```
+
 [root@server ~]# cat /etc/exports
 /hello 192.168.120.0/24(rw,sync,no_all_squash)
 
@@ -90,6 +92,7 @@ no_all_squash：这是一个与 NFS 权限映射相关的选项。默认情况�
 
 
 ```
+
 [root@client hello]# showmount -e server 
 Export list for server:
 /hello 192.168.120.0/24
@@ -97,19 +100,25 @@ Export list for server:
 ```
 
 接下来修改客户端的autofs配置文件
+
 ```
+
 [root@client hello]# cat /etc/auto.master | grep "^\/m"
 /misc	/etc/auto.misc
 /mountdir /etc/remote.misc
+
 ```
 
 
 这里指定了客户端本地挂载目录是/mountdir,作为远程目录的父目录，映射文件是remote.misc(注:这里的命名没有任何的后缀要求，只要和auto.master中指定的映射文件名保持一致即可)
 
 然后修改映射文件
+
 ```
+
 [root@client hello]# cat /etc/remote.misc 
 hello -rw server:/hello
+
 ```
 
 格式是[子目录名] [挂载选项] [服务器:共享路径]
@@ -119,11 +128,15 @@ hello -rw server:/hello
 然后重启autofs服务
 
 接下来需要访问挂载目录
+
 ```
+
 [root@client mountdir]# cd /mountdir/hello
 [root@client hello]# ls
 nihaoa
+
 ```
+
 服务端的hello目录会变成mountdir的子目录，使用cd访问/mountdir/hello触发autofs的自动挂载，注意，在访问之前，mountdir下面是空的，hello是tab不出来的，只有直接cd访问这个目前不存在的目录，才会触发autofs的自动挂载
 
 至此成功实现了nfs和autofs的组合使用。
@@ -140,14 +153,18 @@ nihaoa
 
 在反向代理服务器上配置
 Rockylinux9.6
+
 ```
+
 主机名: nginx
 ip: 192.168.120.153
+
 ```
 
 
 
 检查 nginx 默认模块
+
 ```bash
 [root@nginx ~]# nginx -V
 nginx version: nginx/1.28.0
@@ -155,18 +172,22 @@ built by gcc 11.5.0 20240719 (Red Hat 11.5.0-5) (GCC)
 built with OpenSSL 3.2.2 4 Jun 2024
 TLS SNI support enabled
 configure arguments: --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-http_v3_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --with-cc-opt='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -march=x86-64-v2 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie'
+
 ```
 
 
 
 1.安装依赖
+
 ```bash
 [root@nginx ~]# yum install -y gcc glibc gcc-c++ pcre-devel openssl-devel patch redhat-rpm-config.noarch zlib-devel
+
 ```
 
 
 
 2.下载和已经安装的 Nginx 版本相同的源码
+
 ```bash
 [root@nginx ~]# nginx -v
 nginx version: nginx/1.28.0
@@ -183,6 +204,7 @@ nginx-1.28.0.tar.gz                       100%[=================================
 2025-09-04 14:47:59 (82.7 MB/s) - 已保存 “nginx-1.28.0.tar.gz” [1280111/1280111])
 
 [root@nginx ~]# 
+
 ```
 
 
@@ -190,9 +212,11 @@ nginx-1.28.0.tar.gz                       100%[=================================
 下载第三方模块
 是 github 上的[https://github.com/yaoweibin/nginx_upstream_check_module](https://github.com/yaoweibin/nginx_upstream_check_module)
 下载到 windows 后传到虚拟机里
+
 ```bash
 [root@nginx code]# tar -xf ../nginx-1.28.0.tar.gz
 [root@nginx code]# unzip ../nginx_upstream_check_module-master.zip
+
 #解压下载的源码包和模块
 [root@nginx code]# ll
 总用量 8
@@ -229,18 +253,20 @@ Hunk #8 succeeded at 770 (offset 182 lines).
 patching file src/http/ngx_http_upstream_round_robin.h
 Hunk #1 succeeded at 55 (offset 17 lines).
 [root@nginx nginx-1.28.0]# ./configure --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-http_v3_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --add-module=/root/code/nginx_upstream_check_module-master --with-cc-opt='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -march=x86-64-v2 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie'
+
 #将模块的父目录的绝对路径添加到--prefix中
+
 ```
 
 添加划线的那一条
 
-![[_resources/linux笔记/f6b299e7413c5f1125a76cf5259a0232_MD5.png]]
+![f6b299e7413c5f1125a76cf5259a0232_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/f6b299e7413c5f1125a76cf5259a0232_MD5.png)
 
 
 
 整个--prefix 是从 nginx -V 的回显结果里粘贴的
 
-![[_resources/linux笔记/d68e85fa487f4dac1ed7501995761af9_MD5.png]]
+![d68e85fa487f4dac1ed7501995761af9_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/d68e85fa487f4dac1ed7501995761af9_MD5.png)
 
 把 --add-module 模块所在目录绝对路径添加进里面就好
 
@@ -257,7 +283,7 @@ Hunk #1 succeeded at 55 (offset 17 lines).
 
 5.查看模块安装情况
 
-![[_resources/linux笔记/3005ff1d65778aee103839056b1b1171_MD5.png]]
+![3005ff1d65778aee103839056b1b1171_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3005ff1d65778aee103839056b1b1171_MD5.png)
 
 可以看到模块成功安装了
 
@@ -272,8 +298,10 @@ Hunk #1 succeeded at 55 (offset 17 lines).
 1.被 systemctl 所管理
 
 ```
+
 systemctl start nginx
 systemctl stop nginx
+
 ```
 
 
@@ -300,6 +328,7 @@ tcp   LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",
 tcp   LISTEN 0      128          0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=880,fd=3))         
 tcp   LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",pid=880,fd=4))         
 [root@rocky ~]# /usr/sbin/nginx -s reload
+
 ```
 
 两个管理方式不可混合使用,可执行文件 nginx 的路径默认被加入环境变量，绝对路径可加可不加
@@ -315,6 +344,7 @@ tcp   LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",
 
 ```bash
 [root@rocky nginx]# cat nginx.conf 
+
 # 核心区块
 user  nginx;           # 启动nginx的虚拟用户，默认在安装nginx后已经存在
 worker_processes  auto;# 启动子进程的数量，auto是以cpu的内核数为准
@@ -347,9 +377,11 @@ http {
     #gzip  on;# 是否开启压缩
 
     include /etc/nginx/conf.d/*.conf;# 包含了conf.d目录下的所有的.conf  将*.conf的内容移动到了当前的文件中
+
 # 三个区块是同级关系，http区块下面有server区块，server区块下面有location区块，在区块中配置模块时，作用效果也遵循包含关系
 
 #下面的业务区块一般写在/etc/nginx/conf.d/里,虽然位置不同，但由于nginx.conf使用了include，所以相当于还是写
+
 #在nginx.conf的server区块中
 server {
         listen 80 #不加listen默认监听80端口,可以指定某个具体ip的端口
@@ -362,9 +394,13 @@ server {
 }
   # 一般用户通过浏览器访问www.hello.com  默认是www.hello.com/ 浏览器可以省略尾巴的/ ，从/开始，进入code目录查找
 }
+
 # 写完配置文件后可以使用nginx -t 检查语法
+
 # 测试访问时还需要创建对应目录和index.html文件
+
 # www.hello.com的公网域名肯定被人抢注了,可以利用本地解析优先DNS解析的特性，在hosts文件里写上www.hello.com的解析
+
 # 如果访问网址错误，说明浏览器有这个网址的缓存，清一下本地缓存再访问
 
 ```
@@ -374,7 +410,9 @@ server {
 
 
 ## nginx 配置多个业务
+
 ### 1.使用多 IP 地址的方式
+
 ```bash
 [root@rocky code]# ip add add 192.168.120.150/24 dev ens160
 [root@rocky code]# ip a
@@ -393,6 +431,7 @@ server {
        valid_lft forever preferred_lft forever
     inet6 fe80::20c:29ff:fec0:2310/64 scope link noprefixroute 
        valid_lft forever preferred_lft forever
+
 # 然后修改业务区段的listen具体端口
 [root@rocky jump]# cat  /etc/nginx/conf.d/game.conf 
 server {
@@ -413,6 +452,7 @@ server {
 就是 listen 只加端口，省略了
 
 ### 3.使用多域名的方式
+
 ```nginx
 [root@rocky jump]# cat /etc/nginx/conf.d/*.conf
 server {
@@ -436,6 +476,7 @@ server {
 可以把两条写在一个conf文件中，查找顺序是从上到下，都查不到的话返回第一
 个的状态码
 可能会用到hosts解析，一条ip对应多个域名即可
+
 ```
 
 
@@ -443,6 +484,7 @@ server {
 
 
 ## nginx 常用模块
+
 ### 目录索引模块
 该模块默认是不开启的,在配置文件中写入指令
 `autoindex on;`
@@ -464,9 +506,12 @@ server {
 `[root@rocky ~]# htpasswd -b -c /etc/nginx/auth_pass test 000000`
 
 3.在 location 区块中配置
+
 ```
+
 auth_basic "abc";
 auth_basic_user_file auth_pass;
+
 ```
 
 
@@ -476,15 +521,21 @@ auth_basic_user_file auth_pass;
 在 location 区块里配置
 
 限制方式: 先允许后拒绝
+
 ```
+
 allow 192.168.120.129;
 deny all; 
+
 ```
 
 先拒绝后允许 
+
 ```
+
 deny 10.0.0.1,10.0.0.253;
 allow all;  
+
 ```
 
 注：deny 允许多条 ip 写在一行，用 , 分隔，allow 放通多个 ip 只能写多行 allow
@@ -499,16 +550,19 @@ stub_status
 配置:
 
 ```
+
 location /nginx_status {       
 stub_status;
 }  
+
 ```
 
 浏览器访问 www.ck.com/nginx_status
 
-![[_resources/linux笔记/7f3cf656e7c39d9fa76a6233699144ca_MD5.png]]
+![7f3cf656e7c39d9fa76a6233699144ca_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/7f3cf656e7c39d9fa76a6233699144ca_MD5.png)
 
 ```
+
 Active connections # 当前活动的连接数
 accepts # 已接收的总 TCP 连接数量
 handled # 已处理的 TCP 连接数量
@@ -516,6 +570,7 @@ requests # 当前 http 请求数
 Reading # 当前读取请求头数量
 Writing # 当前响应的请求头数量
 Waiting # 等待的请求数（处于 keepalive 的 tcp 连接），开启了 keepalive
+
 ```
 
 
@@ -536,6 +591,7 @@ http{   #http层，设置
               limit_conn conn_zone 1; #连接限制，限制同时最高1个连接
              }
     }
+
 ```
 
 
@@ -558,6 +614,7 @@ http {
         index index.html;
     }
  }
+
 ```
 
 
@@ -583,17 +640,18 @@ server {
         stub_status;
         }
 }
+
 ```
 
 
 重定向前#后面的 test 是因为之前的 location 写的 /test
-![[_resources/linux笔记/9f843d783098a79efa5bd6791f926f7a_MD5.png]]
+![9f843d783098a79efa5bd6791f926f7a_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/9f843d783098a79efa5bd6791f926f7a_MD5.png)
 
 
 
 重定向后
 
-![[_resources/linux笔记/cd30c2f44fed90ea99bc116c38efa2d4_MD5.png]]
+![cd30c2f44fed90ea99bc116c38efa2d4_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/cd30c2f44fed90ea99bc116c38efa2d4_MD5.png)
 
 
 
@@ -672,6 +730,7 @@ server {
 }
 这里访问www.bird.com/download/时，实际上在访问/packa
 ge/downlad/里的内容
+
 ```
 
 如何理解 location 和 root 之间的关系，可以这样理解:
@@ -705,11 +764,17 @@ root 可以写在 location 之外来定义全局根目录，但还是 location �
 
 
 ```nginx
+
 #匹配优先级从上到下
+
 #1.等号          =
+
 #2.以开头        ^~
+
 #3.区分大小写匹配 ~
+
 #4.不区分大小写   ~*
+
 #5.默认匹配       /
 server {
   listen 80;
@@ -731,6 +796,7 @@ server {
     return 200 "configuration E\n";
   }
 }
+
 ```
 
 
@@ -769,7 +835,9 @@ listen.acl_users = www
 总用量 4
 -rw-r--r--  1 root root 4  9月  1 15:27 php-fpm.pid
 srw-rw----+ 1 root root 0  9月  1 15:27 www.sock
+
 #可以看到这里的套接字文件的所以者与组都没变，但这并不影响通信
+
 ```
 
 如果想要修改套接字的所有者与所属组为 www 的话，需要修改
@@ -784,39 +852,55 @@ listen.group = www
 
 
 ## LNMP 架构拆分
+
 ### 一、数据库迁移
+
 ```
+
 db01(Rocky9.6)    192.168.120.150
 web01(Rocky9.6)   192.168.120.129
+
 ```
 
 基础软件源配置省略
 
 1.db01 部署 mariadb 服务
+
 ```
+
 [root@db01 ~]# yum -y install mariadb-server
 [root@db01 ~]# systemctl enable --now mariadb
+
 ```
 
 
 2.web01 备份数据库并拷贝到 db01
+
 ```
+
 [root@web01 ~]# mysqldump -uroot -p000000 -A > all.sql
 [root@web01 ~]# scp all.sql 192.168.120.150:/root/
+
 ```
 
 
 3.db01 导入数据库文件
+
 ```
+
 [root@db01 ~]# mysql -uroot < all.sql
 [root@db01 ~]# systemctl restart mariadb
+
 ```
 
 
 4.设置数据库远程用户
+
 ```
+
 [root@db01 ~]# mysqladmin -uroot password '000000'
 [root@db01 ~]# mysql -uroot
+
 ```
 
 进入数据库后执行
@@ -840,17 +924,21 @@ Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
 Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 MariaDB [(none)]> 
+
 ```
 
 
 
 6.修改 php 连接数据库配置文件
+
 ```
+
 [root@web01 ~]# grep '^define' /alice/wordpress/wp-config.php 
 define( 'DB_NAME', 'wordpress' );
 define( 'DB_USER', 'caster' );
 define( 'DB_PASSWORD', '000000' );
 define( 'DB_HOST', '192.168.120.150' );
+
 ```
 
 
@@ -858,10 +946,13 @@ define( 'DB_HOST', '192.168.120.150' );
 
 
 ### 二、扩展 web 服务
+
 ```
+
 web01 192.168.120.129
 web02 192.168.120.151
 db01 192.168.120.150
+
 ```
 
 
@@ -875,9 +966,12 @@ php 的和上面的一样的源配置。使用 remi 源
 
 
 2.创建虚拟用户 www
+
 ```
+
 [root@web02 ~]# groupadd -g666 www
 [root@web02 ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
+
 ```
 
 
@@ -888,9 +982,12 @@ php 的和上面的一样的源配置。使用 remi 源
 
 
 4.web02 服务器部署 php
+
 ```
+
 [root@web02 ~]# dnf -y install php php-fpm
 [root@web02 ~]# dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
+
 ```
 
 
@@ -904,22 +1001,28 @@ php 的和上面的一样的源配置。使用 remi 源
 
 
 7.web01 将整个代码目录拷贝到 web02
+
 ```
+
 [root@web01 ~]# tar czf code.tar.gz /alice/
 [root@web01 ~]# scp code.tar.gz 192.168.120.151:/root/
 [root@web02 ~]# tar zxf code.tar.gz -C /
+
 ```
 
 
 
 8.启动 web02 的 php，nginx，禁用 web01 相关服务
+
 ```
+
 [root@web02 ~]# systemctl enable --now nginx
 [root@web02 ~]# systemctl enable --now php-fpm.service 
 [root@web01 ~]# systemctl stop nginx.service 
 [root@web01 ~]# systemctl disable nginx.service 
 [root@web01 ~]# systemctl stop php-fpm.service 
 [root@web01 ~]# systemctl disable php-fpm.service 
+
 ```
 
 
@@ -931,10 +1034,13 @@ php 的和上面的一样的源配置。使用 remi 源
 
 
 ### 三、配置 NFS 服务
+
 ```
+
 web01 192.168.120.129   nfs客户端
 web02 192.168.120.151   nfs客户端
 nfs 192.168.120.152     nfs 服务端
+
 ```
 
 
@@ -948,19 +1054,25 @@ nfs 192.168.120.152     nfs 服务端
 3.配置 nfs 服务
 
 创建相关用户与组
+
 ```
+
 [root@nfs ~]# groupadd -g666 www
 [root@nfs ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
+
 ```
 
 
 创建本地远程目录/alice/wp 并修改所有者与所属组
+
 ```
+
 [root@nfs ~]# mkdir -pv /alice/wp
 [root@nfs ~]# chown -R www:www /alice/
 [root@nfs ~]# cat /etc/exports
 /alice/wp 192.168.120.0/24(rw,sync,all_squash,anonuid=666,anongid=666)
 [root@nfs ~]# systemctl enable --now nfs-server.service
+
 ```
 
 检查配置是否生效
@@ -968,6 +1080,7 @@ nfs 192.168.120.152     nfs 服务端
 ```bash
 [root@nfs ~]# cat /var/lib/nfs/etab 
 /alice/wp	192.168.120.0/24(rw,sync,wdelay,hide,nocrossmnt,secure,root_squash,all_squash,no_subtree_check,secure_locks,acl,no_pnfs,anonuid=666,anongid=666,sec=sys,rw,secure,root_squash,all_squash) 
+
 ```
 
 
@@ -979,6 +1092,7 @@ nfs 192.168.120.152     nfs 服务端
 ```bash
 [root@web01 ~]# yum -y install nfs-utils
 [root@web02 ~]# yum -y install nfs-utils
+
 ```
 
 
@@ -990,6 +1104,7 @@ wordpress 上传图片的目录是 wordpress/wp-content/uploads/
 ```bash
 [root@web01 ~]# scp -r /alice/wordpress/wp-content/uploads/2025 192.168.120.152:/alice/wp/
 [root@web01 ~]# scp -r /alice/wordpress/wp-content/uploads/2025/09/* 192.168.120.152:/alice/wp/2025/09/
+
 ```
 
 
@@ -1012,6 +1127,7 @@ tmpfs                        75004      52    74952    1% /run/user/42
 tmpfs                        75004      36    74968    1% /run/user/0
 192.168.120.152:/alice/wp 49201152 6023296 43177856   13% /alice/wordpress/wp-content/uploads
 [root@web01 ~]# 
+
 ```
 
 
@@ -1029,6 +1145,7 @@ tmpfs                        75004      52    74952    1% /run/user/42
 tmpfs                        75004      36    74968    1% /run/user/0
 192.168.120.152:/alice/wp 49201152 6023296 43177856   13% /alice/wordpress/wp-content/uploads
 [root@web02 ~]# 
+
 ```
 
 
@@ -1037,13 +1154,18 @@ nfs 挂载可写进 fstab 里
 
 ```bash
 192.168.120.152:/alice/wp /alice/wordpress/wp-content/uploads/  nfs   defaults      0 0
+
 ```
 
 网站的图片上传文件大小受限制，可以修改配置文件调整大小限制
+
 ```
+
 client_body_buffer_size 16k;
 client_max_body_size 20m;
+
 ```
+
 写在 http，server，location 区块都可以，写得越大，网站访问速度就越慢
 
 同时还要修改 php 配置文件
@@ -1054,6 +1176,7 @@ client_max_body_size 20m;
 post_max_size = 20M
 upload_max_filesize = 20M
 max_file_uploads = 20
+
 ```
 
 nginx，php-fpm 重启后生效
@@ -1062,7 +1185,7 @@ nginx，php-fpm 重启后生效
 
 修改 hosts 映射为 web01，浏览器访问
 
-![[_resources/linux笔记/be97a9f8ca9e0b1767a6726f0e9d1c6c_MD5.png]]
+![be97a9f8ca9e0b1767a6726f0e9d1c6c_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/be97a9f8ca9e0b1767a6726f0e9d1c6c_MD5.png)
 
 该图片是 web02 上传的，web01 可正常访问
 
@@ -1080,9 +1203,12 @@ nginx，php-fpm 重启后生效
 
 ## Ngnix 反向代理
 两台机器
+
 ```
+
 rocky_nginx 192.168.120.153
 web01 192.168.120.129
+
 ```
 
 
@@ -1109,6 +1235,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 hosts映射写在win11上面了
 
  
+
 ```
 
 
@@ -1137,17 +1264,18 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# systemctl restart nginx
+
 ```
 
 win11 访问 www.static.com(域名映射的是 192.168.120.153)
 
-![[_resources/linux笔记/ad1f3a640f9a46059c6c6e512e5207df_MD5.png]]
+![ad1f3a640f9a46059c6c6e512e5207df_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/ad1f3a640f9a46059c6c6e512e5207df_MD5.png)
 
 返回的却是这个(这个是其他 server 服务)
 
 使用 WireShark 抓包分析得到下面两条
 
-![[_resources/linux笔记/4a8460ea803585486720dece4c97fee1_MD5.png]]
+![4a8460ea803585486720dece4c97fee1_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/4a8460ea803585486720dece4c97fee1_MD5.png)
 
 192.168.120.1 访问.153 时，注意蓝色标注条目
 
@@ -1155,7 +1283,7 @@ Host: www.static.com\r\n
 
 可以看到 host 头部域名正确
 
-![[_resources/linux笔记/fb68b5c4f4dc1a5d5b04f2bc61ee9c87_MD5.png]]
+![fb68b5c4f4dc1a5d5b04f2bc61ee9c87_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/fb68b5c4f4dc1a5d5b04f2bc61ee9c87_MD5.png)
 
 然而在 153（rocky_nginx） 请求 129（web01） 时，host 头部变成了
 Host: 192.168.120.129\r\n
@@ -1181,17 +1309,18 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# systemctl restart nginx
+
 ```
 
 再次访问
 
-![[_resources/linux笔记/ebcaf011778388591d7ab089a65df672_MD5.png]]
+![ebcaf011778388591d7ab089a65df672_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/ebcaf011778388591d7ab089a65df672_MD5.png)
 
 
 
 然后就涉及到一个问题，代理服务器访问 web01，web01 的 nginx 的 access 日志  保存的源 ip 是代理服务器的 ip 而不是客户端 ip，这没有意义
 
-![[_resources/linux笔记/d1782f9d352ebf91850f52160198b97a_MD5.png]]
+![d1782f9d352ebf91850f52160198b97a_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/d1782f9d352ebf91850f52160198b97a_MD5.png)
 
 
 
@@ -1215,20 +1344,23 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# systemctl restart nginx
 [root@nginx ~]# 
+
 ```
 
 浏览器再次访问然后查看 web01 的访问日志，可以看到新增一条客户端访问的 ip
 
-![[_resources/linux笔记/603a732955a5a5f3b6716d71d4691b7f_MD5.png]]
+![603a732955a5a5f3b6716d71d4691b7f_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/603a732955a5a5f3b6716d71d4691b7f_MD5.png)
 
 这里能够显示远程 ip 不仅仅是因为配置了这一条
 
 还是因为早在 nginx.conf 里就定义了 access 的变量内容（标红的那一条）
 
 ```
+
 log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
  '$status $body_bytes_sent "$http_referer" '
   '"$http_user_agent" "<font style="color:#DF2A3F;">$http_x_forwarded_for</font>"';
+
 ```
 
 
@@ -1260,6 +1392,7 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# systemctl restart nginx
+
 ```
 
 
@@ -1292,6 +1425,7 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# systemctl restart nginx
 [root@nginx ~]# 
+
 ```
 
 
@@ -1300,10 +1434,13 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 ## Nginx 负载均衡
 从上面继续，添加一台 LNMP 拆分架构里的 web02，web02 部署静态页面过程省略
+
 ```
+
 Rocky_nginx         192.168.120.153
 web01               192.168.120.129
 web02               192.168.120.151
+
 ```
 
 
@@ -1312,6 +1449,7 @@ web02               192.168.120.151
 
 ```bash
 [root@nginx ~]# cat /etc/nginx/conf.d/default.conf 
+
 #定义一个名为webs的地址池
 upstream webs {
       server 192.168.120.129;
@@ -1335,7 +1473,9 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 <h1>web01 is here!</h1>
 [root@nginx ~]# curl www.static.com
 <h1>web02 is here!</h1>
+
 #负载均衡配置成功
+
 ```
 
 
@@ -1357,6 +1497,7 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# 
+
 ```
 
 
@@ -1396,6 +1537,7 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# systemctl restart nginx
 [root@nginx ~]# 
+
 ```
 
 
@@ -1417,7 +1559,9 @@ upstream webs {
       server 192.168.120.129;
       server 192.168.120.151;
 }
+
 #轮流访问
+
 ```
 
 
@@ -1429,7 +1573,9 @@ upstream webs {
       server 192.168.120.129 weight=5;#访问5次129后访问一次151
       server 192.168.120.151;
 }
+
 #服务器资源性能不同时可以使用
+
 ```
 
 
@@ -1442,9 +1588,11 @@ upstream webs {
       server 192.168.120.129;
       server 192.168.120.151;
 }
+
 #第一次访问的是哪个节点，就会一直访问该节点
 缺点：导致负载均衡不均衡
 优点：自动实现会话保持
+
 ```
 
 
@@ -1468,7 +1616,7 @@ max_conns    限制最大的接收连接数
 
 
 ## 四层负载均衡配置
-![[_resources/linux笔记/bb593528d3e66df5021fad1d3ee4bf78_MD5.png]]
+![bb593528d3e66df5021fad1d3ee4bf78_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/bb593528d3e66df5021fad1d3ee4bf78_MD5.png)
 
 画了个整体架构草图，相比上面的架构添加了 LB02 和 LB，LB01（原名 nginx）
 
@@ -1481,6 +1629,7 @@ max_conns    限制最大的接收连接数
 ```bash
 [root@LB ~]# #scp 192.168.120.153:/etc/yum.repos.d/nginx.repo /etc/yum.repos.d/
 [root@LB ~]# yum -y install nginx
+
 ```
 
 
@@ -1489,6 +1638,7 @@ max_conns    限制最大的接收连接数
 
 ```bash
 [root@LB ~]# rm -rf /etc/nginx/conf.d/*
+
 ```
 
 
@@ -1498,6 +1648,7 @@ max_conns    限制最大的接收连接数
 ```bash
 [root@LB ~]# grep conf.c /etc/nginx/nginx.conf
 include /etc/nginx/conf.c/*.conf;
+
 ```
 
 
@@ -1522,6 +1673,7 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@LB conf.c]# systemctl restart nginx
+
 ```
 
 
@@ -1553,11 +1705,12 @@ Last login: Sat Sep  6 13:43:13 2025 from 192.168.120.1
     inet6 fe80::20c:29ff:fec0:2310/64 scope link noprefixroute 
        valid_lft forever preferred_lft forever
 [root@web01 ~]# 
+
 ```
 
 可以看到成功转发到了 web01 的 22 端口
 
-![[_resources/linux笔记/210fac57e84fe4f394f0dde91d337b59_MD5.png]]
+![210fac57e84fe4f394f0dde91d337b59_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/210fac57e84fe4f394f0dde91d337b59_MD5.png)
 
 抓包后可以看到 具体流程
 
@@ -1589,6 +1742,7 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@LB conf.c]# systemctl restart nginx
+
 ```
 
 
@@ -1615,6 +1769,7 @@ MariaDB [(none)]> show databases;
 | wordpress          |
 +--------------------+
 4 rows in set (0.034 sec)
+
 ```
 
 
@@ -1646,6 +1801,7 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@LB02 ~]# systemctl enable --now nginx
 Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /usr/lib/systemd/system/nginx.service.
+
 ```
 
 
@@ -1670,6 +1826,7 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@LB conf.c]# systemctl restart nginx
+
 ```
 
 
@@ -1678,7 +1835,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 访问 php.alice.com
 
-![[_resources/linux笔记/931b1a699d00f1ce51378f6ba7baaca5_MD5.png]]
+![931b1a699d00f1ce51378f6ba7baaca5_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/931b1a699d00f1ce51378f6ba7baaca5_MD5.png)
 
 配置成功
 
@@ -1689,17 +1846,20 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 以部署 phpmyadmin 业务为例，虚拟机统一使用 rocky9.6
 
 ```
+
 nginx   192.168.120.153
 
 web01   192.168.120.129
 
 web02   192.168.120.151
+
 ```
 
 
 
 
 1.配置 nginx
+
 ```bash
 [root@web01 admin]# cat /etc/nginx/conf.d/admin.conf 
 server {
@@ -1721,12 +1881,14 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@web01 admin]# systemctl restart nginx 
+
 ```
 
 
 
 2.配置代码目录，下载代码包
 从官网找到的代码包phpMyAdmin-5.2.2-all-languages.zip，用 xftp 传到/alice 目录下
+
 ```bash
 [root@web01 ~]# cd /alice/
 [root@web01 alice]# unzip phpMyAdmin-5.2.2-all-languages.zip
@@ -1744,16 +1906,20 @@ drwxr-xr-x  5 www  www  4096  9月  2 20:33 wordpress
 [root@web01 alice]# chown www:www /var/lib/php/session/
 [root@web01 alice]# systemctl restart nginx
 [root@web01 alice]# systemctl restart php-fpm.service 
+
 ```
 
 
 3.配置数据库信息
+
 ```bash
 [root@web01 alice]# cd admin/
 [root@web01 admin]# cp config.sample.inc.php config.inc.php #带 sample 的是示例文件，不会生效
 [root@web01 admin]# grep 192.168.120.150 config.inc.php 
 $cfg['Servers'][$i]['host'] = '192.168.120.150';
+
 ```
+
 win11 宿主机做好 hosts 映射 web01 的 IP 后访问 www.admin.com 测试
 
 
@@ -1769,6 +1935,7 @@ admin.conf                                                                      
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@web02 ~]# systemctl restart nginx
+
 ```
 
 
@@ -1841,6 +2008,7 @@ proxy_buffers 4 128k;
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@nginx ~]# systemctl restart nginx
+
 ```
 
 
@@ -1849,7 +2017,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 192.168.120.153 www.admin.com
 
-![[_resources/linux笔记/6d036eaa98a62b008ed93df3d0523d52_MD5.png]]
+![6d036eaa98a62b008ed93df3d0523d52_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/6d036eaa98a62b008ed93df3d0523d52_MD5.png)
 
 这里无法登录是因为没做会话保持，涉及到 cookie 和 session，之前有详解
 
@@ -1869,6 +2037,7 @@ bind 127.0.0.1 192.168.120.150
 [root@db01 ~]# netstat -tunlp | grep redis
 tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      2794/redis-server 1 
 tcp        0      0 192.168.120.150:6379    0.0.0.0:*               LISTEN      2794/redis-server 1 
+
 ```
 
 
@@ -1884,6 +2053,7 @@ tcp        0      0 192.168.120.150:6379    0.0.0.0:*               LISTEN      
 [root@web01 admin]# egrep -n "192.168.120.150|redis" /etc/php.ini
 1230:session.save_handler = redis
 1263:session.save_path = "tcp://192.168.120.150:6379"
+
 ```
 
 
@@ -1896,6 +2066,7 @@ tcp        0      0 192.168.120.150:6379    0.0.0.0:*               LISTEN      
 ;php_value[session.save_path]    = /var/lib/php/session
 php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
 ;php_value[opcache.file_cache]  = /var/lib/php/opcache
+
 ```
 
 
@@ -1916,13 +2087,13 @@ php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
 
 密码 000000
 
-![[_resources/linux笔记/33527651eac752f9e3669794a7db38f5_MD5.png]]
+![33527651eac752f9e3669794a7db38f5_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/33527651eac752f9e3669794a7db38f5_MD5.png)
 
 刷新两次可以看到每次的登录 ip 都不同
 
-![[_resources/linux笔记/0a7c2ae40046efcd8b5088d8ada62cb4_MD5.png]]
+![0a7c2ae40046efcd8b5088d8ada62cb4_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/0a7c2ae40046efcd8b5088d8ada62cb4_MD5.png)
 
-![[_resources/linux笔记/a1fac794434f540b090c08edb9452f4b_MD5.png]]
+![a1fac794434f540b090c08edb9452f4b_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/a1fac794434f540b090c08edb9452f4b_MD5.png)
 
 
 
@@ -1933,7 +2104,9 @@ php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
 127.0.0.1:6379> keys *
 1) "PHPREDIS_SESSION:pp4fc5b21j46269632aqdevvjg"
 127.0.0.1:6379> 
+
 ```
+
 至此就完成了 session 会话保持，session 存储在了 redis 里
 
 
@@ -1948,10 +2121,12 @@ web02   192.168.120.151
 
 1.web02 部署 tomecat
 下载 tomcat 包
+
 ```bash
 [root@web02 ~]# wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.45/bin/apache-tomcat-10.1.45.tar.gz
 [root@web02 ~]# tar xf apache-tomcat-10.1.45.tar.gz -C /usr/local/
 [root@web02 ~]# ln -s /usr/local/apache-tomcat-10.1.45/ /usr/local/tomcat
+
 ```
 
 
@@ -1969,6 +2144,7 @@ web02   192.168.120.151
 2.nginx实现代理tomcat进行图片拆分
 
 1)web02配置反向代理到自身的8080端口
+
 ```bash
 [root@web02 conf.d]#cat proxy8080.conf
 upstream tom { 
@@ -1985,6 +2161,7 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@web02 conf.d]#systemctl restart nginx  
+
 ```
 
  2)hosts解析测试代理是否成功  
@@ -2013,18 +2190,22 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@web02 conf.d]#systemctl restart nginx
+
 ```
 
 将tomcat所有的图片复制一份到/alice/images
+
 ```bash
 [root@web02 ~]#cd /usr/local/tomcat/webapps/ROOT
 [root@web02 ROOT]#cp *.svg *.png /alice/images/
+
 ```
 
  修改目录的属主属组为nginx的启动用户www
 
 ```bash
 [root@web02 webapps]# chown -R www.www /alice/images/  
+
 ```
 
  测试访问tomcat.rocky.com  
@@ -2072,6 +2253,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@web01 ~]# mkdir -pv /alice/images
 [root@web01 ~]# ls /alice/images/
 hx.png
+
 ```
 
 
@@ -2096,6 +2278,7 @@ hx.png
 [root@web02 ROOT]# #如果访问不到页面可以重启tomcat
 [root@web02 ROOT]# #/usr/local/tomcat/bin/shutdown.sh 
 [root@web02 ROOT]# #/usr/local/tomcat/bin/startup.sh 
+
 ```
 
 
@@ -2156,6 +2339,7 @@ $(document).ready(function(){
         </body>
 </html>
 [root@LB01 ~]# 
+
 ```
 
 
@@ -2166,7 +2350,7 @@ $(document).ready(function(){
 
 浏览器访问
 
-![[_resources/linux笔记/2a3896318ad44a046a9bf09e86f79873_MD5.png]]
+![2a3896318ad44a046a9bf09e86f79873_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/2a3896318ad44a046a9bf09e86f79873_MD5.png)
 
 
 
@@ -2180,15 +2364,17 @@ Using CATALINA_TMPDIR: /usr/local/tomcat/temp
 Using JRE_HOME:        /usr
 Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
 Using CATALINA_OPTS:   
+
 ```
 
 访问网站
 
-![[_resources/linux笔记/d05a8dc4334bac00e8bbc13df88f3b90_MD5.png]]
+![d05a8dc4334bac00e8bbc13df88f3b90_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/d05a8dc4334bac00e8bbc13df88f3b90_MD5.png)
 
 
 
 模拟静态业务挂了，动态没挂
+
 ```bash
 [root@web02 ROOT]# /usr/local/tomcat/bin/startup.sh
 Using CATALINA_BASE:   /usr/local/tomcat
@@ -2198,12 +2384,15 @@ Using JRE_HOME:        /usr
 Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
 Using CATALINA_OPTS:   
 Tomcat started.
+
 ```
 
 ```plain
 [root@web01 ~]# mv /alice/images/hx.png /alice/images/rock.png
+
 ```
-![[_resources/linux笔记/ea688788db969be1a905c59530fcb0b9_MD5.png]]
+
+![ea688788db969be1a905c59530fcb0b9_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/ea688788db969be1a905c59530fcb0b9_MD5.png)
 
 
 
@@ -2212,6 +2401,7 @@ Tomcat started.
 
 
 ## rewrite 跳转规则
+
 ```plain
 [root@web01 conf.d]# cat rewrite.conf 
 server {
@@ -2250,6 +2440,7 @@ b.html
 a.html
 [root@web01 conf.d]# curl test.rewrite.com/3.html
 b.html
+
 ```
 
 rewrite 的跳转的机制是重新发起请求，例如访问 1.html 时，向下跳转到 3.html，然后重新发起请求，匹配到 3.html，最后返回 b.html
@@ -2278,6 +2469,7 @@ server {
 }
 [root@web01 conf.d]# curl test.rewrite.com/1.html
 a.html
+
 ```
 
 可以看待 last 标记的字段不再在同一区块继续向下匹配，而是重新发起请求访问 2.html
@@ -2306,6 +2498,7 @@ server {
 }
 [root@web01 conf.d]# curl test.rewrite.com/1.html
 2.html
+
 ```
 
 作用是不再发起请求
@@ -2329,13 +2522,14 @@ server {
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@web01 conf.d]# systemctl restart nginx
+
 ```
 
 修改相关映射后访问 test.rewrite.com/test，返回的是百度的页面
 
 但每次跳转都需要访问原 web 服务器，然后再跳转，如果停止 nginx 服务， 则无法实现跳转
 
-![[_resources/linux笔记/322a43611a5695b0880c533d4e2b01d1_MD5.png]]
+![322a43611a5695b0880c533d4e2b01d1_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/322a43611a5695b0880c533d4e2b01d1_MD5.png)
 
 
 
@@ -2355,6 +2549,7 @@ server {
                  #return 302 http://www.baidu.com;
         }
 }
+
 ```
 
 第一次跳转之后,停止 nginx 服务，继续访问 test.rewrite.com 直接跳转到百度，但禁用缓存后仍然无法访问，所以说它是直接走的缓存，但在第一次跳转之后无需先访问 web 站点
@@ -2379,6 +2574,7 @@ server {
                  #return 302 http://www.baidu.com;
         }
 }
+
 ```
 
 在第一次跳转之后，后续也是继续走的缓存
@@ -2401,6 +2597,7 @@ server {
                  return 302 http://www.baidu.com;
         }
 }
+
 ```
 
 还是和上面的临时跳转一样，每次都需要访问 web 服务器
@@ -2410,6 +2607,7 @@ server {
 
 
 ### rewrite 跳转案例
+
 ```plain
 [root@web01 conf.d]# cat rewrite.conf 
 server {
@@ -2431,6 +2629,7 @@ mkdir: 已创建目录 '/rewrite/aaa'
 mkdir: 已创建目录 '/rewrite/aaa/bbb'
 mkdir: 已创建目录 '/rewrite/aaa/bbb/ccc'
 [root@web01 conf.d]# echo 'this is 1.html' > /rewrite/aaa/bbb/ccc/1.html
+
 ```
 
 访问 test.rewrite.com/test....等以 test 开头的 url 都会跳转到 1.html 的位置
@@ -2462,6 +2661,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@web01 conf.d]# systemctl restart nginx
 [root@web01 conf.d]# curl test.rewrite.com/2030/hello.html
 hello,this is 2030 dir
+
 ```
 
 rewrite ^/2025/(.*)$ /2030/$1 redirect;
@@ -2481,6 +2681,7 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 
 
 # Ansible
+
 ## Ansible 的主要组件
 
 控制节点（Control Node）： Ansible 的运行所在的机器。控制节点发出指令，通过 SSH 连接到目标主机执行任务。
@@ -2520,7 +2721,9 @@ pattern选项 指定要操作的主机或主机组的模式。
 	`ansible all -m ping`
 
 2. 单主机/主机组
+
 ```
+
 -i：指定库存文件的位置。
 
 -m：指定要使用的模块（例如 ping, shell, copy 等）。
@@ -2528,6 +2731,7 @@ pattern选项 指定要操作的主机或主机组的模式。
 -a：指定模块的参数。
 
 --become：使用 sudo 提权执行命令（需要适当的权限配置）。
+
 ```
 
 pipx的安装
@@ -2554,6 +2758,7 @@ setup 模块 在 剧本执行前,ansible 会自动调用 setup 模块采集目�
 有多个使用方式
 
 1.配合 vars 字段使用
+
 ```yaml
 ---
 - name: test loop
@@ -2567,11 +2772,13 @@ setup 模块 在 剧本执行前,ansible 会自动调用 setup 模块采集目�
       debug:
         msg: "{{ item }}"
       loop: "{{ testvar }}"
+
 ```
 
 
 
 2.配合 vars_files 字段使用
+
 ```yaml
 ---
 - name: test loop
@@ -2585,6 +2792,7 @@ setup 模块 在 剧本执行前,ansible 会自动调用 setup 模块采集目�
       loop:
           - "{{ ase }}"
           - "{{ bae }}"
+
 ```
 
 这里指定了变量文件，下面是变量文件内容
@@ -2597,6 +2805,7 @@ ase:
 bae:
   - nihao
   - xiexie
+
 ```
 
 
@@ -2607,6 +2816,7 @@ bae:
 作判断语句的作用，有多种用法
 
 1.简单的布尔值判断使用
+
 ```bash
 [greg@control ansible]$ cat test_when.yml 
 ---
@@ -2637,6 +2847,7 @@ PLAY RECAP *********************************************************************
 node1                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 
 [greg@control ansible]$ 
+
 ```
 
 
@@ -2678,6 +2889,7 @@ PLAY RECAP *********************************************************************
 node1                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 
 [greg@control ansible]$ 
+
 ```
 
 
@@ -2727,6 +2939,7 @@ ok: [node1]
 
 PLAY RECAP ***********************************************************************************************************************
 node1                      : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
 ```
 
 
@@ -2760,6 +2973,7 @@ skipping: [node5] => (item={'mount': '/boot/efi', 'device': '/dev/vda2', 'fstype
 
 PLAY RECAP ***********************************************************************************************************************
 node5                      : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
 ```
 
 
@@ -2794,8 +3008,10 @@ Ansible 角色本质上就是 预配置的、参数化的、可重用的自动�
 标准化封装： Red Hat 将精选的 Ansible 角色（如 rhel-system-roles 系列）打包为 RPM 格式，纳入官方仓库：
 
 ```plain
+
 # 查看可用系统角色包
 yum search rhel-system-roles
+
 ```
 
 集中管理： 这些角色由 Red Hat 工程师维护，通过标准软件仓库分发（如 BaseOS/AppStream）。
@@ -2803,8 +3019,10 @@ yum search rhel-system-roles
 底层机制：
 
 ```bash
+
 # 实际是通过 ansible-galaxy 工具安装
 ansible-galaxy install geerlingguy.nginx
+
 ```
 
 技术实现原理
@@ -2818,8 +3036,10 @@ RPM 包结构： 每个角色包包含：
 - 文档（README.md）
 
 ```bash
+
 # 查看角色包内容
 rpm -ql rhel-system-roles.network
+
 ```
 
 依赖管理： 自动解决 Ansible 版本依赖（如要求 ansible-core >= 2.12）
@@ -2859,10 +3079,12 @@ Ansible Galaxy 是一个由 Ansible 社区维护的在线平台，旨在帮助�
 ```bash
 ansible-galaxy install <role_name>
 ansible-galaxy collection install <collection_name>
+
 ```
 
 ```bash
 ansible-galaxy install geerlingguy.apache
+
 ```
 
 
@@ -2870,6 +3092,7 @@ ansible-galaxy install geerlingguy.apache
 
 ```bash
 ansible-galaxy list
+
 ```
 
 
@@ -2877,6 +3100,7 @@ ansible-galaxy list
 
 ```bash
 ansible-galaxy search <keyword>
+
 ```
 
 
@@ -2885,6 +3109,7 @@ ansible-galaxy search <keyword>
 ```bash
 ansible-galaxy info <role_name>
 ansible-galaxy collection info <collection_name>
+
 ```
 
 
@@ -2892,6 +3117,7 @@ ansible-galaxy collection info <collection_name>
 
 ```bash
 ansible-galaxy install -r requirements.yml -p /path/dir
+
 ```
 
 文件中可以列出多个角色或集合及其版本信息。
@@ -2904,6 +3130,7 @@ ansible-galaxy install -r requirements.yml -p /path/dir
 
 - name: phpinfo
   src: http://classroom/materials/phpinfo.tar
+
 ```
 
 使用 yml 文件安装集合,参数加上collection 指定安装类型是集合 
@@ -2914,17 +3141,20 @@ collections:
 - name: http://classroom/materials/redhat-insights-1.0.7.tar.gz
 - name: http://classroom/materials/community-general-5.5.0.tar.gz
 - name: http://classroom/materials/redhat-rhel_system_roles-1.19.3.tar.gz
+
 ```
 
 
 
 初始化一个自定义角色模板
+
 ```bash
 [greg@control ansible]$ ansible-galaxy init roles/apache
 - Role roles/apache was created successfully
 [greg@control ansible]$ vim roles/apache/
 defaults/    handlers/    README.md    templates/   .travis.yml  
 files/       meta/        tasks/       tests/       vars/        
+
 ```
 
 
@@ -3011,6 +3241,7 @@ node1                      : ok=2    changed=0    unreachable=0    failed=1    s
 
 Please review the log for errors.
 [greg@control ansible]$ 
+
 ```
 
 
@@ -3024,8 +3255,9 @@ Please review the log for errors.
 
 
 # Zabbix
+
 ## Zabbix 基础架构
-![[_resources/linux笔记/aec1d7088e442a64778f46e3a8b338a2_MD5.png]]
+![aec1d7088e442a64778f46e3a8b338a2_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/aec1d7088e442a64778f46e3a8b338a2_MD5.png)
 
 代理端是可选项
 
@@ -3070,6 +3302,7 @@ Zabbix Server 是 C 语言开发的 Zabbix 服务端，有着 强悍的采集和
 
 ```plain
 rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/8/x86_64/zabbix-release-latest-6.0.el8.noarch.rpm
+
 ```
 
 zabbix 有个特殊的 rpm 包zabbix-release-latest-6.0.el8.noarch.rpm（这是 6.0 的），安装后会生成 zabbix 源(一般是名为zabbix.repo和zabbix-agent2-plugins.repo 的两个文件)，默认是官方源路径，如果需要修改成别的镜像站的源，手动 vim 修改对应链接即可
@@ -3097,6 +3330,7 @@ baseurl=https://repo.zabbix.com/zabbix/5.5/rhel/8/$basearch/
 enabled=0
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX-A14FE591
+
 ```
 
 ```bash
@@ -3106,6 +3340,7 @@ baseurl=https://repo.zabbix.com/zabbix-agent2-plugins/1/rhel/8/$basearch/
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX
 gpgcheck=1
+
 ```
 
 这里的$basearch 变量会根据自身系统架构自动被赋值
@@ -3117,6 +3352,7 @@ gpgcheck=1
 ```bash
 [root@localhost ~]# sed -i 's#https://repo.zabbix.com#https://mirrors.tuna.tsinghua.edu.cn/zabbix#g'  /etc/yum.repos.d/zabbix.repo
 [root@localhost ~]# sed -i 's#https://repo.zabbix.com#https://mirrors.tuna.tsinghua.edu.cn/zabbix#g'  /etc/yum.repos.d/zabbix-agent2-plugins.repo
+
 ```
 
 
@@ -3143,6 +3379,7 @@ Verifying...                          ################################# [100%]
    Warning: native mysql package from platform vendor seems to be enabled.
     Please consider to disable this before installing packages from repo.mysql.com.
     Run: yum module -y disable mysql
+
 ```
 
 
@@ -3162,8 +3399,10 @@ Verifying...                          ################################# [100%]
 然后安装并启动 mysql
 
 ```
+
 yum -y install mysql-community-client mysql-community-server
 systemctl enable --now mysqld.service
+
 ```
 
 
@@ -3189,25 +3428,32 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 mysql> 
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'Mysql@123';
 Query OK, 0 rows affected (0.00 sec)
+
 #登录后立刻修改密码为Mysql@123
+
 ```
 
 这里的临时密码就是VPDgl,NKl51M  ，默认用户是 root
 
 
 在数据库主机上运行以下代码
+
 ```sql
 mysql> create database zabbix character set utf8mb4 collate utf8mb4_bin;
 mysql> create user zabbix@localhost identified by 'password';
 mysql> grant all privileges on zabbix.* to zabbix@localhost;
 mysql> set global log_bin_trust_function_creators = 1;
 mysql> quit;
+
 ```
 
 
 导入初始架构和数据，系统将提示您输入新创建的密码。
+
 ```
+
 zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p zabbix
+
 ```
 
 
@@ -3222,9 +3468,11 @@ mysql> quit;
 [root@localhost ~]# vim /etc/zabbix/zabbix_server.conf
 [root@localhost ~]# grep "^DBPassword" /etc/zabbix/zabbix_server.conf 
 DBPassword=Zabbix@123
+
 ```
 
 最后启动Zabbix server和agent进程，并为它们设置开机自启：
+
 ```bash
 [root@localhost ~]# systemctl restart zabbix-server zabbix-agent httpd php-fpm
 [root@localhost ~]# systemctl enable zabbix-server zabbix-agent httpd php-fpm
@@ -3233,6 +3481,7 @@ Created symlink /etc/systemd/system/multi-user.target.wants/zabbix-agent.service
 Created symlink /etc/systemd/system/multi-user.target.wants/httpd.service → /usr/lib/systemd/system/httpd.service.
 Created symlink /etc/systemd/system/multi-user.target.wants/php-fpm.service → /usr/lib/systemd/system/php-fpm.service.
 [root@localhost ~]# 
+
 ```
 
 
@@ -3240,41 +3489,56 @@ Created symlink /etc/systemd/system/multi-user.target.wants/php-fpm.service → 
 
 [http://host/zabbix](http://host/zabbix)
 
-![[_resources/linux笔记/f3ffa6d676413dd0de913d2ba13422fb_MD5.png]]
+![f3ffa6d676413dd0de913d2ba13422fb_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/f3ffa6d676413dd0de913d2ba13422fb_MD5.png)
 
 一直下一步，到连接数据库
 
-![[_resources/linux笔记/4be80ac82facce3778f555ec69a55e3d_MD5.png]]
+![4be80ac82facce3778f555ec69a55e3d_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/4be80ac82facce3778f555ec69a55e3d_MD5.png)
 
 密码是 zabbix 数据库设置的密码 Zabbix@123
 
 但是这里会报错，还是因为使用 的是 MYSQL8.4 的原因
 
-![[_resources/linux笔记/eec629f74e45d220a94ce4023f43127e_MD5.png]]
+![eec629f74e45d220a94ce4023f43127e_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/eec629f74e45d220a94ce4023f43127e_MD5.png)
 
 简而言之是 zabbix6.0 的 web 界面检查密码时使用 mysql_native_password 插件，但该插件在 MLSQL8.4 被禁用了，使用了别的插件代替，所以即使在设置 zabbix 数据库密码时指定 mysql_native_password 插件，也会报错该插件未加载，这里的解决方案是通过修改 mysql 配置文件/etc/my.cnf，在 [mysqld] 下添加字段重新启用该插件
 
 ```bash
 [root@localhost ~]# cat /etc/my.cnf
+
 # For advice on how to change settings please see
+
 # http://dev.mysql.com/doc/refman/8.4/en/server-configuration-defaults.html
 
 [mysqld]
+
 #
 # Remove leading # and set to the amount of RAM for the most important data
+
 # cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+
 # innodb_buffer_pool_size = 128M
+
 #
 # Remove the leading "# " to disable binary logging
+
 # Binary logging captures changes between backups and is enabled by
+
 # default. It's default setting is log_bin=binlog
+
 # disable_log_bin
+
 #
 # Remove leading # to set options mainly useful for reporting servers.
+
 # The server defaults are faster for transactions and fast SELECTs.
+
 # Adjust sizes as needed, experiment to find the optimal values.
+
 # join_buffer_size = 128M
+
 # sort_buffer_size = 2M
+
 # read_rnd_buffer_size = 2M
 
 datadir=/var/lib/mysql
@@ -3286,6 +3550,7 @@ pid-file=/var/run/mysqld/mysqld.pid
 # Enable mysql_native_password plugin
 [mysqld]
 mysql_native_password=ON
+
 ```
 
 重启 mysqld 后进入数据库再次修改密码，这次需要指定 mysql_native_password 插件
@@ -3298,15 +3563,15 @@ Query OK, 0 rows affected (0.01 sec)
 
 主机名随便，时区选上海
 
-![[_resources/linux笔记/b9b344653d1d8d0b7d55b26b4f24ac2c_MD5.png]]
+![b9b344653d1d8d0b7d55b26b4f24ac2c_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/b9b344653d1d8d0b7d55b26b4f24ac2c_MD5.png)
 
-![[_resources/linux笔记/7dc6c47de5010cfd429d1cc7a538e9ef_MD5.png]]
+![7dc6c47de5010cfd429d1cc7a538e9ef_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/7dc6c47de5010cfd429d1cc7a538e9ef_MD5.png)
 
-![[_resources/linux笔记/60e757a51946fb339718e32538efea73_MD5.png]]
+![60e757a51946fb339718e32538efea73_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/60e757a51946fb339718e32538efea73_MD5.png)
 
 用户默认是 Admin  密码是 zabbix
 
-![[_resources/linux笔记/803dbc0a17b995fcb131fdbd0f9f7e81_MD5.png]]
+![803dbc0a17b995fcb131fdbd0f9f7e81_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/803dbc0a17b995fcb131fdbd0f9f7e81_MD5.png)
 
 至此配置完成
 
@@ -3320,16 +3585,18 @@ zabbix7.0 要求net-snmp-libs 版本要在1:5.9.1-x 以内（大概是这样，�
 
 如果版本不对，在启动 zabbix 相关服务时会报错如下图，附上具体的日志信息
 
-![[_resources/linux笔记/8c5ee793907705df231ecf08121abc97_MD5.png]]
+![8c5ee793907705df231ecf08121abc97_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/8c5ee793907705df231ecf08121abc97_MD5.png)
 
-![[_resources/linux笔记/ee86c04f16e7858af1b61e373b6c7c25_MD5.png]]
+![ee86c04f16e7858af1b61e373b6c7c25_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/ee86c04f16e7858af1b61e373b6c7c25_MD5.png)
 
 
 
 
 ## zabbix 自定义监控
 在 zabbix-server 端安装 zabbix-get 用于测试
+
 ```
+
 [root@openEuler ~]# yum -y install zabbix-get
 确保 agent 端配置文件 Include 一行正确配置
 [root@oracle ~]# grep "^[a-Z]" /etc/zabbix/zabbix_agentd.conf 
@@ -3340,6 +3607,7 @@ Server=192.168.120.140
 ServerActive=192.168.120.140
 Hostname=openEuler
 Include=/etc/zabbix/zabbix_agentd.d/*.conf
+
 ```
 
 
@@ -3348,8 +3616,10 @@ Include=/etc/zabbix/zabbix_agentd.d/*.conf
 在/etc/zabbix/zabbix_agentd.d/目录下书写.conf 文件
 
 ```
+
 [root@oracle ~]# cat /etc/zabbix/zabbix_agentd.d/new_host.conf 
 UserParameter=root.login,/usr/bin/who | awk '$1=="root"' | wc -l
+
 ```
 
 
@@ -3364,6 +3634,7 @@ UserParameter=root.login,/usr/bin/who | awk '$1=="root"' | wc -l
 ```bash
 [root@openEuler ~]# zabbix_get -s 192.168.120.130 -k root.login
 3
+
 ```
 
 这里是 3 是因为我使用 root 账户开了三个 ssh 连接
@@ -3373,23 +3644,24 @@ UserParameter=root.login,/usr/bin/who | awk '$1=="root"' | wc -l
 ```bash
 [root@oracle ~]# zabbix_agentd -t root.login
 root.login                                    [t|1]
+
 ```
 
 
 
 然后登录 zabbix-UI 将自定义键值与监控关联
 
-![[_resources/linux笔记/8770e3d967c92a2a82d906e896a7b746_MD5.png]]
+![8770e3d967c92a2a82d906e896a7b746_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/8770e3d967c92a2a82d906e896a7b746_MD5.png)
 
 进入对应 agent 端的监控项并创建监控项
 
-![[_resources/linux笔记/ea38b37a3a65ccaece89bdaaf62a6c9f_MD5.png]]
+![ea38b37a3a65ccaece89bdaaf62a6c9f_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/ea38b37a3a65ccaece89bdaaf62a6c9f_MD5.png)
 
 键值写刚刚自定义的监控项，信息类型是命令行的结果的数据类型,ip 是对应 agent 客户端的 ip
 
 在添加前可以先测试
 
-![[_resources/linux笔记/6a201890c13a52ff5bdaaced81cb38b9_MD5.png]]
+![6a201890c13a52ff5bdaaced81cb38b9_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/6a201890c13a52ff5bdaaced81cb38b9_MD5.png)
 
 上面的"获取值"相当于在 zabbix-server 端的命令行中使用 zabbix_get 测试
 
@@ -3399,19 +3671,19 @@ root.login                                    [t|1]
 
 最后还需要为该监控项配置触发器，路径是：告警-主机-触发器-新建触发器
 
-![[_resources/linux笔记/8721c9deafcdf3ab14fbdaeaf25d40be_MD5.png]]
+![8721c9deafcdf3ab14fbdaeaf25d40be_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/8721c9deafcdf3ab14fbdaeaf25d40be_MD5.png)
 
 问题表达式点击"添加"可选择监控项，在"功能"选择需要使用的函数
 
-![[_resources/linux笔记/b7a5f50ab3acd6f566cc0501aecefbcc_MD5.png]]
+![b7a5f50ab3acd6f566cc0501aecefbcc_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/b7a5f50ab3acd6f566cc0501aecefbcc_MD5.png)
 
 "结果"是 监控项的数据结果，这里设置检测的结果大于 6 就触发问题表达式
 
-![[_resources/linux笔记/7cf92c4b4ca70edd6949a47750242af5_MD5.png]]
+![7cf92c4b4ca70edd6949a47750242af5_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/7cf92c4b4ca70edd6949a47750242af5_MD5.png)
 
 如果需要恢复表达式，也可以添加，和问题表达式一样的操作流程
 
-![[_resources/linux笔记/058cb0a7f70940f62de2e2fc498e7842_MD5.png]]
+![058cb0a7f70940f62de2e2fc498e7842_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/058cb0a7f70940f62de2e2fc498e7842_MD5.png)
 
 至此完成配置并添加，完成了一个自定义监控项的简单流程
 
@@ -3475,8 +3747,11 @@ last(/rocky/system.swap.size[,total])>0 and last(/rocky/system.swap.size[,userd]
 
 ## 部署支持参数的自定义监控项
 在 rocky 节点操作,指定目录下书写.conf 文件
+
 ```
+
 UserParmeter=user.login[*],lastlog -u "$1" | awk 'NR==2{print $$3}'
+
 ```
 
 `[*]` 表示该键值支持传参，`$1` 是参数，多个参数就继续写 `$2`, `$3`....
@@ -3491,19 +3766,19 @@ UserParmeter=user.login[*],lastlog -u "$1" | awk 'NR==2{print $$3}'
 
 验证成功后进入 zabbix-ui 为 rocky 添加监控项
 
-![[_resources/linux笔记/fe46350bc8ae679e02db5c9b89169724_MD5.png]]
+![fe46350bc8ae679e02db5c9b89169724_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/fe46350bc8ae679e02db5c9b89169724_MD5.png)
 
 在实际使用时需要指定参数，这里指定为 root
 
 然后为该监控项配置触发器
 
-![[_resources/linux笔记/c1cc4bef793487fb821d898843a02cee_MD5.png]]
+![c1cc4bef793487fb821d898843a02cee_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/c1cc4bef793487fb821d898843a02cee_MD5.png)
 
 这里的问题表达式的条件是：最后一条监控项的数据和倒数第二条的数据不等
 
 添加后使用 server 主机 ssh 测试
 
-![[_resources/linux笔记/6203e5b8bb903e5cb03b093a271bcae9_MD5.png]]
+![6203e5b8bb903e5cb03b093a271bcae9_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/6203e5b8bb903e5cb03b093a271bcae9_MD5.png)
 
 触发了告警,至此完成了一个简单的自定义参数监控项，该监控项逻辑处理有待完善
 
@@ -3515,9 +3790,12 @@ UserParmeter=user.login[*],lastlog -u "$1" | awk 'NR==2{print $$3}'
 系统是欧拉 24.03sp1，相关源已配置
 
 1.卸载 httpd 并安装 nginx
+
 ```
+
 yum -y remove httpd
 yum -y install nginx
+
 ```
 
 
@@ -3530,39 +3808,44 @@ yum -y install nginx
 
 3.修改/etc/php-fpm.d/zabbix.conf 和/etc/php-fpm.d/www.conf文件，将 用户与组更改为 nginx
 
-![[_resources/linux笔记/c7a0dc281e1fafebc84b76cedb096137_MD5.png]]
+![c7a0dc281e1fafebc84b76cedb096137_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/c7a0dc281e1fafebc84b76cedb096137_MD5.png)
 
-![[_resources/linux笔记/a3fe1757247f03ca7910595c7a2e8944_MD5.png]]
+![a3fe1757247f03ca7910595c7a2e8944_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/a3fe1757247f03ca7910595c7a2e8944_MD5.png)
 
 
 
 4.修改 zabbix-UI 相关目录及文件的权限
 
-![[_resources/linux笔记/8caa9f0411a06fc2cf60e32fb429176b_MD5.png]]
+![8caa9f0411a06fc2cf60e32fb429176b_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/8caa9f0411a06fc2cf60e32fb429176b_MD5.png)
 
 这里可以看到相关目录所有者和组都没有变更，nginx 用户没有权限访问
 
 修改对应文件的所有者与组为 nginx
 
 ```
+
 chown nginx:nginx /etc/zabbix/web/
 chown nginx:nginx /etc/zabbix/web/zabbix.conf.php
+
 ```
 
 
 
 最后重启相关服务
+
 ```
+
 systemctl restart php-fpm.service
 systemctl restart nginx.service
 systemctl restart zabbix-server.service
+
 ```
 
 
 
 与 apache 的访问路径不同，直接访问 zabbix-server 的 ip 即可
 
-![[_resources/linux笔记/97252936acc64441117a4ba067e3c757_MD5.png]]
+![97252936acc64441117a4ba067e3c757_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/97252936acc64441117a4ba067e3c757_MD5.png)
 
 nginx 切换 apache 也是一样的逻辑与流程
 
@@ -3593,6 +3876,7 @@ check.domain[*],sh 脚本 "$1"   //$1 是域名
    Registry Expiry Date: 2028-10-11T11:05:17Z
 [root@openEuler ~]# whois baidu.com | grep Expiry | awk -F": |T" '{print $2}'
 2028-10-11
+
 ```
 
 使用 date 命令处理该输出
@@ -3603,6 +3887,7 @@ check.domain[*],sh 脚本 "$1"   //$1 是域名
 [root@openEuler ~]# date -d "`whois baidu.com | grep Expiry | awk -F": |T" '{print $2}'`" +%s
 1854806400
 //     +%s可以将时间转化成秒
+
 ```
 
 使用 date +%s 同样可以将系统当前时间转换成秒,两者相减可得到域名剩余有效时间
@@ -3670,6 +3955,7 @@ check.ssl[*],sh 脚本 "$1"   //$1 是域名 https://...
 *  expire date: Mar  3 23:59:59 2026 GMT
 [root@openEuler ~]# curl -v https://baidu.com |& grep "expire date" | awk -F ": " '{print $2}'
 Mar  3 23:59:59 2026 GMT
+
 ```
 
 date 可识别该参数
@@ -3682,6 +3968,7 @@ date 可识别该参数
 [root@openEuler ~]# date -d "Mar  3 23:59:59 2026 GMT" +%s
 1772582399
 [root@openEuler ~]# 
+
 ```
 
 转换成秒后还是和上面一样的处理逻辑
@@ -3706,79 +3993,99 @@ OpenStack是一个由多个组件组成的开源云计算平台，每个组件�
 Nova（计算）：
 
 ```
+
 1. nova-api：处理API请求。
 2. nova-scheduler：负责虚拟机实例的调度。
 3. nova-conductor：轻量级服务，处理一些数据库操作。
 4. nova-compute：负责管理虚拟机实例的生命周期。
 5. nova-consoleauth：处理VNC控制台的认证。
 6. nova-novncproxy：处理VNC控制台访问的代理。
+
 ```
 
 Neutron（网络）：
 
 ```
+
 1. neutron-server：处理网络服务的API请求。
 2. neutron-agent：包括多种类型的代理，如l3-agent、dhcp-agent、metadata-agent等，负责网络配置和管理。
+
 ```
 
 Cinder（块存储）：
 
 ```
+
 1. cinder-api：处理块存储API请求。
 2. cinder-scheduler：负责卷的调度。
 3. cinder-volume：负责管理后端存储，处理卷的创建、删除和附加等操作。
+
 ```
 
 
 Swift（对象存储）：
 
 ```
+
 1. swift-proxy：处理客户端请求和转发到存储节点。
 2. swift-account、swift-container、swift-object：存储节点服务，分别管理账户、容器和对象。
+
 ```
 
 Keystone（身份服务）：
 
 ```
+
 1. keystone：提供身份认证、令牌生成和管理服务。
+
 ```
 
 
 Glance（镜像服务）：
 
 ```
+
 1. glance-api：处理镜像服务的API请求。
 2. glance-registry：管理镜像元数据。
+
 ```
 
 
 Heat（编排）：
 
 ```
+
 1. heat-api：处理编排服务的API请求。
 2. heat-api-cfn：处理AWS CloudFormation模板。
 3. heat-engine：负责执行堆栈操作。
+
 ```
 
 Ceilometer（计费和监控）：
 
 ```
+
 1. ceilometer-api：提供监控数据的API接口。
 2. ceilometer-collector：负责收集监控数据。
 3. ceilometer-agent：运行在计算节点上，收集和上报实例的监控数据。
+
 ```
 
 Horizon（Dashboard）：
 
 ```
+
 1. horizon：OpenStack的Web界面，提供用户界面访问OpenStack服务。
+
 ```
 
 Ironic（裸机服务）：
 
 ```
+
 1. ironic-api：处理裸机服务的API请求。
 2. ironic-conductor：负责管理裸机硬件的生命周期。
+
 ```
 
 这些是OpenStack中一些主要组件及其子组件的细分。每个组件都有其特定的职责，它们协同工作以提供完整的云计算服务。随着OpenStack的不断发展，可能会有新的组件和服务被引入。
@@ -3824,7 +4131,7 @@ glance上传的镜像一般储存在/var/lib/glance/images/目录下
 
 ## 报错：无效的服务目录，compute
 
-![[_resources/linux笔记/98bf11f74a0d0f17ba4b93b00a194aee_MD5.png]]
+![98bf11f74a0d0f17ba4b93b00a194aee_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/98bf11f74a0d0f17ba4b93b00a194aee_MD5.png)
 
 
 
@@ -3927,7 +4234,7 @@ openstack compute service list --service nova-compute
 
 解决方案： 使用系统给出的提示使用 journalctl -xe（这个命令将显示扩展的系统日志，包括最近的错误和警告信息）并使用管道与 grep 结合筛选出与 chronyd 相关的日志信息，结果如图：
 
-![[_resources/linux笔记/01636d741ab699a12996cde9498ad736_MD5.png]]
+![01636d741ab699a12996cde9498ad736_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/01636d741ab699a12996cde9498ad736_MD5.png)
 
 在 chronyd[814] 第二条可以看到，是 chrony.conf 文件第七行的配置出现错误，系统无法解析该指令，打开 chrony.conf 文件可以看到第七行的 server controller iburst 被重复了一遍：
 
@@ -4039,7 +4346,7 @@ echo "000000"| passwd --stdin root
 
 在使用openstack指令时报错
 
-![[_resources/linux笔记/c9c64d62cd96874445eea152f3d1ae2f_MD5.png]]
+![c9c64d62cd96874445eea152f3d1ae2f_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/c9c64d62cd96874445eea152f3d1ae2f_MD5.png)
 
 提示需要生效环境变量
 
@@ -4069,7 +4376,9 @@ echo "000000"| passwd --stdin root
 
 
 # Ceph
+
 ## 10/16
+
 ## 搭建ceph
 
 三个节点
@@ -4144,7 +4453,7 @@ priority=1
 
 执行yum -y install ceph ceph-radosgw遇到的报错
 
-![[_resources/linux笔记/783df5932e4e96aac58bce37adddb368_MD5.png]]
+![783df5932e4e96aac58bce37adddb368_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/783df5932e4e96aac58bce37adddb368_MD5.png)
 
 报错原因是阿里云提供的centos源的epel仓库源配置有问题，导致无法启用
 
@@ -4153,7 +4462,7 @@ priority=1
 
 ## 关于ceph-deploy new报错
 
-![[_resources/linux笔记/809b3e0389f8e2463704220d5b877df3_MD5.png]]
+![809b3e0389f8e2463704220d5b877df3_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/809b3e0389f8e2463704220d5b877df3_MD5.png)
 
 报错原因：ceph-deploy 工具在尝试启动时遇到了问题。具体来说，是在尝试导入 pkg_resources 模块时出错了。这个模块是 setuptools 包的一部分，在 Python 中用于包管理和资源获取，即没有安装setuptools
 
@@ -4174,7 +4483,7 @@ Docker pull的源需要更改，好像要注册一个阿里云镜像站的账号
 
 
 ## docker原理
-Linux内核支持两个功能，与容器技术的实现有关![[_resources/linux笔记/3b85d5e8cae5347d129ebc2f31c83d82_MD5.png]]![[_resources/linux笔记/da20e5f18dfa2c93587542109c98d9f3_MD5.png]]
+Linux内核支持两个功能，与容器技术的实现有关![3b85d5e8cae5347d129ebc2f31c83d82_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3b85d5e8cae5347d129ebc2f31c83d82_MD5.png)![da20e5f18dfa2c93587542109c98d9f3_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/da20e5f18dfa2c93587542109c98d9f3_MD5.png)
 
 ## docker containerd.io
 
@@ -4207,9 +4516,9 @@ source /usr/share/bash-completion/bash_completion
 
 
 ## docker基础操作
-![[_resources/linux笔记/980d7f13d37fe9f7c8c54cb6f58d42b0_MD5.png]]
+![980d7f13d37fe9f7c8c54cb6f58d42b0_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/980d7f13d37fe9f7c8c54cb6f58d42b0_MD5.png)
 
-![[_resources/linux笔记/1ef38c4dc170e22e61598a8ebb9ded8c_MD5.png]]
+![1ef38c4dc170e22e61598a8ebb9ded8c_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/1ef38c4dc170e22e61598a8ebb9ded8c_MD5.png)
 
 
 
@@ -4229,7 +4538,7 @@ Docker镜像都是只读的，当容器启动时，一个新的可写层被加�
 
 
 ## docker重启策略
-![[_resources/linux笔记/748481c4d7486e57390d4e2d6bc72716_MD5.png]]
+![748481c4d7486e57390d4e2d6bc72716_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/748481c4d7486e57390d4e2d6bc72716_MD5.png)
 
 注：该图是关于docker container run --restart命令的策略参数
 
@@ -4240,21 +4549,21 @@ Docker镜像都是只读的，当容器启动时，一个新的可写层被加�
 
 ## docker容器的五种网络模式及其解析
 
-![[_resources/linux笔记/06fa053890ac3a042bc04e540bf4bba0_MD5.png]]
+![06fa053890ac3a042bc04e540bf4bba0_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/06fa053890ac3a042bc04e540bf4bba0_MD5.png)
 
-![[_resources/linux笔记/7aec3570ad6c6c00e111637a90f7b172_MD5.png]]
+![7aec3570ad6c6c00e111637a90f7b172_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/7aec3570ad6c6c00e111637a90f7b172_MD5.png)
 
-![[_resources/linux笔记/9509aa2a3a3b7ae049504f49d4a0a50d_MD5.png]]
+![9509aa2a3a3b7ae049504f49d4a0a50d_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/9509aa2a3a3b7ae049504f49d4a0a50d_MD5.png)
 
-![[_resources/linux笔记/7f020773142aaa0ac61b9f0796d39729_MD5.png]]
+![7f020773142aaa0ac61b9f0796d39729_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/7f020773142aaa0ac61b9f0796d39729_MD5.png)
 
-![[_resources/linux笔记/f26491c8e5c187be7a4f7af11b8ea515_MD5.png]]
+![f26491c8e5c187be7a4f7af11b8ea515_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/f26491c8e5c187be7a4f7af11b8ea515_MD5.png)
 
 ## docker私有仓库在push时报错：需要使用https协议
 如下图
 在daemon.json配置文件中"insecure-registries":是指采用http协议来进行镜像的上传与下载
 
-![[_resources/linux笔记/3e9aa21c7c4497c1d9885b76d893a456_MD5.png]]
+![3e9aa21c7c4497c1d9885b76d893a456_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3e9aa21c7c4497c1d9885b76d893a456_MD5.png)
 
 Registry仓库指定的挂载卷位置与端口：/var/lib/registry 5000
 
@@ -4280,9 +4589,9 @@ docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/
 
 ## dockerfile命令解析
 
-![[_resources/linux笔记/ac715b24bf24720805fd9d0f147f733a_MD5.png]]
+![ac715b24bf24720805fd9d0f147f733a_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/ac715b24bf24720805fd9d0f147f733a_MD5.png)
 
-![[_resources/linux笔记/8a27da6bfff71225f0dfa133b6b71859_MD5.png]]
+![8a27da6bfff71225f0dfa133b6b71859_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/8a27da6bfff71225f0dfa133b6b71859_MD5.png)
 
 
 ## docker容器编排工具docker compose
@@ -4362,7 +4671,7 @@ port: 443
 
 ## docker compose命令的路径要求
 
-![[_resources/linux笔记/f1a0a333246e3f12c0ece763cd038c3c_MD5.png]]
+![f1a0a333246e3f12c0ece763cd038c3c_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/f1a0a333246e3f12c0ece763cd038c3c_MD5.png)
 
 在执行docker compose命令时要求当前目录下有docker-compose.yml这个文件，因为Docker Compose 需要一个 YAML 文件来定义服务、网络和卷等配置，这个文件通常以 docker-compose.yml 或 docker-compose.yaml 命名。
 
@@ -4397,11 +4706,13 @@ podman run -d -v /hello:/fine:z centos:latest
 在/etc/containers/registries.conf配置文件中书写
 
 ```
+
 unqualified-search-registries = ["utility.lab.example.com"]
 [[registry]]
 insecure = true
 blocked = false
 location = "utility.lab.example.com"
+
 ```
 
 
@@ -4444,6 +4755,7 @@ afs bin boot dev dir1 etc home lib lib64 lost+found media mnt opt proc root run 
 [root@e48892657919 /]# cd dir1/ bash: cd: dir1/: Permission denied [root@e48892657919 ~]# exit 
 [root@server ~]# podman exec -it Second_centos /bin/bash [root@03095b52384f /]# cd dir2/ 
 [root@03095b52384f dir2]#
+
 ```
 
 
@@ -4486,6 +4798,7 @@ protected-mode yes
 
 
 # MySQL
+
 ## mysql8.0 安装后配置
 
 与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
@@ -4497,9 +4810,11 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
 
 
 ## Mysql 密码插件报错：未加载
+
 ```plsql
 mysql> alter user  zabbix@localhost identified with mysql_native_password by 'Zabbix@123';
 ERROR 1524 (HY000): Plugin 'mysql_native_password' is not loaded
+
 ```
 
 MySQL 8.4(截至 2024 年的最新 LTS 版本)中引入的一个主要变化是，默认情况下不再启用 “MySQL Native Password” 插件。
@@ -4513,9 +4828,11 @@ MySQL 8.4(截至 2024 年的最新 LTS 版本)中引入的一个主要变化是�
 在 mysql 配置文件的 [mysqld] 下面添加如下配置，配置文件的位置参考我使用的 orcle_linux8.6，路径是/etc/my.cnf
 
 ```plain
+
 # Enable mysql_native_password plugin
 [mysqld]
 mysql_native_password=ON
+
 ```
 
 重启 mysqld 后生效
@@ -4534,7 +4851,7 @@ mysql_native_password=ON
 
 ## 数据库调优-my.cnf配置详解
 
-![[_resources/linux笔记/7a3e8731c537b0aa65c421cbd92242ef_MD5.png]]
+![7a3e8731c537b0aa65c421cbd92242ef_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/7a3e8731c537b0aa65c421cbd92242ef_MD5.png)
 
 lower_case_table_names =1 //数据库支持大小写
 innodb_buffer_pool_size = 4G //设置数据库缓存（缓冲区）大小为4G innodb_log_buffer_size = 64MB //设置数据库的log buffer即redo日志缓冲为64MB 
@@ -4568,9 +4885,12 @@ systemctl restart mariadb
 腾讯云免费试用了一台云主机 Rocky9.4，拿来搭一个 WordPress，使用 LAMP 架构
 
 1.安装并启用 httpd
+
 ```
+
 dnf install httpd -y
 systemctl enable --now httpd
+
 ```
 
 
@@ -4578,49 +4898,67 @@ systemctl enable --now httpd
 2.放通防火墙
 
 （云主机把防火墙和 selinux 的功能交给安全组管理，防火墙和 selinux 都被禁用了，所以这个不用执行，但还是记下来给普通主机参考）
+
 ```
+
 firewall-cmd --add-service=http --permanent  
 firewall-cmd --reload
+
 ```
 
 
 
 3.创建数据库和用户(用户可以不创建，使用默认的 root 用户也行)
+
 ```
+
 dnf -y install mariadb-server
 systemctl enable  --now mariadb.service
 mysql -uroot
+
 ```
 
 进入数据库后
+
 ```
+
 CREATE DATABASE mywordpress_db;
 CREATE USER 'wp_foc'@'localhost' IDENTIFIED BY 'Pp123456';
 GRANT ALL ON mywordpress_db.* TO 'wp_foc'@'localhost';
 FLUSH PRIVILEGES;
+
 ```
+
 这里设置了:
 
 ```
+
 Database: mywordpress_db
 User Name:wp_foc
 Password:Pp123456
+
 ```
 
 
 
 4.下载并提取 WordPress
+
 ```
+
 dnf install wget unzip -y
 wget https://wordpress.org/latest.zip
 unzip latest.zip
 mv wordpress /var/www/html/
+
 ```
 
 5.修改用户，组和权限
+
 ```
+
 chown -R apache:apache /var/www/html/wordpress
 chmod -R 775 /var/www/html/wordpress
+
 ```
 
 
@@ -4630,18 +4968,22 @@ chmod -R 775 /var/www/html/wordpress
 ```plain
 [root@VM-24-6-rockylinux ~]#semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/wordpress(/.*)?"
 [root@VM-24-6-rockylinux ~]#restorecon -Rv /var/www/html/wordpress
+
 ```
 
 
 7.修改相关配置文件，填写数据库，密码，用户名
 `vi /var/www/html/wordpress/wp-config.php`
 修改内容如下
+
 ```
+
 define( 'DB_NAME', 'mywordpress_db' );  
   /** Database username */  
 define( 'DB_USER', 'wp_foc' );  
   /** Database password */  
 define( 'DB_PASSWORD', 'Pp123456' );
+
 ```
 
 
@@ -4668,6 +5010,7 @@ PHP 8.2.29 (cli) (built: Jul  1 2025 16:29:21) (NTS gcc x86_64)
 Copyright (c) The PHP Group
 Zend Engine v4.2.29, Copyright (c) Zend Technologies
     with Zend OPcache v8.2.29, Copyright (c), by Zend Technologies
+
 ```
 
 
@@ -4678,6 +5021,7 @@ Zend Engine v4.2.29, Copyright (c) Zend Technologies
 [root@rocky ~]# yum -y install nginx
 [root@rocky ~]# nginx -v
 nginx version: nginx/1.28.0
+
 ```
 
 
@@ -4688,15 +5032,19 @@ nginx version: nginx/1.28.0
 安装 epel 源
 
 ```
+
 dnf install [https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm) [https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm](https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm)
+
 ```
 
 
 安装 Remi 源
 
 ```
+
 dnf -y install [http://rpms.remirepo.net/enterprise/remi-release-9.rpm](http://rpms.remirepo.net/enterprise/remi-release-9.rpm)
 dnf -y install  dnf-utils
+
 ```
 
 
@@ -4726,8 +5074,11 @@ sudo dnf -y module enable php:remi-8.2
 `dnf -y install php php-fpm`
 
 安装拓展
+
 ```
+
 dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-intl php-common php-bcmath php-imagick php-xmlrpc php-json php-readline php-memcached php-redis php-mbstring php-apcu php-xml php-dom php-redis php-memcached php-memcache
+
 ```
 
 
@@ -4738,6 +5089,7 @@ dnf install php-cli php-fpm php-curl php-mysqlnd php-gd php-opcache php-zip php-
 [root@rocky ~]# yum install -y mariadb-server
 [root@rocky ~]# mysql --version
 mysql  Ver 15.1 Distrib 10.5.27-MariaDB, for Linux (x86_64) using  EditLine wrapper
+
 ```
 
 
@@ -4757,6 +5109,7 @@ wordpress-6.7-zh_CN.tar.gz                100%[=================================
 
 2025-09-01 16:58:34 (7.19 MB/s) - 已保存 “wordpress-6.7-zh_CN.tar.gz” [33984379/33984379])
 [root@rocky ~]# tar xf wordpress-6.7-zh_CN.tar.gz -C /alice/
+
 ```
 
 
@@ -4764,9 +5117,12 @@ wordpress-6.7-zh_CN.tar.gz                100%[=================================
 5.创建用户用于统一管理 nginx，php
 
 避免繁杂的权限问题
+
 ```
+
 [root@rocky ~]# groupadd -g 666 www  
 [root@rocky ~]# useradd -u 666 -g 666 -M -s /sbin/nologin www
+
 ```
 
 
@@ -4780,6 +5136,7 @@ user  www;
 user = www
 group = www
 [root@rocky ~]# chown www:www /alice/wordpress/
+
 ```
 
 
@@ -4793,6 +5150,7 @@ listen = 127.0.0.1:9000
 Created symlink /etc/systemd/system/multi-user.target.wants/php-fpm.service → /usr/lib/systemd/system/php-fpm.service.
 [root@rocky ~]# netstat -tunlp | grep 9000
 tcp        0      0 127.0.0.1:9000          0.0.0.0:*               LISTEN      6651/php-fpm: maste 
+
 ```
 
 
@@ -4818,6 +5176,7 @@ server {
 <?php
      phpinfo();
 ?>
+
 ```
 
 访问网站php.test.com 测试，在 hosts 文件里做好相关映射
@@ -4846,6 +5205,7 @@ server {
                  include fastcgi_params;# # 引入标准 FastCGI 参数文件，确保所有必要参数被设置
         }
 }
+
 ```
 
 
@@ -4872,6 +5232,7 @@ server {
      echo "php可以连接MySQL~";
 ?>
 <img style='width:100%;height:100%;' src=images/hx.png>
+
 ```
 
 访问 php.alice.com/mysql.php
@@ -4914,6 +5275,7 @@ server {
 
 ```plsql
 [root@web02 ~]# mysql -h 192.168.120.150 -ucaster -p000000
+
 #这里搞的是远程数据库
 Welcome to the MariaDB monitor.  Commands end with ; or \g.
 Your MariaDB connection id is 31
@@ -4963,13 +5325,16 @@ MariaDB [wordpress]> select * from wp_users;
 |  1 | awdxa      | $P$Bz.Bif9F.CYW0iJiQTWwT67jMt2t5q/ | awdxa         | xaw@qq.com | http://php.alice.com | 2025-09-01 09:51:26 |                     |           0 | awdxa        |
 +----+------------+------------------------------------+---------------+------------+----------------------+---------------------+---------------------+-------------+--------------+
 1 row in set (0.001 sec)
+
 #可以看到awdxa就是我乱填的用户名，后面还有邮箱，密码被md5加密了
 MariaDB [wordpress]> UPDATE wp_users SET user_pass = MD5('000000') WHERE user_login = 'awdxa';
 Query OK, 1 row affected (0.024 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 
 MariaDB [wordpress]> 
+
 #把密码改成了000000，回到主页登录就行了
+
 ```
 
 
@@ -4988,16 +5353,16 @@ MariaDB [wordpress]>
 
 ## K8s基础架构
 
-![[_resources/linux笔记/602080906e00f1d43df2af815e15f692_MD5.png]]
+![602080906e00f1d43df2af815e15f692_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/602080906e00f1d43df2af815e15f692_MD5.png)
 
 
 
 
 ## 关于k8s资源清单部分顶级字段
 
-![[_resources/linux笔记/b1716fecba8988e8d7a93c340ec2d52b_MD5.png]]
+![b1716fecba8988e8d7a93c340ec2d52b_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/b1716fecba8988e8d7a93c340ec2d52b_MD5.png)
 
-![[_resources/linux笔记/1ba0145f8d5bc1f6702540c0979e5377_MD5.png]]
+![1ba0145f8d5bc1f6702540c0979e5377_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/1ba0145f8d5bc1f6702540c0979e5377_MD5.png)
 
 
 
@@ -5115,7 +5480,7 @@ imagePullPolicy: Never
 
 原因：这是在重新创建集群之前，原来集群的rm -rf $HOME/.kube文件没有删除，所以导致了认证失去作用。
 
-![[_resources/linux笔记/71995472fa51dff02d4369e65b179492_MD5.png]]
+![71995472fa51dff02d4369e65b179492_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/71995472fa51dff02d4369e65b179492_MD5.png)
 
 解决方法1：
 
@@ -5143,7 +5508,7 @@ source ~/.bashrc
 
 另外，以下报错也是出于该原因
 
-![[_resources/linux笔记/b1265d27c6c54feb86ad6fc6dc4d1acc_MD5.png]]
+![b1265d27c6c54feb86ad6fc6dc4d1acc_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/b1265d27c6c54feb86ad6fc6dc4d1acc_MD5.png)
 
 火狐浏览器的K8s网页乱码，用本地服务器的chrome浏览器解决了问题
 
@@ -5152,7 +5517,7 @@ source ~/.bashrc
 
 ## kubeadm拉取镜像及初始化报错mageService" , error: exit status 1 To see the stack trace of this error execute with --v=5 or higher
 
-![[_resources/linux笔记/254071198a2abdf0a9d4a9a1dbedd729_MD5.png]]
+![254071198a2abdf0a9d4a9a1dbedd729_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/254071198a2abdf0a9d4a9a1dbedd729_MD5.png)
 
 原因是containerd的配置文件写错了，在修改cgroup驱动时，将systemd_cgroup = false修改为了true，但实际上应该修改Systemd_cgroup = false为true，两者都存在于配置文件中，只是首字符大小写不一样，集群初始化也没再报错无法通信cri，但我没有执行crictl config runtime-point unix:///var/run/containerd/containerd.sock
 
@@ -5163,7 +5528,7 @@ source ~/.bashrc
 
 ## k8s使用国内镜像源
 
-![[_resources/linux笔记/26a11ad2910c607d57cc46cc4d688773_MD5.png]]
+![26a11ad2910c607d57cc46cc4d688773_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/26a11ad2910c607d57cc46cc4d688773_MD5.png)
 
 这里使用的是阿里云的镜像仓库
 
@@ -5202,7 +5567,7 @@ kubeadm config images list --config kubeadm.conf查看初始化所需镜像
 
 ## 使用kubectl命令行创建网络报错8080端口或许被占用
 
-![[_resources/linux笔记/77c7f534c0997bf20d15cb3d7a24a0bc_MD5.png]]
+![77c7f534c0997bf20d15cb3d7a24a0bc_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/77c7f534c0997bf20d15cb3d7a24a0bc_MD5.png)
 
 可能的原因是在完成集群初始化后没有将k8s的配置文件admin.conf拷贝到当前用户家目录下并更名为config，因为k8s要读取该配置文件
 
@@ -5211,21 +5576,21 @@ kubeadm config images list --config kubeadm.conf查看初始化所需镜像
 
 ## k8s的coredns一直处于创建中的状态
 
-![[_resources/linux笔记/2bc2cf73efbe037270af208e41a03b20_MD5.png]]
+![2bc2cf73efbe037270af208e41a03b20_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/2bc2cf73efbe037270af208e41a03b20_MD5.png)
 
 使用kubectl describe pod coredns-c676cc86f-hfp7q -n kube-system查看详细信息发现缺少对应文件/run/flannel/subnet.env文件(该文件一般是自动生成的）
 
-![[_resources/linux笔记/4af6d086348e0af5fe643310f1844485_MD5.png]]
+![4af6d086348e0af5fe643310f1844485_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/4af6d086348e0af5fe643310f1844485_MD5.png)
 
 于是手动创建一个，配置如下
 
-![[_resources/linux笔记/5f193d69cfb466b4150dd3ce2279131c_MD5.png]]
+![5f193d69cfb466b4150dd3ce2279131c_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/5f193d69cfb466b4150dd3ce2279131c_MD5.png)
 
 对应的集群初始化时指定的参数--pod-network-cidr 192.168.0.0/16
 
 再次查看pod状态
 
-![[_resources/linux笔记/688a26357a93a290dd6929cce72bfbe0_MD5.png]]
+![688a26357a93a290dd6929cce72bfbe0_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/688a26357a93a290dd6929cce72bfbe0_MD5.png)
 
 成功运行
 
@@ -5235,7 +5600,7 @@ kubeadm config images list --config kubeadm.conf查看初始化所需镜像
 ## containerd与docker
 containerd 相比于docker , 多了namespace概念, 每个image和container 都会在各自的namespace下可见, 目前k8s会使用k8s.io 作为命名空间,因此在使用ctr命令时一般要使用-n参数指定命名空间
 
-![[_resources/linux笔记/f2789c5a4edcd83ff6976d3bb2efef22_MD5.png]]
+![f2789c5a4edcd83ff6976d3bb2efef22_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/f2789c5a4edcd83ff6976d3bb2efef22_MD5.png)
 
 
 
@@ -5246,7 +5611,7 @@ containerd 相比于docker , 多了namespace概念, 每个image和container 都�
 
 而后又有新的报错
 
-![[_resources/linux笔记/9fb0923404b84d4ce394295521861ed6_MD5.png]]
+![9fb0923404b84d4ce394295521861ed6_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/9fb0923404b84d4ce394295521861ed6_MD5.png)
 
 经Al解析得知是因为找不到名为eth0的接口，因为本地的网卡名为ens33，在kube-flannel.yml配置文件中将iface=eth0参数修改为iface=ens33（不修改的话也可以仿openstack搭建前在虚拟机开机时添加参数net.ifnames=0 devbiosname=0,将网卡设置为eth0），且该配置文件中的另一个参数Network要指定为集群初始化时--pod-network-cidr的参数
 
@@ -5256,9 +5621,9 @@ containerd 相比于docker , 多了namespace概念, 每个image和container 都�
 
 至此成功搭建了一个完整可用的k8s集群
 
-![[_resources/linux笔记/11c6ee141827d60d80dcb69fe6d3485c_MD5.png]]
+![11c6ee141827d60d80dcb69fe6d3485c_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/11c6ee141827d60d80dcb69fe6d3485c_MD5.png)
 
-![[_resources/linux笔记/dce208538ddc7ad50aca9a7b05cd167a_MD5.png]]
+![dce208538ddc7ad50aca9a7b05cd167a_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/dce208538ddc7ad50aca9a7b05cd167a_MD5.png)
 
 
 
@@ -5288,7 +5653,7 @@ K8s集群初始化
 
 用ctr导入k8s初始化所需镜像到k8s.io命名空间中，而后开始集群的初始化，因为给出的镜像是打了aliyun网址的标签，[所以要指定镜像拉取网址为registry.aliyuncs.com/google_containerd](https://www.google.com/search?q=https://%E6%89%80%E4%BB%A5%E8%A6%81%E6%8C%87%E5%AE%9A%E9%95%9C%E5%83%8F%E6%8B%89%E5%8F%96%E7%BD%91%E5%9D%80%E4%B8%BAregistry.aliyuncs.com/google_containerd) ,即使这个网址不可用，初始化完成后在当前用户家目录下创建.kube目录，并将k8s的配置文件admin.conf移动到该目录更名为conf，而后node节点加入集群，修改kube-flannel.yml配置文件，修改Network的参数为初始化时--pod-network-cidr所指定的参数，还要修改iface的参数为本地的网卡名，由于本地主机只有一张名为ens33的网卡，则将默认的eth0修改为ens33，/run/flannel/subnet.env文件有时不会自动生成（操作顺序正确的话，该文件是会自动生成的），没有的话要手动编写一个，配置参考如下
 
-![[_resources/linux笔记/5f193d69cfb466b4150dd3ce2279131c_MD5.png]]
+![5f193d69cfb466b4150dd3ce2279131c_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/5f193d69cfb466b4150dd3ce2279131c_MD5.png)
 
 该配置也是和--pod-network-cidr所指定的参数相对应的
 
@@ -5312,6 +5677,7 @@ K8s集群初始化
 
 
 # 信创适配及安全管理
+
 ## 任务一
 主机清单
 serverA 192.168.122.10
@@ -5325,7 +5691,9 @@ server2 192.168.122.12
 2).配置主配置文件 /etc/named.conf 修改监听地址和允许查询范围
 `vim /etc/named.conf`
 修改后面有注释的行
+
 ```
+
 listen-on port 53 { any; }; //监听所有ip
 listen-on-v6 port 53 { ::1; };
 directory       "/var/named";
@@ -5336,9 +5704,13 @@ secroots-file   "/var/named/data/named.secroots";
 recursing-file  "/var/named/data/named.recursing";
 allow-query     { any; }; //允许任何人查询
 allow-transfer  { 192.168.122.12; }; //仅允许Server2同步区域
+
 ```
+
 然后在文件尾部写入如下内容
+
 ```
+
 //定义正向区域
 zone "system.org.cn" IN {
         type master;
@@ -5350,6 +5722,7 @@ zone "50.16.172.in-addr.arpa" IN {
         type master;
         file "db.50.16.172";
 };
+
 ```
 
 (2) 编写正向解析文件
@@ -5358,7 +5731,9 @@ zone "50.16.172.in-addr.arpa" IN {
 
 `vim /var/named/db.system.org.cn`
 修改为如下内容
+
 ```
+
 $TTL 1D
 @       IN SOA  system.org.cn. root.system.org.cn. (
                                         1       ; serial
@@ -5373,6 +5748,7 @@ ns2     A       192.168.122.12          ;必须告诉别人ns1在哪
 app1    A       172.16.50.101
 app2    A       172.16.50.102
 sts     A       172.16.50.103
+
 ```
 
 (3) 编写反向解析文件
@@ -5381,7 +5757,9 @@ sts     A       172.16.50.103
 编辑文件
 `vim /var/named/db.50.16.172`
 写入如下内容
+
 ```
+
 $TTL 1D
 @       IN SOA  system.org.cn. root.system.org.cn. (
                                         1       ; serial
@@ -5394,6 +5772,7 @@ $TTL 1D
 101     PTR     app1.system.org.cn.
 102     PTR     app2.system.org.cn.
 103     PTR     sts.system.org.cn.
+
 ```
 
 
@@ -5413,7 +5792,7 @@ $TTL 1D
 
 参考结果
 [[_resources/linux笔记/31a77f7a80364c9a32c63641f05924c1_MD5.jpg|Open: Pasted image 20251221155725.png]]
-![[_resources/linux笔记/31a77f7a80364c9a32c63641f05924c1_MD5.jpg]]
+![31a77f7a80364c9a32c63641f05924c1_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/31a77f7a80364c9a32c63641f05924c1_MD5.jpg)
 
 
 
@@ -5427,7 +5806,9 @@ Server2 不需要自己写正反向解析文件（也就是不用 cp 和 vim `db
 2)修改主配置文件 /etc/named.conf
 vim /etc/named.conf
 修改内容如下
+
 ```
+
 listen-on port 53 { any; }; //监听所有地址
         listen-on-v6 port 53 { ::1; };
         directory       "/var/named";
@@ -5437,10 +5818,14 @@ listen-on port 53 { any; }; //监听所有地址
         secroots-file   "/var/named/data/named.secroots";
         recursing-file  "/var/named/data/named.recursing";
         allow-query     { any; }; //允许任何人查询
+
 ```
+
 修改注释的行
 然后同样在文件底部写入如下内容
+
 ```
+
 //定义正向区域(从)
 zone "system.org.cn" IN {
         type slave;
@@ -5454,6 +5839,7 @@ zone "50.16.172.in-addr.arpa" IN {
         masters { 192.168.122.11; };
         file "slaves/db.50.16.172";
 };
+
 ```
 
 3)启动服务并验证同步
@@ -5471,10 +5857,14 @@ zone "50.16.172.in-addr.arpa" IN {
 配置DNS服务器
 `[root@serverA ~]# vim /etc/resolv.conf`
 写入如下内容
+
 ```
+
 nameserver 192.168.122.11
 nameserver 192.168.122.12
+
 ```
+
 测试DNS解析
 `[root@serverA demoCA]# ping app1.system.org.cn`
 能解析到**172.16.50.101**的ip就是成功，ping不通是正常的，因为地址不存在
@@ -5505,7 +5895,9 @@ nameserver 192.168.122.12
 3)准备 SAN 扩展文件
 因为题目要求证书支持 `*.system.org.cn`，这属于扩展属性，必须通过外部文件加载。
 创建一个配置文件 v3.ext
+
 ```
+
 cat > v3.ext <<EOF
 authorityKeyIdentifier=keyid,issuer 
 basicConstraints=CA:FALSE 
@@ -5515,6 +5907,7 @@ subjectAltName = @alt_names
 DNS.1 = *.system.org.cn 
 DNS.2 = system.org.cn 
 EOF
+
 ```
 
 4)签发证书
@@ -5563,8 +5956,11 @@ Sign the certificate? [y/n]和1 out of 1 certificate requests certified, commit?
 书写代码
 `vim vim calculator.py`
 写入如下内容
+
 ```
+
 import sys
+
 # 1. 导入必要的 PyQt5 模块
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QLineEdit, QPushButton, QMessageBox
 from PyQt5.QtGui import QFont
@@ -5657,6 +6053,7 @@ if __name__ == '__main__':
     calc.show()
     # 【适配点7】确保正常退出
     sys.exit(app.exec_())
+
 ```
 
 
@@ -5677,6 +6074,7 @@ if __name__ == '__main__':
 
 
 ## 任务三
+
 ### 1.安装JDK
 1.在 x86 麒麟上，我们用 OpenJDK 11 代替毕昇 JDK 11。
 `sudo apt update` 
@@ -5705,6 +6103,7 @@ if __name__ == '__main__':
 使用 root 用户打开 `/etc/security/limits.conf` 文件进行修改
 `vi /etc/security/limits.conf`
 在文件末尾写入如下内容
+
 ```plaintext
 dmdba  soft      nice       0
 dmdba  hard      nice       0
@@ -5720,6 +6119,7 @@ dmdba  soft      core       unlimited
 dmdba  hard      core       unlimited
 dmdba  soft      data       unlimited
 dmdba  hard      data       unlimited
+
 ```
 
 重启后生效
@@ -5727,7 +6127,7 @@ dmdba  hard      data       unlimited
 `su - dmdba`
 `ulimit -a`
 [[_resources/linux笔记/e7ebc0bdc9a2590df34e9813ce92b481_MD5.jpg|Open: Pasted image 20251223114145.png]]
-![[_resources/linux笔记/e7ebc0bdc9a2590df34e9813ce92b481_MD5.jpg]]
+![e7ebc0bdc9a2590df34e9813ce92b481_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/e7ebc0bdc9a2590df34e9813ce92b481_MD5.jpg)
 看到标红的选项可以看到配置已经生效
 
 设置参数临时生效（可选）
@@ -5741,10 +6141,14 @@ dmdba  hard      data       unlimited
 
 规划创建实例保存目录、归档保存目录、备份保存目录
 使用 root 用户建立文件夹，待 dmdba 用户建立完成后需将文件所有者更改为 dmdba 用户，否则无法安装到该目录下
+
 ```shell
+
 #创建实例保存目录，归档保存目录，备份保存目录
 mkdir -p /dmdata/{data,arch,dmbak}
+
 ```
+
 修改目录权限
 将新建的路径目录权限的用户修改为 dmdba，用户组修改为 dinstall
 `chown -R dmdba:dinstall /dmdata/`
@@ -5777,7 +6181,9 @@ mkdir -p /dmdata/{data,arch,dmbak}
 使用 dmdba 用户配置实例，进入到 DM 数据库安装目录下的 bin 目录中
 `./dminit path=/dmdata/data PAGE_SIZE=32 EXTENT_SIZE=32 CASE_SENSITIVE=y CHARSET=1 DB_NAME=finance_db INSTANCE_NAME=DBSERVER PORT_NUM=5237 SYSDBA_PWD=Dameng123 SYSAUDITOR_PWD=Dameng123`
 释义
+
 ```
+
 PAGE_SIZE=32  //设置页大小为32
 EXTENT_SIZE=32 //设置簇大小为32kb
 CASE_SENSITIVE=y //大小写敏感
@@ -5788,6 +6194,7 @@ PORT_NUM=5237 //端口为5237
 SYSDBA_PWD=Dameng123 
 SYSAUDITOR_PWD=Dameng123
 SYSDBA_PWD 和 SYSAUDITOR_PWD 为配置数据库 SYSDBA 用户和 SYSAUDITOR 用户的登录密码，需要用户自定义配置，且需保证一定的密码强度。
+
 ```
 
 
@@ -5825,26 +6232,35 @@ DM 提供了将 DM 服务脚本注册成操作系统服务的脚本，同时也�
 还是在~/dmdbms/bin目录下使用dmdba用户操作
 连接数据库
 `./disql SYSDBA/Dameng123@localhost:5237`
+
 ```shell
+
 #创建一个独立的表空间
 CREATE TABLESPACE finance_tbs DATAFILE 'finance.dbf' SIZE 128;
+
 #创建用户（用户名 finance_user，密码 Finance@123）
 CREATE USER finance_user IDENTIFIED BY "Finance@123" DEFAULT TABLESPACE finance_tbs;
+
 #授权
 GRANT RESOURCE, PUBLIC TO finance_user;
+
 #切换到新用户（密码中间的@会被当作特殊字符处理，要加双引号）
 CONN finance_user/"Finance@123"@localhost:5237;
+
 #建表
 CREATE TABLE account ( 
 account_id VARCHAR(20) PRIMARY KEY, 
 balance DECIMAL(15, 2) 
 );
+
 #塞点测试数据
 INSERT INTO account VALUES('ACC001', 5000.00); 
 INSERT INTO account VALUES('ACC002', 1000.00); 
 COMMIT;
+
 #验证
 SELECT * FROM account;
+
 ```
 
 
@@ -5858,6 +6274,7 @@ SELECT * FROM account;
 
 `vim SimpleAccountTool.java`
 写入代码内容如下
+
 ```java
 import java.sql.*;
 import java.util.Scanner;
@@ -5995,6 +6412,7 @@ public class SimpleAccountTool {
         }
     }
 }
+
 ```
 
 编译代码
@@ -6003,7 +6421,7 @@ public class SimpleAccountTool {
 `java -cp .:DmJdbcDriver11.jar SimpleAccountTool`
 测试代码
 [[_resources/linux笔记/417aba15e5e0031072ae311e3e8ea945_MD5.jpg|Open: Pasted image 20251223154228.png]]
-![[_resources/linux笔记/417aba15e5e0031072ae311e3e8ea945_MD5.jpg]]
+![417aba15e5e0031072ae311e3e8ea945_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/417aba15e5e0031072ae311e3e8ea945_MD5.jpg)
 注意修改日志finance_log.txt权限为题目要求的600
 
 
@@ -6011,13 +6429,16 @@ public class SimpleAccountTool {
 
 
 ## 任务四
+
 ### 第一部分：网络内核参数加固
 这是为了防止网络攻击（DoS、ICMP攻击）
 
 编辑文件
 `vim /etc/sysctl.conf`
 写入如下内容（但实际上除了最后一项配置，其他早就写好了）
+
 ```conf
+
 #禁止发送IPV4重定向报文
 net.ipv4.conf.all.send_redirects=0
 net.ipv4.conf.default.send_redirects=0
@@ -6035,6 +6456,7 @@ net.ipv4.tcp_syncookies=1
 #启用日志记录异常的IP地址报文
 net.ipv4.conf.all.log_martians=1
 net.ipv4.conf.default.log_martians=1
+
 ```
 
 生效配置
@@ -6067,7 +6489,7 @@ init 3
 **设置安全单用户模式**
 防止有人物理接触服务器后直接进 Root
 [[_resources/linux笔记/2682450dd30c44dcac1ed4eb255dcb5c_MD5.jpg|Open: Pasted image 20251223170557.png]]
-![[_resources/linux笔记/2682450dd30c44dcac1ed4eb255dcb5c_MD5.jpg]]
+![2682450dd30c44dcac1ed4eb255dcb5c_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/2682450dd30c44dcac1ed4eb255dcb5c_MD5.jpg)
 貌似麒麟server_v10版默认就是安全单用户模式，用上图命令测试
 
 
@@ -6078,11 +6500,14 @@ init 3
 编辑配置文件
 `vim /etc/login.defs`
 修改如下字段的参数
+
 ```
+
 PASS_MAX_DAYS   90 #最大有效期90天
 PASS_MIN_DAYS   0  #设置为0则表示可随时更改
 PASS_MIN_LEN    8  #最小长度8位
 PASS_WARN_AGE   7  #到期前7天提示
+
 ```
 
 **防暴力破解**:
@@ -6091,23 +6516,30 @@ PASS_WARN_AGE   7  #到期前7天提示
 因此需要修改这两个文件的内容
 `vim /etc/pam.d/password-auth`
 修改或添加有中文注释的行
+
 ```
+
 #%PAM-1.0
+
 # User changes will be destroyed the next time authconfig is run.
 auth        required      pam_env.so
+
 #预验证检查:将解锁时间修改为300秒
 auth        requisite     pam_faillock.so preauth audit deny=3 even_deny_root unlock_time=300
 -auth        sufficient    pam_fprintd.so
 auth        sufficient    pam_unix.so nullok try_first_pass
 -auth        sufficient    pam_sss.so use_first_pass
+
 #验证失败处理:将解锁时间修改为300秒
 auth        [default=die] pam_faillock.so authfail audit deny=3 even_deny_root unlock_time=300
+
 #验证成功处理:清除计数,参数保持一致
 auth        sufficient    pam_faillock.so authsucc audit deny=3 even_deny_root unlock_time=300
 auth        requisite     pam_succeed_if.so uid >= 1000 quiet_success
 auth        required      pam_deny.so
 
 account     required      pam_unix.so
+
 #确保ssh登录也能正确检测锁定状态
 account     required      pam_faillock.so
 account     sufficient    pam_localuser.so
@@ -6126,21 +6558,28 @@ session     required      pam_limits.so
 session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet use_uid
 session     required      pam_unix.so
 -session     optional      pam_sss.so
+
 ```
 
 然后修改另一个文件
 `vim /etc/pam.d/system-auth`
+
 ```
+
 #%PAM-1.0
+
 # User changes will be destroyed the next time authconfig is run.
 auth        required      pam_env.so
+
 #预验证检查:将解锁时间修改为300秒
 auth        requisite     pam_faillock.so preauth audit deny=3 even_deny_root unlock_time=300
 -auth        sufficient    pam_fprintd.so
 auth        sufficient    pam_unix.so nullok try_first_pass
 -auth        sufficient    pam_sss.so use_first_pass
+
 #验证失败处理:将解锁时间修改为300秒
 auth        [default=die] pam_faillock.so authfail audit deny=3 even_deny_root unlock_time=300
+
 #验证成功处理:清除计数,参数保持一致
 auth        sufficient    pam_faillock.so authsucc audit deny=3 even_deny_root unlock_time=300
 auth        requisite     pam_succeed_if.so uid >= 1000 quiet_success
@@ -6164,7 +6603,9 @@ session     required      pam_limits.so
 session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet use_uid
 session     required      pam_unix.so
 -session     optional      pam_sss.so
+
 ```
+
 和刚才的文件的修改区别就是只需要改三处参数
 
 
@@ -6173,14 +6614,19 @@ session     required      pam_unix.so
 编辑配置文件
 `vim /etc/ssh/sshd_config`
 查找并修改以下行
+
 ```
+
 # 登录失败最大次数 3
 MaxAuthTries 3
+
 # 禁止空口令登录
 PermitEmptyPasswords no
+
 # 15分钟 (900秒) 无操作断开
 ClientAliveInterval 900
 ClientAliveCountMax 0
+
 ```
 
 重启sshd服务
@@ -6196,7 +6642,9 @@ ClientAliveCountMax 0
 编辑规则文件
 `vim /etc/audit/rules.d/audit.rules`
 写入如下内容
+
 ```
+
 # 审计关键文件改动 (-w 路径 -p 权限wa(写/属性) -k 关键词)
 -w /etc/hosts -p wa -k hosts_change
 -w /etc/resolv.conf -p wa -k resolv_change 
@@ -6204,10 +6652,13 @@ ClientAliveCountMax 0
 -w /etc/shadow -p wa -k shadow_change 
 -w /etc/sudoers -p wa -k sudoers_change 
 -w /etc/sudoers.d/ -p wa -k sudoers_d_change 
+
 # 审计命令执行 (-w 路径 -p x(执行) -k 关键词) 
+
 # 先用 `which rm` 和 `which reboot` 确认路径，通常是 /usr/bin/ 
 -w /usr/bin/rm -p x -k rm_command 
 -w /usr/sbin/reboot -p x -k reboot_command
+
 ```
 
 
@@ -6223,7 +6674,7 @@ ClientAliveCountMax 0
 重启后使用`auditctl -l`命令验证
 参考如图
 [[_resources/linux笔记/116f35fe7335894b2b5ee3abc79ea714_MD5.jpg|Open: Pasted image 20251223194356.png]]
-![[_resources/linux笔记/116f35fe7335894b2b5ee3abc79ea714_MD5.jpg]]
+![116f35fe7335894b2b5ee3abc79ea714_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/116f35fe7335894b2b5ee3abc79ea714_MD5.jpg)
 
 
 

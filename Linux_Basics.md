@@ -4,13 +4,13 @@
 
 不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
 
-例：![[_resources/linux笔记/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png]]
+例：![944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png)
 
 想要使用bash则需要确保拥有lib下的各个函数库文件
 
 没有依赖库但想要使用bash则会报错如下
 
-![[_resources/linux笔记/87727257087262a186f7eebb6995744f_MD5.png]]
+![87727257087262a186f7eebb6995744f_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/87727257087262a186f7eebb6995744f_MD5.png)
 
 
 ## sed命令
@@ -55,11 +55,11 @@ RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取
 
 也可以使用正则表达式
 
-![[_resources/linux笔记/01d58b0c95d05afd4079b03dd508cc4e_MD5.png]]
+![01d58b0c95d05afd4079b03dd508cc4e_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/01d58b0c95d05afd4079b03dd508cc4e_MD5.png)
 
 其他的内建变量的使用示例
 
-![[_resources/linux笔记/77fd632d9cffa87c49ac40ffdbb3825a_MD5.png]]
+![77fd632d9cffa87c49ac40ffdbb3825a_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/77fd632d9cffa87c49ac40ffdbb3825a_MD5.png)
 
 该命令用于统计以字符 ‘行’ 结尾的行数量
 
@@ -71,7 +71,7 @@ RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取
 
 -F参数的使用
 
-![[_resources/linux笔记/13d1232062bae2b5368670376d4444ee_MD5.png]]
+![13d1232062bae2b5368670376d4444ee_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/13d1232062bae2b5368670376d4444ee_MD5.png)
 
 该命令筛选出了该文件的所有行的第一列，而区分列的规范由” ”里的内容指定，在这里是以:起作分隔不同行的作用,{}里面可以指定一行的多个列，用 , 分隔开
 
@@ -79,7 +79,7 @@ RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取
 
 例如/etc/passwork在以:作为分隔符时，第三个字段是数字，这里就可以做筛选
 
-![[_resources/linux笔记/f10da89e0b07e0eda8c4d28b216cd874_MD5.png]]
+![f10da89e0b07e0eda8c4d28b216cd874_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/f10da89e0b07e0eda8c4d28b216cd874_MD5.png)
 
 在这里筛选出了第三个字段小于10的字符串（给$3<10打个括号更美观一些）
 
@@ -87,13 +87,13 @@ awk -F ":" '!($3<200){print}' /etc/passwd #输出第3个字段的值不小于200
 
 /////////////////////////////////////////////////////////////////////////////////
 
-![[_resources/linux笔记/980aab50b5441793b7c27a3d46a2ea57_MD5.png]]
+![980aab50b5441793b7c27a3d46a2ea57_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/980aab50b5441793b7c27a3d46a2ea57_MD5.png)
 
 报错原因：这个镜像是坏的
 
 斗学网容器云赛卷实验的chinaskills_cloud_iaas.iso文件是坏的，从服务器的linux主机上拷贝了一个正常镜像给云主机,但该镜像缺少kubeeasy的可执行命令文件
 
-![[_resources/linux笔记/2db0fb5f00d481e8383307df88bbd46f_MD5.png]]
+![2db0fb5f00d481e8383307df88bbd46f_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/2db0fb5f00d481e8383307df88bbd46f_MD5.png)
 
 
 
@@ -175,6 +175,7 @@ Linux chattr 命令用于改变文件或目录的属性，这些属性可以控�
 = : 设置为指定属性
 
 ```
+
 常用属性
 a     仅追加：文件只能追加内容，不能删除或修改已有内容（需 root 权限）。
 i     不可变：文件不能被删除、修改、重命名或创建硬链接（需 root 权限）。
@@ -183,7 +184,9 @@ c     文件在磁盘上自动压缩（部分文件系统支持）。
 s     安全删除：文件被删除时，其数据会被清零（不可恢复）。
 u     文件被删除后，其内容仍可恢复（与 s 相反）。
 d     文件在 dump 备份时会被跳过。
+
 ```
+
 `+C`  NOCOW禁止写时复制。允许修改，但必须**原地覆盖**。
 
 
@@ -204,7 +207,9 @@ d     文件在 dump 备份时会被跳过。
 ## tar命令
 tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数实现
 后缀是.tar
+
 ```
+
 -c 创建新包
 -v 显示过程
 -f 指定待处理文件，该参数要放到最后
@@ -213,6 +218,7 @@ tar的功能是归档和解归档而不是压缩或解压缩,但可以加参数�
 -j, 通过 bzip2 过滤归档(同上,压缩文件格式是bzip2，后缀加.bz2)
 -J 通过xz过滤归档(同上,后缀加.xz)
  -C 指定解压位置
+
 ```
 
 
@@ -252,6 +258,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 匹配来源：
 文件名    ：/usr/bin/zcat
 提供    : /bin/zcat
+
 ```
 
 ### 查看某个服务的所有配置文件路径
@@ -266,6 +273,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 /etc/nginx/nginx.conf
 /etc/nginx/scgi_params
 /etc/nginx/uwsgi_params
+
 ```
 
 还可以查看所有相关文件（不止配置文件）
@@ -306,6 +314,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 /var/cache/nginx
 /var/log/nginx
 [root@rocky ~]# 
+
 ```
 
 
@@ -333,7 +342,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 ## alisa命令别名
 以docker为例
-![[_resources/linux笔记/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png]]
+![55b91cf1ca8373b5e6b33246b327e1f7_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png)
 
 
 
@@ -356,7 +365,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 &和\的示例(以sed命令示例)
 
-![[_resources/linux笔记/215f862977ebe34f865d059a684c4d22_MD5.png]]
+![215f862977ebe34f865d059a684c4d22_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/215f862977ebe34f865d059a684c4d22_MD5.png)
 
 
 
@@ -421,7 +430,7 @@ PS2：定义多行命令的提示符的格式。
 
 ## 关于echo $PATH的回显释义
 
-![[_resources/linux笔记/91238653c6e8e6603e279c474409f9ab_MD5.png]]
+![91238653c6e8e6603e279c474409f9ab_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/91238653c6e8e6603e279c474409f9ab_MD5.png)
 
 
 ## 关于逻辑卷调整的-r参数
@@ -488,7 +497,7 @@ APFS： 扩容支持：在线 收缩支持：在线 工具：macOS 磁盘工具
 
 
 ## namespance分类 
-![[_resources/linux笔记/21d6eb1b235d93b35c05bff409736782_MD5.png]]
+![21d6eb1b235d93b35c05bff409736782_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/21d6eb1b235d93b35c05bff409736782_MD5.png)
 
 
 
@@ -498,13 +507,16 @@ APFS： 扩容支持：在线 收缩支持：在线 工具：macOS 磁盘工具
 ## 基于插入内核进程的直接生效流量转发
 
 这个方法有意思，临时生效
+
 ```
+
 配置网络
 echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
 echo 1 >/proc/sys/net/bridge/bridge-nf-call-ip6tables
 echo """vm.swappiness = 0 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward = 1 net.bridge.bridge-nf-call-ip6tables = 1 """ > /etc/sysctl.conf
 加载配置
 sysctl -p
+
 ```
 
 
@@ -662,10 +674,12 @@ echo "000000" | passwd --stdin user
 (其实在配置文件内部都有参考,包括组提权，参考wheel组）
 
 sudo提权可以精确到具体命令
+
 ```bash
 [root@server ~]# grep "^testuser" /etc/sudoers
 testuser ALL=(ALL) /bin/cat
 [root@server ~]# 
+
 ```
 
 ```bash
@@ -675,6 +689,7 @@ testuser ALL=(ALL) /bin/cat
 [sudo] testuser 的密码：
 hello!
 [testuser@server root]$ 
+
 ```
 
 通过sudo -l命令可以查看当前用户有哪些sudo权限
@@ -689,6 +704,7 @@ hello!
 用户 testuser 可以在 server 上运行以下命令：
     (ALL) /bin/cat
 [testuser@server root]$ 
+
 ```
 
 
@@ -1002,11 +1018,11 @@ block块(数据块): 存放数据
 
 如图，从 curl -v 的标准输出中过滤关键词 Date 失败
 
-![[_resources/linux笔记/5868337d1d74cb62f25fbe671bfdafe5_MD5.png]]
+![5868337d1d74cb62f25fbe671bfdafe5_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/5868337d1d74cb62f25fbe671bfdafe5_MD5.png)
 
 只需要在管道符后面加上一个&即可
 
-![[_resources/linux笔记/5291b5bebf2a0dff8ef97421fd6e7130_MD5.png]]
+![5291b5bebf2a0dff8ef97421fd6e7130_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/5291b5bebf2a0dff8ef97421fd6e7130_MD5.png)
 
 linux的/etc/skel目录
 
@@ -1027,13 +1043,16 @@ linux的/etc/skel目录
 此时前台阻塞中，再开一个bash进程来操作
 
 ```
+
 [root@server ~]# ps aux | grep zombine
 root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 pts/0 Z+ 16:22 0:00 [zombine]  root 2381 0.0 0.1 221680 2448 pts/1 S+ 16:22 0:00 grep --color=auto zombine [root@server ~]# pstree -p | grep 2378 |-sshd(988)-+-sshd(2094)---sshd(2130)---bash(2140)---zombine(2378)---zombine(2379) 
+
 ```
 
 查询到僵尸进程后通过pid查看对应进程树 僵尸进程是由于父进程进入异常状态(这里的父进程用sleep函数模拟异常状态)无法正常回收子进程，导致子进程一直占用资源，通过进程树得知异常父进程的pid是2378 只能通过杀死父进程来杀死僵尸进程
 
 ```
+
 [root@server ~]# kill -9 2378
 [root@server ~]# ./zombine
 [Parent] PID 2401 running 
@@ -1044,11 +1063,13 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 [root@server ~]#
 
 ```
+
 孤儿进程 孤儿进程指的是在其父进程执行完成或被终止后仍继续运行的一类进程。 孤儿进程会被系统直接接管.(systemd进程)
 
 还是用C代码演示孤儿进程
 
 ```
+
 [root@server ~]# ./orphan
 [Parent] PID 2471 created child PID 2472
 [Parent] Exiting now 
@@ -1058,6 +1079,7 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 [Orphan] Running for 60 seconds...
 [root@server ~]# ps aux | grep orphan root 2472 0.0 0.0 2628 88 pts/1 S 16:46 0:00 ./orphan root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan 
 [root@server ~]# pstree -p | grep 2472 |-orphan(2472)
+
 ```
 
 这里可以看到该进程被系统接管,直接kill -9杀掉就行
@@ -1070,18 +1092,18 @@ root 2378 0.0 0.0 2628 928 pts/0 S+ 16:22 0:00 ./zombine root 2379 0.0 0.0 0 0 p
 ## linux 调用历史命令
 有两种方式
 1.使用 history 命令查看执行过的命令，输入对应历史命令的序号，前面加上！即可快速执行该命令
-![[_resources/linux笔记/0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png]]
+![0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png)
 
 2.直接使用 ！
 使用  '!关键字'  可以快速查找并执行 最后一次执行的 以该关键字开头的命令
-![[_resources/linux笔记/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png]]
+![4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png)
 没用的小知识又增加了
 
 
 
 
 # http 协议原理总结
-![[_resources/linux笔记/109d66a9732bed4014db20be12c68878_MD5.png]]
+![109d66a9732bed4014db20be12c68878_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/109d66a9732bed4014db20be12c68878_MD5.png)
 
 
 
@@ -1157,14 +1179,16 @@ GPT 分区表下的类型代码: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
 # TCP 三次握手原理
 
 
-![[_resources/linux笔记/338cb5e208708cf7466e0de831fba7a5_MD5.png]]
+![338cb5e208708cf7466e0de831fba7a5_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/338cb5e208708cf7466e0de831fba7a5_MD5.png)
 
 ```
+
 TCB           传输控制块，打开后服务器/客户端进入监听(LISTEN)状态
 SYN=1      请求建立连接
 seq            报文初始序列号，代表发送的第一个字节的序号
 Ack=1       确认收到了客户端信息
 ack            报文确认序号，代表希望收到的下一个数据的第一个字节的序号
+
 ```
 
 
@@ -1215,7 +1239,7 @@ DNS端口因为使用的是udp，所以是53号端口
 
 在浏览器的 url 栏中输入域名 rocky.linux.com 时，有多个流程，当前流程失败就走下一个流程
 
-![[_resources/linux笔记/f310b68af89c66d83487d5c9b5a03840_MD5.jpg]]
+![f310b68af89c66d83487d5c9b5a03840_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/f310b68af89c66d83487d5c9b5a03840_MD5.jpg)
 
 
 
@@ -1365,10 +1389,10 @@ btrfs文件系统的COW在每个时期的动作是怎样的，可以参考如下
 
 ## ssh报错kex_exchange_identification
 [[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
-![[_resources/linux笔记/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg]]
+![ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
 虚拟机内部的sshd服务报错是
 [[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg|Open: Pasted image 20251222202505.png]]
-![[_resources/linux笔记/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg]]
+![6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
 SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
 - 它会启动一个拥有 root 权限的主进程。
     
@@ -1418,9 +1442,9 @@ SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）**
 
 ## centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
 
-![[_resources/linux笔记/d3c4ccd82df00fadf72ecaeccf298f63_MD5.png]]
+![d3c4ccd82df00fadf72ecaeccf298f63_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/d3c4ccd82df00fadf72ecaeccf298f63_MD5.png)
 
-![[_resources/linux笔记/675a64bc9f80cf73c9e88af566904b64_MD5.png]] 因服务器无端重启，导致无法挂载系统
+![675a64bc9f80cf73c9e88af566904b64_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/675a64bc9f80cf73c9e88af566904b64_MD5.png) 因服务器无端重启，导致无法挂载系统
 
 解决方案：使用xfs_repair工具修复
 
@@ -1446,17 +1470,20 @@ SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）**
 
 ## NetworkManager与network冲突问题
 
-![[_resources/linux笔记/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png]]
+![bc77c767c2a42758bf93c8dd27ce79b7_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png)
 
 使用ip a命令时发现网卡未读取到网卡配置文件中的静态网络配置信息，查看网卡配置没有错误，使用systemctl restart network报错
 job for network.service failed
 
 解决方案：
+
 ```
+
 systemctl stop NetworkManager
 systemctl disable NetworkManager
 systemctl restart network
 systemctl status network
+
 ```
 
 原因:
@@ -1479,7 +1506,7 @@ systemctl status network
 设备:vmware虚拟机rh9.2
 
 原图
-![[_resources/linux笔记/62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png]]
+![62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png)
 
 
 解决方案:

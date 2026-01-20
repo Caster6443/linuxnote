@@ -3,42 +3,49 @@ import re
 import pathlib
 from urllib.parse import quote
 
-# 遍历当前目录下所有的 .md 文件
-for p in pathlib.Path(".").glob("*.md"):
-    if p.suffix == ".converted.md": continue # 跳过已转换的文件
+# 配置：你的图片存放路径（相对于 md 的路径）
+RESOURCE_DIR = "_resources/linux笔记"
+
+def fix_markdown(file_path):
+    txt = file_path.read_text(encoding="utf-8")
     
-    txt = p.read_text(encoding="utf-8")
-
-    # 1. 转换图片: ![[path/to/img.png|alt]] -> ![alt](path/to/img.png)
+    # 1. 转换图片: ![[.../img.png|300]] -> ![img.png](_resources/linux笔记/img.png)
+    # 强制修正路径到你的 _resources 目录下
     def img_repl(m):
-        content = m.group(1)
-        parts = content.split('|')
-        path = parts[0].strip()
-        # 提取文件名作为 Alt 文本
-        alt = parts[-1].split('/')[-1] if len(parts) > 1 else path.split('/')[-1]
-        # 对路径进行编码，防止空格导致链接断开
-        safe_path = quote(path)
-        return f"![{alt}]({safe_path})"
-
+        content = m.group(1).split('|')[0].strip()
+        file_name = content.split('/')[-1]
+        new_path = f"{RESOURCE_DIR}/{file_name}"
+        # quote 会处理中文路径和空格，防止 Git 预览失效
+        return f"![{file_name}]({quote(new_path)})"
+    
     txt = re.sub(r'!\[\[([^\]]+)\]\]', img_repl, txt)
 
-    # 2. 转换普通 WikiLink
-    def link_repl(m):
-        inner = m.group(1)
-        path, alias = inner.split("|", 1) if "|" in inner else (inner, inner)
-        path, alias = path.strip(), alias.strip()
-        
-        path_out = path if re.search(r'\.\w+$', path) else path + ".md"
-        return f"[{alias}]({quote(path_out)})"
+    # 2. 修复代码块结束后的空行问题（解决“挤成一团”）
+    # 如果 ``` 后面紧跟文字，强行插入两个换行
+    txt = re.sub(r'(```\n)(?!\n)', r'\1\n', txt)
+    txt = re.sub(r'([^\n])\n(```)', r'\1\n\n\2', txt)
 
-    txt = re.sub(r'\[\[([^\]]+)\]\]', link_repl, txt)
+    # 3. 修复 Desktop 笔记里那些散开的标题字符 (Z s h -> Zsh)
+    # 这是一个针对性修复，你可以根据需要添加更多词
+    mangled_words = {
+        "Z s h": "Zsh",
+        "自 动 建 议 插 件": "自动建议插件",
+        "激 活": "激活",
+        "提 示 符": "提示符",
+        "自 动 补 全": "自动补全",
+        "语 法 高 亮": "语法高亮"
+    }
+    for old, new in mangled_words.items():
+        txt = txt.replace(old, new)
 
-    # 3. 转换 Callouts (:::info)
-    txt = re.sub(r'::: *(\w+)\s*\n(.*?)\n:::', 
-                 lambda m: f"\n> **{m.group(1).capitalize()}:**\n> " + m.group(2).strip().replace("\n", "\n> ") + "\n", 
-                 txt, flags=re.S)
+    # 4. 修复标题格式：确保 # 后面有空格，且标题前后有空行
+    txt = re.sub(r'([^\n])\n(#+)', r'\1\n\n\2', txt)
 
-    # 输出新文件，或者直接覆盖源文件（建议先输出新文件测试）
-    output_path = p.with_suffix(".converted.md")
-    output_path.write_text(txt, encoding="utf-8")
-    print(f"已处理: {p.name} -> {output_path.name}")
+    # 保存修复后的文件（直接覆盖原文件，或者你可以改名输出）
+    file_path.write_text(txt, encoding="utf-8")
+    print(f"已修复并转好图片链接: {file_path.name}")
+
+# 批量处理目录下所有 md
+for p in pathlib.Path(".").glob("*.md"):
+    if ".converted" in p.name: continue
+    fix_markdown(p)

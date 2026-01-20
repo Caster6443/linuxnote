@@ -6,6 +6,7 @@
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的
 
 比如
+
 ## 设置命令开机自启动
 进入该配置文件，在 exec-once 开头的那一块区域写入
 exec-once=需要开机自动执行的命令
@@ -21,6 +22,7 @@ exec-once=mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多
 ## 设置快捷键
 也是在这个配置文件里修改
 关键字是 bind 开头的行
+
 ```bash
 $mainMod = SUPER # Sets "Windows" key as main modifier
 $control = ctrl # by myself
@@ -28,7 +30,9 @@ $control = ctrl # by myself
 #by myself
 bind = $control, t, exec, $terminal
 bind = $mainMod, F2,exec,pkill waybar || true && waybar #restart waybar  
+
 # Example binds, see https://wiki.hypr.land/Configuring/Binds/ for more
+
 #bind = $mainMod, T, exec, $terminal
 bind = $mainMod, C, killactive,
 bind = $mainMod, M, exit,
@@ -37,6 +41,7 @@ bind = $mainMod, V, togglefloating,
 bind = $mainMod, R, exec, $menu
 bind = $mainMod, P, pseudo, # dwindle
 bind = $mainMod, J, togglesplit, # dwindle
+
 ```
 
 可以看到，这个快捷键设置其实就是自定义变量的值为某个键位，然后在 bind 里引用该变量并与其他变量和键位组合使用（后续使用发现一些常见键位并不需要赋值给变量，比如 CTRL 、SHIFT、F10 之类的直接写也能识别）
@@ -65,7 +70,9 @@ $menu = fuzzel
 
 
 关于桌面快捷键的事，虽然配置文件的 bind 的注释里都写清楚用途，但我还是记录一下常用的默认配置和我的自定义的快捷键配置
+
 ```
+
 super + e				打开 thunar 文件管理器
 super + c				关闭当前窗口
 super + 数字键		切换到指定数字的工作区
@@ -77,6 +84,7 @@ super + 鼠标滚轮		快捷切换工作区
 super + q				关闭 waybar
 super + F2			重启 waybar
 super + s				快速最小化当前桌面窗口，再次使用就会回来
+
 ```
 
 关于这个 super + s 快捷键，我是这样理解的，所有的工作区都是桌面的不同区域，而 super s 则是把当前使用的桌面上的所有窗口收进下面的抽屉里，再次按下就会当前使用的桌面上展开，也就是从抽屉里拿出来放上
@@ -106,8 +114,11 @@ exec-once = wl-paste --type image --watch cliphist store # Stores only image dat
 
 #绑定调用剪切板的快捷键
 bind = $mainMod, x, exec, cliphist list | fuzzel --dmenu --with-nth 2 | cliphist decode | wl-copy
+
 #如果用的文件管理器是 fuzzel 的话
+
 ```
+
 如果是其他文件管理器，对应的键位绑定配置就去看 hyprland 的 wiki  [https://wiki.hypr.land/Useful-Utilities/Clipboard-Managers/](https://wiki.hypr.land/Useful-Utilities/Clipboard-Managers/)
   
   
@@ -124,14 +135,17 @@ bind = $mainMod, x, exec, cliphist list | fuzzel --dmenu --with-nth 2 | cliphist
 然后在 hyprland 配置文件里绑定快捷键
 
 ```bash
+
 # 区域截图：同时保存到图片目录和剪贴板
 bind = $mainMod SHIFT, S, exec, grim -g "$(slurp)" | tee ~/Pictures/screenshot_$(date +%Y%m%d_%H%M%S).png | wl-copy
+
 # 全屏截图：同时保存到图片目录和剪贴板  
 bind = $mainMod,q,exec, grim | tee ~/Pictures/screenshot_$(date +%Y%m%d_%H%M%S).png | wl-copy
 
 # 录屏快捷键  
 bind = $mainMod SHIFT, v, exec, wf-recorder -g "$(slurp)" -f "$HOME/Videos/recording_$(date +%Y%m%d_%H%M%S).mp4"
 bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
+
 ```
 
 
@@ -144,7 +158,7 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 ## waybar 美化
 参考的别人的美化风格，整体配置比较模块化，总体文件结构如图
 
-![[e5bef4dea6e712828b69b69bad2ee1b3_MD5.png]]
+![e5bef4dea6e712828b69b69bad2ee1b3_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e5bef4dea6e712828b69b69bad2ee1b3_MD5.png)
 
 一个个介绍吧
 
@@ -175,6 +189,7 @@ center-test.jsonc 是我用来临时检测我的 arch 图标有没有居中，�
     "color": "red" 
   }
 }
+
 ```
 
 
@@ -285,6 +300,7 @@ colors.css 用于声明各种颜色变量以供调用
     @define-color tertiary_fixed #f3daff;
 
     @define-color tertiary_fixed_dim #d7bee4;
+
 ```
 
 
@@ -345,6 +361,7 @@ config.jsonc 是整体框架，模块定义在别的文件里写
   "group/powermenu"//电源操作菜单
     ]
 }
+
 ```
 
 
@@ -466,6 +483,7 @@ modules-dividers.jsonc 定义了各种图形，用于不同模块之间的图形
 		"tooltip": false
 	}
 }
+
 ```
 
 
@@ -701,6 +719,7 @@ modules.jsonc 里是各种模块的定义，注释已经很清楚了
     "on-click": "hyprlock" 
   }
 }
+
 ```
 
 
@@ -745,6 +764,7 @@ tooltip label {
 /*左侧模块*/
 
 /* 工作区 */
+
 #workspaces button {
     padding: 0px 10px;
     background: @surface_container;
@@ -765,6 +785,7 @@ tooltip label {
 }
 
 /* 音乐播放器 */
+
 #custom-cava {
     padding: 0px 10px;
     background-color: @surface_bright;
@@ -775,7 +796,9 @@ tooltip label {
 /*中间模块*/
 /* 群组选择器 (Group Selector): 在 CSS 中，当你用逗号 (,) 把多个选择器（比如 #custom-clipboard 和 #custom-emoji）列在一起时，这就叫“群组选择器”。
  * 它的意思是： “请把花括号 { ... } 里的所有样式，一模一样地应用到列表里的每一个元素上。”*/
+
 #custom-clipboard,
+
 #custom-emoji {
     background-color: @on_secondary;
     color: @on_surface;
@@ -783,6 +806,7 @@ tooltip label {
 }    
 
 #custom-wfrec,
+
 #custom-screenshot {
     background-color: @secondary_container;
     color: @on_surface;
@@ -791,8 +815,11 @@ tooltip label {
 
 
 /* 禁止熄屏, 更新, 电源模式 */
+
 #idle_inhibitor,
+
 #custom-updates,
+
 #power-profiles-daemon {
     padding: 0px 6px;
     background-color: @secondary;
@@ -800,6 +827,7 @@ tooltip label {
 }
 
 /* 更新 */
+
 #custom-updates {
    /*color: @error;*/
    font-size: 22px;	
@@ -811,20 +839,24 @@ tooltip label {
 }
 
 /* 电源模式特殊颜色 */
+
 #power-profiles-daemon.performance {
     color: @on_error;
     font-size: 20px;
 }
+
 #power-profiles-daemon.balanced {
     color: @on_tertiary;
     font-size: 19px;
 }
+
 #power-profiles-daemon.power-saver {
     color: #1aa052;
     font-size: 19px;
 }
 
 /* 程序启动器 */
+
 #custom-applauncher {
     font-size: 25px;
     padding: 0px 7px;
@@ -834,6 +866,7 @@ tooltip label {
 }
 
 /* 时钟 */
+
 #clock {
     background-color: @secondary;
     color: @on_secondary;
@@ -879,7 +912,9 @@ tooltip label {
 }
 
 /* 内存 和 温度 */
+
 #memory,
+
 #temperature {
     background-color: @secondary_container;
     color: @on_secondary_container;
@@ -887,6 +922,7 @@ tooltip label {
 }
 
 /* 电池 */
+
 #battery {
     background-color: @on_secondary;
     color: @on_surface;
@@ -906,6 +942,7 @@ tooltip label {
 
 
 /*右侧模块*/
+
 #backlight {
     background-color: @secondary_container;
     color: @on_secondary_container;
@@ -919,6 +956,7 @@ tooltip label {
 }
 
 /* 系统托盘 */
+
 #tray {
     padding: 0px 7px 0px 7px;
     font-size: 20px;
@@ -927,9 +965,13 @@ tooltip label {
 }
 
 /* 电源菜单组 */
+
 #custom-wlogout,
+
 #custom-reboot,
+
 #custom-lockscreen,
+
 #custom-logout {
     background-color: @surface_container;
     color: @error;
@@ -937,6 +979,7 @@ tooltip label {
 }
 
 /* (wlogout 有特殊 padding) */
+
 #custom-wlogout {
     padding: 0px 15px 0px 10px; 
 }
@@ -946,12 +989,14 @@ tooltip label {
 /* (按 config.jsonc 顺序) */
 
 /* Left */
+
 #custom-right_div.5 {
     background: @surface_bright;
     color: @surface_container;
     font-size: 25px;
     padding: 0px;
 }
+
 #custom-right_div.6 {
     color: @surface_bright;
     font-size: 25px;
@@ -959,57 +1004,70 @@ tooltip label {
 }
 
 /* Center */
+
 #custom-left_div.99 {
     color: @on_secondary;
     padding: 0px;
     font-size: 25px;
 }
+
 #custom-left_div.2 {
     background-color: @secondary_container;
     color: @secondary;
     padding: 0px 0px;
     font-size: 25px;
 }
+
 #custom-left_div.11,
+
 #custom-right_div.11 {
     margin: 0px;
     padding: 0px;
     font-size: 25px;
 }
+
 #custom-left_div.11 {
     background-color: @secondary;
     color: @surface_container;
 }
+
 #custom-right_div.11 {
     background-color: @secondary;
     color: @surface_container;
 }
+
 #custom-left_div.1,
+
 #custom-right_div.1 {
     padding: 0px;
     margin: 0px;
     font-size: 25px;
 }
+
 #custom-left_div.1 {
     background-color: @surface_container;
     color: @primary;
 }
+
 #custom-right_div.1 {
     background-color: @surface_container;
     color: @primary;
 }
+
 #custom-right_div.2 {
     background-color: @secondary_container;
     color: @secondary;
     padding: 0px 0px;
     font-size: 25px;
 }
+
 #custom-right_div.3 {
     background-color: @on_secondary;
     color: @secondary_container;
     padding: 0px;
     font-size: 25px;
 }
+
 #custom-right_div.4 {
     color: @on_secondary;
     padding: 0px;
@@ -1017,15 +1075,18 @@ tooltip label {
 }
 
 /* Right */
+
 #custom-left_div.98 {
     color: @secondary_container;
     padding: 0px;
     font-size: 25px;
 }
+
 #custom-left_div.10 {
     background-color: @secondary;
     color: @tertiary;
 }
+
 #custom-left_inv.1 {
     padding: 0px;
     margin: 0px;
@@ -1047,6 +1108,7 @@ tooltip label {
     padding: 0px;
     font-size: 25px;
 }
+
 ```
 
 
@@ -1057,6 +1119,7 @@ script 里面都是模块调用的脚本
 scripts/cava.sh 是音频可视化调用的脚本文件
 
 ```bash
+
 #!/bin/bash
 
 config_file="/tmp/cava_waybar_config"
@@ -1124,6 +1187,7 @@ cava -p "$config_file" | while read -r line; do
         echo "{\"text\": \"\", \"tooltip\": \"\"}"
     fi
 done
+
 ```
 
 
@@ -1131,8 +1195,10 @@ done
 metadata.sh 辅助音频可视化，实现悬停显示正在播放的音频名称 
 
 ```bash
+
 #!/bin/bash
 playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
+
 ```
 
 
@@ -1140,7 +1206,9 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 这两个是对应的 cava 配置文件
 
 ```bash
+
 ## Configuration file for CAVA.
+
 # Remove the ; to change parameters.
 
 
@@ -1153,20 +1221,25 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 ; framerate = 60
 
 # 'autosens' will attempt to decrease sensitivity if the bars peak. 1 = on, 0 = off
+
 # new as of 0.6.0 autosens of low values (dynamic range)
+
 # 'overshoot' allows bars to overshoot (in % of terminal height) without initiating autosens. DEPRECATED as of 0.6.0
 ; autosens = 1
 ; overshoot = 20
 
 # Manual sensitivity in %. If autosens is enabled, this will only be the initial value.
+
 # 200 means double height. Accepts only non-negative values.
 ; sensitivity = 100
 
 # The number of bars (0-512). 0 sets it to auto (fill up console).
+
 # Bars' width and space between bars in number of characters.
 ; bars = 0
 ; bar_width = 2
 ; bar_spacing = 1
+
 # bar_height is only used for output in "noritake" format
 ; bar_height = 32
 
@@ -1186,14 +1259,18 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 
 
 # Lower and higher cutoff frequencies for lowest and highest bars
+
 # the bandwidth of the visualizer.
+
 # Note: there is a minimum total bandwidth of 43Mhz x number of bars.
+
 # Cava will automatically increase the higher cutoff if a too low band is specified.
 ; lower_cutoff_freq = 50
 ; higher_cutoff_freq = 10000
 
 
 # Seconds with no input before cava goes to sleep mode. Cava will not perform FFT or drawing and
+
 # only check for input once per second. Cava will wake up once input is detected. 0 = disable.
 ; sleep_timer = 0
 
@@ -1201,31 +1278,50 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 [input]
 
 # Audio capturing method. Possible methods are: 'fifo', 'portaudio', 'pipewire', 'alsa', 'pulse', 'sndio', 'oss', 'jack' or 'shmem'
+
 # Defaults to 'oss', 'pipewire', 'sndio', 'jack', 'pulse', 'alsa', 'portaudio' or 'fifo', in that order, dependent on what support cava was built with.
+
 # On Mac it defaults to 'portaudio' or 'fifo'
+
 # On windows this is automatic and no input settings are needed.
+
 #
 # All input methods uses the same config variable 'source'
+
 # to define where it should get the audio.
+
 #
 # For pulseaudio and pipewire 'source' will be the source. Default: 'auto', which uses the monitor source of the default sink
+
 # (all pulseaudio sinks(outputs) have 'monitor' sources(inputs) associated with them).
+
 #
 # For pipewire 'source' will be the object name or object.serial of the device to capture from.
+
 # Both input and output devices are supported. To capture the monitor source of a sink node, append '.monitor' to the sink's object name.
+
 #
 # For alsa 'source' will be the capture device.
+
 # For fifo 'source' will be the path to fifo-file.
+
 # For shmem 'source' will be /squeezelite-AA:BB:CC:DD:EE:FF where 'AA:BB:CC:DD:EE:FF' will be squeezelite's MAC address
+
 #
 # For sndio 'source' will be a raw recording audio descriptor or a monitoring sub-device, e.g. 'rsnd/2' or 'snd/1'. Default: 'default'.
+
 # README.md contains further information on how to setup CAVA for sndio.
+
 #
 # For oss 'source' will be the path to a audio device, e.g. '/dev/dsp2'. Default: '/dev/dsp', i.e. the default audio device.
+
 # README.md contains further information on how to setup CAVA for OSS on FreeBSD.
+
 #
 # For jack 'source' will be the name of the JACK server to connect to, e.g. 'foobar'. Default: 'default'.
+
 # README.md contains further information on how to setup CAVA for JACK.
+
 #
 ; method = pulse
 ; source = auto
@@ -1255,23 +1351,39 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 ; source = default
 
 # The options 'sample_rate', 'sample_bits', 'channels' and 'autoconnect' can be configured for some input methods:
+
 #   sample_rate: fifo, pipewire, sndio, oss
+
 #   sample_bits: fifo, pipewire, sndio, oss
+
 #   channels:    sndio, oss, jack
+
 #   autoconnect: jack
+
 # Other methods ignore these settings.
+
 # For pipewire, sample_rate will default to 48000, for all other input methods, sample_rate will default to 44100.
+
 #
 # For 'sndio' and 'oss' they are only preferred values, i.e. if the values are not supported
+
 # by the chosen audio device, the device will use other supported values instead.
+
 # Example: 48000, 32 and 2, but the device only supports 44100, 16 and 1, then it
+
 # will use 44100, 16 and 1.
+
 #
 #
+
 # The 'pipewire' input method has three options to control linking and mixing:
+
 #   active: Force the node to always process. Useful for monitoring sources when no other application is active.
+
 #   remix: Allow pipewire to remix audio channels to match cava's channel count. Useful for surround sound.
+
 #   virtual: Set the node to virtual, to avoid recording notifications from the DE.
+
 #
 ; sample_rate = 44100
 ; sample_bits = 16
@@ -1285,42 +1397,65 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 [output]
 
 # Output method. Can be 'ncurses', 'noncurses', 'raw', 'noritake', 'sdl'
+
 # or 'sdl_glsl'.
+
 # 'noncurses' (default) uses a buffer and cursor movements to only print
+
 # changes from frame to frame in the terminal. Uses less resources and is less
+
 # prone to tearing (vsync issues) than 'ncurses'.
+
 #
 # 'raw' is an 8 or 16 bit (configurable via the 'bit_format' option) data
+
 # stream of the bar heights that can be used to send to other applications.
+
 # 'raw' defaults to 1024 bars stereo (512 bars mono), which can be adjusted in the 'bars' option above.
+
 #
 # 'noritake' outputs a bitmap in the format expected by a Noritake VFD display
+
 #  in graphic mode. It only support the 3000 series graphical VFDs for now.
+
 #
 # 'sdl' uses the Simple DirectMedia Layer to render in a graphical context.
+
 # 'sdl_glsl' uses SDL to create an OpenGL context. Write your own shaders or
+
 # use one of the predefined ones.
 ; method = noncurses
 
 # Orientation of the visualization. Can be 'bottom', 'top', 'left', 'right' or
+
 # 'horizontal'. Default is 'bottom'. 'left and 'right' are only supported on sdl
+
 # and ncruses output. 'horizontal' (bars go up and down from center) is only supported
+
 # on noncurses output.
+
 # Note: many fonts have weird or missing glyphs for characters used in orientations
+
 # other than 'bottom', which can make output not look right.
 ; orientation = bottom
 
 # Visual channels. Can be 'stereo' or 'mono'.
+
 # 'stereo' mirrors both channels with low frequencies in center.
+
 # 'mono' outputs left to right lowest to highest frequencies.
+
 # 'mono_option' set mono to either take input from 'left', 'right' or 'average'.
+
 # set 'reverse' to 1 to display frequencies the other way around.
 ; channels = stereo
 ; mono_option = average
 ; reverse = 0
 
 # Raw output target.
+
 # On Linux, a fifo will be created if target does not exist.
+
 # On Windows, a named pipe will be created if target does not exist.
 ; raw_target = /dev/stdout
 
@@ -1334,6 +1469,7 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 ; ascii_max_range = 1000
 
 # Ascii delimiters. In ascii format each bar and frame is separated by a delimiters.
+
 # Use decimal value in ascii table (i.e. 59 = ';' and 10 = '\n' (line feed)).
 ; bar_delimiter = 59
 ; frame_delimiter = 10
@@ -1346,12 +1482,17 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 ; sdl_full_screen = 0
 
 # set label on bars on the x-axis. Can be 'frequency' or 'none'. Default: 'none'
+
 # 'frequency' displays the lower cut off frequency of the bar above.
+
 # Only supported on ncurses and noncurses output.
 ; xaxis = none
  
+
 # enable synchronized sync. 1 = on, 0 = off
+
 # removes flickering in alacritty terminal emulator.
+
 # defaults to off since the behaviour in other terminal emulators is unknown
 ; synchronized_sync = 0
 
@@ -1363,6 +1504,7 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 ; continuous_rendering = 0
 
 # disable console blank (screen saver) in tty
+
 # (Not supported on FreeBSD)
 ; disable_blanking = 0
 
@@ -1375,8 +1517,11 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 [color]
 
 # Colors can be one of seven predefined: black, blue, cyan, green, magenta, red, white, yellow.
+
 # Or defined by hex code '#xxxxxx' (hex code must be within ''). User defined colors requires
+
 # a terminal that can change color definitions such as Gnome-terminal or rxvt.
+
 # default is to keep current terminal color
 ; background = default
 ; foreground = default
@@ -1387,7 +1532,9 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 
 
 # Gradient mode, only hex defined colors are supported,
+
 # background must also be defined in hex or remain commented out. 1 = on, 0 = off.
+
 # You can define as many as 8 different colors. They range from bottom to top of screen
 ; gradient = 0
 ; gradient_color_1 = '#59cc33'
@@ -1401,6 +1548,7 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 
 
 # Horizontal is only supported on noncurses output.
+
 # Only one color will be calculated per bar.
 ; horizontal_gradient = 0
 ; horizontal_gradient_color_1 = '#c45161'
@@ -1414,12 +1562,16 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 
 
 # If both vertical and horizontal gradient is enabled, vertical will be blended in this direction.
+
 # Can be 'up', 'down', 'left' or 'right'. 'up' means the vertical gradient will be blended in from
+
 # bottom to top. I.e. the bottom will be only the horizontal
+
 # and top will be only the color of the vertical gradient.
 ; blend_direction = 'up'
 
 # use theme file instead of defining colors in this file
+
 # themes are located in $HOME/.config/cava/themes
  theme = 'your-theme'
 
@@ -1427,7 +1579,9 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 [smoothing]
 
 # Percentage value for integral smoothing. Takes values from 0 - 100.
+
 # Higher values means smoother, but less precise. 0 to disable.
+
 # DEPRECATED as of 0.8.0, use noise_reduction instead
 ; integral = 77
 
@@ -1436,17 +1590,22 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 ; waves = 0
 
 # Set gravity percentage for "drop off". Higher values means bars will drop faster.
+
 # Accepts only non-negative values. 50 means half gravity, 200 means double. Set to 0 to disable "drop off".
+
 # DEPRECATED as of 0.8.0, use noise_reduction instead
 ; gravity = 100
 
 
 # In bar height, bars that would have been lower that this will not be drawn.
+
 # DEPRECATED as of 0.8.0
 ; ignore = 0
 
 # Noise reduction, int 0 - 100. default 77
+
 # the raw visualization is very noisy, this factor adjusts the integral and gravity filters to keep the signal smooth
+
 # 100 will be very slow and smooth, 0 will be fast but noisy.
 ; noise_reduction = 77
 
@@ -1454,13 +1613,16 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 [eq]
 
 # This one is tricky. You can have as much keys as you want.
+
 # Remember to uncomment more than one key! More keys = more precision.
+
 # Look at readme.md on github for further explanations and examples.
 ; 1 = 1 # bass
 ; 2 = 1
 ; 3 = 1 # midtone
 ; 4 = 1
 ; 5 = 1 # treble
+
 ```
 
 
@@ -1483,6 +1645,7 @@ horizontal_gradient_color_2 = '#feb0d3'
 horizontal_gradient_color_3 = '#ffd8e7'
 horizontal_gradient_color_4 = '#feb0d3'
 horizontal_gradient_color_5 = '#6d3351'
+
 ```
 
 
@@ -1492,6 +1655,7 @@ horizontal_gradient_color_5 = '#6d3351'
 get-clock.sh 就是简单的悬停获取时间的脚本， 时钟模块调用的
 
 ```bash
+
 #!/bin/bash
 
 HOUR=$(date "+%H")
@@ -1500,6 +1664,7 @@ TOOLTIP=$(LC_TIME=zh_CN.UTF-8 date "+%Y年%m月%d日 %A")
 ICON=""
 
 printf '{"text": "%s %s", "tooltip": "%s"}\n' "$ICON" "$TIME" "$TOOLTIP"
+
 ```
 
 
@@ -1509,9 +1674,12 @@ printf '{"text": "%s %s", "tooltip": "%s"}\n' "$ICON" "$TIME" "$TOOLTIP"
 screenshot_edit.sh 
 
 ```bash
+
 #!/usr/bin/env bash
+
 # wrapper for waybar: 调用 hypr 编辑脚本
 ~/.config/hypr/scripts/screenshot_edit.sh
+
 ```
 
 
@@ -1519,9 +1687,12 @@ screenshot_edit.sh
 screenshot_quick.sh 
 
 ```bash
+
 #!/usr/bin/env bash
+
 # wrapper for waybar: 调用 hypr 脚本，确保兼容性
 ~/.config/hypr/scripts/screenshot_quick.sh
+
 ```
 
 
@@ -1529,7 +1700,9 @@ screenshot_quick.sh
 screenshot_edit.sh
 
 ```bash
+
 #!/usr/bin/env bash
+
 # 选区截图到临时文件，打开 swappy 编辑。swappy 退出后，检测并通知保存的文件（优先 ~/Pictures/Screenshots）
 DST_DIR="$HOME/Pictures/Screenshots"
 mkdir -p "$DST_DIR"
@@ -1566,6 +1739,7 @@ fi
 # cleanup
 rm -f "$TMP" "$TS"
 exit 0
+
 ```
 
 
@@ -1573,7 +1747,9 @@ exit 0
 screenshot_quick.sh 
 
 ```bash
+
 #!/usr/bin/env bash
+
 # Fullscreen quick screenshot -> save to ~/Pictures/Screenshots, COPY TO CLIPBOARD, and notify
 
 DIR="$HOME/Pictures/Screenshots"
@@ -1593,6 +1769,7 @@ else
   [ -f "$FILE" ] && rm -f "$FILE"
   exit 1
 fi
+
 ```
 
 
@@ -1600,6 +1777,7 @@ fi
 set_wallpaper.sh 快捷切换壁纸脚本，和下面的脚本结合使用                  
 
 ```bash
+
 #!/usr/bin/env bash
 
 CONF="$HOME/.config/hypr/hyprland.conf"
@@ -1621,7 +1799,9 @@ mpvpaper "$MONITOR" "$WP" -o "--loop-file --no-audio --panscan=1 --profile=low-l
 notify-send "壁纸已应用" "$(basename "$WP")"
 
 ########################################
+
 # Update autostart safely (no deletion)
+
 ########################################
 
 # 1. 如果已有 mpvpaper 行 → 替换
@@ -1632,6 +1812,7 @@ if grep -q "mpvpaper" "$CONF"; then
 else
     sed -i "/### AUTOSTART ###/a exec-once = mpvpaper $MONITOR $ESCAPED_WP -o \"--loop-file --no-audio --panscan=1 --profile=low-latency\"" "$CONF"
 fi
+
 ```
 
 
@@ -1640,6 +1821,7 @@ wallpaper_scroll.sh
 壁纸目录应当存放在$HOME/Pictures/anime/wallpapers 下
 
 ```bash
+
 #!/usr/bin/env bash
 
 CONF="$HOME/.config/hypr/hyprland.conf"
@@ -1690,6 +1872,7 @@ if grep -q "mpvpaper" "$CONF"; then
 else
     sed -i "/### AUTOSTART ###/a exec-once = mpvpaper $MONITOR $ESCAPED_WP -o \"--loop-file --no-audio --panscan=1 --profile=low-latency\"" "$CONF"
 fi
+
 ```
 
 
@@ -1699,6 +1882,7 @@ fi
 wf-recorder.sh 录屏菜单脚本 
 
 ```bash
+
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
@@ -1722,6 +1906,7 @@ mkdir -p "$STATE_DIR"
 MODE_DECIDED="" # 临时存储选择的模式
 
 # ================== Tunables (ENV overridable) ==================
+
 # 默认值
 _DEFAULT_CODEC="h264_vaapi"
 _DEFAULT_FRAMERATE=""
@@ -1760,6 +1945,7 @@ GEOM_IN_NAME="${GEOM_IN_NAME:-off}"
 PKILL_AFTER_STOP="${PKILL_AFTER_STOP:-on}"
 
 # ================== Utils ==================
+
 # 检查命令是否存在
 has() { command -v "$1" >/dev/null 2>&1; }
 
@@ -1848,6 +2034,7 @@ get_save_dir() {
 }
 
 # --- render device helpers ---
+
 # 列出可用的DRM渲染节点
 list_render_nodes() {
   local d
@@ -1855,6 +2042,7 @@ list_render_nodes() {
     [[ -r "$d" ]] && printf '%s\n' "$d"
   done 2>/dev/null || true
 }
+
 # 显示当前选择的渲染节点
 render_display() {
   local cur="${1:-}"
@@ -1864,6 +2052,7 @@ render_display() {
     printf "%s" "$cur"
   fi
 }
+
 # 检查并返回有效的渲染节点
 pick_render_device() {
   local dev="${DRM_DEVICE:-}"
@@ -1875,6 +2064,7 @@ pick_render_device() {
 }
 
 # --- file format helpers ---
+
 # 根据编码器推荐文件扩展名
 ext_for_codec(){ case "${1,,}" in
   *h264*|*hevc*) echo mp4 ;;
@@ -1882,6 +2072,7 @@ ext_for_codec(){ case "${1,,}" in
   *av1*)         echo mkv ;;
   *)             echo mp4 ;;
 esac; }
+
 # 决定最终的文件扩展名
 choose_ext(){
   local e="${SAVE_EXT,,}"
@@ -1893,6 +2084,7 @@ choose_ext(){
 }
 
 # ================== Menus ==================
+
 # 规范化菜单输出
 __norm() { printf '%s' "$1" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'; }
 
@@ -1938,12 +2130,14 @@ menu_pick() { # $1:title; items...
 }
 
 # ---------- Outputs ----------
+
 # 列出所有显示器输出
 list_outputs() {
   local raw
   if raw="$(wf-recorder -L 2>/dev/null)"; then :; elif has wlr-randr; then raw="$(wlr-randr 2>/dev/null | awk '/^[^ ]/{print $1}')"; else raw=""; fi
   awk 'BEGIN{RS="[ \t\r\n,]+"} /^[A-Za-z0-9_.:-]+$/ { if ($0 ~ /^(e?DP|HDMI|DVI|VGA|LVDS|Virtual|XWAYLAND)/) seen[$0]=1 } END{for(k in seen) print k}' <<<"$raw" | sort -u
 }
+
 # 决定录制哪个输出
 decide_output() {
   if [[ -n "$OUTPUT" ]]; then printf '%s' "$OUTPUT"; return 0; fi
@@ -1957,6 +2151,7 @@ decide_output() {
 }
 
 # ---------- Settings ----------
+
 # 渲染设备选择菜单
 choose_render_menu() {
   local -a nodes
@@ -2045,6 +2240,7 @@ show_settings_menu() {
 }
 
 # ---------- Mode selection ----------
+
 # 录制模式选择菜单
 decide_mode() {
   case "${RECORD_MODE,,}" in
@@ -2066,6 +2262,7 @@ decide_mode() {
 }
 
 # ================== Start / Stop ==================
+
 # 开始录制
 start_rec() {
   if is_running; then notify "$(msg already_running)"; exit 0; fi
@@ -2202,6 +2399,7 @@ stop_rec() {
 }
 
 # ================== Main ==================
+
 # 
 case "${1:-toggle}" in
   start)        start_rec ;;
@@ -2211,6 +2409,7 @@ case "${1:-toggle}" in
   settings)     show_settings_menu ;;
   *)            echo "Usage: $0 {start|stop|toggle|is-active|settings}"; exit 2 ;;
 esac
+
 ```
 
 
@@ -2218,6 +2417,7 @@ esac
 switch-audio-output.sh 快捷选择音频输出设备
 
 ```bash
+
 #!/bin/bash
 
 # 1. 
@@ -2234,13 +2434,14 @@ CHOSEN_ID=$(echo "$OUTPUTS" | grep -F "$CHOSEN_DESCRIPTION" | awk '{print $1}')
 
 # 5. 
 wpctl set-default "$CHOSEN_ID"
+
 ```
 
 
 
 桌面美化效果预览如下
 
-![[3714b46c5aee50f0520ab81ef0acdbb1_MD5.png]]
+![3714b46c5aee50f0520ab81ef0acdbb1_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3714b46c5aee50f0520ab81ef0acdbb1_MD5.png)
 
 有个小瑕疵，就是那个控制息屏的模块，它的两个状态切换的图标大小是不一样的，当前是启用息屏，中间的图标正好居中，我切换到另一个状态，图标就小了一点，中间的图标就会往左移动一些，但我也懒得改了，不过修改也简单，改成大小一致的图标就行，但我还没找到合适的，另一个方案是用 css 的 padding 字段，严格控制该字符的边距就行了，但我暂时也不改了
 
@@ -2287,6 +2488,7 @@ hyprctl keyword 'device[asuf1204:00-2808:0202-touchpad]:enabled' 'false'这条�
 那就可以写个 shell 脚本再通过 bind 绑定键位
 
 ```bash
+
 #!/usr/bin/env bash
 
 # 你提供的正确设备名称和语法！
@@ -2321,8 +2523,10 @@ sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh
 在 hyprland 配置文件上绑定键位 ctrl+f10
 
 ```bash
+
 # 切换触控板 (Ctrl + F10)
 bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
+
 ```
 
 
@@ -2345,6 +2549,7 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 这个空白大小是可以修改的，还是在那个 hyprland 配置文件里
 
 ```bash
+
 # https://wiki.hypr.land/Configuring/Variables/#general
 general {
     gaps_in = 5
@@ -2386,12 +2591,15 @@ general {
 这个项目要求三个前置软件包
 sudo pacman -S --needed ninja meson mpv
 然后克隆构建和安装
+
 ```
+
 git clone --single-branch [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)
 cd mpvpaper
 meson setup build --prefix=/usr/local
 ninja -C build
 ninja -C build install
+
 ```
 
 
@@ -2430,18 +2638,18 @@ tesseract 是引擎, slurp 是划词工具, portal 是 Wayland 门户
 
 打开软件Crow Translate
 点右下角三个横线进入这个界面的这个设置
-![[0a0a553e147730d9c419a9bde4feaf87_MD5.png]]
+![0a0a553e147730d9c419a9bde4feaf87_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/0a0a553e147730d9c419a9bde4feaf87_MD5.png)
 把安装的 OCR 语言包都勾选上
 
 再到这个选项
-![[4a6cfd13a058ea72523797bb98fca63f_MD5.png]]
+![4a6cfd13a058ea72523797bb98fca63f_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/4a6cfd13a058ea72523797bb98fca63f_MD5.png)
 
 点一下最右边的按钮 Detect fastest
 URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷新出新翻译引擎，不然用旧的会在翻译栏报 418 错误
 
 目前只能在程序主界面点击截图才能截图翻译，关于快捷键截图翻译，关于全局的那一片是灰色的不能用，目前猜测是因为我的 plasma 和 hyprland 的混合桌面环境导致的，也有可能是因为 hyprland 禁止绕过它配置快捷键，反正目前还不知道为啥，有待后续排查（我也懒得排查这玩意，不如多找找别的开源项目，排不排查再说吧）
 
-![[2f595e1d4a2c51550e22cf213bcb7f00_MD5.png]]
+![2f595e1d4a2c51550e22cf213bcb7f00_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/2f595e1d4a2c51550e22cf213bcb7f00_MD5.png)
 
 另外在安装过程中，有个注意事项，不能在包管理器 pacman 工作的时候后台跑游戏，尤其是 steam 游戏，不然 hyprland 会卡死，忘记是为啥了，反正最好别这样搞
 
@@ -2453,6 +2661,7 @@ URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷�
 
 
 # Waydroid
+
 ## Waydroid 初始配置
 安装 waydroid 并初始化
 `sudo pacman -S waydroid`
@@ -2496,6 +2705,7 @@ sudo waydroid-extras 跟着提示一步步走选择安装libndk就行了
 
 ```bash
 ❯ cat waydroid-scripts/waydroid-choose-gpu.sh  
+
 #!/usr/bin/env bash
 set -eo pipefail
 
@@ -2533,6 +2743,7 @@ echo /dev/dri/$rendernode
 cp /var/lib/waydroid/lxc/waydroid/config_nodes /var/lib/waydroid/lxc/waydroid/config_nodes_$(date +
 %Y-%m-%d-%H:%M).bak
 cp /var/lib/waydroid/waydroid.cfg /var/lib/waydroid/waydroid.cfg_$(date +%Y-%m-%d-%H:%M).bak
+
 #lxc.mount.entry = /dev/dri dev/dri none bind,create=dir,optional 0 0
 sed -i '/drm_device/d' /var/lib/waydroid/waydroid.cfg
 sed -i "/^\[waydroid\]/a drm_device = /dev/dri/$rendernode" /var/lib/waydroid/waydroid.cfg
@@ -2554,7 +2765,7 @@ waydroid upgrade --offline
 
 类似这样，我映射了游戏的方向键，因为这个 b 游戏的方向键只支持滑动操作，可以看到，我的方向键在窗口中的位置是等比例缩小游戏窗口和方向键的对应位置，我需要使用映射时必须把鼠标聚焦到左下角的映射窗口
 
-![[a7e2f3ce98025b7463ef958137883955_MD5.png]]
+![a7e2f3ce98025b7463ef958137883955_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/a7e2f3ce98025b7463ef958137883955_MD5.png)
 
 这个助手还提供其他功能，比如伪装成指定机型，获取设备 id，之类的常见需求
 
@@ -2564,6 +2775,7 @@ waydroid upgrade --offline
 
 
 # archlinux配置安全启动
+
 ## 理论基础
 一、 什么是安全启动？
 安全启动 (Secure Boot)是主板 UEFI 固件里的一项安全功能。
@@ -2625,6 +2837,7 @@ waydroid upgrade --offline
 
 
 ## 配置过程
+
 ### 1.GRUB 侧的配置
 首先，安装相应的软件包：shim-signed（AUR 包），sbsigntools，mokutil。
 
@@ -2632,10 +2845,12 @@ waydroid upgrade --offline
 
 ```bash
 sudo mkdir /etc/secureboot/keys
+
 # Generate key pair
 KEYPAIR_PATH='/etc/secureboot/keys'
 sudo openssl req -newkey rsa:4096 -nodes -keyout "$KEYPAIR_PATH/MOK.key" -new -x509 -sha256 -days 3650 -subj "/CN=My Arch Linux Machine Owner Key/" -out "$KEYPAIR_PATH/MOK.crt"
 sudo openssl x509 -outform DER -in "$KEYPAIR_PATH/MOK.crt" -out "$KEYPAIR_PATH/MOK.cer"
+
 ```
 
 
@@ -2655,6 +2870,7 @@ mok_sign() {
         printf 'Skip sign: %s\n' "$1"
     fi
 }
+
 ```
 
 
@@ -2689,7 +2905,9 @@ sudo grub-mkimage -c "$SCRIPT_PATH/grub-sb-stub/grub-pre.cfg" \
 source "$(dirname "$0")/libs/mok_sign.sh"
  
 mok_sign /boot/EFI/ARCH/grubx64.efi
+
 #这里的实际路径要检查一下自己的系统的EFI分区挂载的的具体路径
+
 ```
 
 
@@ -2703,6 +2921,7 @@ mok_sign /boot/EFI/ARCH/grubx64.efi
 sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
 grub,4,Free Software Foundation,grub,2:2.14rc1-2,https//www.gnu.org/software/grub/
 grub.arch,4,Arch Linux,grub,2:2.14rc1-2,https://archlinux.org/packages/core/x86_64/grub/
+
 ```
 
 反正我是改成 5 了
@@ -2715,6 +2934,7 @@ grub.arch,4,Arch Linux,grub,2:2.14rc1-2,https://archlinux.org/packages/core/x86_
 ```bash
 sudo mkdir -pv /etc/secureboot/grub-sb-stub/memdisk/fonts
 sudo cp /usr/share/grub/unicode.pf2 /etc/secureboot/grub-sb-stub/memdisk/fonts/
+
 ```
 
 随后修改当前路径到 /etc/secureboot/grub-sb-stub，执行 tar -cf memdisk.tar -C memdisk .。该命令会创建一个 memdisk，包含我们的字体文件数据，并给前面我们创建的签名脚本使用。
@@ -2722,6 +2942,7 @@ sudo cp /usr/share/grub/unicode.pf2 /etc/secureboot/grub-sb-stub/memdisk/fonts/
 ```bash
 cd /etc/secureboot/grub-sb-stub
 tar -cf memdisk.tar -C memdisk .
+
 ```
 
 
@@ -2739,6 +2960,7 @@ loadfont /fonts/unicode.pf2
 search.fs_uuid 1B9C-667B root hd0,gpt1
 set prefix=($root)/grub
 configfile grub.cfg
+
 ```
 
 上面的配置首先加载相应的模块，读取 memdisk 中的字体数据（如果不考虑复杂的 OpenGPG 签名加载方式，这是目前安全启动下 GRUB 读取字体的最好办法），之后通过 UUID 搜索包含 GRUB 配置文件的分区，并立刻读取其中的 grub.cfg 内容。因此，你必须将 search.fs_uuid 中的硬盘 UUID 换成包含 GRUB 配置文件的分区的真实 UUID。
@@ -2748,7 +2970,7 @@ configfile grub.cfg
 
 我选择这样填写，uuid 是我的 efi 分区，注意这里的 root 并不是指/分区，而是指 boot 分区，gpt1 则是因为 efi 分区的索引为 1
 
-![[b3ade282afba90d071c64eae7e0094b2_MD5.png]]
+![b3ade282afba90d071c64eae7e0094b2_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/b3ade282afba90d071c64eae7e0094b2_MD5.png)
 
 
 
@@ -2760,6 +2982,7 @@ configfile grub.cfg
 > sudo ./update-sb-grub-efi.sh
 Signing /boot/EFI/ARCH/grubx64.efi...
 Signing Unsigned original image
+
 ```
 
 
@@ -2770,11 +2993,13 @@ Signing Unsigned original image
 新建 /etc/initcpio/post/kernel-sbsign，内容如下，并同时使用 chmod +x 给予可执行权限。
 
 ```bash
+
 #!/usr/bin/env bash
  
 kernel="$1"
 [[ -n "$kernel" ]] || exit 0
  
+
 # use already installed kernel if it exists
 [[ ! -f "$KERNELDESTINATION" ]] || kernel="$KERNELDESTINATION"
  
@@ -2786,6 +3011,7 @@ for (( i=0; i<${#keypairs[@]}; i+=2 )); do
         sbsign --key "$key" --cert "$cert" --output "$kernel" "$kernel"
     fi
 done
+
 ```
 
 之后，立刻使用 pacman 重新安装所有已经安装的内核，不仅可以给内核打上安全启动签名，还可以确认脚本的正确性。如果在重新安装内核时，确认有下面的输出，即算配置正确。
@@ -2796,6 +3022,7 @@ done
   -> Running post hook: [kernel-sbsign]
 Signing Unsigned original image
 ==> Post processing done
+
 ```
 
 
@@ -2810,21 +3037,28 @@ Signing Unsigned original image
 同时复制 Shim 相关的已签名 EFI，并添加相关的引导项
 
 ```bash
+
 # 复制cer文件
 sudo mkdir /boot/EFI/ARCH/keys
 sudo cp /etc/secureboot/keys/MOK.cer /boot/EFI/ARCH/keys
  
+
 # 或使用mokutil进行签名导入
 mokutil --import /etc/secureboot/keys/MOK.cer
  
+
 # 复制mmx64.efi和shimx64.efi
 sudo cp /usr/share/shim-signed/mmx64.efi /boot/EFI/ARCH/
 sudo cp /usr/share/shim-signed/shimx64.efi //boot/EFI/ARCH/
  
+
 # 添加Shim引导选项
+
 # /dev/nvme0n1记得改为你的EFI分区所在硬盘对应的block文件
+
 # --part后面的1记得改成EFI分区所在分区的位置(以1开始)
 sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-shim" --loader '\EFI\ARCH\shimx64.efi'
+
 ```
 
 
@@ -2835,7 +3069,7 @@ sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-sh
 
 在这个界面，找到并选中我们复制的 MOK.cer，并导入到 Machine Owner Key 列表中，重新启动，配置即可完成。
 
-![[3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png]]
+![3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png)
 
 
 
@@ -2867,6 +3101,7 @@ Description=Update GRUB UEFI binaries
 When=PostTransaction
 NeedsTargets
 Exec=/bin/sh -c '/etc/secureboot/update-sb-grub-efi.sh'
+
 ```
 
 
@@ -2891,6 +3126,7 @@ When=PostTransaction
 NeedsTargets
 Exec=/bin/sh -c '/usr/bin/update-grub'
 Depends=grub
+
 ```
 
 
@@ -2899,7 +3135,7 @@ Depends=grub
 
 注意看 1/5 和 3/5,钩子执行成功了
 
-![[e958a4e711bd12a528ab5a5ce2093e19_MD5.png]]
+![e958a4e711bd12a528ab5a5ce2093e19_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e958a4e711bd12a528ab5a5ce2093e19_MD5.png)
 
 
 
@@ -2917,22 +3153,29 @@ Depends=grub
 我感觉没必要弄开机自启，我用这个频率并不高，不用的时候，这玩意的进程会阻挠系统快速关机
 
 3.开启NAT default网络
+
 ```
+
 sudo virsh net-start default
 sudo virsh net-autostart default
+
 ```
 
 4.添加组权限 需要登出
 `sudo usermod -a -G libvirt $(whoami)`
 
 5.可选：如果运行出现异常的话编辑配置文件提高权限
+
 ```
+
 sudo vim /etc/libvirt/qemu.conf
 把user = "libvirt-qemu"改为user = "用户名"
 把group = "libvirt-qemu"改为group = "libvirt"
 取消这两行的注释
 sudo systemctl restart libvirtd
+
 ```
+
 有一个注意点，virtmanager默认的连接是系统范围的，如果需要用户范围的话需要左上角新增一个用户会话连接。
 
 ## 嵌套虚拟化
@@ -2940,10 +3183,13 @@ sudo systemctl restart libvirtd
 `modprobe kvm_amd nested=1`
 
 永久生效
+
 ```
+
 sudo vim /etc/modprobe.d/kvm_amd.conf
 写入
 options kvm_amd nested=1
+
 ```
 
 重新生成initramfs
@@ -2958,22 +3204,25 @@ https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/
 1.确认iommu是否开启，有输出说明开启
 `sudo dmesg | grep -e DMAR -e IOMMU`
 现代设备通常都支持IOMMU且默认开启，BIOS里的选项通常为Intel VT-d、AMD-V或者IOMMU。如果没有的话搜索一下自己的cpu和主板型号看看是否支持。
-![[0213e11d14c3c5017942db2882b877b0_MD5.jpg]]
+![0213e11d14c3c5017942db2882b877b0_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/0213e11d14c3c5017942db2882b877b0_MD5.jpg)
 
 
 
 2.获取显卡的硬件id，显卡所在group的所有设备的id都记下
+
 ```
+
 for d in /sys/kernel/iommu_groups/*/devices/*; do 
     n=${d#*/iommu_groups/*}; n=${n%%/*}
     printf 'IOMMU Group %s ' "$n"
     lspci -nns "${d##*/}"
 done
+
 ```
 
 这里获得了我的显卡所在组和对应id
 [[41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg|Open: Pasted image 20251213134113.png]]
-![[41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg]]
+![41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)
 
 3.隔离GPU
 `echo 'options vfio-pci ids=10de:28e0,10de:22be' | sudo tee /etc/modprobe.d/vfio.conf`
@@ -2994,10 +3243,13 @@ MODULES=（）`里面写入`vfio_pci vfio vfio_iommu_type1
 编辑配置文件
 `sudo vim /etc/libvirt/qemu.conf`
 搜索nvram，在合适的地方写入：
+
 ```
+
 nvram = [
 "/usr/share/ovmf/x64/OVMF_CODE.fd:/usr/share/ovmf/x64/OVMF_VARS.fd"
 ]
+
 ```
 
 7.重启电脑
@@ -3007,17 +3259,17 @@ nvram = [
 8.添加显卡到虚拟机
 这里重启后可以看到N卡已经被独立出去了，在win11虚拟机配置中，添加pci硬件设备，选择被独立出的4060
 [[62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg|Open: Pasted image 20251213135843.png]]
-![[62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg]]
+![62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg)
 
 开机后装上n卡驱动，在设备管理器上可以看到n卡成功安装使用了
 [[099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg|Open: Pasted image 20251213143143.png]]
-![[099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg]]
+![099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg)
 
 
 ### moonlight远程连接方案(不建议使用)
 删除虚拟机的硬件的显示协议和QXL的显卡，然后添加鼠标和键盘，键盘随便拿了个外接键盘，鼠标就用我现在的雷柏，直通开机后，我直通进去的鼠标键盘就会被虚拟机独占了，所以我的笔记本可以使用自带键盘和触摸板
 [[a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg|Open: Pasted image 20251213144357.png]]
-![[a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg]]
+![a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg)
 
 开机后显示输出会出现在外接显示器中，之后会尝试hdmi欺骗器，因为这个显示器分辨率不行，但是hdmi欺骗器还没送到，所以现在还是先用外接屏吧
 
@@ -3087,7 +3339,9 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
 
 1.计算需要的共享内存大小, 具体可以看官方档案，我是2560x1440@165hz 非HDR，需要大小是64M
 2.设置共享内存设备 打开virt-manager，点击编辑 > 首选项，勾选启用xml编辑。 打开虚拟机配置，找到xml底部的 `</devices>`，在 `</devices>`的上面添加设备，size记得该成自己需要的，参考如下内容写入适当的位置：
+
 ```
+
 <devices>
     ...
   <shmem name='looking-glass'>
@@ -3095,6 +3349,7 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
     <size unit='M'>64</size> 
   </shmem>
 </devices>
+
 ```
 
 3.在终端中加入桌面用户到kvm组
@@ -3128,7 +3383,7 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
 `<audio id='1' type='spice'/>`
 配置结束大概是这样
 [[52a72e57902a24011dcd312b0bdf4e83_MD5.jpg|Open: Pasted image 20251214003246.png]]
-![[52a72e57902a24011dcd312b0bdf4e83_MD5.jpg]]
+![52a72e57902a24011dcd312b0bdf4e83_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/52a72e57902a24011dcd312b0bdf4e83_MD5.jpg)
 
 
 5.开启虚拟机，安装looking glass 服务端
@@ -3143,8 +3398,11 @@ win虚拟机内需要安装虚拟显示器：[Virtual-Display-Driver](https://gi
 win11老是没事更新，对虚拟机会有很大问题，关闭了自动更新还不保险，同时也为了预防其他问题，我这里设置了一个虚拟机克隆用于日常使用
 
 写了个脚本用于切换显卡归属，没有内存大页的设置，因为我觉得我目前还没这个需求，谁知道呢，说不定过几天就搞内存大页，然后就要重新写这个脚本
+
 ```
+
 ❯ cat /usr/local/bin/switch-gpu-owner 
+
 #!/bin/bash
 
 # 配置
@@ -3227,11 +3485,13 @@ else
     printf "${R}\n${RED}❌ 失败！请检查日志。${R}\n"
     exit 1
 fi
+
 ```
 
 
 ## KVM虚拟机性能优化和伪装
 从这里开始的配置就在克隆系统中进行
+
 ### 禁用memballoon
 [libvirt/QEMU Installation — Looking Glass B7 documentation](https://looking-glass.io/docs/B7/install_libvirt/#memballoon)
 
@@ -3240,7 +3500,9 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 将虚拟机xml里面的memballoon改为none，这将显著提高low帧。
 
 ```
+
 <memballoon model="none"/>
+
 ```
 
 
@@ -3280,7 +3542,7 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 首先确认启用了内存共享(Virtio-FS 强依赖共享内存)
 添加文件系统类型的硬件
 [[3c515fd8863a183782d1c8f03217cd43_MD5.jpg|Open: Pasted image 20251217225758.png]]
-![[3c515fd8863a183782d1c8f03217cd43_MD5.jpg]]
+![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3c515fd8863a183782d1c8f03217cd43_MD5.jpg)
 就是这样，然后进入虚拟机内部，安装winfsp驱动，在github的项目地址下面找，后缀名msi，安装成功后，打开windows的服务管理，启动Virtio-FS Service服务，默认是手动启动的，但也可以设置自动启动，不过感觉有点小风险？启动成功后可以找到一个独立的盘，盘名就是设置的目标路径
 
 
@@ -3299,7 +3561,7 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 # archlinux（niri）配置
 我的设备信息
 [[05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg|Open: Pasted image 20251205231208.png]]
-![[05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg]]
+![05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg)
 
 我是用archinstall安装的，并安装了显卡驱动，它支持安装niri的初始环境，不过感觉不如最小化安装，但是装都装好了，在此基础上开始我的配置
 在archinstall的过程中，我设置了根分区文件系统类型为btrfs，子卷及其挂载情况如下
@@ -3328,9 +3590,12 @@ git base-devel vim neovim kitty zsh firefox nautilus sushi file-roller gvfs fast
 编辑pacman配置文件
 `sudo vim /etc/pacman.conf`
 写入如下内容
+
 ```
+
 [archlinuxcn]
 Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+
 ```
 
 保存退出后
@@ -3376,10 +3641,13 @@ Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 
 3.配置环境变量
 在/etc/environment内写入如下内容
+
 ```
+
 QT_IM_MODULE=fcitx
 XMODIFIERS=@im=fcitx
 SDL_IM_MODULE=fcitx
+
 ```
 
 4.配置在 Niri 中自启动
@@ -3407,7 +3675,9 @@ SDL_IM_MODULE=fcitx
 `mkdir -p ~/.config/hypr`
 `vim ~/.config/hypr/hypridle.conf`
 写入如下内容
+
 ```
+
 general {
     lock_cmd = qs -c noctalia-shell ipc call lockScreen lock
     before_sleep_cmd = qs -c noctalia-shell ipc call lockScreen lock
@@ -3430,6 +3700,7 @@ listener {
     timeout = 1200
     on-timeout = qs -c noctalia-shell ipc call sessionMenu lockAndSuspend
 }
+
 ```
 
 3.配置niri自动启动hypridle
@@ -3473,7 +3744,7 @@ btrfs-assistant是快照的图形化管理工具，在其中配置需要的快�
 安装后打开btrfs-assistant会看到新增了一个选项卡btrfs maintenance
 在里面设置如下（其实是默认配置，balance和Scrub选中挂载点都为/）
 [[3cffcf9af553ff1be660276dffd6b4de_MD5.jpg|Open: Pasted image 20260115141145.png]]
-![[3cffcf9af553ff1be660276dffd6b4de_MD5.jpg]]
+![3cffcf9af553ff1be660276dffd6b4de_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg)
 
 
 
@@ -3508,8 +3779,11 @@ sddm搞着麻烦，我换greetd再配置自动登录
 `sudo pacman -S greetd greetd-tuigreet`
 `sudo vim /etc/greetd/config.toml`
 文件内容参考如下
+
 ```
+
 [terminal]
+
 # 在第1个虚拟终端运行，避免启动时的闪烁
 vt = 1
 
@@ -3520,28 +3794,42 @@ user = "caster"
 
 # --- 2. 注销后的登录界面 (Default Session) ---
 [default_session]
+
 # 使用 tuigreet 界面
+
 # --remember: 记住你上次选的桌面
+
 # --time: 右上角显示时间
+
 # --sessions: 告诉它去哪里找桌面列表 (Wayland 和 X11)
+
 # --cmd: 如果你没选桌面直接回车，默认进 Niri
 command = "tuigreet --cmd niri-session --remember --time --sessions /usr/share/wayland-sessions:/usr/share/xsessions"
 
 # 运行登录界面的用户 (这是 greetd 的专用用户，不要改)
 user = "greeter"
+
 ```
+
 然后配置它延迟两秒启动，说到底它也是个显示管理器，也会导致问题，所以需要设置
 `sudo systemctl edit greetd`
 在里面写入
+
 ```
+
 [Service]
 ExecStartPre=/usr/bin/sleep 2
+
 ```
+
 其实这个和之前sddm的方式是类似的，最终它们都会生成对应的服务.d目录下的配置覆盖文件
 然后把之前的sddm的systemd服务禁用，启用greetd
+
 ```
+
 sudo systemctl disable sddm
 sudo systemctl enable greetd
+
 ```
 
 
@@ -3579,13 +3867,16 @@ lib32-vulkan-radeon是给核显的 32 位 Vulkan 支持（备用）
 `mkdir -p ~/.config/swaylock`
 `vim ~/.config/swaylock/config`
 写入如下内容
+
 ```
+
 screenshots
 clock
 indicator
 indicator-radius=200
 indicator-thickness=15
 effect-blur=10x5
+
 ```
 
 
@@ -3594,7 +3885,9 @@ effect-blur=10x5
 `mkdir -p ~/.config/niri/scripts`
 `vim ~/.config/niri/scripts/swayidle.sh`
 写入如下内容
+
 ```
+
 #!/usr/bin/env bash
 
 # 定义 PID 变量
@@ -3644,6 +3937,7 @@ while true; do
     sleep 5 &
     wait $!
 done
+
 ```
 
 
@@ -3662,6 +3956,7 @@ done
 
 
 ## 系统体验优化配置
+
 ### rm 安全替换与自动清理
 一直用rm -rf，虽然从没出过问题，但毕竟是日常使用的系统，还是保险起见设置一下，思路是用alisa别名设置rm为trash这个工具(功能是移动文件到回收站)，因为我用的是合成器而不是完整DE，所以回收站定时清理还是需要自己写一个systemd服务
 
@@ -3685,31 +3980,39 @@ done
 创建并编辑文件
 `vim ~/.config/systemd/user/trash-clean.service`
 写入如下内容
+
 ```
+
 [Unit]
 Description=清理回收站中存放超过30天的文件
 
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/trash-empty 30
+
 ```
 
 创建定时器文件,这个文件定义“**什么时候做**”（每月运行一次）
 创建并编辑文件：
 `vim ~/.config/systemd/user/trash-clean.timer`
 写入如下内容
+
 ```
+
 [Unit]
 Description=Run trash-clean monthly
 
 [Timer]
+
 # 调度规则：每月运行一次 (通常是每月1号)
 OnCalendar=monthly
+
 # 如果那时关机了，下次开机立刻补做
 Persistent=true
 
 [Install]
 WantedBy=timers.target
+
 ```
 
 激活并验证
@@ -3767,6 +4070,7 @@ WantedBy=timers.target
 
 
 # git的使用
+
 ## obsidian自动化推送笔记到github备份
 是想实现我的markdown笔记云端备份，因此选择了github私有仓库
 本地仓库目录/home/caster/Documents/Study_Note
@@ -3779,7 +4083,7 @@ WantedBy=timers.target
 
 在github上创建私有仓库linuxnote
 [[b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg|Open: Pasted image 20260106114924.png]]
-![[b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg]]
+![b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg)
 
 **2.将密钥配置到 GitHub 仓库**
 查看并复制公钥
@@ -3798,11 +4102,14 @@ WantedBy=timers.target
 编辑配置文件
 `vim ~/.ssh/config`
 写入如下内容
+
 ```
+
 Host github-notes
     HostName github.com
     User git
     IdentityFile ~/.ssh/id_ed25519_obsidian
+
 ```
 
 
@@ -3950,9 +4257,12 @@ clash-geoip-202511060021-1-any.pkg.tar.zst
 clash-geoip-202511060021-1-any.pkg.tar.zst.sig
 clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst
 clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst.sig
+
 #发现只有clash-geoip这个包有旧版本，于是尝试先把这个降级
 ❯ sudo pacman -U /var/cache/pacman/pkg/clash-geoip-202510300021-1-any.pkg.tar.zst
+
 #发现没啥用，还是打不开tun模式，而本地又没有clash-verge-rev这个包的旧缓存，所以只能去aur仓库找
+
 ```
 
 2.克隆 AUR 仓库并检测出旧版本
@@ -3960,6 +4270,7 @@ clash-verge-rev-2.4.3-1-x86_64.pkg.tar.zst.sig
 ```bash
 git clone https://aur.archlinux.org/clash-verge-rev.git
 cd clash-verge-rev
+
 ```
 
 ```bash
@@ -3991,7 +4302,9 @@ cd clash-verge-rev
 ● 11538b8 Update AUR package
 ● af53270 init
 ● 2d856f3 init
+
 #开头的字符串是提交哈希
+
 ```
 
 
@@ -4023,6 +4336,7 @@ cd clash-verge-rev
 ❯ sudo echo 'IgnorePkg = clash-verge-rev clash-geoip' | sudo tee /etc/pacman.d/ignore.conf
 
 IgnorePkg = clash-verge-rev clash-geoip
+
 ```
 
 
@@ -4038,10 +4352,13 @@ MPD + ncmpcpp + Cava
 需要安装四个组件：后台服务(MPD)、终端客户端(ncmpcpp)、媒体键支持(mpDris2)、可视化频谱(Cava)。
 
 ```bash
+
 # 1. 安装官方仓库软件
 sudo pacman -S mpd ncmpcpp cava
+
 # 2. 安装 AUR 插件 (用于支持 playerctl 和 Waybar 控制)
 yay -S mpdris2
+
 ```
 
 
@@ -4049,20 +4366,26 @@ yay -S mpdris2
 MPD 默认会尝试以系统服务运行，读取 `/etc/mpd.conf`，这会导致权限错误 (`Failed to open /var/lib/...`)。必须手动创建用户目录并禁用系统服务。
 
 ```bash
+
 # 1. 停止并禁用系统级服务 (防止冲突)
 sudo systemctl stop mpd sudo systemctl disable mpd
  # 2. 创建 MPD 必须的文件夹结构 (不做这一步 MPD 会启动失败)
 mkdir -p ~/.config/mpd/playlists 
+
 # 3. 创建空的状态文件 (防止 MPD 报找不到文件的错） 
 touch ~/.config/mpd/{database,state,pid,sticker.sql} 
+
 # 4. 创建 mpDris2 和 Cava 的配置目录 
 mkdir -p ~/.config/mpdris2 mkdir -p ~/.config/cava
+
 ```
 
 
 3.配置文件编写
 配置 MPD核心 (`~/.config/mpd/mpd.conf`)
+
 ```bash
+
 # 音乐目录 (根据实际情况修改)
 music_directory    "~/Music"
 
@@ -4089,6 +4412,7 @@ audio_output {
 }
 
 # 音频输出 2: 可视化数据流 (给 Cava 用)
+
 # 如果不加这个，Cava 只能读取麦克风或系统总声，不灵敏
 audio_output {
     type                    "fifo"
@@ -4096,12 +4420,14 @@ audio_output {
     path                    "/tmp/mpd.fifo"
     format                  "44100:16:2"
 }
+
 ```
 
 
 
 配置 mpDris2 (`~/.config/mpdris2/mpdris2.conf`)
 让键盘多媒体键和 Waybar 能控制 MPD。
+
 ```bash
 [Connection]
 host = 127.0.0.1
@@ -4111,6 +4437,7 @@ music_dir = ~/Music  # 必须和 MPD 音乐目录一致，用于读取封面
 [Bling]
 notify = false       # 切歌弹窗 (不喜欢可关)
 mmkeys = true        # 启用键盘多媒体键支持
+
 ```
 
 
@@ -4118,7 +4445,9 @@ mmkeys = true        # 启用键盘多媒体键支持
 
 
 4.启动服务
+
 ```bash
+
 # 重载配置
 systemctl --user daemon-reload
 
@@ -4126,8 +4455,11 @@ systemctl --user daemon-reload
 systemctl --user enable --now mpd
 
 # 启动并开机自启 mpDris2,不建议设置这个，因为会影响我的waybar的音频可视化
+
 # 模块无法正常隐藏
+
 # systemctl --user enable --now mpDris2
+
 ```
 
 
@@ -4154,15 +4486,21 @@ Type=Application
 Name=Ncmpcpp(本地音乐播放器)
 GenericName=Music Player
 Comment=启动 mpd + mpDris2 + ncmpcpp，窗口关闭时全部销毁
+
 # 核心逻辑解析：
+
 # 1. mpd --no-daemon & -> 启动 MPD 但不让它后台化，这样我们才能获取它的 PID
+
 # 2. mpDris2 &         -> 启动翻译器
+
 # 3. trap "kill..."    -> 退出时同时杀掉 MPD 和 mpDris2 的 PID
+
 # 4. ncmpcpp           -> 启动界面
 Exec=kitty --class music_player --title "Music Player" -e bash -c 'mpd --no-daemon >/dev/null 2>&1 & MPD_PID=$!; sleep 0.5; mpDris2 >/dev/null 2>&1 & DRIS_PID=$!; trap "kill $MPD_PID $DRIS_PID 2>/dev/null" EXIT HUP TERM INT; ncmpcpp'
 Icon=utilities-terminal
 Terminal=false
 Categories=Audio;Player;ConsoleOnly;
+
 ```
 
 
@@ -4192,12 +4530,18 @@ python -m pyftpdlib
 ## grub设置链式引导
 有些系统并不希望使用grub引导，比如pop!os有自己的system76引导，所以这时就需要链式引导来让这些系统使用自己的引导程序
 参考如下内容
+
 ```
+
 ❯ cat /etc/grub.d/40_custom
+
 #!/bin/sh
 exec tail -n +3 $0
+
 # This file provides an easy way to add custom menu entries.  Simply type the
+
 # menu entries you want to add after this comment.  Be careful not to change
+
 # the 'exec tail' line above.
 
 menuentry 'Pop!_OS(Chainload)' {
@@ -4209,6 +4553,7 @@ menuentry 'Pop!_OS(Chainload)' {
     # 移交控制权给另一个系统的Shim 引导程序
     chainloader /EFI/BOOT/BOOTX64.EFI
 }
+
 ```
 
 释义
@@ -4241,7 +4586,7 @@ menuentry 'Pop!_OS(Chainload)' {
 
 这个有两种解决方案
 一个是在mkinit 中配置 A 卡优先加载
-![[3d4acfcc17d6def5939c834ae1bd67cb_MD5.png]]
+![3d4acfcc17d6def5939c834ae1bd67cb_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/3d4acfcc17d6def5939c834ae1bd67cb_MD5.png)
 就是在 MODULES 里指定加载顺序即可，当然还需要sudo mkinitcpio -P重新加载一下配置
 
 另一个方案是把登录管理器的自启动服务添加一个 sleep 2延迟2秒启动
@@ -4250,12 +4595,15 @@ menuentry 'Pop!_OS(Chainload)' {
 
 ## arch 打开文件夹却显示终端
 就是发现在某些应用，我选择打开文件夹，打开的却是我的 kitty 终端，解决方案参考如下
+
 ```
+
 ❯ xdg-mime query default inode/directory
 kitty-open.desktop
 ❯ xdg-mime default org.gnome.Nautilus.desktop inode/directory
 ❯ xdg-mime query default inode/directory                     
 org.gnome.Nautilus.desktop
+
 ```
 
 
@@ -4268,20 +4616,28 @@ org.gnome.Nautilus.desktop
 ## wps 无法切换中文
 准确地说是让wps支持使用我的 fcitx5 输入法
 网上有个方案是在~/.pam_environment 中写入
+
 ```
+
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx5
 export XMODIFIERS=@im=fcitx
+
 ```
+
 但貌似 wps 随着版本更新不再读取这个文件
 
 
 所以需要在/usr/bin/wps 中的gOpt=下面一行添加如下内容即可
+
 ```
+
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx5
 export XMODIFIERS=@im=fcitx
+
 ```
+
   
 
 
@@ -4302,6 +4658,7 @@ winetricks是一个辅助脚本，专门用来给 Wine 安装各种依赖库和�
 
 ```plain
 sudo pacman -S winetricks
+
 ```
 
 使用 Winetricks 安装 CJK 字体包：
@@ -4310,6 +4667,7 @@ winetricks有一个专门的包叫 cjkfonts，它会自动下载并安装 Window
 
 ```plain
 winetricks cjkfonts
+
 ```
 
   
@@ -4318,18 +4676,24 @@ winetricks cjkfonts
 这个方案是在_Linux 系统层面_安装一套完整的高质量 CJK 字体。Wine (通过 Fontconfig) 理论上也能检测到并使用它们。
 安装 Noto CJK 字体包： `noto-fonts-cjk` 是 Google 和 Adobe 合作的开源字体，质量非常高，涵盖了中日韩所有字符。
 在终端运行：
+
 ```plain
 sudo pacman -S noto-fonts-cjk
+
 ```
 
 刷新字体缓存（通常 pacman 会自动做，但手动做一次没坏处）：
+
 ```plain
 fc-cache -fv
+
 ```
 
 ```
+
 sudo pacman -S adobe-source-han-serif-cn-fonts wqy-zenhei          #安装几个开源中文字体 一般装上文泉驿就能解决大多wine应用中文方块的问题
 sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌开源字体及表情
+
 ```
 
 我感觉没球用，不如群友打包的字体包，直接塞上就用
@@ -4349,13 +4713,16 @@ sudo pacman -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra    #安装谷歌
 为了永久生效，我配置了systemd服务
 `systemctl --user edit --force --full force-quantum.service`
 写入如下内容
+
 ```
+
 [Unit]
 Description=Force PipeWire Quantum to 2048 for Bluetooth stability
 After=pipewire.service wireplumber.service
 
 [Service]
 Type=oneshot
+
 # 等待几秒确保 PipeWire 完全启动后再执行，防止命令跑太快失效
 ExecStartPre=/usr/bin/sleep 5
 ExecStart=/usr/bin/pw-metadata -n settings 0 clock.force-quantum 2048
@@ -4363,6 +4730,7 @@ RemainAfterExit=yes
 
 [Install]
 WantedBy=default.target
+
 ```
 
 立刻启用
@@ -4371,7 +4739,7 @@ WantedBy=default.target
 如何验证？
 `pw-top`命令查看
 [[fac656bba474cf4bdd53348fe1d1c242_MD5.jpg|Open: Pasted image 20251215220719.png]]
-![[fac656bba474cf4bdd53348fe1d1c242_MD5.jpg]]
+![fac656bba474cf4bdd53348fe1d1c242_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg)
 bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 
 这个方案是用声音延迟的代价换取稳定
@@ -4419,7 +4787,9 @@ sudo pacman -S flatseal
 原因是我在 zshrc 里面写入的引用 Starship（从社区找来的提示符美化配置文件）和我设置的compinit（ Zsh 的自动补全系统）有冲突
 
 ```plain
+
 # 1. 设 置 历 史 记 录e
+
 # -----------------------------------------------------------------
 HISTFILE=~/.zsh_history
 HISTSIZE=1000
@@ -4431,6 +4801,7 @@ setoptAPPEND_HISTORY
 setoptEXTENDED_HISTORY
 
 # 2. 别 名 与 颜 色D
+
 # -----------------------------------------------------------------
 alias ls='ls --color=auto'
 alias l='ls -CF --color=auto'
@@ -4439,24 +4810,29 @@ alias ll='ls -lA --color=auto'
 eval"$(dircolors -b)"
 
 # 3. 补 全 样 式 o
+
 # -----------------------------------------------------------------
 zstyle':completion:*' menu select
 zstyle':completion:*:default' list-colors $LS_COLORS
 
 # 4. 加 载  Zsh 自 动 建 议 插 件 a
+
 # -----------------------------------------------------------------
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # 5. 激 活  Starship 提 示 符 u
+
 # -----------------------------------------------------------------
 eval"$(starship init zsh)"
 
 # 6. 自 动 补 全 s
+
 # -----------------------------------------------------------------
 autoload -Uz compinit
 compinit
 
 # 7. 加 载 语 法 高 亮 插 件 t
+
 # -----------------------------------------------------------------
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
