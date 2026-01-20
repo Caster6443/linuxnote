@@ -3271,8 +3271,7 @@ memlbaloon的目的是提高内存的利用率，但是由于它会不停地“�
 即使重写后，受限于磁盘剩余空间的碎片化，可能仍有残余碎片。使用 Btrfs 专用的整理工具进行最后修复。
 告诉内核寻找至少 32MB 连续空间的“大地盘”进行整理
 `sudo btrfs filesystem defragment -v -t 32M win11-fixed.qcow2`
-
-
+然后把新创建的qocw2改名为旧的取代即可
 
 
 
