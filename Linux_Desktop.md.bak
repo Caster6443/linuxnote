@@ -1286,25 +1286,21 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 # On windows this is automatic and no input settings are needed.
 
 #
-
 # All input methods uses the same config variable 'source'
 
 # to define where it should get the audio.
 
 #
-
 # For pulseaudio and pipewire 'source' will be the source. Default: 'auto', which uses the monitor source of the default sink
 
 # (all pulseaudio sinks(outputs) have 'monitor' sources(inputs) associated with them).
 
 #
-
 # For pipewire 'source' will be the object name or object.serial of the device to capture from.
 
 # Both input and output devices are supported. To capture the monitor source of a sink node, append '.monitor' to the sink's object name.
 
 #
-
 # For alsa 'source' will be the capture device.
 
 # For fifo 'source' will be the path to fifo-file.
@@ -1312,19 +1308,16 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 # For shmem 'source' will be /squeezelite-AA:BB:CC:DD:EE:FF where 'AA:BB:CC:DD:EE:FF' will be squeezelite's MAC address
 
 #
-
 # For sndio 'source' will be a raw recording audio descriptor or a monitoring sub-device, e.g. 'rsnd/2' or 'snd/1'. Default: 'default'.
 
 # README.md contains further information on how to setup CAVA for sndio.
 
 #
-
 # For oss 'source' will be the path to a audio device, e.g. '/dev/dsp2'. Default: '/dev/dsp', i.e. the default audio device.
 
 # README.md contains further information on how to setup CAVA for OSS on FreeBSD.
 
 #
-
 # For jack 'source' will be the name of the JACK server to connect to, e.g. 'foobar'. Default: 'default'.
 
 # README.md contains further information on how to setup CAVA for JACK.
@@ -1372,7 +1365,6 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 # For pipewire, sample_rate will default to 48000, for all other input methods, sample_rate will default to 44100.
 
 #
-
 # For 'sndio' and 'oss' they are only preferred values, i.e. if the values are not supported
 
 # by the chosen audio device, the device will use other supported values instead.
@@ -1415,7 +1407,6 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 # prone to tearing (vsync issues) than 'ncurses'.
 
 #
-
 # 'raw' is an 8 or 16 bit (configurable via the 'bit_format' option) data
 
 # stream of the bar heights that can be used to send to other applications.
@@ -1423,13 +1414,11 @@ playerctl metadata --format '{{status_icon}} {{artist}} - {{title}}' 2>/dev/null
 # 'raw' defaults to 1024 bars stereo (512 bars mono), which can be adjusted in the 'bars' option above.
 
 #
-
 # 'noritake' outputs a bitmap in the format expected by a Noritake VFD display
 
 #  in graphic mode. It only support the 3000 series graphical VFDs for now.
 
 #
-
 # 'sdl' uses the Simple DirectMedia Layer to render in a graphical context.
 
 # 'sdl_glsl' uses SDL to create an OpenGL context. Write your own shaders or
@@ -4758,7 +4747,7 @@ bluez_output那一行是我的蓝牙耳机输出，从256变成了2048
 `时间窗口=QUANT/48000Hz=xx.ms`
 我原本的QUANT是256，带入公式得到时间窗口大概是5.33ms(毫秒)
 意思是CPU必须每隔5.33毫秒就处理完一次音频数据，但是如果 Niri 渲染一帧画面抢占了 CPU 6 毫秒，音频线程就会错过截止时间。从而导致电流声等问题
-**新的时间窗口：** 2048/48000Hz≈42.66ms
+**新的时间窗口：** 2048/48000Hz​≈42.66ms
 **容错率提升:** 从 5ms 提升到 42ms（约 8 倍）。即使 Niri 发生丢帧或高负载卡顿，音频缓冲区里仍有足够的数据存货，不会断流。
 **代价:** 系统音频延迟增加约 37ms。对于视频（播放器会自动补偿）和非竞技类游戏，此延迟在人类感知阈值（<100ms）内，属于无感牺牲。
 
