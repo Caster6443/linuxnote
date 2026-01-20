@@ -349,13 +349,18 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 k8s版本 >= v1.11
 
-使用ipvs需要安装相应的工具来处理”yum install ipset ipvsadm -y“
+使用ipvs需要安装相应的工具来处理
 
-确保 ipvs已经加载内核模块， ip_vs、ip_vs_rr、ip_vs_wrr、ip_vs_sh、
+`yum install ipset ipvsadm -y`
 
-nf_conntrack_ipv4。如果这些内核模块不加载，当kube-proxy启动后，会退回到iptables模式。
+确保 ipvs已经加载内核模块
 
-yum -y install epel-release
+```
+ip_vs、ip_vs_rr、ip_vs_wrr、ip_vs_sh、nf_conntrack_ipv4。
+```
+
+如果这些内核模块不加载，当kube-proxy启动后，会退回到iptables模式。
+
 
 
 
@@ -366,9 +371,12 @@ yum -y install epel-release
 
 用来重组命令行，先完成引号里的命令行，然后将其结果替换出来，再重组成新的命令行
 
-shell中命令替换符有两种 与 $()
+```
+shell中命令替换符有两种
+`` 与 $()
+```
 
-反单引号适用于任何类unix平台，他的适用性比较高。$符号却不是。
+反单引号适用于任何类unix平台，它的适用性比较高。
 
 
 
@@ -376,6 +384,7 @@ shell中命令替换符有两种 与 $()
 
 ## linux常用的系统环境变量
 
+```
 PATH：决定了系统在哪些目录中查找可执行文件。当你输入一个命令时，系统会在PATH中定义的目录中查找该命令的可执行文件。
 
 HOME：指定当前用户的主目录路径。
@@ -393,12 +402,10 @@ TERM：指定当前终端的类型。
 PS1：定义命令行提示符的格式。
 
 PS2：定义多行命令的提示符的格式。
+```
 
-使用env命令显示当前用户的所有环境变量
+使用env命令显示当前用户的所有环境变量，使用set命令查看所有本地定义的环境变量
 
-使用set命令查看所有本地定义的环境变量
-
-进程树pstree命令的安装包是psmisc
 
 
 ## 关于echo $PATH的回显释义
