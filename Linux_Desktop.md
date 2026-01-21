@@ -891,17 +891,21 @@ sudo usermod -a -G libvirt $(whoami)
 ```
 
 sudo vim /etc/libvirt/qemu.conf
+```
+
 把user = "libvirt-qemu"改为user = "用户名"
 把group = "libvirt-qemu"改为group = "libvirt"
 取消这两行的注释
-sudo systemctl restart libvirtd
 
+重启服务
 ```
+sudo systemctl restart libvirtd
+```
+
 
 有一个注意点，virtmanager默认的连接是系统范围的，如果需要用户范围的话需要左上角新增一个用户会话连接。  
 
-## 嵌套虚拟化
-
+开启嵌套虚拟化
 临时生效  
 
 ```
@@ -911,11 +915,14 @@ modprobe kvm_amd nested=1
 永久生效  
 
 ```
-
 sudo vim /etc/modprobe.d/kvm_amd.conf
-写入
-options kvm_amd nested=1
+```
 
+
+写入
+
+```
+options kvm_amd nested=1
 ```
 
 重新生成initramfs  
@@ -923,6 +930,7 @@ options kvm_amd nested=1
 ```
 sudo mkinitcpio -P  
 ```
+
 
 ## KVM显卡直通
 
@@ -944,13 +952,11 @@ sudo dmesg | grep -e DMAR -e IOMMU
 2.获取显卡的硬件id，显卡所在group的所有设备的id都记下  
 
 ```
-
 for d in /sys/kernel/iommu_groups/*/devices/*; do 
     n=${d#*/iommu_groups/*}; n=${n%%/*}
     printf 'IOMMU Group %s ' "$n"
     lspci -nns "${d##*/}"
 done
-
 ```
 
 这里获得了我的显卡所在组和对应id  
@@ -964,17 +970,20 @@ echo 'options vfio-pci ids=10de:28e0,10de:22be' | sudo tee /etc/modprobe.d/vfio.
 ```
 
 4.编辑内核参数让vfio-pci抢先加载  
+
 ```
 sudo vim /etc/mkinitcpio.conf  
+```
+
 MODULES=（）里面写入`vfio_pci vfio vfio_iommu_type1  
 MODULES=(... vfio_pci vfio vfio_iommu_type1  ...)
-```
+
 
 另外还要确认HOOKS=()里面有modconf  
 
-```
 HOOKS=(... modconf ...)  
-```
+
+
 
 5.重新生成initramfs  
 
@@ -1023,7 +1032,9 @@ nvram = [
 开机后显示输出会出现在外接显示器中，之后会尝试hdmi欺骗器，因为这个显示器分辨率不行，但是hdmi欺骗器还没送到，所以现在还是先用外接屏吧  
 
 开机进入系统基础设置界面，按下shfit F10打开cmd，输入oobe\bypasssnro来跳过微软账号登录  
+
 然后安装两个东西，sunshine和virtual display driver，这两个都是github上的项目，一个远程桌面一个虚拟桌面，按照官方文档配置就行了，sunshine打开后会进入一个网页开始基础配置然后可以在这个网页管理连接，然后linux端下载moonlight，这是远程桌面sunshine的客户端，打开后一般它会自动检测到kvm的虚拟桌面，  
+
 然后右上角设置里调整分辨率，刷新率，码率，码率我设置的50,这个看个人网速吧，重点是并不是设置得高越好，码率这种东西，越高越接近设定的原生画质，但它会受到网络波动的影响，比如网速是90mbps，但这个90是平均值，如果我把码率也设置成90的话，如果网络突然波动到低于90mbps，就可能会有数据的丢包和传输速度的降低，从而导致串流的画面出现画面撕裂和掉帧的现象，所以这里我设定为50,属于是为了帧率牺牲了一些画面分辨率  
 
 然后连接虚拟桌面，会提示让你虚拟机登录那个网页打开pin码设置进行连接，密码就是moonlight提供的pin码，设备名随便设置，先把虚拟桌面设置为主桌面，因为moonlight默认连接的是主桌面。然后连接成功就能进入桌面了，连接后虚拟桌面放着不管，它会自动下线的，如果出现这种情况其实挺难搞的，貌似是和windows的电源管理策略相关，所以我不想用这个了，退出桌面的快捷键是ctrl alt shift q，全屏/窗口 化切换的快捷键是ctrl alt shift x  
@@ -1038,7 +1049,7 @@ nvram = [
 1.关于 /dev/shm(Linux 的共享内存机制)  
 在 Linux 系统中，为了满足不同程序之间高速交换数据的需求，同时避免频繁读写硬盘造成瓶颈，Linux 设计了一个特殊的机制—— `/dev/shm` 目录。  
 
-**虚拟挂载，而非物理分割**：  
+**虚拟挂载**：  
 `/dev/shm` 挂载的 `tmpfs` 文件系统，并不像硬盘分区那样物理占用了内存的一半。它仅仅是向操作系统申请了一个 **“最高可用 50% 内存的记账额度”**。  
 
 **动态分配机制**：  
@@ -1335,7 +1346,9 @@ sudo btrfs filesystem defragment -v -t 32M win11-fixed.qcow2
 @home -> /home  
 @pkg -> /var/cache/pacman/pkg  
 @log -> /var/log  
-@swap -> /swap  
+@swap -> /swap
+@snapshots -> /.snapshots
+@home_snapshots -> /home/.snapshots  
 ```
 
 efi分区挂载在/efi上，引导程序用的grub  
@@ -1509,7 +1522,6 @@ vim ~/.config/hypr/hypridle.conf
 写入如下内容  
 
 ```
-
 general {
     lock_cmd = qs -c noctalia-shell ipc call lockScreen lock
     before_sleep_cmd = qs -c noctalia-shell ipc call lockScreen lock
@@ -1532,7 +1544,6 @@ listener {
     timeout = 1200
     on-timeout = qs -c noctalia-shell ipc call sessionMenu lockAndSuspend
 }
-
 ```
 
 3.配置niri自动启动hypridle  
