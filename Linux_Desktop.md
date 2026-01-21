@@ -1574,6 +1574,9 @@ sudo pacman -S  --needed snapper snap-pac btrfs-assistant
 
 ```
 sudo pacman -S grub-btrfs inotify-tools  
+```
+
+```
 sudo systemctl enable --now grub-btrfsd  
 ```
 
@@ -2500,7 +2503,7 @@ sudo pacman -S python-pyftpdlib
 然后在需要共享的文件目录下运行  
 
 ```
-`python -m pyftpdlib`  
+python -m pyftpdlib
 ```
 
 具体端口号和进程等信息会自动显示  
