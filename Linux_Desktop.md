@@ -1985,8 +1985,14 @@ sudo pacman -S yt-dlp ffmpeg
 我这里在zshrc里把这条超长命令配置了别名为getaudio  
 `alias getaudio='yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail'`  
 
-下载的歌曲的元数据信息经常不尽人意，所以需要再引入工具eyeD3来修改歌曲元数据  
-安装工具  
+下载的歌曲的元数据信息经常不尽人意，所以需要再引入工具来修改歌曲元数据
+这里有三个选择，我首推有图形化修改的kid3
+
+```
+sudo pacman -S kid3
+```
+
+或者喜欢命令行操作那就eyeD3 
 
 ```
 yay -S python-eyed3  
