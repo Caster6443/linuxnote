@@ -241,24 +241,16 @@ hyprctl keyword 'device[asuf1204:00-2808:0202-touchpad]:enabled' 'false'
 ```bash
 
 #!/usr/bin/env bash
-
-# 你提供的正确设备名称和语法！
 DEVICE_TOUCHPAD="asuf1204:00-2808:0202-touchpad"
 
-# 状态文件
 STATE_FILE="/tmp/hypr_touchpad.state"
 
 if [ -f "$STATE_FILE" ]; then
-    # --- 状态文件存在，说明触控板当前是【禁用】的 ---
-    # --- 目标：【启用】它 ---
     hyprctl keyword "device[$DEVICE_TOUCHPAD]:enabled" 'true'
     
     notify-send "Touchpad" "已启用 ✅" -u low
     rm "$STATE_FILE"
 else
-    # --- 状态文件不存在，说明触控板当前是【启用】的 ---
-    # --- 目标：【禁用】它 ---
-    
     hyprctl keyword "device[$DEVICE_TOUCHPAD]:enabled" 'false'
     
     notify-send "Touchpad" "已禁用 ⛔" -u low
@@ -277,7 +269,6 @@ sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh
 在 hyprland 配置文件上绑定键位 ctrl+f10  
 
 ```bash
-# 切换触控板 (Ctrl + F10)
 bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 ```
 
