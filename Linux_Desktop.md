@@ -2131,12 +2131,81 @@ sudo flatpak remote-modify flathub --url=https://mirror.sjtu.edu.cn/flathub
 
 
 
+## 配置snapper快照
+
+1.安装 Snapper 和 DNF 插件
+
+```
+sudo dnf install snapper python3-dnf-plugin-snapper
+```
+
+`python3-dnf-plugin-snapper`: 它会钩住 DNF 的事务，在你执行安装/卸载/更新操作的前后自动打快照。
+
+2.初始化 Root 配置
+
+1)生成配置
+
+```
+sudo snapper -c root create-config /
+```
+
+(这一步会在 `/etc/snapper/configs` 下生成 `root` 配置文件，并在 `/.snapshots` 创建一个子卷)
+
+2)检查是否成功
+
+```
+sudo snapper list
+```
+
+如果看到这就一个 `0` 号快照，那就成了
+
+3.修改配置文件
+
+重点修改以下几项（建议值）：
 
 
+```
+# 允许普通用户列出快照，方便查看
+ALLOW_USERS="caster"
 
+# 开启时间线快照（定时快照）？
+# 建议：如果你只想要“装软件前自动备份”，可以把这个设为 "no"
+# 如果你想防手残误删文件，设为 "yes"
+TIMELINE_CREATE="yes"
 
+# 清理策略
+# 每小时保留多少个？
+TIMELINE_LIMIT_HOURLY="0"
 
+# 每天保留多少个？
+TIMELINE_LIMIT_DAILY="7"
 
+# 每周/每月/每年？（桌面用户直接设为 0 吧，除非你在做科研）
+TIMELINE_LIMIT_WEEKLY="0"
+TIMELINE_LIMIT_MONTHLY="0"
+TIMELINE_LIMIT_YEARLY="0"
+
+# DNF 自动快照保留多少对？
+# 每次 dnf 操作会产生 pre 和 post 两个快照。
+# 设为 5 表示保留最近 5 次 dnf 操作的后悔药。
+NUMBER_LIMIT="5"
+NUMBER_LIMIT_IMPORTANT="3"
+
+```
+
+4.设置目录权限
+
+把目录组权交给 root (或者你的用户组，通常不需要动，acl 会处理)
+
+```
+sudo chmod a+rx /.snapshots
+```
+
+```
+sudo chown :caster /.snapshots
+```
+
+5.安装
 
 
 
