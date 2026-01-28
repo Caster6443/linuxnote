@@ -2018,9 +2018,30 @@ sudo pacman -S python-mutagen
 该工具导出命令mutagen-inspect用于查看歌曲元数据，mid3v2用于修改元数据  
 
 
-# Fedora(GNOME)
+# Fedora(KDE)
 
-我选择的发行版是Fedora Workstation，默认是GNOME桌面
+我选择的发行版是`Fedora KDE Plasma Desktop 43`
+槽点是安装必须在那个引导弹窗第一步里点击那个图标，点击桌面的安装程序是没用的，虽然有提示，但是英文不注意看还以为就是个简单的常规流程从而错过安装选项。
+
+## 安装后进入系统黑屏
+
+具体表现是进入启动项后，Fedora 的加载动画出现一会后突然黑屏，然后按下电源键后再次出现Fedora 的加载动画，然后就会关机
+
+原因还是N卡，因为 Fedora 默认使用 Wayland + 开源驱动
+
+解决方案：
+重启电脑后在grub菜单界面的第一个默认fedora启动项按下e进入编辑模式，找到linux开头的那一行删除`rhgb quiet`来启用系统启动日志显示
+
+
+
+
+
+
+
+
+
+
+
 
 ## 配置输入法
 
