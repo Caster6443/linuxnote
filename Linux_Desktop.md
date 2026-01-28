@@ -2018,6 +2018,33 @@ sudo pacman -S python-mutagen
 该工具导出命令mutagen-inspect用于查看歌曲元数据，mid3v2用于修改元数据  
 
 
+# Fedora(GNOME)
+
+我选择的发行版是Fedora Workstation，默认是GNOME桌面
+
+## 配置输入法
+
+因为默认的输入法的候选词太反人类了，因此我选择Fcitx5+云拼音
+安装 Fcitx5 全家桶
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # git的使用
 
