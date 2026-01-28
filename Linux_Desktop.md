@@ -2135,7 +2135,7 @@ sudo flatpak remote-modify flathub --url=https://mirror.sjtu.edu.cn/flathub
 
 ### 1.安装 Snapper 和 DNF 插件
 
-```
+```bash
 sudo dnf install snapper python3-dnf-plugin-snapper
 ```
 
@@ -2145,7 +2145,7 @@ sudo dnf install snapper python3-dnf-plugin-snapper
 
 1)生成配置
 
-```
+```bash
 sudo snapper -c root create-config /
 ```
 
@@ -2153,7 +2153,7 @@ sudo snapper -c root create-config /
 
 2)检查是否成功
 
-```
+```bash
 sudo snapper list
 ```
 
@@ -2161,8 +2161,11 @@ sudo snapper list
 
 ### 3.修改配置文件
 
-重点修改以下几项（建议值）：
+```bash
+sudo vim /etc/snapper/configs/root
+```
 
+重点修改以下几项（建议值）：
 
 ```
 # 允许普通用户列出快照，方便查看
@@ -2197,17 +2200,17 @@ NUMBER_LIMIT_IMPORTANT="3"
 
 把目录组权交给 root (或者你的用户组，通常不需要动，acl 会处理)
 
-```
+```bash
 sudo chmod a+rx /.snapshots
 ```
 
-```
+```bash
 sudo chown :caster /.snapshots
 ```
 
 验证
 
-```
+```bash
 snapper list
 ```
 
@@ -2218,13 +2221,13 @@ snapper list
 
 开启时间线自动快照
 
-```
+```bash
 sudo systemctl enable --now snapper-timeline.timer
 ```
 
 开启自动清理（根据你配置里的 LIMIT 删除旧快照）
 
-```
+```bash
 sudo systemctl enable --now snapper-cleanup.timer
 ```
 
@@ -2238,7 +2241,7 @@ sudo systemctl enable --now snapper-cleanup.timer
 
 安装
 
-```
+```bash
 sudo dnf install btrfs-assistant
 ```
 
@@ -2254,13 +2257,13 @@ sudo dnf install btrfs-assistant
 
 添加 Kylegospo 的源：
 
-```
+```bash
 sudo dnf copr enable kylegospo/grub-btrfs
 ```
 
 安装
 
-```
+```bash
 sudo dnf install grub-btrfs
 ```
 
@@ -2269,21 +2272,21 @@ sudo dnf install grub-btrfs
 
 准备环境
 
-```
+```bash
 sudo dnf install git make inotify-tools
 ```
 
 解决目录路径分裂
 `grub-btrfs` 的作者写代码时，默认写死路径为 `/boot/grub`，很多工具也选择这么做，因为GRUB 的标准安装目录就是 `/boot/grub`，但多年前为了让 GRUB Legacy (0.97版) 和 GRUB 2 共存，Fedora 把 GRUB 2 的目录强行改名成了 `/boot/grub2`，所以这里选择用软链接来处理这个矛盾
 
-```
+```bash
 cd /boot
 sudo ln -s grub2 grub
 ```
 
 处理命令别名问题
 
-```
+```bash
 sudo ln -s /usr/bin/grub2-script-check /usr/bin/grub-script-check 
 sudo ln -s /usr/bin/grub2-mkconfig /usr/bin/grub-mkconfig 
 sudo ln -s /usr/bin/grub2-editenv /usr/bin/grub-editenv
@@ -2291,7 +2294,7 @@ sudo ln -s /usr/bin/grub2-editenv /usr/bin/grub-editenv
 
 源码安装
 
-```
+```bash
 git clone https://github.com/Antynea/grub-btrfs.git
 cd grub-btrfs 
 sudo make install
@@ -2299,13 +2302,13 @@ sudo make install
 
 启用后台监控服务（自动刷新菜单）
 
-```
+```bash
 sudo systemctl enable --now grub-btrfsd
 ````
 
 手动生成一次菜单（验证成功，在此之前先拍一个快照）
 
-```
+```bash
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
 
