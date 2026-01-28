@@ -2087,9 +2087,15 @@ nvidia-smi
 sudo dnf install fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-autostart
 ```
 
+`fcitx5`：输入法主程序
+
 `fcitx5-chinese-addons`: 包含了拼音组件和云拼音。
 
+`fcitx5-configtool`: 图形化配置工具
+
 `fcitx5-gtk / qt`: 保证你在各种软件里都能调出输入法。
+
+`fcitx5-autostart`: 自启动脚本
 
 然后打开 **System Settings** (系统设置)。找到 **Keyboard** (键盘) -> **Virtual Keyboard** (虚拟键盘)，把它改成 `Fcitx 5`，点击 **Apply** (应用)。
 
