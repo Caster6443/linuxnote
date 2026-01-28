@@ -2133,7 +2133,7 @@ sudo flatpak remote-modify flathub --url=https://mirror.sjtu.edu.cn/flathub
 
 ## 配置snapper快照
 
-1.安装 Snapper 和 DNF 插件
+### 1.安装 Snapper 和 DNF 插件
 
 ```
 sudo dnf install snapper python3-dnf-plugin-snapper
@@ -2141,7 +2141,7 @@ sudo dnf install snapper python3-dnf-plugin-snapper
 
 `python3-dnf-plugin-snapper`: 它会钩住 DNF 的事务，在你执行安装/卸载/更新操作的前后自动打快照。
 
-2.初始化 Root 配置
+### 2.初始化 Root 配置
 
 1)生成配置
 
@@ -2159,7 +2159,7 @@ sudo snapper list
 
 如果看到这就一个 `0` 号快照，那就成了
 
-3.修改配置文件
+### 3.修改配置文件
 
 重点修改以下几项（建议值）：
 
@@ -2193,7 +2193,7 @@ NUMBER_LIMIT_IMPORTANT="3"
 
 ```
 
-4.设置目录权限
+### 4.设置目录权限
 
 把目录组权交给 root (或者你的用户组，通常不需要动，acl 会处理)
 
@@ -2212,7 +2212,7 @@ snapper list
 ```
 
 
-5.激活自动化
+### 5.激活自动化
 
 默认是已经设置的，保险起见还是自己再配置一次
 
@@ -2228,7 +2228,7 @@ sudo systemctl enable --now snapper-timeline.timer
 sudo systemctl enable --now snapper-cleanup.timer
 ```
 
-6.安装Btrfs Assistant
+### 6.安装Btrfs Assistant
 
 这是 EndeavourOS (Arch 衍生版) 的开发者写的工具。它是一个 GUI，但是它做到了以下几点：
 1. **它是 Snapper 的前端**：底层还是 Snapper
@@ -2244,13 +2244,13 @@ sudo dnf install btrfs-assistant
 
 打开后可以通过GUI配置一些功能
 
-7.配置从grub启动快照
+### 7.配置从grub启动快照
 
 安装`grub-btrfs`
 
 有两个方案，一个是配置COPR 源后安装grub-btrfs，另一个是自己编译安装（如果 COPR 让你不爽，或者你觉得依赖别人打包不靠谱的话）
 
-方案一：
+#### 方案一
 
 添加 Kylegospo 的源：
 
@@ -2265,7 +2265,7 @@ sudo dnf install grub-btrfs
 ```
 
 
-方案二：
+#### 方案二
 
 准备环境
 
@@ -2274,13 +2274,40 @@ sudo dnf install git make inotify-tools
 ```
 
 解决目录路径分裂
-`grub-btrfs` 的作者写代码时，默认写死路径为 `/boot/grub`
+`grub-btrfs` 的作者写代码时，默认写死路径为 `/boot/grub`，很多工具也选择这么做，因为GRUB 的标准安装目录就是 `/boot/grub`，但多年前为了让 GRUB Legacy (0.97版) 和 GRUB 2 共存，Fedora 把 GRUB 2 的目录强行改名成了 `/boot/grub2`，所以这里选择用软链接来处理这个矛盾
 
 ```
 cd /boot
 sudo ln -s grub2 grub
 ```
 
+处理命令别名问题
+
+```
+sudo ln -s /usr/bin/grub2-script-check /usr/bin/grub-script-check 
+sudo ln -s /usr/bin/grub2-mkconfig /usr/bin/grub-mkconfig 
+sudo ln -s /usr/bin/grub2-editenv /usr/bin/grub-editenv
+```
+
+源码安装
+
+```
+git clone https://github.com/Antynea/grub-btrfs.git
+cd grub-btrfs 
+sudo make install
+```
+
+启用后台监控服务（自动刷新菜单）
+
+```
+sudo systemctl enable --now grub-btrfsd
+````
+
+手动生成一次菜单（验证成功，在此之前先拍一个快照）
+
+```
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+```
 
 
 # git的使用
