@@ -2063,21 +2063,59 @@ sudo dnf install akmod-nvidia
 是的就是等，`akmod` 机制是在后台默默编译适合你当前内核的驱动模块（kmod）。 你可以输入 `top` 命令盯着，如果看到有 `cc1` 或者 `kmod` 之类的进程占用很高 CPU，说明正在编译。
 稳妥起见，等个几分钟，直到CPU占用率掉下来，`top`里也看不到`cc1`或者`kmod`之类的进程
 
-然后重启电脑即可
+然后重启电脑后安装
+
+```
+sudo dnf install xorg-x11-drv-nvidia-cuda
+```
+
+然后运行命令查看显卡驱动情况
+
+```
+nvidia-smi
+```
 
 ## 配置fcitx5输入法
+它的中文名竟然叫小企鹅输入法
 
+```
+sudo dnf install fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-autostart
+```
 
+`fcitx5-chinese-addons`: 包含了拼音组件和云拼音。
+`fcitx5-gtk / qt`: 保证你在各种软件里都能调出输入法。
 
+然后打开 **System Settings** (系统设置)。找到 **Keyboard** (键盘) -> **Virtual Keyboard** (虚拟键盘)，把它改成 `Fcitx 5`，点击 **Apply** (应用)。
 
+终端输入 `fcitx5-configtool`，在弹出的窗口里检查拼音是否被启用，没有的话添加进去
 
+## 配置flatpak
 
+默认是fedora自己的源，但在国内太不好用了，所以需要修改一下配置
 
+配置flatpak官方仓库
 
+```
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+```
 
+删除fedora源
 
+```
+flatpak remote-delete fedora
+```
 
+可以用如下命令查看有没有来自fedora源的软件，有的话建议卸载重装
 
+```
+flatpak list --app --columns=name,origin
+```
+
+如果flatpak官方仓库源还是比较慢的话，可以换上交大的镜像地址
+
+```
+sudo flatpak remote-modify flathub --url=https://mirror.sjtu.edu.cn/flathub
+```
 
 
 
