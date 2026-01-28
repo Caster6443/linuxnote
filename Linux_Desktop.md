@@ -2021,6 +2021,7 @@ sudo pacman -S python-mutagen
 # Fedora(KDE)
 
 我选择的发行版是`Fedora KDE Plasma Desktop 43`
+
 槽点是安装必须在那个引导弹窗第一步里点击那个图标，点击桌面的安装程序是没用的，虽然有提示，但是英文不注意看还以为就是个简单的常规流程从而错过安装选项。
 
 ## 安装后进入系统黑屏
@@ -2030,11 +2031,14 @@ sudo pacman -S python-mutagen
 原因还是N卡，因为 Fedora 默认使用 Wayland + 开源驱动
 
 解决方案：
+
 方案一：
+
 重启电脑后在grub菜单界面的第一个默认fedora启动项按下e进入编辑模式，找到linux开头的那一行删除`rhgb quiet`来启用系统的启动日志显示，然后在这一行的末尾写入`nomodeset`来禁用显卡驱动的加载，而后Ctrl + X引导
 进入桌面后正常安装显卡驱动即可
 
 方案二：
+
 尝试ctrl + alt + F3/F4/F5（这些按键都可以试试）来切换到别的tty,出现提示符后正常输入用户名和密码登录，然后可以尝试启动sddm,不过安装显卡驱动也不需要GUI就是了
 
 
@@ -2060,6 +2064,7 @@ sudo dnf install akmod-nvidia
 (这一步会下载并安装驱动，还会安装 CUDA 库)
 
 4.等
+
 是的就是等，`akmod` 机制是在后台默默编译适合你当前内核的驱动模块（kmod）。 你可以输入 `top` 命令盯着，如果看到有 `cc1` 或者 `kmod` 之类的进程占用很高 CPU，说明正在编译。
 稳妥起见，等个几分钟，直到CPU占用率掉下来，`top`里也看不到`cc1`或者`kmod`之类的进程
 
@@ -2083,6 +2088,7 @@ sudo dnf install fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-gtk fcitx
 ```
 
 `fcitx5-chinese-addons`: 包含了拼音组件和云拼音。
+
 `fcitx5-gtk / qt`: 保证你在各种软件里都能调出输入法。
 
 然后打开 **System Settings** (系统设置)。找到 **Keyboard** (键盘) -> **Virtual Keyboard** (虚拟键盘)，把它改成 `Fcitx 5`，点击 **Apply** (应用)。
@@ -2222,7 +2228,7 @@ obsidian的第三方插件下载插件Git，作者vinzent，启用后设置推�
 
 ## Git仓库推送流程
 
-在github上弄了dotfiles仓库用于个人配置文件存储，项目地址[[https://github.com/Caster6443/dotfiles]]，前置认证流程就不记录了，这里记录一下使用方法  
+在github上弄了dotfiles仓库用于个人配置文件存储，项目地址https://github.com/Caster6443/dotfiles，前置认证流程就不记录了，这里记录一下使用方法  
 
 我把本地仓库放在/home/caster/Documents/my-dotfiles处  
 进入本地目录后  
