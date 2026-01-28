@@ -2030,23 +2030,47 @@ sudo pacman -S python-mutagen
 原因还是N卡，因为 Fedora 默认使用 Wayland + 开源驱动
 
 解决方案：
-重启电脑后在grub菜单界面的第一个默认fedora启动项按下e进入编辑模式，找到linux开头的那一行删除`rhgb quiet`来启用系统启动日志显示
+方案一：
+重启电脑后在grub菜单界面的第一个默认fedora启动项按下e进入编辑模式，找到linux开头的那一行删除`rhgb quiet`来启用系统的启动日志显示，然后在这一行的末尾写入`nomodeset`来禁用显卡驱动的加载，而后Ctrl + X引导
+进入桌面后正常安装显卡驱动即可
+
+方案二：
+尝试ctrl + alt + F3/F4/F5（这些按键都可以试试）来切换到别的tty,出现提示符后正常输入用户名和密码登录，然后可以尝试启动sddm,不过安装显卡驱动也不需要GUI就是了
+
+
+## 显卡驱动的安装
+1.更新系统
+
+```
+sudo dnf update -y
+```
+
+2.开启 RPM Fusion 仓库（这是 Fedora 的第三方软件库）：
+
+```
+sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+```
+
+3.安装 Nvidia 驱动：
+
+```
+sudo dnf install akmod-nvidia
+```
+
+(这一步会下载并安装驱动，还会安装 CUDA 库)
+
+4.等
+是的就是等，`akmod` 机制是在后台默默编译适合你当前内核的驱动模块（kmod）。 你可以输入 `top` 命令盯着，如果看到有 `cc1` 或者 `kmod` 之类的进程占用很高 CPU，说明正在编译。
+稳妥起见，等个几分钟，直到CPU占用率掉下来，`top`里也看不到`cc1`或者`kmod`之类的进程
+
+然后重启电脑即可
+
+## 配置fcitx5输入法
 
 
 
 
 
-
-
-
-
-
-
-
-## 配置输入法
-
-因为默认的输入法的候选词太反人类了，因此我选择Fcitx5+云拼音
-安装 Fcitx5 全家桶
 
 
 
