@@ -2205,7 +2205,30 @@ sudo chmod a+rx /.snapshots
 sudo chown :caster /.snapshots
 ```
 
-5.安装Btrfs Assistant
+验证
+
+```
+snapper list
+```
+
+
+5.激活自动化
+
+默认是已经设置的，保险起见还是自己再配置一次
+
+开启时间线自动快照
+
+```
+sudo systemctl enable --now snapper-timeline.timer
+```
+
+开启自动清理（根据你配置里的 LIMIT 删除旧快照）
+
+```
+sudo systemctl enable --now snapper-cleanup.timer
+```
+
+6.安装Btrfs Assistant
 
 这是 EndeavourOS (Arch 衍生版) 的开发者写的工具。它是一个 GUI，但是它做到了以下几点：
 1. **它是 Snapper 的前端**：底层还是 Snapper
@@ -2218,6 +2241,47 @@ sudo chown :caster /.snapshots
 ```
 sudo dnf install btrfs-assistant
 ```
+
+打开后可以通过GUI配置一些功能
+
+7.配置从grub启动快照
+
+安装`grub-btrfs`
+
+有两个方案，一个是配置COPR 源后安装grub-btrfs，另一个是自己编译安装（如果 COPR 让你不爽，或者你觉得依赖别人打包不靠谱的话）
+
+方案一：
+
+添加 Kylegospo 的源：
+
+```
+sudo dnf copr enable kylegospo/grub-btrfs
+```
+
+安装
+
+```
+sudo dnf install grub-btrfs
+```
+
+
+方案二：
+
+准备环境
+
+```
+sudo dnf install git make inotify-tools
+```
+
+解决目录路径分裂
+`grub-btrfs` 的作者写代码时，默认写死路径为 `/boot/grub`
+
+```
+cd /boot
+sudo ln -s grub2 grub
+```
+
+
 
 # git的使用
 
