@@ -2205,10 +2205,19 @@ sudo chmod a+rx /.snapshots
 sudo chown :caster /.snapshots
 ```
 
-5.安装
+5.安装Btrfs Assistant
 
+这是 EndeavourOS (Arch 衍生版) 的开发者写的工具。它是一个 GUI，但是它做到了以下几点：
+1. **它是 Snapper 的前端**：底层还是 Snapper
+2. **它集成了 Snapper-Tools**：可以直接在界面里恢复文件、恢复系统。
+3. **它集成了 Btrfs Maintenance**：管理磨损均衡 (Balance) 和清理 (Scrub)。
+4. **最强功能**：它能帮你一键配置 `Grub-Btrfs`
 
+安装
 
+```
+sudo dnf install btrfs-assistant
+```
 
 # git的使用
 
