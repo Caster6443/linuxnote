@@ -2364,9 +2364,37 @@ Fedora 官方源出于开源协议，不包含 Steam 和很多非自由驱动。
 sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 ```
 
+重新扫描一下系统核心组件，看看有没有需要升级或者修补的
+
+```
+sudo dnf group upgrade core
+```
+
+安装steam和lutris
+
+```
+sudo dnf install steam lutris gamemode
+```
+
+`gamemode`: 它是电脑的“自动运动模式”，能在你启动游戏时，自动把 CPU 和显卡锁定在高性能状态，防止卡顿。
+
+然后打开lutris完成初始化组件下载
+
+安装flatpak的prontonplus
+
+```
+sudo flatpak install com.vysp3r.ProtonPlus
+```
+
+然后打开protonplus下载最新的GEpronton和DWproton,完成后打开lutris,替换wine的默认版本为dwproton（可选，我觉得dwproton好一点吧，就是个单纯的工具选择问题）
+
+![](_resources/Linux_Desktop/430ecc883a2a9f6616039bb36d9df36c_MD5.jpg)
+
 
 
 ## Fedora 视频播放黑屏/报错 (6003)
+
+前面有提到这个问题，但还是保留这个报错供参考
 
 这涉及到一个有意思的事情，H.264 (AVC) 和 H.265 (HEVC) 是**有专利保护**的专有编码格式（归 MPEG LA 所有），Fedora作为一家总部位于美国（Red Hat）且服务于企业级的发行版，为了避免任何潜在的法律诉讼风险，Fedora 官方仓库坚决不收录任何涉及专利费的解码器。所以Fedora 预装的 `ffmpeg` 和 `libavcodec` 是”阉割版“，官方包名通常带 `-free` 后缀（如 `libavcodec-free`, `libswscale-free`），它们只能解码 VP9, AV1, Ogg 等开源格式。一旦遇到 H.264/H.265，它们会直接“装死”或者返回不支持。
 
