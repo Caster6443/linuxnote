@@ -2333,7 +2333,7 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 ## 桌面美化
 
-美化文件可以从kdelook上找
+美化文件可以在kdelook上找
 
 | **资源类型**                 | **解压后放到的路径 (都在 ~/.local/share/ 下)**    |
 | ------------------------ | -------------------------------------- |
@@ -2344,7 +2344,15 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 | **配色方案** (Color Schemes) | `~/.local/share/color-schemes/`        |
 | **窗口边框** (Aurorae)       | `~/.local/share/aurorae/themes/`       |
 
-默认的任务栏不尽人意，可以安装组件Panel colorizer
+### 状态栏美化
+
+默认的任务栏不尽人意，可以安装plasma小部件`Panel colorizer`，这个组件里面有很多内置的任务栏主题可供选择
+
+右键进入编辑模式，点击左上角添加或管理小部件--->获取新小部件--->下载新Plasma小部件，里面搜索`Panel colorizer`并安装，然后将该组件添加到任务栏上后配置即可
+
+![](_resources/Linux_Desktop/2100b306817511fff3739259eaec0555_MD5.jpg)
+
+
 
 鼠标指针
 https://store.kde.org/p/1358330
