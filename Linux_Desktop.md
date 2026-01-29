@@ -2462,7 +2462,7 @@ sudo flatpak install com.vysp3r.ProtonPlus
 sudo dnf install mangohud
 ```
 
-玩游戏要使用这个，lutris里面有对应开关
+玩游戏要使用这个的话，lutris里面有对应开关
 
 ## Fedora 视频播放黑屏/报错 (6003)
 
