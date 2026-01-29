@@ -2314,6 +2314,16 @@ sudo systemctl enable --now grub-btrfsd
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
 
+### 8.配置overlay
+
+快照是只读系统，但或许有在快照里抢救系统的情况，此处还在研究
+
+
+
+
+
+
+
 
 ## Fedora 视频播放黑屏/报错 (6003)
 
