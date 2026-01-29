@@ -2357,7 +2357,13 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 在壁纸插件设置中安装插件smart video wallpaper reborn，该插件只支持播放视频类型壁纸，如果想同时使用静态和动态壁纸的话，可以将普通静态壁纸转换为mp4来伪装成视频，我这里选择使用脚本批量转换
 
+在指定的壁纸存储目录下编辑脚本
 
+```
+vim run.sh
+```
+
+写入如下内容
 
 ```bash
 #!/bin/bash
@@ -2390,6 +2396,16 @@ done
 
 echo "完成！请去 converted 文件夹查看结果。"
 ```
+
+执行脚本
+
+```
+bash run.sh
+```
+
+然后就可以通过插件使用这些静态壁纸转化后的伪动态壁纸了
+
+
 
 鼠标指针
 https://store.kde.org/p/1358330
