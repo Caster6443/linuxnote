@@ -2356,8 +2356,11 @@ https://store.kde.org/p/2233462
 这涉及到一个有意思的事情，H.264 (AVC) 和 H.265 (HEVC) 是**有专利保护**的专有编码格式（归 MPEG LA 所有），Fedora作为一家总部位于美国（Red Hat）且服务于企业级的发行版，为了避免任何潜在的法律诉讼风险，Fedora 官方仓库坚决不收录任何涉及专利费的解码器。所以Fedora 预装的 `ffmpeg` 和 `libavcodec` 是”阉割版“，官方包名通常带 `-free` 后缀（如 `libavcodec-free`, `libswscale-free`），它们只能解码 VP9, AV1, Ogg 等开源格式。一旦遇到 H.264/H.265，它们会直接“装死”或者返回不支持。
 
 为什么会报“网络错误”而不是“解码错误”呢
+
 浏览器行为：Firefox/Chrome 在 Linux 上通常调用系统的 ffmpeg 库来解码视频。
+
 **故障链条**：
+
 1. 网站播放器请求 H.264 视频流。
 2. 浏览器把数据喂给系统的 `libavcodec`。
 3. 阉割版库接不住数据，导致解码管线 (Pipeline) 崩溃或卡死。
