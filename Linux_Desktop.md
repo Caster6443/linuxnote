@@ -2340,7 +2340,6 @@ https://store.kde.org/p/1358330
 https://store.kde.org/p/1305251
 
 应用程序风格
-
 https://store.kde.org/p/2233462
 
 
