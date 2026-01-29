@@ -2333,6 +2333,8 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 ## 桌面美化
 
+美化文件可以从kdelook上找
+
 | **资源类型**                 | **解压后放到的路径 (都在 ~/.local/share/ 下)**    |
 | ------------------------ | -------------------------------------- |
 | **Plasma 样式** (任务栏/面板)   | `~/.local/share/plasma/desktoptheme/`  |
@@ -2342,6 +2344,7 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 | **配色方案** (Color Schemes) | `~/.local/share/color-schemes/`        |
 | **窗口边框** (Aurorae)       | `~/.local/share/aurorae/themes/`       |
 
+默认的任务栏不尽人意，可以安装组件Panel colorizer
 
 鼠标指针
 https://store.kde.org/p/1358330
@@ -2378,6 +2381,8 @@ sudo dnf install steam lutris gamemode
 
 `gamemode`: 它是电脑的“自动运动模式”，能在你启动游戏时，自动把 CPU 和显卡锁定在高性能状态，防止卡顿。
 
+steam刚开始打开会给人一种打开失败或是闪退的错觉，实际上是因为它的初始化窗口一般不会显示出来，可以尝试打开终端输入`steam`来启动steam观察有无异常报错，没有的话耐心等待即可
+
 然后打开lutris完成初始化组件下载
 
 安装flatpak的prontonplus
@@ -2397,6 +2402,7 @@ sudo dnf install mangohud
 ```
 
 玩游戏要使用这个，lutris里面有对应开关
+
 ## Fedora 视频播放黑屏/报错 (6003)
 
 前面有提到这个问题，但还是保留这个报错供参考
