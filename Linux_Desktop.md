@@ -2321,6 +2321,31 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 
 
+## 桌面美化
+
+| **资源类型**                 | **解压后放到的路径 (都在 ~/.local/share/ 下)**    |
+| ------------------------ | -------------------------------------- |
+| **Plasma 样式** (任务栏/面板)   | `~/.local/share/plasma/desktoptheme/`  |
+| **全局主题** (Look and Feel) | `~/.local/share/plasma/look-and-feel/` |
+| **图标** (Icons)           | `~/.local/share/icons/`                |
+| **鼠标指针** (Cursors)       | `~/.local/share/icons/` (是的，也是这里)      |
+| **配色方案** (Color Schemes) | `~/.local/share/color-schemes/`        |
+| **窗口边框** (Aurorae)       | `~/.local/share/aurorae/themes/`       |
+
+
+鼠标指针
+https://store.kde.org/p/1358330
+
+图标主题
+https://store.kde.org/p/1256209
+
+
+
+
+
+
+
+
 
 
 
