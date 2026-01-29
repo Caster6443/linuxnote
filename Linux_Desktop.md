@@ -2353,6 +2353,43 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ![](_resources/Linux_Desktop/2100b306817511fff3739259eaec0555_MD5.jpg)
 
 
+### 视频壁纸
+
+在壁纸插件设置中安装插件smart video wallpaper reborn，该插件只支持播放视频类型壁纸，如果想同时使用静态和动态壁纸的话，可以将普通静态壁纸转换为mp4来伪装成视频，我这里选择使用脚本批量转换
+
+
+
+```bash
+#!/bin/bash
+
+# 创建一个 output 文件夹，防止搞乱原文件
+mkdir -p converted
+
+echo "开始轻量级转换（低负载模式）..."
+
+for f in *.jpg *.jpeg *.png; do
+    [ -e "$f" ] || continue
+    
+    # 输出到 converted 文件夹
+    output="converted/${f}.mp4"
+    
+    if [ ! -f "$output" ]; then
+        echo "正在处理: $f"
+        
+        # -preset ultrafast: 极速模式，CPU 摸鱼专用，几乎不发热
+        # -t 5: 只生成 5 秒视频 (反正插件会循环，5秒够了，硬盘写入更少)
+        # -tune stillimage: 告诉编码器这是静止图，优化性能
+        
+        ffmpeg -hide_banner -loglevel error -y -loop 1 -i "$f" \
+               -c:v libx264 -preset ultrafast -tune stillimage \
+               -c:a aac -f mp4 -pix_fmt yuv420p \
+               -vf "scale=ceil(iw/2)*2:ceil(ih/2)*2" \
+               -t 5 "$output"
+    fi
+done
+
+echo "完成！请去 converted 文件夹查看结果。"
+```
 
 鼠标指针
 https://store.kde.org/p/1358330
