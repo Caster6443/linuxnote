@@ -3129,3 +3129,20 @@ sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout
 
 `!tty_tickets`  
 关闭每个 Konsole 窗口都要单独输密码的规则，使得密码有效期可全局共享  
+
+
+
+
+## 兼容层玩游戏花屏
+
+比如用proton,或者geproton之类的玩游戏会有短暂的花屏问题，大概是这样
+
+![](_resources/Linux_Desktop/f1bb7e77c7c7849a9a5c8432824527a6_MD5.jpg)
+
+解决方案是在启动参数里写入`PROTON_ENABLE_WEBVIEW2=1`即可
+
+以steam的启动选项为例，可以这么写
+
+```
+PROTON_ENABLE_WEBVIEW2=1  %command%
+```
