@@ -2390,8 +2390,13 @@ sudo flatpak install com.vysp3r.ProtonPlus
 
 ![](_resources/Linux_Desktop/430ecc883a2a9f6616039bb36d9df36c_MD5.jpg)
 
+如果需要游戏性能监视器，可以装一个mangohud,它不仅有性能监视器的功能，不过一般都用来做这个
 
+```
+sudo dnf install mangohud
+```
 
+玩游戏要使用这个，lutris里面有对应开关
 ## Fedora 视频播放黑屏/报错 (6003)
 
 前面有提到这个问题，但还是保留这个报错供参考
