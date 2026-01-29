@@ -2103,6 +2103,16 @@ sudo dnf install fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-gtk fcitx
 
 终端输入 `fcitx5-configtool`，在弹出的窗口里检查拼音是否被启用，没有的话添加进去
 
+## 启用完整的 VA-API 硬件解码与专有格式支持
+
+Fedora 默认仓库出于专利合规原因，移除了 Mesa 驱动中对 H.264/HEVC (H.265) 等专有编码的 VA-API 硬件加速支持，且提供的 FFmpeg 库缺少对应的解码器,因此需要卸载旧有的阉割版，安装完整支持版
+
+```
+sudo dnf install ffmpeg-libs libavcodec-freeworld mesa-va-drivers-freeworld --allowerasing
+```
+
+
+
 ## 配置flatpak
 
 默认是fedora自己的源，但在国内太不好用了，所以需要修改一下配置
@@ -2344,10 +2354,15 @@ https://store.kde.org/p/2233462
 
 
 
+## 玩游戏
 
+开启 RPM Fusion 源
 
+Fedora 官方源出于开源协议，不包含 Steam 和很多非自由驱动。你必须先开启 RPM Fusion
 
-
+```
+sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+```
 
 
 
