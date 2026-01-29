@@ -2337,9 +2337,11 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 https://store.kde.org/p/1358330
 
 图标主题
-https://store.kde.org/p/1256209
+https://store.kde.org/p/1305251
 
+应用程序风格
 
+https://store.kde.org/p/2233462
 
 
 
