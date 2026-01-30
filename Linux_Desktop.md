@@ -2340,8 +2340,11 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 安装虚拟化组包
 
 ```
-sudo dnf groupinstall "Virtualization"
+sudo dnf install qemu-kvm libvirt virt-install virt-manager virt-viewer edk2-ovmf swtpm
 ```
+
+qemu-kvm
+
 
 确保 TPM 模块安装
 
@@ -2350,6 +2353,8 @@ sudo dnf install swtpm
 ```
 
 Fedora 现在推崇模块化的守护进程（`virtqemud.socket` 等），但传统的 `libvirtd` 依然可用。
+
+启动并设置开机自启（如果你需要）
 
 ```
 sudo systemctl enable --now libvirtd
