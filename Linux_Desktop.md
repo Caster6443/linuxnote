@@ -2388,13 +2388,16 @@ sudo virsh net-autostart default
 ```
 
 
-### 3.开启 IOMMU 与配置内核参数 (Grubby)
+### 显卡直通
+#### 1.开启 IOMMU 与配置内核参数 (Grubby)
 
 在 Fedora 上，官方推荐使用 **Grubby** 工具。它能直接操作 Boot Loader Specification (BLS) 条目，更安全且即时生效。
 
 首先要确认 IOMMU 支持，确认主板 BIOS 里的 VT-d / AMD-V / IOMMU 已经开启，一般默认支持的。
 
 **使用 Grubby 添加内核参数** 根据你的 CPU 平台选择命令执行：
+
+实际上就是在修改/etc/default/grub文件中的内核参数
 
 **Intel CPU:**
 
@@ -2411,13 +2414,62 @@ sudo grubby --update-kernel=ALL --args="amd_iommu=on iommu=pt"
 `--update-kernel=ALL`：应用到所有已安装的内核（包括以后更新的）。
 `iommu=pt`：(Passthrough) 提高性能，让不需要直通的设备直接通过 IOMMU，而不是全部模拟。
 
-验证参数是否写入
+验证参数是否写入，看输出里的 `args="..."` 这一行有没有你刚才加的内容
 
 ```bash
 sudo grubby --info=DEFAULT
 ```
 
 
+#### 2.显卡隔离
+
+**获取显卡硬件 ID** 使用脚本查看 IOMMU 分组和 ID
+
+```bash
+for d in /sys/kernel/iommu_groups/*/devices/*; do 
+    n=${d#*/iommu_groups/*}; n=${n%%/*}
+    printf 'IOMMU Group %s ' "$n"
+    lspci -nns "${d##*/}"
+done
+```
+
+这是我的显卡硬件ID
+
+![](_resources/Linux_Desktop/ed084d865cdcd356f214e7dd747b23ea_MD5.jpg)
+
+配置 Dracut 强制加载 VFIO 驱动
+
+编辑文件
+
+```
+sudo vim /etc/dracut.conf.d/vfio.conf
+```
+
+写入以下内容
+
+```
+add_drivers+=" vfio vfio_pci vfio_iommu_type1 "
+```
+
+`add_drivers+=`：告诉 Dracut 在生成 initramfs 时，必须把这几个模块打包进去
+
+绑定显卡 ID
+
+我们需要告诉内核：“这两个 ID 的设备，归 vfio-pci 管，别让 nvidia 或 nouveau 碰它们”。
+
+`vfio-pci.ids`的值替换为你的实际 ID
+
+```
+sudo grubby --update-kernel=ALL --args="vfio-pci.ids=10de:28e0,10de:22be rd.driver.pre=vfio_pci"
+```
+
+`rd.driver.pre=vfio_pci`：这是一个保险措施，确保在 initramfs 阶段 `vfio_pci` 比显卡驱动更早加载。
+
+重新生成 Initramfs
+
+```
+sudo dracut -f
+```
 
 
 
