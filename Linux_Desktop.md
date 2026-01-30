@@ -2700,6 +2700,7 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/e088c81bf21b904c82649070873d7296_MD5.jpg)
 
+然后在宿主机安装lookingglass,因为我们在windows客户端中安装的是最新的bleededge版本，所以fedora上我们需要编译安装最新的lookingglass,做好版本对应
 
 
 
