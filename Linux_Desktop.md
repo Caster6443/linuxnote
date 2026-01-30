@@ -2515,12 +2515,107 @@ sudo dracut -f -v
 重启即可
 
 
+这个来回切换的过程可以写成脚本
 
+编辑文件
 
+```
+sudo vim /usr/local/bin/switch-gpu-owner
+```
 
+写入如下内容，注意修改VFIO_IDS的值为你的显卡硬件ID
 
+```
+#!/bin/bash
 
+# 你的显卡和音频设备 ID (必须修改这里)
+VFIO_IDS="10de:28e0,10de:22be"
 
+DRACUT_CONF="/etc/dracut.conf.d/vfio.conf"
+
+R=$(tput sgr0)
+B=$(tput bold)
+GREEN=$(tput setaf 2)
+PURPLE=$(tput setaf 5)
+RED=$(tput setaf 1)
+CYAN=$(tput setaf 6)
+YELLOW=$(tput setaf 3)
+
+I_LINUX="🐧"
+I_WIN="🪟"
+
+if [ "$EUID" -ne 0 ]; then
+  echo "${RED}错误: 请使用 sudo 运行${R}"
+  exit 1
+fi
+
+clear
+printf "${B}:: 显卡直通模式切换器 ::${R}\n\n"
+
+if grubby --info=DEFAULT | grep -q "vfio-pci.ids=$VFIO_IDS"; then
+    MODE="TO_HOST"
+    
+    printf "当前状态: ${PURPLE}${I_WIN}  直通模式 (VM 独占)${R}\n"
+    printf "准备切换: ${GREEN}${I_LINUX}  主机模式 (Linux 使用)${R}\n"
+
+else
+    MODE="TO_VM"
+    
+    printf "当前状态: ${GREEN}${I_LINUX}  主机模式 (Linux 使用)${R}\n"
+    printf "准备切换: ${PURPLE}${I_WIN}  直通模式 (VM 独占)${R}\n"
+fi
+
+printf "\n${B}确认执行? [y/N]: ${R}"
+read CONFIRM
+[[ "$CONFIRM" =~ ^[Yy]$ ]] || exit 0
+
+printf "\n--------------------------------\n"
+
+if [ "$MODE" == "TO_HOST" ]; then
+    printf "正在移除内核参数... "
+    grubby --update-kernel=ALL --remove-args="vfio-pci.ids=$VFIO_IDS rd.driver.pre=vfio_pci"
+    echo "✔"
+
+    printf "正在删除强制隔离配置... "
+    rm -f "$DRACUT_CONF"
+    echo "✔"
+
+else
+    printf "正在添加内核参数... "
+    grubby --update-kernel=ALL --args="vfio-pci.ids=$VFIO_IDS rd.driver.pre=vfio_pci"
+    echo "✔"
+
+    printf "正在创建强制隔离配置... "
+    echo 'add_drivers+=" vfio vfio_pci vfio_iommu_type1 "' > "$DRACUT_CONF"
+    echo "✔"
+fi
+
+printf "\n${YELLOW}正在重建 Initramfs (Dracut verbose)...${R}\n"
+printf "屏幕将输出详细日志，请等待...\n\n"
+
+dracut -f -v
+
+if [ $? -eq 0 ]; then
+    printf "\n${B}${GREEN}✅ 切换成功！${R}\n"
+    read -p "立即重启? [y/N]: " RB
+    [[ "$RB" =~ ^[Yy]$ ]] && reboot
+else
+    printf "\n${B}${RED}❌ 失败！请检查上方错误日志。${R}\n"
+    exit 1
+fi
+```
+
+添加执行权限
+
+```
+sudo chmod a+x /usr/local/bin/switch-gpu-owner 
+```
+
+而后可通过使用命令快捷切换显卡归属
+
+```
+sudo switch-gpu-owner
+```
 
 
 
