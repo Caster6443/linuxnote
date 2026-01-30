@@ -2689,6 +2689,19 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 
 
+然后关闭虚拟机，打开虚拟系统管理器，在编辑->首选项中启用xml编辑
+
+[Open: Pasted image 20260130151151.png](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
+![](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
+
+回到虚拟机的概况，打开xml,写入高亮的那几行
+
+注意：`64` MB 对于 2K/4K 分辨率比较稳，如果你只用 1080p，`32` 也行。
+
+![](_resources/Linux_Desktop/e088c81bf21b904c82649070873d7296_MD5.jpg)
+
+
+
 
 
 
