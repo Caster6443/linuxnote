@@ -2694,6 +2694,8 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 [Open: Pasted image 20260130151151.png](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
 ![](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
 
+配置lo o k
+
 回到虚拟机的概况，打开xml,写入高亮的那几行
 
 注意：`64` MB 对于 2K/4K 分辨率比较稳，如果你只用 1080p，`32` 也行。
@@ -2702,13 +2704,65 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 然后在宿主机安装lookingglass,因为我们在windows客户端中安装的是最新的bleededge版本，所以fedora上我们需要编译安装最新的lookingglass,做好版本对应
 
+安装编译依赖
+
+```bash
+sudo dnf install cmake gcc-c++ \
+    wayland-devel wayland-protocols-devel \
+    libxkbcommon-devel libglvnd-devel fontconfig-devel \
+    spice-protocol nettle-devel binutils-devel \
+    libX11-devel libXScrnSaver-devel libXrandr-devel \
+    libXi-devel libXfixes-devel libXinerama-devel \
+    libXcursor-devel libXpresent-devel \
+    libdecor-devel dnf-plugins-core
+```
 
 
+克隆源码
+
+必须加上 `--recursive` 参数，因为 Looking Glass 依赖很多子模块（如 PureSpice, imgui 等）
+
+```
+git clone --recursive https://github.com/gnif/LookingGlass.git
+cd LookingGlass
+```
+
+编译与安装
 
 
+进入客户端目录
+
+```
+cd client
+```
+
+创建并进入构建目录
+
+```
+mkdir build
+cd build
+```
+
+生成 Makefile (自动检测依赖)
+
+```
+cmake ../
+```
+
+多核编译
+
+```
+make -j$(nproc)
+```
+
+安装到系统 (默认 /usr/local/bin)
+
+```
+sudo make install
+```
 
 
-
+创建共享内存配置文件
 
 
 
