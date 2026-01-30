@@ -2343,8 +2343,13 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 sudo dnf install qemu-kvm libvirt virt-install virt-manager virt-viewer edk2-ovmf swtpm
 ```
 
-qemu-kvm
-
+`qemu-kvm`：**KVM (Kernel-based Virtual Machine)** 是Linux 内核模块，负责把 CPU 虚拟化，让虚拟机能直接跑在 CPU 上，**QEMU** 是用户态软件，负责模拟主板、硬盘控制器、网卡、USB 设备等硬件。
+`libvirt` ：这是一个管理工具层。QEMU 的命令参数极其复杂（一行命令能有几百个字符），人类难以直接操作。Libvirt 提供了一套标准的 XML 配置文件格式和 API，帮你翻译和指挥 QEMU 干活。
+**`virt-install`**：**命令行创建工具**，它允许你通过一条长命令来创建虚拟机。虽然新手更常用图形界面的 `virt-manager`，但对于需要写脚本批量创建虚拟机，或者在没有图形界面的服务器上部署时，它是必不可少的神器。
+`virt-manager`：libvirt的图形化前台工具
+`virt-viewer`：连接虚拟机画面的客户端。通常使用 SPICE 或 VNC 协议
+`edk2-ovmf`：开源虚拟机固件(UEFI)，以前的虚拟机用的是 BIOS，现在的**显卡直通**几乎强制要求使用 UEFI，它让虚拟机拥有了一个现代的 UEFI 环境，支持 Secure Boot（安全启动）。
+`swtpm`：软件模拟的 TPM 2.0 芯片，Windows 11 强制要求硬件支持 TPM 2.0。以前我们要在 QEMU 里搞很复杂的透传，现在直接用 `swtpm` 就能模拟一个 TPM 芯片给虚拟机，骗过 Windows 11 的安装检测。
 
 确保 TPM 模块安装
 
