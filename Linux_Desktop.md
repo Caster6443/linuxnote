@@ -2335,7 +2335,7 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 ## 配置KVM/QEMU虚拟机
 
-1.基础安装与服务
+### 1.基础安装与服务
 
 安装虚拟化组包
 
@@ -2358,12 +2358,6 @@ sudo dnf install qemu-kvm libvirt virt-install virt-manager virt-viewer edk2-ovm
 - `swtpm`：**软件模拟的 TPM 2.0 芯片**。Windows 11 强制要求硬件支持 TPM 2.0。以前我们要在 QEMU 里搞很复杂的透传，现在直接用 `swtpm` 就能模拟一个 TPM 芯片给虚拟机，完美骗过 Windows 11 的安装检测。
 
 
-确保 TPM 模块安装(此模块一般默认安装，没有的话可选安装，如果你想TPM直通给win11而不是通过swtpm伪装TPM)
-
-```
-sudo dnf install swtpm
-```
-
 Fedora 现在推崇模块化的守护进程（`virtqemud.socket` 等），但传统的 `libvirtd` 依然可用。
 
 启动并设置开机自启（如果你需要）
@@ -2372,6 +2366,56 @@ Fedora 现在推崇模块化的守护进程（`virtqemud.socket` 等），但传
 sudo systemctl enable --now libvirtd
 ```
 
+
+### 2.验证网络设置
+
+Fedora 通常会自动配置好 NAT 网络，但为了保险起见，建议检查一下 `default` 网络是否处于活跃状态。
+
+查看网络列表
+
+```
+sudo virsh net-list --all
+```
+
+如果状态不是 `active`，或者 `Autostart` 不是 `yes`，执行以下命令修复：
+
+```
+sudo virsh net-start default
+```
+
+```
+sudo virsh net-autostart default
+```
+
+
+### 3.开启 IOMMU 与配置内核参数 (Grubby)
+
+在 Fedora 上，官方推荐使用 **Grubby** 工具。它能直接操作 Boot Loader Specification (BLS) 条目，更安全且即时生效。
+
+首先要确认 IOMMU 支持，确认主板 BIOS 里的 VT-d / AMD-V / IOMMU 已经开启，一般默认支持的。
+
+**使用 Grubby 添加内核参数** 根据你的 CPU 平台选择命令执行：
+
+**Intel CPU:**
+
+```Bash
+sudo grubby --update-kernel=ALL --args="intel_iommu=on iommu=pt"
+```
+
+**AMD CPU:**
+
+```Bash
+sudo grubby --update-kernel=ALL --args="amd_iommu=on iommu=pt"
+```
+
+`--update-kernel=ALL`：应用到所有已安装的内核（包括以后更新的）。
+`iommu=pt`：(Passthrough) 提高性能，让不需要直通的设备直接通过 IOMMU，而不是全部模拟。
+
+验证参数是否写入
+
+```bash
+sudo grubby --info=DEFAULT
+```
 
 
 
