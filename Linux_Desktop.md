@@ -2620,7 +2620,36 @@ sudo switch-gpu-owner
 
 #### 3.配置windows虚拟机
 
-下载windows镜像h
+下载windows镜像后，打开应用**虚拟系统管理器**安装win11虚拟机
+
+CPU配置可以参考`lscpu`命令的信息酌情配置
+
+![](_resources/Linux_Desktop/3fa5b505a50a0693ba96d352e9f3749c_MD5.jpg)
+
+![](_resources/Linux_Desktop/eafec5e8b28d295ef5aa1c173dbf3dd0_MD5.jpg)
+
+添加一个CDROM,镜像选择virtio-win
+
+[Open: Pasted image 20260130134741.png](_resources/Linux_Desktop/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
+![](_resources/Linux_Desktop/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
