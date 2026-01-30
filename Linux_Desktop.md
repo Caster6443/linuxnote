@@ -2646,7 +2646,7 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/b495564764da2be2e27f4aeaa03dd8d2_MD5.jpg)
 
-注意磁盘的总线应该选择virtio而不是SATA,因为SATA的虚拟化性能较差，刚刚创建虚拟机时选择存储时的总线忘记修改了，我们把SATA的删掉，重新添加一个virtio的
+注意磁盘的总线应该选择virtio而不是SATA,因为SATA的虚拟化性能较差，刚刚创建虚拟机时选择存储时的总线忘记修改了，我们把SATA的删掉，重新添加一个virtio的，**另外绘图板要删除掉！**，做完了才发现不删除绘图板会导致鼠标输入异常
 
 ![](_resources/Linux_Desktop/73a018411914a8dca8a0fe0f9ec75eb7_MD5.jpg)
 
@@ -2692,9 +2692,23 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 #### 4.配置looking glass
 
-如果你像我一样是笔记本且副屏不常使用，那么你就需要接下来的`looking glass`方案,`lookingglass`配合虚拟显示器`virtual dispaly driver`实现了无头模式的虚拟机，也就是说，我可以在虚拟机管理器中启动虚拟机，然后通过looking glass 客户端连接那个虚拟的桌面，这样就不需要我连接副屏或是在虚拟机控制台上操作了，而且lookingglass是通过内存共享的画面，比控制台的spice信道设备要快很多
+如果你像我一样是笔记本且副屏不常使用，那么你就需要接下来的`looking glass`方案,`lookingglass`配合虚拟显示器`virtual dispaly driver`实现了无头模式的虚拟机，也就是说，我可以在虚拟机管理器中启动虚拟机，然后通过looking glass 客户端连接那个虚拟的桌面，这样就不需要我连接副屏或是在虚拟机控制台上操作了，而且lookingglass是通过内存共享的画面，比控制台的画面和帧率要好很多
 
-关闭虚拟机，打开虚拟系统管理器，在编辑->首选项中启用xml编辑
+在虚拟机中安装`Virtual-Display-Driver`和`lookingglass`
+
+Virtual-Display-Driver下载地址
+
+https://www.google.com/search?q=https://github.com/itsmiketheb/Virtual-Display-Driver/releases&authuser=1
+
+lookingglass下载地址
+
+https://looking-glass.io/downloads
+
+拉到最下面下载`Bleeding Edge`区块的最新版
+
+两个工具都根据系统提示安装即可
+
+然后关闭虚拟机，打开虚拟系统管理器，在编辑->首选项中启用xml编辑
 
 ![](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
 
@@ -2797,7 +2811,7 @@ sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 
 出于安全策略，selinux会拦截lookingglass,因此有两个选择，一个是生成规则来让selinux放行，另一个是直接禁用selinux,禁用selinux较为简单，这里的方案是让selinux放行
 
-你需要 `audit2allow` 这个工具来生成策略，因此需要确保它的安装
+我们需要 `audit2allow` 这个工具来生成策略，因此需要确保它的安装
 
 ```
 sudo dnf install policycoreutils-python-utils
@@ -2815,15 +2829,17 @@ sudo grep "looking-glass" /var/log/audit/audit.log | audit2allow -M lookingglass
 sudo semodule -i lookingglass_local.pp
 ```
 
-然后正常打开虚拟机即可
-
 安装`looking glass`指定字体包，不装这个字体就打不开looking glass多少有点抽象了
 
 ```
 sudo dnf install dejavu-sans-mono-fonts
 ```
 
+然后正常打开虚拟机即可
+
 虚拟机开机后打开应用`looking glass Client`或者在命令行输入`looking glass Client`启动即可
+
+![](_resources/Linux_Desktop/9ea39142a6b1426e9d5d742fb2d27f36_MD5.jpg)
 
 
 
