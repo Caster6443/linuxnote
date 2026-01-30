@@ -2358,7 +2358,7 @@ sudo dnf install qemu-kvm libvirt virt-install virt-manager virt-viewer edk2-ovm
 - `swtpm`：**软件模拟的 TPM 2.0 芯片**。Windows 11 强制要求硬件支持 TPM 2.0。以前我们要在 QEMU 里搞很复杂的透传，现在直接用 `swtpm` 就能模拟一个 TPM 芯片给虚拟机，完美骗过 Windows 11 的安装检测。
 
 
-确保 TPM 模块安装
+确保 TPM 模块安装(此模块一般默认安装，没有的话可选安装，如果你想TPM直通给win11而不是通过swtpm伪装TPM)
 
 ```
 sudo dnf install swtpm
