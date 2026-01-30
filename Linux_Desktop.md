@@ -2617,6 +2617,9 @@ sudo chmod a+x /usr/local/bin/switch-gpu-owner
 sudo switch-gpu-owner
 ```
 
+注意：系统内核升级后，可能需要重新运行此脚本以确保 Initramfs 包含正确的驱动配置。
+
+
 
 #### 3.配置windows虚拟机
 
@@ -2636,7 +2639,7 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
 
-网络的设备型号选virtio,网络源选NAT和桥接我觉得没什么区别，选桥接 理论上网络传输效率更高
+网络的设备型号选virtio,网络源选NAT和桥接我觉得在性能上没什么区别，选桥接的话理论上网络传输效率更高，而且如果有局域网串流画面的需求，更推荐使用桥接模式
 
 ![](_resources/Linux_Desktop/abf503c458692eb568e04e6df0ab530d_MD5.jpg)
 
