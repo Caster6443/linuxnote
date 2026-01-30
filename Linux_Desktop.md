@@ -2685,18 +2685,20 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/6bc4e18503d3a95c65da16d2757fe0ba_MD5.jpg)
 
-安装后可以看到虚拟机通网了，这时就可以上英伟达官网安装显卡驱动（因为刚刚添加了显卡硬件设备到虚拟机中）
+安装后可以看到虚拟机通网了，这时就可以上英伟达官网安装显卡驱动（因为刚刚添加了显卡硬件设备到虚拟机中）,到这里就算完成了显卡直通，
 
 
 
-然后关闭虚拟机，打开虚拟系统管理器，在编辑->首选项中启用xml编辑
 
-[Open: Pasted image 20260130151151.png](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
+#### 4.配置looking glass
+
+如果你像我一样是笔记本且副屏不常使用，那么你就需要接下来的`looking glass`方案,`lookingglass`配合虚拟显示器`virtual dispaly driver`实现了无头模式的虚拟机，也就是说，我可以在虚拟机管理器中启动虚拟机，然后通过looking glass 客户端连接那个虚拟的桌面，这样就不需要我连接副屏或是在虚拟机控制台上操作了，而且lookingglass是通过内存共享的画面，比控制台的spice信道设备要快很多
+
+关闭虚拟机，打开虚拟系统管理器，在编辑->首选项中启用xml编辑
+
 ![](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
 
-配置lo o k
-
-回到虚拟机的概况，打开xml,写入高亮的那几行
+回到虚拟机概况，打开xml,写入高亮的那几行
 
 注意：`64` MB 对于 2K/4K 分辨率比较稳，如果你只用 1080p，`32` 也行。
 
@@ -2764,9 +2766,27 @@ sudo make install
 
 创建共享内存配置文件
 
+```
+sudo vim /etc/tmpfiles.d/10-looking-glass.conf
+```
 
+写入如下内容(注意用户名的修改)
 
+```
+# 类型  路径                    权限  用户    组      -
+f      /dev/shm/looking-glass  0660  caster  qemu    -
+```
 
+立刻让配置生效
+
+```
+sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
+```
+
+然后回到虚拟机的硬件管理，删除`显示协议spcie`和`显卡QXL`
+
+[Open: Pasted image 20260130154407.png](_resources/Linux_Desktop/28c2af326cbc8ccedd7c8a6a69ba8e7d_MD5.jpg)
+![](_resources/Linux_Desktop/28c2af326cbc8ccedd7c8a6a69ba8e7d_MD5.jpg)
 
 
 ## 桌面美化
