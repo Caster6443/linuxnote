@@ -2817,7 +2817,7 @@ sudo semodule -i lookingglass_local.pp
 
 然后正常打开虚拟机即可
 
-
+安装`looking glass`指定字体包，因为缺少
 
 
 
