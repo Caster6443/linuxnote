@@ -2474,23 +2474,51 @@ sudo dracut -f -v
 `-f`：强制覆盖当前的 initramfs 镜像
 `-v`：显示过程，觉得输出内容太多可以不加
 
-重启后，检查驱动绑定情况:
+重启后，检查驱动绑定情况（使用你自己的显卡硬件ID）:
 
 ```
 lspci -nnk -d 10de:28e0
 ```
 
-**成功的标志：** 输出中应该包含：
-
-`Kernel driver in use: vfio-pci`
-
-如果是 `nvidia` 或 `nouveau`，说明隔离失败（通常是 dracut 没配置好或者 ID 写错了）。
+成功的标志： 输出中应该包含：`Kernel driver in use: vfio-pci`，如果是 `nvidia` 或 `nouveau`，说明隔离失败（通常是 dracut 没配置好或者 ID 写错了）。
 
 参考我的
 
 ![](_resources/Linux_Desktop/b0bef7f22d0d581b4363ee5e034a1129_MD5.jpg)
 
 其实发现副屏不亮我就知道隔离成功了
+
+
+
+**如果想取消显卡直通**
+
+移除内核参数
+
+请把下面的 ID 换成你自己的
+
+```
+sudo grubby --update-kernel=ALL --remove-args="vfio-pci.ids=10de:28e0,10de:22be rd.driver.pre=vfio_pci"
+```
+
+然后删除vfio.conf文件
+
+```
+sudo rm /etc/dracut.conf.d/vfio.conf
+```
+
+重建 Initramfs
+
+```
+sudo dracut -f -v
+```
+
+重启即可
+
+
+
+
+
+
 
 
 
