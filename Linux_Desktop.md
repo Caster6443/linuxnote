@@ -2618,8 +2618,9 @@ sudo switch-gpu-owner
 ```
 
 
+#### 3.配置windows虚拟机
 
-
+下载windows镜像h
 
 
 
