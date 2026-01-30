@@ -2446,6 +2446,8 @@ steam刚开始打开会给人一种打开失败或是闪退的错觉，实际上
 
 然后打开lutris完成初始化组件下载
 
+接着给lutris配置GEproton和DWproton
+
 安装flatpak的prontonplus
 
 ```
@@ -2463,6 +2465,13 @@ sudo dnf install mangohud
 ```
 
 玩游戏要使用这个的话，lutris里面有对应开关
+
+然后给steam配置GEproton使用，有个图形化工具可以实现一键安装
+
+```
+flatpak install flathub net.davidotek.pupgui2
+```
+
 
 ## Fedora 视频播放黑屏/报错 (6003)
 
