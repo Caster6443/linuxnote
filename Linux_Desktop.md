@@ -2671,6 +2671,25 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 ![](_resources/Linux_Desktop/3f135ea48e336226b8dd7d52af62889f_MD5.jpg)
 
 
+接着在这个界面按下`Shift` + `F10`打开cmd,输入指令`OOBE\BYPASSNRO`来跳过联网强制验证，因为这时virtio类型的网卡还没打驱动，这时虚拟机是断网的
+
+![](_resources/Linux_Desktop/f9478f72e40ceed2891513a8727ec7a6_MD5.jpg)
+
+![](Pasted%20image%2020260130144337.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
