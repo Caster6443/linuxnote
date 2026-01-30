@@ -2628,7 +2628,7 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/eafec5e8b28d295ef5aa1c173dbf3dd0_MD5.jpg)
 
-添加一个CDROM,镜像选择virtio-win
+添加一个CDROM,镜像选择virtio-win，**virtio-win** 是 Windows 虚拟机在 KVM 下专用的一套**半虚拟化驱动包**（类似于“主板驱动光盘”），必须挂载它才能让 Windows 识别高性能的 VirtIO 硬盘、网卡以及 Looking Glass 所需的内存共享设备。
 
 [Open: Pasted image 20260130134741.png](_resources/Linux_Desktop/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
 ![](_resources/Linux_Desktop/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
