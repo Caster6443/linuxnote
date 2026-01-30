@@ -2795,16 +2795,27 @@ sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 
 ![](_resources/Linux_Desktop/8b7ba4ab86d5793c5090759561ae7930_MD5.jpg)
 
-出于安全策略，selinux会拦截lookingglass,因此有两个选择，一个是生成规则来让selinux放行，另一个是直接禁用selinux,禁用selinux较为简单，这里的方案是
+出于安全策略，selinux会拦截lookingglass,因此有两个选择，一个是生成规则来让selinux放行，另一个是直接禁用selinux,禁用selinux较为简单，这里的方案是让selinux放行
 
+你需要 `audit2allow` 这个工具来生成策略，因此需要确保它的安装
 
+```
+sudo dnf install policycoreutils-python-utils
+```
 
+抓取拦截日志并生成策略
 
+```
+sudo grep "looking-glass" /var/log/audit/audit.log | audit2allow -M lookingglass_local
+```
 
+安装策略模块
 
+```
+sudo semodule -i lookingglass_local.pp
+```
 
-
-
+然后正常打开虚拟机即可
 
 
 
