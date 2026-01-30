@@ -2785,8 +2785,30 @@ sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 
 然后回到虚拟机的硬件管理，删除`显示协议spcie`和`显卡QXL`
 
-[Open: Pasted image 20260130154407.png](_resources/Linux_Desktop/28c2af326cbc8ccedd7c8a6a69ba8e7d_MD5.jpg)
 ![](_resources/Linux_Desktop/28c2af326cbc8ccedd7c8a6a69ba8e7d_MD5.jpg)
+
+然后添加两个设备，virtio类型的键盘和鼠标，键盘直接在 `添加设备->输入` 里找，鼠标则需要修改原本的鼠标的xml文件，将选中的ps2修改为virtio并应用，就会出现virtio类型的鼠标了
+
+![](_resources/Linux_Desktop/a17c2adfe98778b6637516debae7da83_MD5.jpg)
+
+![](_resources/Linux_Desktop/211233c75d597957a5184283e623b1fb_MD5.jpg)
+
+![](_resources/Linux_Desktop/8b7ba4ab86d5793c5090759561ae7930_MD5.jpg)
+
+出于安全策略，selinux会拦截lookingglass,因此有两个选择，一个是生成规则来让selinux放行，另一个是直接禁用selinux,禁用selinux较为简单，这里的方案是
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## 桌面美化
