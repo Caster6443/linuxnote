@@ -2642,9 +2642,15 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/6f1d25d40fccb82836792deb569bc3e7_MD5.jpg)
 
-添加P CI
+添加PCI主机设备，把显卡那一组的硬件设备添加进去（我的4060一组有两个）
 
+![](_resources/Linux_Desktop/b495564764da2be2e27f4aeaa03dd8d2_MD5.jpg)
 
+然后开始安装，开机后在界面出现`Press any key to boot from CD or DVD`时回车进入windows的安装界面，手慢了会进入下面这个界面
+
+![](_resources/Linux_Desktop/880468bcbc77b5834d3516c365dacd7a_MD5.jpg)
+
+选择第一行回车，再次出现`Press any key to boot from CD or DVD`时回车即可
 
 
 
