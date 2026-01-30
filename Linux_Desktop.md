@@ -2646,18 +2646,29 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/b495564764da2be2e27f4aeaa03dd8d2_MD5.jpg)
 
+注意磁盘的总线应该选择virtio而不是SATA,因为SATA的虚拟化性能较差，刚刚创建虚拟机时选择存储时的总线忘记修改了，我们把SATA的删掉，重新添加一个virtio的
+
+![](_resources/Linux_Desktop/73a018411914a8dca8a0fe0f9ec75eb7_MD5.jpg)
+
 然后开始安装，开机后在界面出现`Press any key to boot from CD or DVD`时回车进入windows的安装界面，手慢了会进入下面这个界面
 
 ![](_resources/Linux_Desktop/880468bcbc77b5834d3516c365dacd7a_MD5.jpg)
 
 选择第一行回车，再次出现`Press any key to boot from CD or DVD`时回车即可
 
+一路下一步，产品密钥没必要写
 
+在这里点击加载驱动程序
 
+![](_resources/Linux_Desktop/dcc9ecca7e04c4e8b95b8ccd1a682078_MD5.jpg)
 
+找到驱动程序并选中安装，这里的E盘对应的是刚刚添加的win-virtio的CDROM，注意磁盘名即可
 
+![](_resources/Linux_Desktop/8229e4a5e61a30034d83948c4a7ca386_MD5.jpg)
 
+安装后，磁盘总线类型为virtio的磁盘才会被识别
 
+![](_resources/Linux_Desktop/3f135ea48e336226b8dd7d52af62889f_MD5.jpg)
 
 
 
