@@ -2783,7 +2783,7 @@ f      /dev/shm/looking-glass  0660  caster  qemu    -
 sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 ```
 
-然后回到虚拟机的硬件管理，删除`显示协议spcie`和`显卡QXL`
+然后回到虚拟机的硬件管理，删除`显卡QXL`,另外`显示协议Spice`不要删除，图片里我删错了
 
 ![](_resources/Linux_Desktop/28c2af326cbc8ccedd7c8a6a69ba8e7d_MD5.jpg)
 
@@ -2817,8 +2817,13 @@ sudo semodule -i lookingglass_local.pp
 
 然后正常打开虚拟机即可
 
-安装`looking glass`指定字体包，因为缺少
+安装`looking glass`指定字体包，不装这个字体就打不开looking glass多少有点抽象了
 
+```
+sudo dnf install dejavu-sans-mono-fonts
+```
+
+虚拟机开机后打开应用`looking glass Client`或者在命令行输入`looking glass Client`启动即可
 
 
 
