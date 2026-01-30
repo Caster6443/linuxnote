@@ -2628,14 +2628,21 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/eafec5e8b28d295ef5aa1c173dbf3dd0_MD5.jpg)
 
-添加一个CDROM,镜像选择virtio-win，**virtio-win** 是 Windows 虚拟机在 KVM 下专用的一套**半虚拟化驱动包**（类似于“主板驱动光盘”），必须挂载它才能让 Windows 识别高性能的 VirtIO 硬盘、网卡以及 Looking Glass 所需的内存共享设备。
+下载`virtio-win` 
 
-[Open: Pasted image 20260130134741.png](_resources/Linux_Desktop/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
+**下载地址（官方最新稳定版 ISO）：** [https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso](https://www.google.com/search?q=https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso&authuser=1)
+
+添加一个CDROM,镜像选择`virtio-win`，`virtio-win`是 Windows 虚拟机在 KVM 下专用的一套**半虚拟化驱动包**（类似于“主板驱动光盘”），必须挂载它才能让 Windows 识别高性能的 VirtIO 硬盘、网卡以及 Looking Glass 所需的内存共享设备。
+
 ![](_resources/Linux_Desktop/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
 
+网络的设备型号选virtio,网络源选NAT和桥接我觉得没什么区别，选桥接 理论上网络传输效率更高
 
+![](_resources/Linux_Desktop/abf503c458692eb568e04e6df0ab530d_MD5.jpg)
 
+![](_resources/Linux_Desktop/6f1d25d40fccb82836792deb569bc3e7_MD5.jpg)
 
+添加P CI
 
 
 
