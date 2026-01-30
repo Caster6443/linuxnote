@@ -2675,12 +2675,17 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/f9478f72e40ceed2891513a8727ec7a6_MD5.jpg)
 
-![](Pasted%20image%2020260130144337.png)
+![](_resources/Linux_Desktop/d3189bb6672f08c5c3bd12c1d4d855b0_MD5.jpg)
 
+输入指令后会自动重启，然后跟着下一步，在这里选择`我没有Internet连接`
 
+![](_resources/Linux_Desktop/7d8bf2269349f0fb2898fa29aa5f8930_MD5.jpg)
 
+然后一直跟着流程走，进入桌面后，打开文件管理器在E盘（也就是win-virtio的那个盘），双击那个选中的virtio-win-guest-tool安装驱动程序
 
+![](_resources/Linux_Desktop/6bc4e18503d3a95c65da16d2757fe0ba_MD5.jpg)
 
+安装后可以看到虚拟机通网了，这时就可以上英伟达官网安装显卡驱动（因为刚刚添加了显卡硬件设备到虚拟机中）
 
 
 
