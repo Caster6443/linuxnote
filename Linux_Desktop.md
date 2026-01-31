@@ -3082,14 +3082,20 @@ sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable-
 
 安装hyprland合成器和必须的终端还有一些基础软件包
 
+配置hyprland源
+
 ```
-sudo rpm-ostree install hyprland kitty wofi xdg-desktop-portal-hyprland polkit-gnome google-noto-sans-cjk-sc-fonts jetbrains-mono-fonts
+sudo curl -Lo /etc/yum.repos.d/solopasha-hyprland.repo https://copr.fedorainfracloud.org/coprs/solopasha/hyprland/repo/fedora-rawhide/solopasha-hyprland-fedora-rawhide.repo
+```
+
+```
+sudo rpm-ostree install hyprland kitty wofi xdg-desktop-portal-hyprland lxpolkit google-noto-sans-cjk-sc-fonts jetbrains-mono-fonts
 ```
 
 
 `wofi`：**应用启动器**。类似 dmenu 或 rofi。在 Wayland 下，我们需要它来作为菜单启动其他程序。
 `xdg-desktop-portal-hyprland`：**门户后端**。这个极其重要。它是应用程序（如 OBS、浏览器）和 Wayland 之间的沟通桥梁。没有它，你无法进行屏幕共享，Flatpak 应用也打不开文件选择框。
-`polkit-gnome`：**权限认证代理**。uCore 是服务器系统，不带 GUI 认证代理。如果不装这个，当你打开需要 root 权限的 GUI 软件（如 GParted）时，因为弹不出密码输入框，程序会直接卡死或闪退。
+`lxpolkit`：**权限认证代理**。uCore 是服务器系统，不带 GUI 认证代理。如果不装这个，当你打开需要 root 权限的 GUI 软件（如 GParted）时，因为弹不出密码输入框，程序会直接卡死或闪退。
 `google-noto-sans-cjk-sc-fonts`：**中文字体**。uCore 默认没有任何中文字体，不装这个，你看到的中文全是方块（□□□）。
 `jetbrains-mono-fonts`：**等宽字体**。终端和代码编辑器需要。不装的话，Kitty 终端可能会无法显示或者乱码。
 
