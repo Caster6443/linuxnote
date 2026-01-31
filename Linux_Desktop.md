@@ -3015,6 +3015,28 @@ sudo dnf install ffmpeg-libs libavcodec-freeworld mesa-va-drivers-freeworld --al
 
 
 
+
+# Fedora Silverblue
+
+我选择的版本是Fedora Silverblue 43，原装GNOME版本的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # git的使用
 
 ## obsidian自动化推送笔记到github备份
