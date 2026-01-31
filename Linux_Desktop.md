@@ -3020,15 +3020,41 @@ sudo dnf install ffmpeg-libs libavcodec-freeworld mesa-va-drivers-freeworld --al
 
 我选择的版本是Fedora Silverblue 43，原装GNOME版本的
 
+## 安装显卡驱动
 
+安装 RPM Fusion 软件源
 
+```
+sudo rpm-ostree install https://mirrors.rpmfusion.org/.../rpmfusion-free-release... https://mirrors.rpmfusion.org/.../rpmfusion-nonfree-release...
+```
 
+然后重启
 
+```
+systemctl reboot
+```
 
+安装显卡驱动
 
+```
+sudo rpm-ostree install akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda
+```
 
+修改 GRUB 启动参数，屏蔽开源驱动，启用 NVIDIA 高级特性。
 
+```
+sudo rpm-ostree kargs --append=rd.driver.blacklist=nouveau --append=modprobe.blacklist=nouveau --append=nvidia-drm.modeset=1
+```
 
+重启后验证驱动
+
+```
+systemctl reboot
+```
+
+```
+nvidia-smi
+```
 
 
 
