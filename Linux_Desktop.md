@@ -3069,7 +3069,14 @@ sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable-
 
 如果刚刚不小心在GNOME下安装了显卡驱动则需要改用这条命令
 
-
+```
+sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable-nvidia \
+  --uninstall=akmod-nvidia \
+  --uninstall=xorg-x11-drv-nvidia \
+  --uninstall=xorg-x11-drv-nvidia-cuda \
+  --uninstall=rpmfusion-free-release \
+  --uninstall=rpmfusion-nonfree-release
+```
 
 
 
