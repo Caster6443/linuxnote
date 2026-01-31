@@ -3057,6 +3057,18 @@ nvidia-smi
 ```
 
 
+## 不想用GNOME
+
+uBlue 的服务器/核心版，**没有桌面环境**，但集成了 NVIDIA 驱动。
+
+```
+sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable-nvidia
+```
+
+`ublue-os/ucore:stable-nvidia` 这个镜像是 uBlue 社区**帮你预先把驱动编译好并打包进系统里了**
+
+如果刚刚不小心在GNOME下安装了显卡驱动则需要改用这条命令
+
 
 
 
