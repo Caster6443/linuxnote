@@ -3101,6 +3101,8 @@ sudo rpm-ostree install hyprland kitty wofi xdg-desktop-portal-hyprland lxpolkit
 
 
 
+没啥意思暂时不玩这个了
+
 
 
 
