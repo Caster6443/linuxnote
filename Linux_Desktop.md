@@ -2329,7 +2329,7 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
 ### 8.配置overlay
 
-快照是只读系统，但或许有在快照里抢救系统的情况，虽然我从没用过这个需求，待补充
+快照是只读的，但或许有在快照里抢救系统的情况，虽然我从没用过这个需求，待补充
 
 
 
@@ -2351,7 +2351,7 @@ sudo dnf install qemu-kvm libvirt virt-install virt-manager virt-viewer edk2-ovm
     
 - `virt-install`：**命令行创建工具**。用于通过脚本或命令行快速创建虚拟机，是自动化部署的神器。
     
-- `virt-viewer`：**画面连接客户端**。通常使用 SPICE 或 VNC 协议连接虚拟机画面。在配置好显卡直通之前，它是你唯一的“显示器”。
+- `virt-viewer`：**画面连接客户端**。通常使用 SPICE 或 VNC 协议连接虚拟机画面。
     
 - `edk2-ovmf`：**开源虚拟机固件 (UEFI)**。以前的虚拟机用的是 BIOS，现在的**显卡直通**几乎强制要求使用 UEFI，它让虚拟机拥有了一个现代的 UEFI 环境，支持 Secure Boot（安全启动）。
     
@@ -2611,7 +2611,7 @@ fi
 sudo chmod a+x /usr/local/bin/switch-gpu-owner 
 ```
 
-而后可通过使用命令快捷切换显卡归属
+然后就可以通过使用命令快捷切换显卡归属
 
 ```
 sudo switch-gpu-owner
@@ -2661,11 +2661,11 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 一路下一步，产品密钥没必要写
 
-在这里点击加载驱动程序
+在这里点击`加载驱动程序`
 
 ![](_resources/Linux_Desktop/dcc9ecca7e04c4e8b95b8ccd1a682078_MD5.jpg)
 
-找到驱动程序并选中安装，这里的E盘对应的是刚刚添加的win-virtio的CDROM，注意磁盘名即可
+找到驱动程序并选中安装，这里的E盘对应的是刚刚添加的`win-virtio`的`CDROM`，注意磁盘名即可
 
 ![](_resources/Linux_Desktop/8229e4a5e61a30034d83948c4a7ca386_MD5.jpg)
 
@@ -2674,7 +2674,7 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 ![](_resources/Linux_Desktop/3f135ea48e336226b8dd7d52af62889f_MD5.jpg)
 
 
-接着在这个界面按下`Shift` + `F10`打开cmd,输入指令`OOBE\BYPASSNRO`来跳过联网强制验证，因为这时virtio类型的网卡还没打驱动，这时虚拟机是断网的
+接着在这个界面按下`Shift` + `F10`打开cmd,输入指令`OOBE\BYPASSNRO`来跳过联网强制验证，因为这时virtio类型的网卡还没打驱动，虚拟机是断网的
 
 ![](_resources/Linux_Desktop/f9478f72e40ceed2891513a8727ec7a6_MD5.jpg)
 
@@ -2684,7 +2684,7 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 ![](_resources/Linux_Desktop/7d8bf2269349f0fb2898fa29aa5f8930_MD5.jpg)
 
-然后一直跟着流程走，进入桌面后，打开文件管理器在E盘（也就是win-virtio的那个盘），双击那个选中的virtio-win-guest-tool安装驱动程序
+然后一直跟着流程走，进入桌面后，打开文件管理器在E盘（也就是win-virtio的那个盘），双击那个选中的`virtio-win-guest-tool`安装驱动程序
 
 ![](_resources/Linux_Desktop/6bc4e18503d3a95c65da16d2757fe0ba_MD5.jpg)
 
@@ -2697,7 +2697,7 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 如果你像我一样是笔记本且副屏不常使用，那么你就需要接下来的`looking glass`方案,`lookingglass`配合虚拟显示器`virtual dispaly driver`实现了无头模式的虚拟机，也就是说，我可以在虚拟机管理器中启动虚拟机，然后通过looking glass 客户端连接那个虚拟的桌面，这样就不需要我连接副屏或是在虚拟机控制台上操作了，而且lookingglass是通过内存共享的画面，比控制台的画面和帧率要好很多
 
-在虚拟机中安装`Virtual-Display-Driver`和`lookingglass`
+前置条件是在虚拟机中安装`Virtual-Display-Driver`和`lookingglass`
 
 Virtual-Display-Driver下载地址
 
@@ -2707,7 +2707,7 @@ lookingglass下载地址
 
 https://looking-glass.io/downloads
 
-拉到最下面下载`Bleeding Edge`区块的最新版
+lookingglass网页拉到最下面下载`Bleeding Edge`的最新版
 
 两个工具都根据系统提示安装即可
 
