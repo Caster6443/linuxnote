@@ -2697,27 +2697,27 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 如果你像我一样是笔记本且副屏不常使用，那么你就需要接下来的`looking glass`方案,`lookingglass`配合虚拟显示器`virtual dispaly driver`实现了无头模式的虚拟机，也就是说，我可以在虚拟机管理器中启动虚拟机，然后通过looking glass 客户端连接那个虚拟的桌面，这样就不需要我连接副屏或是在虚拟机控制台上操作了，而且lookingglass是通过内存共享的画面，比控制台的画面和帧率要好很多
 
-前置条件是在虚拟机中安装`Virtual-Display-Driver`和`lookingglass`
+前置条件是在虚拟机中安装`Virtual-Display-Driver`和`looking glass`
 
 Virtual-Display-Driver下载地址
 
 https://www.google.com/search?q=https://github.com/itsmiketheb/Virtual-Display-Driver/releases&authuser=1
 
-lookingglass下载地址
+looking glass下载地址
 
 https://looking-glass.io/downloads
 
-lookingglass网页拉到最下面下载`Bleeding Edge`的最新版
+`looking glass`网页拉到最下面下载`Bleeding Edge`的最新版（不是一定要下载最新版，注意linux端和windows虚拟机的looking glass的版本对应即可）
 
-两个工具都根据系统提示安装即可
+两个工具都根据系统提示安装
 
-然后关闭虚拟机，打开虚拟系统管理器，在编辑->首选项中启用xml编辑
+然后关闭虚拟机，打开`虚拟系统管理器`，在`编辑->首选项`中启用xml编辑
 
 ![](_resources/Linux_Desktop/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
 
 回到虚拟机概况，打开xml,写入高亮的那几行
 
-注意：`64` MB 对于 2K/4K 分辨率比较稳，如果你只用 1080p，`32` 也行。
+注意：64 MB 对于 2K/4K 分辨率比较稳，如果你只用 1080p，32 也行。
 
 ![](_resources/Linux_Desktop/e088c81bf21b904c82649070873d7296_MD5.jpg)
 
@@ -2800,11 +2800,11 @@ f      /dev/shm/looking-glass  0660  caster  qemu    -
 sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 ```
 
-然后回到虚拟机的硬件管理，删除`显卡QXL`,另外`显示协议Spice`不要删除，图片里我删错了
+然后回到虚拟机的硬件管理，删除`显卡QXL`,另外`显示协议Spice`不要删除，图片里我删错了，必须要确保`显示协议Spice`存在才行，没有的话添加一个
 
 ![](_resources/Linux_Desktop/28c2af326cbc8ccedd7c8a6a69ba8e7d_MD5.jpg)
 
-然后添加两个设备，virtio类型的键盘和鼠标，键盘直接在 `添加设备->输入` 里找，鼠标则需要修改原本的鼠标的xml文件，将选中的ps2修改为virtio并应用，就会出现virtio类型的鼠标了
+然后添加两个设备，virtio类型的键盘和鼠标，键盘直接在 `添加设备->输入` 里找，鼠标则需要修改原本的鼠标的xml文件，将选中的`ps2`修改为`virtio`并应用，就会出现virtio类型的鼠标了
 
 ![](_resources/Linux_Desktop/a17c2adfe98778b6637516debae7da83_MD5.jpg)
 
@@ -2812,7 +2812,7 @@ sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 
 ![](_resources/Linux_Desktop/8b7ba4ab86d5793c5090759561ae7930_MD5.jpg)
 
-出于安全策略，selinux会拦截lookingglass,因此有两个选择，一个是生成规则来让selinux放行，另一个是直接禁用selinux,禁用selinux较为简单，这里的方案是让selinux放行
+出于安全策略，selinux会拦截lookingglass,因此有两个选择，一个是生成规则来让selinux放行，另一个是直接禁用selinux,禁用selinux较为简单，但selinux也是fedora不得不品的特色之一，所以这里的方案是让selinux放行
 
 我们需要 `audit2allow` 这个工具来生成策略，因此需要确保它的安装
 
@@ -2832,7 +2832,7 @@ sudo grep "looking-glass" /var/log/audit/audit.log | audit2allow -M lookingglass
 sudo semodule -i lookingglass_local.pp
 ```
 
-安装`looking glass`指定字体包，不装这个字体就打不开looking glass多少有点抽象了
+安装`looking glass`指定字体包，没有这个字体就打不开looking glass多少有点抽象了
 
 ```
 sudo dnf install dejavu-sans-mono-fonts
@@ -2969,11 +2969,11 @@ steam刚开始打开会给人一种打开失败或是闪退的错觉，实际上
 sudo flatpak install com.vysp3r.ProtonPlus
 ```
 
-然后打开protonplus下载最新的GEpronton和DWproton,完成后打开lutris,替换wine的默认版本为dwproton（可选，我觉得dwproton好一点吧，就是个单纯的工具选择问题）
+然后打开`protonplus`下载最新的`GEpronton`和`DWproton`,完成后打开`lutris`,替换`wine`的默认版本为`dwproton`（可选，我觉得dwproton好一点吧，就是个单纯的工具选择问题）
 
 ![](_resources/Linux_Desktop/430ecc883a2a9f6616039bb36d9df36c_MD5.jpg)
 
-如果需要游戏性能监视器，可以装一个mangohud,它不仅有性能监视器的功能，不过一般都用来做这个
+如果需要游戏性能监视器，可以装一个`mangohud`,它不仅有性能监视器的功能，不过一般都用来做这个
 
 ```
 sudo dnf install mangohud
