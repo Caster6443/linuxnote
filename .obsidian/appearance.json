@@ -5,6 +5,7 @@
   "nativeMenus": false,
   "enabledCssSnippets": [],
   "baseFontSizeAction": true,
-  "baseFontSize": 17,
-  "textFontFamily": "LXGW WenKai Screen"
+  "baseFontSize": 19,
+  "textFontFamily": "LXGW WenKai Screen",
+  "interfaceFontFamily": "Cascadia Mono"
 }
