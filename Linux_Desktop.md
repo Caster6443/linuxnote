@@ -3914,3 +3914,49 @@ sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout
 ```
 PROTON_ENABLE_WEBVIEW2=1  %command%
 ```
+
+
+
+
+
+## 多用户通过grub启动项自动登录
+
+想同时用hyprland和niri，考虑到环境隔离，我有两个桌面用户，手动注销登录太麻烦，因此想到通过grub菜单选择对应的启动项来实现不同用户的不同桌面的自动登录
+
+我们需要一个脚本，它能在启动时检查内核参数，如果是 `caster` 就启动 Niri，如果是 `casterhypr` 就启动 Hyprland。
+
+```
+sudo vim /usr/local/bin/smart-login.sh
+```
+
+写入如下内容
+
+```
+!/bin/bash
+
+# 检查内核命令行参数中的 target_user
+TARGET_USER=$(grep -oP '(?<=target_user=)\w+' /proc/cmdline)
+
+if [ "$TARGET_USER" == "casterhypr" ]; then
+    # 针对 Hyprland 用户的自动登录
+    exec tuigreet --cmd Hyprland --user casterhypr --remember --time
+
+elif [ "$TARGET_USER" == "caster" ]; then
+    # 针对 Niri 用户的自动登录
+    exec tuigreet --cmd "niri-session" --user caster --remember --time
+
+else
+    # 默认兜底（如果没选特殊启动项，或者参数不对）
+    # 这里的 --user greeter 是为了不自动登录，自己手动选
+    exec tuigreet --cmd /bin/bash --time --remember-user-session
+fi
+```
+
+授予脚本执行权限
+
+```
+sudo chmod +x /usr/local/bin/smart-login.sh
+```
+
+让 greetd 使用这个脚本
+
