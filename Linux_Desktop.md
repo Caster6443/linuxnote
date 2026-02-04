@@ -3960,3 +3960,62 @@ sudo chmod +x /usr/local/bin/smart-login.sh
 
 让 greetd 使用这个脚本
 
+```
+sudo vim /etc/greetd/config.toml
+```
+
+写入以下内容
+
+```
+[terminal]
+vt = 1
+
+[default_session]
+# 这里的脚本会去读取 GRUB 参数，决定是自动登录 hyprland、niri 还是显示登录界面
+command = "/usr/local/bin/smart-login.sh"
+user = "greeter"
+```
+
+
+编辑文件
+
+```
+sudo vim /etc/grub.d/40_custom
+```
+
+写入如下内容，这里的`57cadeeb-c2f9-4392-b93a-334ef3fc83eb`是系统根分区的UUID，用`lsblk -f`命令查看，另外确保你的btrfs子卷遵循根子卷命名为@的标准，执行`cat /proc/cmdline` 命令查看输出是否包含`rootflags=subvol=@`，没有的话需要把下面代码中的`rootflags=subvol=@`删掉即可
+
+```
+menuentry 'Arch Linux (Hyprland -> casterhypr)' {
+    load_video
+    set gfxpayload=keep
+    insmod gzio
+    insmod part_gpt
+    insmod btrfs
+    search --no-floppy --fs-uuid --set=root 57cadeeb-c2f9-4392-b93a-334ef3fc83eb
+    echo 'Loading Arch Linux for Hyprland...'
+    # 下一行是关键：注意末尾的 target_user=casterhypr
+    # 如果你的系统用了子卷，请确保 rootflags=subvol=@ 存在（标准Archinstall默认都有）
+    linux /boot/vmlinuz-linux root=UUID=57cadeeb-c2f9-4392-b93a-334ef3fc83eb rw rootflags=subvol=@ loglevel=3 quiet target_user=casterhypr
+    initrd /boot/initramfs-linux.img
+}
+
+menuentry 'Arch Linux (Niri -> caster)' {
+    load_video
+    set gfxpayload=keep
+    insmod gzio
+    insmod part_gpt
+    insmod btrfs
+    search --no-floppy --fs-uuid --set=root 57cadeeb-c2f9-4392-b93a-334ef3fc83eb
+    echo 'Loading Arch Linux for Niri...'
+    # 下一行是关键：注意末尾的 target_user=caster
+    linux /boot/vmlinuz-linux root=UUID=57cadeeb-c2f9-4392-b93a-334ef3fc83eb rw rootflags=subvol=@ loglevel=3 quiet target_user=caster
+    initrd /boot/initramfs-linux.img
+}
+```
+
+生成新的配置文件
+
+```
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
