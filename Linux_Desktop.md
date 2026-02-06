@@ -997,7 +997,17 @@ spawn-at-startup "fcitx5" "-d"
 ```
 
 重启一下  
-如果输入法没生效，使用fcitx5-configtool检查是否添加了Rime输入法，如果中文输入法不是雾凇，随便敲几个拼音，在备选框出现时按下F4可以选择切换输入法  
+如果输入法没生效，使用`fcitx5-configtool`命令打开fcitx5设置，检查左侧输入法框中是否添加了Rime(中州韵)输入法，如果切换输入法时发现不是雾凇，随便敲几个拼音，在备选框出现时按下F4可以选择切换输入法  
+如果这里面也没有雾凇，那就检查`.local/share/fcitx5/rime/default.custom.yaml`文件内是否包含以下内容，没有的话自己创建一个
+
+```yml
+patch:
+  "menu/page_size": 9  # 候选词数量
+  schema_list:
+    - schema: rime_ice # 雾凇拼音（全拼）
+    - schema: rime_ice_double_pinyin # 雾凇拼音（双拼，如果你用双拼就把这行放第一位）
+```
+
 
 ### 配置noctalia
 
