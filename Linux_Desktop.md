@@ -2,6 +2,8 @@
 
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的  
 
+可以用模块化的思想，将动画，窗口规则，绑定键位等设置独立出一个文件，并将各种值在一个文件中声明变量初始化并调用
+
 ## 设置命令开机自启动
 
 进入该配置文件，在 exec-once 开头的那一块区域写入  
@@ -238,6 +240,14 @@ hyprctl keyword 'device[asuf1204:00-2808:0202-touchpad]:enabled' 'false'
 这条命令可以关闭触控板，设置为 true 就打开  
 那就可以写个 shell 脚本再通过 bind 绑定键位  
 
+编辑文件
+
+```
+vim ~/.config/hypr/scripts/toggle_touchpad.sh 
+```
+
+写入如下内容
+
 ```bash
 
 #!/usr/bin/env bash
@@ -353,7 +363,7 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 这个命令就可以写进 hyprland 的 exec-once 设置开机自启  
 
-  
+值得一提的是，视频壁纸作为layer被hyprland的规则匹配到，那个我就可以通过hyprland的动画规则实现视频壁纸切换的动画效果，然而前端切换工具waypaper调用waypaper的方法是先杀进程后切换，这样就会dao zhi
   
 
 ## 截屏翻译方案
