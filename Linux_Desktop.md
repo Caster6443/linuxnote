@@ -2399,6 +2399,7 @@ sudo virsh net-autostart default
 
 
 ### 显卡直通
+
 #### 1.开启 IOMMU 与配置内核参数 (Grubby)
 
 在 Fedora 上，官方推荐使用 **Grubby** 工具。它能直接操作 Boot Loader Specification (BLS) 条目，更安全且即时生效。
