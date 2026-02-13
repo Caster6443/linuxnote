@@ -363,7 +363,7 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 这个命令就可以写进 hyprland 的 exec-once 设置开机自启  
 
-值得一提的是，视频壁纸作为layer被hyprland的规则匹配到，那个我就可以通过hyprland的动画规则实现视频壁纸切换的动画效果，然而前端切换工具waypaper调用waypaper的方法是先杀进程后切换，这样就会dao zhi
+值得一提的是，视频壁纸作为layer被hyprland的规则匹配到，那么我就可以通过hyprland的动画规则实现视频壁纸切换的动画效果，然而前端切换工具waypaper调用waypaper的方法是先杀进程后切换，这样就会导致切换过程不可避免的闪一下，很不美观，我们可以通过改变waypaper调用mpvpaper的规则，改成下一个壁纸切换时，直接覆盖当前壁纸（mpvpaper支持这么做），然后再杀掉上一个壁纸的进程，这样就能展示出mpvpaper的简单切换过程动画效果
   
 
 ## 截屏翻译方案
