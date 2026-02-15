@@ -3129,9 +3129,70 @@ sudo rpm-ostree install hyprland kitty wofi xdg-desktop-portal-hyprland lxpolkit
 
 # CachyOS(Hyprland)
 
-tun模式无效
+## 安装时的镜像源问题
 
-因为使用了ufw，需要放行
+这里选择配置国内的中科大源
+
+**Arch 基础源** 
+
+编辑文件
+
+```
+vim /etc/pacman.d/mirrorlist
+```
+
+在Server开头的第一行写入
+
+```
+Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+```
+
+**CachyOS 通用源** 
+
+```
+vim /etc/pacman.d/cachyos-mirrorlist
+```
+
+在Server开头的第一行写入
+
+```
+Server = https://mirrors.ustc.edu.cn/cachyos/repo/$arch/$repo
+```
+
+**CachyOS V3 优化源** 
+
+```
+vim /etc/pacman.d/cachyos-v3-mirrorlist
+```
+
+在Server开头的第一行写入
+
+```
+Server = https://mirrors.ustc.edu.cn/cachyos/repo/$arch_v3/$repo
+```
+
+**CachyOS V4 优化源**
+
+```
+vim /etc/pacman.d/cachyos-v4-mirrorlist
+```
+
+在Server开头的第一行写入
+
+```
+Server = https://mirrors.ustc.edu.cn/cachyos/repo/$arch_v4/$repo
+```
+
+然后注释`/etc/calamares/scripts/update-mirrorlist`这个脚本里面的内容再开始安装即可
+
+
+
+
+## tun模式无效
+
+因为cachyos使用了ufw，需要放行相关规则，嫌麻烦可以直接禁用ufw
+
+这里选择放行规则
 
 使用ip a查看网卡名称，Mihomo是我的虚拟网卡名，enp3s0是我的有线网卡名，wlan0是我的无线网卡名
 
