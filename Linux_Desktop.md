@@ -3127,6 +3127,32 @@ sudo rpm-ostree install hyprland kitty wofi xdg-desktop-portal-hyprland lxpolkit
 
 
 
+# CachyOS(Hyprland)
+
+tun模式无效
+
+因为使用了ufw，需要放行
+
+使用ip a查看网卡名称，Mihomo是我的虚拟网卡名，enp3s0是我的有线网卡名，wlan0是我的无线网卡名
+
+```
+sudo ufw allow in on Mihomo
+sudo ufw allow out on Mihomo
+sudo ufw route allow in on Mihomo out on wlan0
+sudo ufw route allow in on Mihomo out on enp3s0
+sudo ufw reload
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
