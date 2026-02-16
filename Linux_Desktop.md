@@ -2017,7 +2017,7 @@ sudo pacman -S yt-dlp ffmpeg
 sudo pacman -S kid3
 ```
 
-或者喜欢命令行操作那就eyeD3 
+或者喜欢命令行操作那就eyeD3(截止我最后一次使用，该包已被标记过时)
 
 ```
 yay -S python-eyed3  
