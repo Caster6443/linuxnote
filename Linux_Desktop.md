@@ -1413,10 +1413,8 @@ sudo systemctl enable --now libvirtd
 3.开启NAT default网络  
 
 ```
-
 sudo virsh net-start default
 sudo virsh net-autostart default
-
 ```
 
 4.添加组权限 需要登出  
@@ -1428,7 +1426,6 @@ sudo usermod -a -G libvirt $(whoami)
 5.可选：如果运行出现异常的话编辑配置文件提高权限  
 
 ```
-
 sudo vim /etc/libvirt/qemu.conf
 ```
 
@@ -1490,7 +1487,7 @@ sudo dmesg | grep -e DMAR -e IOMMU
 
 2.获取显卡的硬件id，显卡所在group的所有设备的id都记下  
 
-```
+```bash
 for d in /sys/kernel/iommu_groups/*/devices/*; do 
     n=${d#*/iommu_groups/*}; n=${n%%/*}
     printf 'IOMMU Group %s ' "$n"
