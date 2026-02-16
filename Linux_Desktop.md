@@ -1709,10 +1709,15 @@ win11老是没事更新，对虚拟机会有很大问题，关闭了自动更新
 
 写了个脚本用于切换显卡归属，没有内存大页的设置，因为我觉得我目前还没这个需求，谁知道呢，说不定过几天就搞内存大页，然后就要重新写这个脚本  
 
+编辑文件
+
+```
+sudo vim /usr/local/bin/switch-gpu-owner 
 ```
 
-❯ cat /usr/local/bin/switch-gpu-owner 
+写入以下内容
 
+```
 #!/bin/bash
 
 # 配置
@@ -1796,6 +1801,12 @@ else
     exit 1
 fi
 
+```
+
+添加执行权限
+
+```
+sudo chmod +x /usr/local/bin/switch-gpu-owner
 ```
 
 ### KVM虚拟机性能优化和伪装
