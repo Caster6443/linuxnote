@@ -427,7 +427,7 @@ sudo waydroid init -s GAPPS
 ```
 
 
-原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层 ,这里有两个工具可以选择，我推荐waydroid-helper，功能比较全，使用pacman安装，另一个就是waydroid-script
+原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层 ,这里有两个工具可以选择，我推荐waydroid-helper，功能比较全，使用yay安装，另一个就是waydroid-script 
 
 安装waydroid-script  
 
@@ -530,7 +530,7 @@ yay -S waydroid-helper
 
 ![a7e2f3ce98025b7463ef958137883955_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/a7e2f3ce98025b7463ef958137883955_MD5.png)  
 
-这个助手还提供其他功能，比如伪装成指定机型，获取设备 id，之类的常见需求  
+这个工具还提供其他功能，比如伪装成指定机型，获取设备 id，之类的常见需求  
 
 
 # archlinux配置安全启动
@@ -677,16 +677,20 @@ grub.arch,4,Arch Linux,grub,2:2.14rc1-2,https://archlinux.org/packages/core/x86_
 
 ```bash
 sudo mkdir -pv /etc/secureboot/grub-sb-stub/memdisk/fonts
-sudo cp /usr/share/grub/unicode.pf2 /etc/secureboot/grub-sb-stub/memdisk/fonts/
+```
 
+```
+sudo cp /usr/share/grub/unicode.pf2 /etc/secureboot/grub-sb-stub/memdisk/fonts/
 ```
 
 随后修改当前路径到 /etc/secureboot/grub-sb-stub，执行 tar -cf memdisk.tar -C memdisk .。该命令会创建一个 memdisk，包含我们的字体文件数据，并给前面我们创建的签名脚本使用。  
 
 ```bash
 cd /etc/secureboot/grub-sb-stub
-tar -cf memdisk.tar -C memdisk .
+```
 
+```
+tar -cf memdisk.tar -C memdisk .
 ```
 
 创建文件 /etc/secureboot/grub-sb-stub/grub-pre.cfg，根据前面的脚本的配置的设置，这个 GRUB 脚本文件将在 GRUB 启动时立刻执行。  
@@ -727,7 +731,6 @@ search.fs_uuid 1B9C-667B root hd0,gpt1
 > sudo ./update-sb-grub-efi.sh
 Signing /boot/EFI/ARCH/grubx64.efi...
 Signing Unsigned original image
-
 ```
 
 ### 3. 内核签名
@@ -741,7 +744,6 @@ Signing Unsigned original image
 kernel="$1"
 [[ -n "$kernel" ]] || exit 0
  
-
 # use already installed kernel if it exists
 [[ ! -f "$KERNELDESTINATION" ]] || kernel="$KERNELDESTINATION"
  
@@ -773,29 +775,29 @@ Signing Unsigned original image
 
 同时复制 Shim 相关的已签名 EFI，并添加相关的引导项  
 
-```bash
+复制cer文件
 
-# 复制cer文件
+```bash
 sudo mkdir /boot/EFI/ARCH/keys
 sudo cp /etc/secureboot/keys/MOK.cer /boot/EFI/ARCH/keys
- 
+```
 
-# 或使用mokutil进行签名导入
+或使用mokutil进行签名导入
+
+```
 mokutil --import /etc/secureboot/keys/MOK.cer
- 
+```
 
-# 复制mmx64.efi和shimx64.efi
+复制mmx64.efi和shimx64.efi
+
+```
 sudo cp /usr/share/shim-signed/mmx64.efi /boot/EFI/ARCH/
 sudo cp /usr/share/shim-signed/shimx64.efi //boot/EFI/ARCH/
- 
+```
 
-# 添加Shim引导选项
-
-# /dev/nvme0n1记得改为你的EFI分区所在硬盘对应的block文件
-
-# --part后面的1记得改成EFI分区所在分区的位置(以1开始)
+添加Shim引导选项， /dev/nvme0n1记得改为你的EFI分区所在硬盘对应的block文件， --part后面的1记得改成EFI分区所在分区的位置(以1开始)
+``` 
 sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-shim" --loader '\EFI\ARCH\shimx64.efi'
-
 ```
 
 一切完成之后，重启，进入 UEFI 配置选项，打开安全启动，并经由 arch-shim 启动项启动 GRUB。  
@@ -910,10 +912,8 @@ sudo vim /etc/pacman.conf
 写入如下内容  
 
 ```
-
 [archlinuxcn]
 Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
-
 ```
 
 保存退出后  
@@ -1052,7 +1052,10 @@ sudo pacman -S hypridle
 2.创建配置  
 
 ```
-mkdir -p ~/.config/hypr  
+mkdir -p ~/.config/hypr 
+```
+
+``` 
 vim ~/.config/hypr/hypridle.conf  
 ```
 
@@ -1117,8 +1120,10 @@ sudo pacman -S grub-btrfs inotify-tools
 sudo systemctl enable --now grub-btrfsd  
 ```
 
-设置覆盖文件系统  
-因为snapper快照是只读的，所以需要设置一个overlayfs在内存中创建一个临时可写的类似live-cd的环境，否则可能无法正常从快照启动项进入系统。  
+设置覆盖文件系统(可选)  
+
+因为snapper快照是只读的，所以需要设置一个overlayfs在内存中创建一个临时可写的类似live-cd的环境，否则可能无法正常从快照启动项进入系统。但是对于在快照中抢救系统，我没有这个需求
+
 编辑`/etc/mkinitcpio.conf`  
 
 ```
