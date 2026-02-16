@@ -142,6 +142,7 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 ## waybar 美化
 
 参考的别人的美化风格，整体配置比较模块化，总体文件结构如图  
+，文件位置目前存放在我的dotfiles仓库里
 
 ![e5bef4dea6e712828b69b69bad2ee1b3_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/e5bef4dea6e712828b69b69bad2ee1b3_MD5.png)  
 
@@ -426,7 +427,8 @@ sudo waydroid init -s GAPPS
 ```
 
 
-原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层  
+原生 Waydroid 是 x86 架构的，想使用 arm 架构应用比如安装运行 apk 需要安装翻译层 ,这里有两个工具可以选择，我推荐waydroid-helper，功能比较全，使用pacman安装，另一个就是waydroid-script
+
 安装waydroid-script  
 
 ```
@@ -447,13 +449,14 @@ sudo waydroid-extras
 使用谷歌商店会出现此设备不能安装的情况，需要将设备 id 加入谷歌设备中  
 这个项目同样提供了获取设备 id 和提供添加 id 的谷歌官网链接，也在 waydroid-extras 命令中  
 
-后面发现了 waydroid 轮椅级别的服务工具，功能很全，貌似已经覆盖了上面的工具的所有功能，还是图形化的，叫waydroid-helper，可以用 pacman 直接安装  
+
+
 
 ## Waydroid 画面撕裂问题
 
 具体表现形式是类似花屏和撕裂，不过只有黑色色调  
 
-还是混合显卡的问题，是 waydroid 默认使用显卡和桌面环境使用的显卡不一致导致的，我的 plasma 桌面环境默认使用 N 卡（可以用watch -n 1 nvidia-smi 查看哪些进程在使用 N 卡，每秒实时刷新），waydroid 在使用 A 卡集显，需要切换 waydroid 的显卡使用策略，为此 GitHub 上有个项目提供解决方案脚本  
+还是混合显卡的问题，是 waydroid 默认使用显卡和桌面环境使用的显卡不一致导致的，我的 plasma 桌面环境默认使用 N 卡（可以用`watch -n 1 nvidia-smi` 查看哪些进程在使用 N 卡，每秒实时刷新），waydroid 在使用 A 卡集显，需要切换 waydroid 的显卡使用策略，为此 GitHub 上有个项目提供解决方案脚本  
 
 [https://github.com/Quackdoc/waydroid-scripts/](https://github.com/Quackdoc/waydroid-scripts/blob/main/waydroid-choose-gpu.sh)  
 
