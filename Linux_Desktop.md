@@ -1245,19 +1245,15 @@ sudo systemctl edit greetd
 在里面写入  
 
 ```
-
 [Service]
 ExecStartPre=/usr/bin/sleep 2
-
 ```
 
 其实这个和之前sddm的方式是类似的，最终它们都会生成对应的服务.d目录下的配置覆盖文件  ,然后把之前的sddm的systemd服务禁用，启用greetd  
 
 ```
-
 sudo systemctl disable sddm
 sudo systemctl enable greetd
-
 ```
 
 ### 常用配置
