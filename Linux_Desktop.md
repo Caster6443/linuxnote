@@ -4041,3 +4041,35 @@ PROTON_ENABLE_WEBVIEW2=1  %command%
 
 
 
+
+
+## ufw放行nat网络
+
+修改转发策略
+
+编辑文件
+
+```
+sudo vim /etc/default/ufw
+```
+
+找到 `DEFAULT_FORWARD_POLICY="DROP"` 这一行（通常在前面几行），把它改成：
+
+```
+DEFAULT_FORWARD_POLICY="ACCEPT"
+```
+
+
+以防万一，这里顺便放行虚拟网卡
+
+```
+sudo ufw allow in on virbr0
+sudo ufw allow out on virbr0
+```
+
+重载服务
+
+```
+sudo ufw reload
+sudo systemctl restart libvirtd
+```
