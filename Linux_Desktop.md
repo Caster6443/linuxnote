@@ -3807,7 +3807,7 @@ org.gnome.Nautilus.desktop
 
 ```
 
-## wps 无法切换中文
+## wps 无法切换中文输入法
 
 准确地说是让wps支持使用我的 fcitx5 输入法  
 网上有个方案是在~/.pam_environment 中写入  
