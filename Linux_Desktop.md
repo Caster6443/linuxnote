@@ -3465,8 +3465,10 @@ lupdate . -ts zh_CN.ts
 
 文件生成好之后，直接用刚才安装的图形化软件打开它：
 
+强制它以 X11 兼容模式和 fcitx 运行
+
 ```
-linguist zh_CN.ts
+QT_QPA_PLATFORM=xcb QT_IM_MODULE=fcitx linguist zh_CN.ts
 ```
 
 
