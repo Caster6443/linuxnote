@@ -3430,7 +3430,7 @@ niri msg action quit
 
 
 
-# caeletia汉化
+# caeletia汉化(待续)
 
 1.安装 Qt 翻译工具链
 
@@ -3465,7 +3465,7 @@ lupdate . -ts zh_CN.ts
 
 文件生成好之后，直接用刚才安装的图形化软件打开它：
 
-强制它以 X11 兼容模式和 fcitx 运行
+以 X11 兼容模式和 fcitx 运行
 
 ```
 QT_QPA_PLATFORM=xcb QT_IM_MODULE=fcitx linguist zh_CN.ts
