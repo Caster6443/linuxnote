@@ -3428,6 +3428,66 @@ niri msg action quit
 
 
 
+
+
+# caeletia汉化
+
+1.安装 Qt 翻译工具链
+
+现代的这类桌面外壳基本都是基于 Qt6 的。我们需要安装包含 `lupdate`（提取器）、`lrelease`（编译器）和 `Linguist`（可视化翻译器）的官方工具包
+
+```
+sudo pacman -S --needed qt6-tools
+```
+
+
+2.把源码克隆到本地，并命名为 caelestia-shell-zh
+
+```
+git clone https://github.com/caelestia-dots/shell.git caelestia-shell-zh
+```
+
+```
+cd caelestia-shell-zh
+```
+
+3.一键提取所有英文词条
+
+在源码目录下，我们要用 `lupdate` 工具扫描当前文件夹（`.`）下的所有 `.qml` 和 `.js` 文件，把所有被 `qsTr("...")` 包裹的英文全部抽出来，生成一个名为 `zh_CN.ts` 的翻译文件。
+
+```
+lupdate . -ts zh_CN.ts
+```
+
+(运行后，你会看到终端刷刷刷闪过一堆提示，告诉你它在哪个文件里找到了多少个词条，最后生成了 `zh_CN.ts`)
+
+4.打开图形化翻译界面
+
+文件生成好之后，直接用刚才安装的图形化软件打开它：
+
+```
+linguist zh_CN.ts
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 常见问题
 
 ## 玩游戏帧率异常
