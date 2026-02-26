@@ -342,7 +342,9 @@ scrolling {
 }
 ```
 
-出于需要横向滚动窗口的需求，这里设置快捷键绑定，修改hyprland配置文件中的
+出于需要横向滚动窗口的需求，这里设置快捷键绑定，修改hyprland配置文件中的快捷键绑定区域
+
+写入如下内容，通过shift加滚轮在一个工作区中横向切换窗口
 
 ```
 # 在一个工作区内横向滚动
@@ -364,10 +366,26 @@ animation = workspaces, 1, 5, standard, slidevert
 
 
 
+## overview概览
 
+这是hyprland的一个插件
 
+安装插件
 
+```bash
+hyprpm update
+hyprpm add https://github.com/hyprwm/hyprland-plugins
+```
 
+可以临时启用并测试插件
+
+```
+hyprpm enable hyprexpo
+```
+
+```
+hyprctl dispatch hyprexpo:expo toggle
+```
 
 
 
