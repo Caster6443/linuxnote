@@ -698,23 +698,55 @@ rclone config
 - 最后按 `y` 保存，按 `q` 退出。
 
 - `Edit advanced config?`：选择n
+
 - 确认配置后回到最初的列表输入q退出
 
+然后立刻测试挂载
 
+```
+rclone mount openlist: ~/BaiduDrive --vfs-cache-mode full --vfs-cache-max-size 10G --vfs-read-chunk-size 16M --vfs-read-chunk-size-limit 2G --daemon
+```
 
+测试完毕后杀掉刚才临时的挂载后台
 
+```
+fusermount -u ~/BaiduDrive
+```
 
+为实现开机自启动，这里选择使用systemd服务
 
+创建 Systemd 服务文件
 
+```
+mkdir -p ~/.config/systemd/user/
+vim ~/.config/systemd/user/rclone-openlist.service
+```
 
+写入如下内容
 
+```
+[Unit]
+Description=Rclone mount for OpenList (BaiduDrive)
+AssertPathIsDirectory=%h/BaiduDrive
+After=network-online.target
 
+[Service]
+Type=simple
+ExecStart=/usr/bin/rclone mount openlist: %h/BaiduDrive --vfs-cache-mode full --vfs-cache-max-size 10G --vfs-read-chunk-size 16M --vfs-read-chunk-size-limit 2G
+ExecStop=/usr/bin/fusermount -u %h/BaiduDrive
+Restart=on-failure
+RestartSec=5
 
+[Install]
+WantedBy=default.target
+```
 
+设置服务开机自启并立刻启动服务
 
-
-
-
+```
+systemctl --user daemon-reload
+systemctl --user enable --now rclone-openlist
+```
 
 
 
