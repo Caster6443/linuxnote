@@ -18,7 +18,11 @@ NFS 使用客户端和服务器的模型，客户端通过网络访问服务器�
 3.NFS 服务器配置 共享目录：
 通过 /etc/exports 文件配置，指定哪些目录可以共享、哪些客户端可以访问。 权限设置：通过配置选项控制客户端的读写权限、同步与否等.
 示例配置：
-`/hello 192.168.120.0/24(rw,sync,no_all_squash)`   
+
+```
+/hello 192.168.120.0/24(rw,sync,no_all_squash)   
+```
+
 `/hello`：共享的目录路径。
 `192.168.120.0/24`：允许访问的客户端网络。
 `rw`：读写权限。
@@ -28,7 +32,11 @@ NFS 使用客户端和服务器的模型，客户端通过网络访问服务器�
 4.NFS 客户端操作 挂载共享目录：
 客户端使用 mount 命令挂载服务器共享的目录。
 示例：
-`mount -t nfs [nfs-server-ip]:/hello /mnt/hello` 
+
+```bash
+mount -t nfs [nfs-server-ip]:/hello /mnt/hello 
+```
+
 访问共享文件：
 挂载后，客户端就可以像访问本地文件一样访问远程共享目录中的文件。
 
@@ -51,7 +59,10 @@ NFS 服务器通过 nfs-server 服务提供支持，可以使用 systemctl 命�
 这是 NFS 的固定端口，主要用于文件系统操作（如读写、挂载等）。所有文件共享的操作都通过此端口进行。 111/TCP 和 UDP（portmapper 或 rpcbind）：portmapper 服务（在现代系统中通常是 rpcbind）运行在 111 端口，客户端首先通过此端口查询到 NFS 服务的实际端口号。 20048/TCP 和 UDP（nfsd）：用于 NFS 服务器的守护进程，处理客户端的文件操作请求。 32768-65535/TCP 和 UDP：这些端口用于 NFS 的其他相关服务（如锁管理等），它们是动态分配的。
 
 防火墙配置：确保这些端口在防火墙上是开放的，否则客户端将无法访问 NFS 服务。
-`firewall-cmd --permanent --add-port=2049/tcp firewall-cmd --permanent --add-port=2049/udp firewall-cmd --permanent --add-port=111/tcp firewall-cmd --permanent --add-port=111/udp firewall-cmd --reload`
+
+```bash
+firewall-cmd --permanent --add-port=2049/tcp firewall-cmd --permanent --add-port=2049/udp firewall-cmd --permanent --add-port=111/tcp firewall-cmd --permanent --add-port=111/udp firewall-cmd --reload
+```
 
 
 
@@ -5729,6 +5740,7 @@ K8s集群初始化
 # 信创适配及安全管理
 
 ## 任务一
+
 主机清单
 
 ```
@@ -5738,22 +5750,22 @@ server2 192.168.122.12
 ```
 
 ### 1.配置DNS主服务器server1
+
 1)安装软件
 
-```
-[root@server1 ~]# yum -y install bind bind-utils
+```bash
+yum -y install bind bind-utils
 ```
 
 2).配置主配置文件 /etc/named.conf 修改监听地址和允许查询范围
 
-```
+```bash
 vim /etc/named.conf
 ```
 
 修改后面有注释的行
 
 ```
-
 listen-on port 53 { any; }; //监听所有ip
 listen-on-v6 port 53 { ::1; };
 directory       "/var/named";
@@ -5764,13 +5776,11 @@ secroots-file   "/var/named/data/named.secroots";
 recursing-file  "/var/named/data/named.recursing";
 allow-query     { any; }; //允许任何人查询
 allow-transfer  { 192.168.122.12; }; //仅允许Server2同步区域
-
 ```
 
 然后在文件尾部写入如下内容
 
 ```
-
 //定义正向区域
 zone "system.org.cn" IN {
         type master;
@@ -5782,24 +5792,22 @@ zone "50.16.172.in-addr.arpa" IN {
         type master;
         file "db.50.16.172";
 };
-
 ```
 
 (2) 编写正向解析文件
 复制模板
 
-```
+```bash
 cp -p /var/named/named.localhost /var/named/db.system.org.cn
 ```
 
-```
-`vim /var/named/db.system.org.cn`
+```bash
+vim /var/named/db.system.org.cn
 ```
 
 修改为如下内容
 
 ```
-
 $TTL 1D
 @       IN SOA  system.org.cn. root.system.org.cn. (
                                         1       ; serial
@@ -5814,19 +5822,18 @@ ns2     A       192.168.122.12          ;必须告诉别人ns1在哪
 app1    A       172.16.50.101
 app2    A       172.16.50.102
 sts     A       172.16.50.103
-
 ```
 
 (3) 编写反向解析文件
 复制模板
 
-```
+```bash
 cp -p /var/named/db.system.org.cn /var/named/db.50.16.172
 ```
 
 编辑文件
 
-```
+```bash
 vim /var/named/db.50.16.172
 ```
 
@@ -5855,17 +5862,28 @@ $TTL 1D
 `systemctl status named`检查服务状态是否正常运行
 
 检查防火墙，放通DNS
-`firewall-cmd --add-service=dns --permanent`
-`firewall-cmd --reload`
+
+```bash
+firewall-cmd --add-service=dns --permanent
+firewall-cmd --reload
+```
 
 本地测试解析
-`nslookup app1.system.org.cn 192.168.122.11`
+
+```bash
+nslookup app1.system.org.cn 192.168.122.11
+```
+
 预期输出：Address: 172.16.50.101
-`nslookup 172.16.50.101 192.168.122.11`
+
+```bash
+nslookup 172.16.50.101 192.168.122.11
+```
+
 预期输出：name = app1.system.org.cn
 
 参考结果
-[[_resources/linux笔记/31a77f7a80364c9a32c63641f05924c1_MD5.jpg|Open: Pasted image 20251221155725.png]]
+
 ![31a77f7a80364c9a32c63641f05924c1_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/31a77f7a80364c9a32c63641f05924c1_MD5.jpg)
 
 
@@ -5875,7 +5893,10 @@ $TTL 1D
 Server2 不需要自己写正反向解析文件（也就是不用 cp 和 vim `db.xxx` 文件），它的任务是告诉系统“我是秘书，我要找 Server1 (192.168.122.11) 下载数据
 
 1)安装软件
-`[root@server2 ~]# yum install -y bind bind-utils`
+
+```bash
+yum install -y bind bind-utils
+```
 
 2)修改主配置文件 /etc/named.conf
 vim /etc/named.conf
@@ -5918,50 +5939,80 @@ zone "50.16.172.in-addr.arpa" IN {
 
 3)启动服务并验证同步
 放通防火墙
-`firewall-cmd --add-service=dns --permanent`
-`firewall-cmd --reload`
+
+```bash
+firewall-cmd --add-service=dns --permanent
+firewall-cmd --reload
+```
+
 启动服务
-`systemctl enable --now named`
+
+```bash
+systemctl enable --now named
+```
+
 查看是否同步成功,如果看到 db.system.org.cn 和 db.50.16.172 出现，说明验证通过
-`ls -l /var/named/slaves/`
+
+```bash
+ls -l /var/named/slaves/
+```
 
 
 
 ### 3.配置ServerA(CA中心与证书颁发)
+
 配置DNS服务器
-`[root@serverA ~]# vim /etc/resolv.conf`
+
+```bash
+vim /etc/resolv.conf
+```
+
 写入如下内容
 
 ```
-
 nameserver 192.168.122.11
 nameserver 192.168.122.12
-
 ```
 
 测试DNS解析
-`[root@serverA demoCA]# ping app1.system.org.cn`
+
+```
+[root@serverA demoCA]# ping app1.system.org.cn
+```
+
 能解析到**172.16.50.101**的ip就是成功，ping不通是正常的，因为地址不存在
 
 1).搭建 CA 基础环境
 建立目录结构（系统 OpenSSL 默认依赖这些目录）
-`mkdir -p /etc/pki/tls/demoCA/{private,newcerts,certs,crl}`
-`touch /etc/pki/tls/demoCA/index.txt`
-`echo 01 > /etc/pki/tls/demoCA/serial`
+
+```
+mkdir -p /etc/pki/tls/demoCA/{private,newcerts,certs,crl}
+touch /etc/pki/tls/demoCA/index.txt
+echo 01 > /etc/pki/tls/demoCA/serial
+```
 
 生成 CA 根私钥（8192位）
-`cd /etc/pki/tls/demoCA`
-`openssl genrsa -out private/cakey.pem 8192`
+
+```
+cd /etc/pki/tls/demoCA
+openssl genrsa -out private/cakey.pem 8192
+```
 
 生成 CA 根证书（有效期10年，CN=ca-rsa.system.org.cn）
-`openssl req -new -x509 -key private/cakey.pem -out cacert.pem -days 3650 -subj "/CN=ca-rsa.system.org.cn"`
+
+```
+openssl req -new -x509 -key private/cakey.pem -out cacert.pem -days 3650 -subj "/CN=ca-rsa.system.org.cn"
+```
 
 
 2)制作服务器证书申请 (CSR)
 现在模拟为所有 Server 主机申请身份证。
 
 生成服务器私钥（4096位）
-`openssl genrsa -out server-rsa.key 4096`
+
+```
+openssl genrsa -out server-rsa.key 4096
+```
 
 生成申请表 (CSR)
 题目要求极其详细的信息，这里用 -subj 一次性填好，防止手输错误
@@ -5987,8 +6038,15 @@ EOF
 4)签发证书
 使用 CA 的权利，批准申请，并加上扩展属性。
 首先切换路径到上一级，然后执行签发命令（有效期5年 = 1825天）
-`[root@serverA demoCA]# cd ..`
-`[root@serverA tls]# openssl ca -policy policy_anything -in demoCA/server-rsa.csr -out demoCA/server-rsa.pem -days 1825 -keyfile demoCA/private/cakey.pem -cert demoCA/cacert.pem -extfile demoCA/v3.ext`
+
+```
+[root@serverA demoCA]# cd ..
+```
+
+```
+[root@serverA tls]# openssl ca -policy policy_anything -in demoCA/server-rsa.csr -out demoCA/server-rsa.pem -days 1825 -keyfile demoCA/private/cakey.pem -cert demoCA/cacert.pem -extfile demoCA/v3.ext
+```
+
 中途会有两个交互过程
 Sign the certificate? [y/n]和1 out of 1 certificate requests certified, commit? [y/n]
 全部输入y回车即可
@@ -5998,15 +6056,28 @@ Sign the certificate? [y/n]和1 out of 1 certificate requests certified, commit?
 题目要求所有 Server 的 `/etc/ssl` 目录下都要有这张证书。
 在ServerA上操作
 回到demoCA目录下
-`[root@serverA tls]# cd demoCA/`
+
+```bash
+[root@serverA tls]# cd demoCA/
+```
+
 1)复制给自己
-`cp server-rsa.pem server-rsa.key /etc/ssl/`
+
+```bash
+cp server-rsa.pem server-rsa.key /etc/ssl/
+```
 
 2)复制给 Server1 (192.168.122.11)
-`scp server-rsa.pem server-rsa.key root@192.168.122.11:/etc/ssl/`
+
+```bash
+scp server-rsa.pem server-rsa.key root@192.168.122.11:/etc/ssl/
+```
 
 3)复制给 Server2 (192.168.122.12)
-`scp server-rsa.pem server-rsa.key root@192.168.122.12:/etc/ssl/`
+
+```bash
+scp server-rsa.pem server-rsa.key root@192.168.122.12:/etc/ssl/
+```
 
 
 ### 验证全流程
@@ -6021,14 +6092,24 @@ Sign the certificate? [y/n]和1 out of 1 certificate requests certified, commit?
 
 ## 任务二
 刷新软件源并更新软件
-`apt update`
-`apt upgrade`
+
+```bash
+apt update
+apt upgrade
+```
 
 为Python 3 环境安装GUI 开发库和包管理工具
-`apt install python3-pyqt5 python3-pip`
+
+```bash
+apt install python3-pyqt5 python3-pip
+```
 
 书写代码
-`vim vim calculator.py`
+
+```bash
+vim calculator.py
+```
+
 写入如下内容
 
 ```
@@ -6150,32 +6231,60 @@ if __name__ == '__main__':
 ## 任务三
 
 ### 1.安装JDK
+
 1.在 x86 麒麟上，我们用 OpenJDK 11 代替毕昇 JDK 11。
-`sudo apt update` 
-`sudo apt install openjdk-11-jdk -y`
+
+```bash
+sudo apt update 
+sudo apt install openjdk-11-jdk -y
+```
+
 验证
-`java -version`
+
+```bash
+java -version
+```
 
 ### 2.安装达梦数据库 DM8
+
 1）官网下载达梦开发版x86，系统麒麟10,sp3
+
 下载后解压，传到虚拟机/root下
-`scp Downloads/dm8_20251203_x86_kylin10_sp3_64/dm8_20251203_x86_kylin10_sp3_64.iso root@192.168.122.132:/root/`
+
+```
+scp Downloads/dm8_20251203_x86_kylin10_sp3_64/dm8_20251203_x86_kylin10_sp3_64.iso root@192.168.122.132:/root/
+```
 
 2）新建 dmdba 用户
 安装前必须创建 dmdba 用户，禁止使用 root 用户安装数据库。
 创建用户所在的组
-`groupadd dinstall -g 2001`
+
+```
+groupadd dinstall -g 2001
+```
+
 创建用户
-`useradd  -G dinstall -m -d /home/dmdba -s /bin/bash -u 2001 dmdba`
+
+```
+useradd  -G dinstall -m -d /home/dmdba -s /bin/bash -u 2001 dmdba
+```
+
 修改用户密码
-`passwd dmdba`
+
+```
+passwd dmdba
+```
 
 3）修改文件打开最大数
 在 Linux、Solaris、AIX 和 HP-UNIX 等系统中，操作系统默认会对程序使用资源进行限制。如果不取消对应的限制，则数据库的性能将会受到影响。
 永久修改和临时修改。
 重启服务器后永久生效。
 使用 root 用户打开 `/etc/security/limits.conf` 文件进行修改
-`vi /etc/security/limits.conf`
+
+```
+vi /etc/security/limits.conf
+```
+
 在文件末尾写入如下内容
 
 ```plaintext
@@ -6305,33 +6414,69 @@ SYSDBA_PWD 和 SYSAUDITOR_PWD 为配置数据库 SYSDBA 用户和 SYSAUDITOR 用
 7）命令行注册服务
 是基于systemd做的自动化启动数据库的服务，也可以手动启动测试一下
 使用dmdba用户
-`su - dmdba`
-`cd /home/dmdba/dmdbms/bin`
+
+```bash
+su - dmdba
+```
+
+```bash
+cd /home/dmdba/dmdbms/bin
+```
+
 手动启动数据库
-`./dmserver /dmdata/data/finance_db/dm.ini`
+
+```bash
+./dmserver /dmdata/data/finance_db/dm.ini
+```
+
 这里会出现大量日志信息，可添加-noconsole选项将日志信息重定向到log日志文件中
 再开一个终端连接dmdba用户
-`cd /home/dmdba/dmdbms/bin`
+
+```bash
+cd /home/dmdba/dmdbms/bin
+```
+
 测试连接数据库
-`./disql SYSDBA/Dameng123@localhost:5237`
+
+```bash
+./disql SYSDBA/Dameng123@localhost:5237
+```
 
 
 注册服务自动化
 DM 提供了将 DM 服务脚本注册成操作系统服务的脚本，同时也提供了卸载操作系统服务的脚本。注册和卸载脚本文件所在目录为安装目录的“/script/root”子目录下。
 注册服务脚本为 dm_service_installer.sh，用户可以使用注册服务脚本将服务脚本注册成为操作系统服务。注册服务需使用 root 用户进行注册，使用 root 用户进入数据库安装目录的 `/script/root` 下，如下所示：
-`cd /home/dmdba/dmdbms/script/root/`
+
+```bash
+cd /home/dmdba/dmdbms/script/root/
+```
+
 注册服务
-`./dm_service_installer.sh -t dmserver -dm_ini /dmdata/data/finance_db/dm.ini -p DBSERVER`
+
+```bash
+./dm_service_installer.sh -t dmserver -dm_ini /dmdata/data/finance_db/dm.ini -p DBSERVER
+```
+
 启动服务
-`systemctl start DmServiceDBSERVER.service`
+
+```bash
+systemctl start DmServiceDBSERVER.service
+```
+
 检查服务运行状态
-`systemctl status DmServiceDBSERVER`
+
+```bash
+systemctl status DmServiceDBSERVER
+```
 
 
 8）创建表并插入数据
 还是在~/dmdbms/bin目录下使用dmdba用户操作
 连接数据库
-`./disql SYSDBA/Dameng123@localhost:5237`
+
+```bash
+./disql SYSDBA/Dameng123@localhost:5237
+```
 
 ```shell
 
@@ -6366,13 +6511,27 @@ SELECT * FROM account;
 
 9)配置达梦 JDBC 驱动
 使用dmdba用户操作
-`cd ~`
-创建工作目录
-`mkdir -pv work;cd work/`
-复制驱动(这里的11对应java的版本)
-`cp ~/dmdbms/drivers/jdbc/DmJdbcDriver11.jar .`
 
-`vim SimpleAccountTool.java`
+```bash
+cd ~
+```
+
+创建工作目录
+
+```bash
+mkdir -pv work;cd work/
+```
+
+复制驱动(这里的11对应java的版本)
+
+```bash
+cp ~/dmdbms/drivers/jdbc/DmJdbcDriver11.jar .
+```
+
+```bash
+vim SimpleAccountTool.java
+```
+
 写入代码内容如下
 
 ```java
@@ -6604,6 +6763,7 @@ init 3
 
 
 **设置默认 umask 为 0077**
+
 编辑配置文件
 
 ```
