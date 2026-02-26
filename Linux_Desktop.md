@@ -3051,7 +3051,7 @@ sudo dnf install dejavu-sans-mono-fonts
 
 ### 视频壁纸
 
-在壁纸插件设置中安装插件smart video wallpaper reborn，该插件只支持播放视频类型壁纸，如果想同时使用静态和动态壁纸的话，可以将普通静态壁纸转换为mp4来伪装成视频，我这里选择使用脚本批量转换
+在壁纸插件设置中安装插件`smart video wallpaper reborn`，该插件只支持播放视频类型壁纸，如果想同时使用静态和动态壁纸的话，可以将普通静态壁纸转换为mp4来伪装成视频，我这里选择使用脚本批量转换
 
 在指定的壁纸存储目录下编辑脚本
 
@@ -4218,7 +4218,7 @@ sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout
 在文件中写入如下内容 
 
 ```
-`Defaults timestamp_timeout=30, !tty_tickets`  
+Defaults timestamp_timeout=30, !tty_tickets  
 ```
 
 为什么起99-custom-timeout这么奇怪的文件名？  
