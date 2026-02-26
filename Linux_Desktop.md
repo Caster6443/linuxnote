@@ -517,6 +517,8 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 这个工具可以集成各种网盘存储，这样就不用下载各种网盘客户端了，更何况有的网盘压根就没有linux客户端
 
+这里选择使用docker部署
+
 安装docker和容器编排工具docker-compose
 
 ```bash
@@ -577,7 +579,7 @@ services:
 docker compose up -d
 ```
 
-这时容器在后台运行，这时先修改openlist管理员密码
+这时容器在后台运行，先修改openlist管理员密码
 
 ```bash
 sudo docker exec -it openlist ./openlist admin set PASSWORD
@@ -644,7 +646,17 @@ http://127.0.0.1:5244/dav/ /home/caster/BaiduDrive davfs rw,user,uid=1000,gid=10
 
 这是一行，另外注意修改文件路径/home/caster/BaiduDrive中的caster为你自己的用户名，另外使用id命令检查自己的桌面用户的uid和gid，不是1000的话自行修改
 
-这行配置中`nofail`参数指定了，即使挂载失败也不会有什么问题输出，`x-systemd.automount`参数则设置了，系统开机时不会挂载，只有当访问gai
+这行配置中`nofail`参数设置了即使挂载失败也不会有什么问题，`x-systemd.automount`参数则设置了，系统开机时不会挂载，只有当访问该目录(比如cd进去或者从文件管理器中点击进入)时才会挂载
+
+然后立刻挂载生效（刚刚已经挂载，这里只是重复一次检查配置有没有写错）
+
+```bash
+sudo mount -a
+```
+
+至此就完成了网盘集成和文件管理器自动挂载网络存储
+
+![](_resources/Linux_Desktop/625b23af1adcc0fa66f611f4bb5c992f_MD5.jpg)
 
 
 
