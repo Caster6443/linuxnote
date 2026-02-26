@@ -6198,17 +6198,25 @@ dmdba  hard      data       unlimited
 
 重启后生效
 切换到 dmdba 用户，查看是否生效
-`su - dmdba`
-`ulimit -a`
-[[_resources/linux笔记/e7ebc0bdc9a2590df34e9813ce92b481_MD5.jpg|Open: Pasted image 20251223114145.png]]
+
+```
+su - dmdba
+```
+
+```
+ulimit -a
+```
+
 ![e7ebc0bdc9a2590df34e9813ce92b481_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/e7ebc0bdc9a2590df34e9813ce92b481_MD5.jpg)
 看到标红的选项可以看到配置已经生效
 
 设置参数临时生效（可选）
 可使用 dmdba 用户执行如下命令，使设置临时生效
-`ulimit -n 65536`
-`ulimit -u 65536`
 
+```bash
+ulimit -n 65536
+ulimit -u 65536
+```
 
 4）目录规划
 可根据实际需求规划安装目录，本示例使用默认配置 DM 数据库安装在 /home/dmdba 文件夹下
@@ -6216,32 +6224,49 @@ dmdba  hard      data       unlimited
 规划创建实例保存目录、归档保存目录、备份保存目录
 使用 root 用户建立文件夹，待 dmdba 用户建立完成后需将文件所有者更改为 dmdba 用户，否则无法安装到该目录下
 
-```shell
-
+```bash
 #创建实例保存目录，归档保存目录，备份保存目录
 mkdir -p /dmdata/{data,arch,dmbak}
-
 ```
 
 修改目录权限
 将新建的路径目录权限的用户修改为 dmdba，用户组修改为 dinstall
-`chown -R dmdba:dinstall /dmdata/`
-`chown -R 755 /dmdata/`
+
+```bash
+chown -R dmdba:dinstall /dmdata/
+chown -R 755 /dmdata/
+```
 
 
 5)数据库安装
 挂载镜像
-`mount -o loop dm8_20251203_x86_kylin10_sp3_64.iso /mnt/`
+
+```bash
+mount -o loop dm8_20251203_x86_kylin10_sp3_64.iso /mnt/
+```
+
 命令行安装
-`su - dmdba`
-`cd /mnt/`
+
+```bash
+su - dmdba
+cd /mnt/
+```
+
 先进麒麟的安全中心，把相关的能关的东西都关了，不然会报各种权限问题的错
 然后在/mnt目录下执行安装脚本
-`./DMInstall.bin -i`
+
+```bash
+./DMInstall.bin -i
+```
+
 根据提示安装
 是否输入Key文件路径? (Y/y:是 N/n:否) [Y/y]:选择n
 安装完成后根据提示切换至root用户执行脚本
-`bash /home/dmdba/dmdbms/script/root/root_installer.sh` 
+
+```bash
+bash /home/dmdba/dmdbms/script/root/root_installer.sh
+```
+
 该脚本用于创建 DmAPService，否则会影响数据库备份
 
 
@@ -6253,11 +6278,13 @@ mkdir -p /dmdata/{data,arch,dmbak}
 6)配置实例
 命令行方式初始化实例
 使用 dmdba 用户配置实例，进入到 DM 数据库安装目录下的 bin 目录中
-`./dminit path=/dmdata/data PAGE_SIZE=32 EXTENT_SIZE=32 CASE_SENSITIVE=y CHARSET=1 DB_NAME=finance_db INSTANCE_NAME=DBSERVER PORT_NUM=5237 SYSDBA_PWD=Dameng123 SYSAUDITOR_PWD=Dameng123`
+```bash
+./dminit path=/dmdata/data PAGE_SIZE=32 EXTENT_SIZE=32 CASE_SENSITIVE=y CHARSET=1 DB_NAME=finance_db INSTANCE_NAME=DBSERVER PORT_NUM=5237 SYSDBA_PWD=Dameng123 SYSAUDITOR_PWD=Dameng123
+```
+
 释义
 
 ```
-
 PAGE_SIZE=32  //设置页大小为32
 EXTENT_SIZE=32 //设置簇大小为32kb
 CASE_SENSITIVE=y //大小写敏感
@@ -6268,7 +6295,6 @@ PORT_NUM=5237 //端口为5237
 SYSDBA_PWD=Dameng123 
 SYSAUDITOR_PWD=Dameng123
 SYSDBA_PWD 和 SYSAUDITOR_PWD 为配置数据库 SYSDBA 用户和 SYSAUDITOR 用户的登录密码，需要用户自定义配置，且需保证一定的密码强度。
-
 ```
 
 
@@ -6490,12 +6516,21 @@ public class SimpleAccountTool {
 ```
 
 编译代码
-`javac -encoding utf-8 -cp .:DmJdbcDriver11.jar SimpleAccountTool.java`
+
+```bash
+javac -encoding utf-8 -cp .:DmJdbcDriver11.jar SimpleAccountTool.java
+```
+
 运行代码
-`java -cp .:DmJdbcDriver11.jar SimpleAccountTool`
+
+```bash
+java -cp .:DmJdbcDriver11.jar SimpleAccountTool
+```
+
 测试代码
-[[_resources/linux笔记/417aba15e5e0031072ae311e3e8ea945_MD5.jpg|Open: Pasted image 20251223154228.png]]
+
 ![417aba15e5e0031072ae311e3e8ea945_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/417aba15e5e0031072ae311e3e8ea945_MD5.jpg)
+
 注意修改日志finance_log.txt权限为题目要求的600
 
 
@@ -6508,7 +6543,11 @@ public class SimpleAccountTool {
 这是为了防止网络攻击（DoS、ICMP攻击）
 
 编辑文件
-`vim /etc/sysctl.conf`
+
+```
+vim /etc/sysctl.conf
+```
+
 写入如下内容（但实际上除了最后一项配置，其他早就写好了）
 
 ```conf
@@ -6534,45 +6573,77 @@ net.ipv4.conf.default.log_martians=1
 ```
 
 生效配置
-`sysctl -p`
+
+```
+sysctl -p
+```
 
 ### 第二部分：系统访问控制
+
 目标：禁重启、设置 umask、单用户保护
 
 **禁止 Ctrl+Alt+Del 重启(Systemd 方式)**:
 默认情况下，`/usr/lib/systemd/system/ctrl-alt-del.target` 是一个软链接,它指向reboot.target
 因此需要使用systemctl mask让这个文件指向一个空设备文件/dev/null，但systemctl mask并不会轻易覆盖链接文件，那么就需要删除原先的链接文件然后重新创建
-`rm -f /etc/systemd/system/ctrl-alt-del.target`
-`systemctl mask ctrl-alt-del.target`
+
+```
+rm -f /etc/systemd/system/ctrl-alt-del.target
+systemctl mask ctrl-alt-del.target
+```
+
 测试
+
 进入多用户模式
+
+```
 init 3 
+```
+
 按下ctrl alt del快捷键，默认是在命令行界面会自动重启，在设置后则不会重启
 
 
 
 **设置默认 umask 为 0077**
 编辑配置文件
-`vim /etc/profile`
+
+```
+vim /etc/profile
+```
+
 在文件底部写入如下内容
-`umask 0077`
+
+```
+umask 0077
+```
+
 生效配置
-`source /etc/profile`
+
+```
+source /etc/profile
+```
 
 
 **设置安全单用户模式**
+
 防止有人物理接触服务器后直接进 Root
-[[_resources/linux笔记/2682450dd30c44dcac1ed4eb255dcb5c_MD5.jpg|Open: Pasted image 20251223170557.png]]
+
 ![2682450dd30c44dcac1ed4eb255dcb5c_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/2682450dd30c44dcac1ed4eb255dcb5c_MD5.jpg)
+
 貌似麒麟server_v10版默认就是安全单用户模式，用上图命令测试
 
 
 
 
 ### 第三部分：账号与密码策略
+
 **密码有效期策略**:
+
 编辑配置文件
-`vim /etc/login.defs`
+
+```
+vim /etc/login.defs
+```
+
 修改如下字段的参数
 
 ```
@@ -6588,11 +6659,14 @@ PASS_WARN_AGE   7  #到期前7天提示
 /etc/pam.d/system-auth用于全局的默认配置
 /etc/pam.d/password-auth是专门给远程服务(主要是 SSHD)用的。
 因此需要修改这两个文件的内容
-`vim /etc/pam.d/password-auth`
+
+```bash
+vim /etc/pam.d/password-auth
+```
+
 修改或添加有中文注释的行
 
 ```
-
 #%PAM-1.0
 
 # User changes will be destroyed the next time authconfig is run.
@@ -6636,10 +6710,12 @@ session     required      pam_unix.so
 ```
 
 然后修改另一个文件
-`vim /etc/pam.d/system-auth`
 
+```bash
+vim /etc/pam.d/system-auth
 ```
 
+```
 #%PAM-1.0
 
 # User changes will be destroyed the next time authconfig is run.
@@ -6686,11 +6762,14 @@ session     required      pam_unix.so
 
 ### 第四部分：SSH 服务加固
 编辑配置文件
-`vim /etc/ssh/sshd_config`
+
+```bash
+vim /etc/ssh/sshd_config
+```
+
 查找并修改以下行
 
 ```
-
 # 登录失败最大次数 3
 MaxAuthTries 3
 
@@ -6700,25 +6779,38 @@ PermitEmptyPasswords no
 # 15分钟 (900秒) 无操作断开
 ClientAliveInterval 900
 ClientAliveCountMax 0
-
 ```
 
 重启sshd服务
-`systemctl restart sshd`
+
+```bash
+systemctl restart sshd
+```
 
 ### 第五部分：Auditd 审计配置
+
 **在日志中使用主机全名**：
-`vim /etc/audit/auditd.conf`
-修改或添加
-`name_format = HOSTNAME`
+
+```bash
+vim /etc/audit/auditd.conf
+```
+
+修改或添加如下内容
+
+```
+name_format = HOSTNAME
+```
 
 **添加审计规则**： 
 编辑规则文件
-`vim /etc/audit/rules.d/audit.rules`
+
+```bash
+vim /etc/audit/rules.d/audit.rules
+```
+
 写入如下内容
 
 ```
-
 # 审计关键文件改动 (-w 路径 -p 权限wa(写/属性) -k 关键词)
 -w /etc/hosts -p wa -k hosts_change
 -w /etc/resolv.conf -p wa -k resolv_change 
@@ -6732,22 +6824,32 @@ ClientAliveCountMax 0
 # 先用 `which rm` 和 `which reboot` 确认路径，通常是 /usr/bin/ 
 -w /usr/bin/rm -p x -k rm_command 
 -w /usr/sbin/reboot -p x -k reboot_command
-
 ```
 
 
 
 默认情况下，audit是在内核参数中被禁用的，需要编辑内核参数重新启用
-`vim /etc/default/grub`
+
+```bash
+vim /etc/default/grub
+```
+
 找到 `GRUB_CMDLINE_LINUX` 那一行，把末尾的 **`audit=0`** 改成 **`audit=1`**
 刷新 GRUB 配置
-`grub2-mkconfig -o /boot/grub2/grub.cfg`
+
+```bash
+grub2-mkconfig -o /boot/grub2/grub.cfg
+```
+
 如果是 UEFI 启动，通常还需要刷这个（以防万一也执行一次，报错也没事） 
-`grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg`
+
+```bash
+grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
+```
 
 重启后使用`auditctl -l`命令验证
 参考如图
-[[_resources/linux笔记/116f35fe7335894b2b5ee3abc79ea714_MD5.jpg|Open: Pasted image 20251223194356.png]]
+
 ![116f35fe7335894b2b5ee3abc79ea714_MD5.jpg](_resources/linux%E7%AC%94%E8%AE%B0/116f35fe7335894b2b5ee3abc79ea714_MD5.jpg)
 
 
