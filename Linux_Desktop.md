@@ -512,6 +512,71 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 值得一提的是，视频壁纸作为layer被hyprland的规则匹配到，那么我就可以通过hyprland的动画规则实现视频壁纸切换的动画效果，然而前端切换工具waypaper调用waypaper的方法是先杀进程后切换，这样就会导致切换过程不可避免的闪一下，很不美观，我们可以通过改变waypaper调用mpvpaper的规则，改成下一个壁纸切换时，直接覆盖当前壁纸（mpvpaper支持这么做），然后再杀掉上一个壁纸的进程，这样就能展示出mpvpaper的简单切换过程动画效果
   
 
+
+# openlist
+
+这个工具可以集成各种网盘存储，这样就不用下载各种网盘客户端了，更何况有的网盘压根就没有linux客户端
+
+安装docker和容器编排工具docker-compose
+
+```bash
+sudo pacman -S docker docker-compose
+```
+
+设置开机自启
+
+```bash
+sudo systemctl enable --now docker
+```
+
+配置免sudo权限
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+然后重启
+
+创建并进入docker工作目录
+
+```bash
+mkdir -pv ~/dockerspace
+cd ~/dockerspace
+```
+
+书写容器编排文件
+
+```bash
+vim docker-compose.yml
+```
+
+写入如下内容
+
+```yaml
+services:
+  openlist:
+    image: openlistteam/openlist:latest
+    container_name: openlist
+    restart: always
+    user: "1000:1000"     
+    volumes:
+      - ./data:/opt/openlist/data
+    ports:
+      - "5244:5244"
+    environment:
+      - UMASK=022
+      - TZ=Asia/Shanghai
+
+```
+
+映射端口是5244，将本地的~/dockerspace/data目录映射到容器中的/opt/openlist/data目录，restart重启策略设置的是每次容器停止后重启容器，这样可以实现开机自启
+
+执行bian
+
+```bash
+docker compose up -d
+```
+
 ## 截屏翻译方案
 
 主要使用 Crow Translate 这个程序  
