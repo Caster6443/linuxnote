@@ -656,11 +656,10 @@ sudo mount -a
 
 至此就完成了网盘集成和文件管理器自动挂载网络存储
 
-![](_resources/Linux_Desktop/625b23af1adcc0fa66f611f4bb5c992f_MD5.jpg)
+注意:  文件管理器不推荐使用nautilus，在网络挂载上会有很严重的问题，动不动就卡住，莫名其妙的让我的终端跟着一起卡
 
 
-
-## 截屏翻译方案
+# 截屏翻译方案
 
 主要使用 Crow Translate 这个程序  
 1.安装主程序  
