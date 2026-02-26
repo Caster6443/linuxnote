@@ -571,11 +571,57 @@ services:
 
 映射端口是5244，将本地的~/dockerspace/data目录映射到容器中的/opt/openlist/data目录，restart重启策略设置的是每次容器停止后重启容器，这样可以实现开机自启
 
-执行bian
+执行容器编排文件
 
 ```bash
 docker compose up -d
 ```
+
+这时容器在后台运行，这时先修改openlist管理员密码
+
+```bash
+sudo docker exec -it openlist ./openlist admin set PASSWORD
+```
+
+PASSWORD改成自己想要设定的密码
+
+然后浏览器访问0.0.0.0:5244，账号admin，密码是刚刚设定的密码
+
+登录后添加存储，如何添加对应网盘参考官方文档
+https://doc.oplist.org.cn/guide
+
+添加成功后就可以通过网页访问各种网盘的资源列表了，不过这里希望它挂载在我的文件管理器上，所以需要继续配置
+
+安装挂载工具
+
+```bash
+sudo pacman -S davfs2
+```
+
+在系统里建一个空文件夹(作为网盘的入口)
+
+```bash
+mkdir ~/BaiduDrive
+```
+
+挂载
+
+```
+sudo mount -t davfs http://127.0.0.1:5244/dav/ ~/BaiduDrive
+```
+
+这里的dav是固定格式，与添加存储里的挂载点无关
+
+按照提示输入用户名admin和密码即可挂载成功，然后打开文件管理器访问本地创建的~/BaiduDrive目录会看到网络存储挂载成功了
+
+但是总不能mei
+
+
+
+
+
+
+
 
 ## 截屏翻译方案
 
