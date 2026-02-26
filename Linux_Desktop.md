@@ -387,6 +387,20 @@ hyprpm enable hyprexpo
 hyprctl dispatch hyprexpo:expo toggle
 ```
 
+在hyprland配置文件中写入（这个插件默认值是3x3，dan bu）
+
+```
+plugin {
+    hyprexpo {
+        columns = 3                  #  每行3列
+        gap_size = 15                #  窗口间距
+    }
+}
+```
+
+
+
+
 
 
 
