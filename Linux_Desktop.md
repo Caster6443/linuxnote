@@ -283,6 +283,95 @@ sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh
 bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 ```
 
+
+## Scrolling 滚动布局
+
+效果类似niri，每个工作区是横向无限延伸的卷轴，而不是之前的仅在窗口内堆叠，截止2/26日，在hyprland-git中提供
+
+安装git包
+
+```
+yay -S hyprland-git hyprland-plugins-git
+```
+
+重启
+
+重启后在配置文件中，将general {...}区块中原本的dwindle布局注释，改成scrolling
+
+```
+general {
+    # layout = dwindle
+    layout = scrolling
+
+    allow_tearing = false  # Allows `immediate` window rule to work
+
+    gaps_workspaces = $workspaceGaps
+    gaps_in = $windowGapsIn
+    gaps_out = $windowGapsOut
+    border_size = $windowBorderSize
+
+    col.active_border = $activeWindowBorderColour
+    col.inactive_border = $inactiveWindowBorderColour
+}
+```
+
+然后在general {...}区块下面添加scrolling定义
+
+```
+scrolling {
+    # 单列时是否全屏
+    fullscreen_on_one_column = true
+
+    # 列宽默认值 (0.1 - 1.0)
+    column_width = 0.5
+
+    # 聚焦时的视图调整方法 (0 = 居中，1 = 适配)
+    focus_fit_method = 0
+
+    # 聚焦窗口时是否自动移动视图
+    follow_focus = true
+
+    # 聚焦时至少可见的比例 (0.0 - 1.0)
+    follow_min_visible = 0.4
+
+    # 预设的列宽配置 (用于循环切换)
+    explicit_column_widths = 0.333, 0.5, 0.667, 1.0
+
+    # 新窗口出现和滚动的方向 (left/right/down/up)
+    direction = right
+}
+```
+
+出于需要横向滚动窗口的需求，这里设置快捷键绑定，修改hyprland配置文件中的
+
+```
+# 在一个工作区内横向滚动
+bind = SHIFT, mouse_down, layoutmsg, move -col
+bind = SHIFT, mouse_up, layoutmsg, move +col
+```
+
+
+
+出于使用体验考虑，做成仿niri的设计，横向无限延伸，那么切换工作区就弄成纵向滚动
+
+编辑hyprland配置文件中的animations {...}区块
+
+确保这一行存在，没有就修改
+
+```
+animation = workspaces, 1, 5, standard, slidevert
+```
+
+
+
+
+
+
+
+
+
+
+
 ## 浮动窗口间隙设置
 
 在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观  
