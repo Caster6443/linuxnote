@@ -387,7 +387,7 @@ hyprpm enable hyprexpo
 hyprctl dispatch hyprexpo:expo toggle
 ```
 
-在hyprland配置文件中写入（这个插件默认值是3x3，dan bu）
+在hyprland配置文件中写入（这个插件默认值是3x3，但不排除别的需求）
 
 ```
 plugin {
@@ -398,6 +398,18 @@ plugin {
 }
 ```
 
+在开机自启动区域中写入如下内容
+
+```
+# overview插件
+exec-once = hyprpm reload -n
+```
+
+在快捷键绑定区域中写入如下内容，绑定键位super G
+
+```
+bind = Super, G, hyprexpo:expo, toggle
+```
 
 
 
@@ -442,6 +454,8 @@ general {
 
 项目名 mpvpaper  
 
+有内存泄露问题，截止2026/2/26仍未修复，只能说勉强能用，但我不想用了
+
 项目地址 [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)  
 这个项目要求三个前置软件包  
 
@@ -452,13 +466,23 @@ sudo pacman -S --needed ninja meson mpv
 然后克隆构建和安装  
 
 ```
-
 git clone --single-branch [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)
-cd mpvpaper
-meson setup build --prefix=/usr/local
-ninja -C build
-ninja -C build install
+```
 
+```
+cd mpvpaper
+```
+
+```
+meson setup build --prefix=/usr/local
+```
+
+```
+ninja -C build
+```
+
+```
+ninja -C build install
 ```
 
 使用方法  
@@ -529,6 +553,9 @@ URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷�
 ![2f595e1d4a2c51550e22cf213bcb7f00_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/2f595e1d4a2c51550e22cf213bcb7f00_MD5.png)  
 
 另外在安装过程中，有个注意事项，不能在包管理器 pacman 工作的时候后台跑游戏，尤其是 steam 游戏，不然 hyprland 会卡死，忘记是为啥了，反正最好别这样搞  
+
+
+
 
 # Waydroid
 
