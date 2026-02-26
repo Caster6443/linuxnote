@@ -614,12 +614,37 @@ sudo mount -t davfs http://127.0.0.1:5244/dav/ ~/BaiduDrive
 
 按照提示输入用户名admin和密码即可挂载成功，然后打开文件管理器访问本地创建的~/BaiduDrive目录会看到网络存储挂载成功了
 
-但是总不能mei
+但是总不能每次开机都手动sudo mount挂载，所以需要写进配置文件里
 
+编辑配置文件
 
+```bash
+sudo vim /etc/davfs2/secrets
+```
 
+在文件末尾写入如下内容
 
+```
+http://127.0.0.1:5244/dav/ admin 你的OpenList密码
+```
 
+然后写入fstab自动挂载
+
+编辑文件
+
+```bash
+sudo vim /etc/fstab
+```
+
+写入如下内容
+
+```
+http://127.0.0.1:5244/dav/ /home/caster/BaiduDrive davfs rw,user,uid=1000,gid=1000,_netdev,nofail,x-systemd.automount 0 0
+```
+
+这是一行，另外注意修改文件路径/home/caster/BaiduDrive中的caster为你自己的用户名，另外使用id命令检查自己的桌面用户的uid和gid，不是1000的话自行修改
+
+这行配置中`nofail`参数指定了，即使挂载失败也不会有什么问题输出，`x-systemd.automount`参数则设置了，系统开机时不会挂载，只有当访问gai
 
 
 
