@@ -2405,7 +2405,7 @@ sudo pacman -S yt-dlp ffmpeg
 **`--embed-metadata`**: 自动抓取 YouTube（或其他平台）的 标题、歌手、专辑信息，写入 MP3 的 ID3 标签中  
 **`--embed-thumbnail`**: 下载视频封面并将其嵌入为音频文件的封面图  
 
-我这里在zshrc里把这条超长命令配置了别名为getaudio  
+我这里在`.zshrc`里把这条超长命令配置了别名为`getaudio`  
 `alias getaudio='yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail'`  
 
 下载的歌曲的元数据信息经常不尽人意，所以需要再引入工具来修改歌曲元数据
@@ -2561,7 +2561,13 @@ flatpak remote-delete fedora
 flatpak list --app --columns=name,origin
 ```
 
-如果flatpak官方仓库源还是比较慢的话，可以换上交大的镜像地址
+如果flatpak官方仓库源还是比较慢的话，可以换中科大的镜像地址
+
+```
+sudo flatpak remote-modify flathub --url=https://mirrors.ustc.edu.cn/flathub/
+```
+
+或者上交大的（备用）
 
 ```
 sudo flatpak remote-modify flathub --url=https://mirror.sjtu.edu.cn/flathub
