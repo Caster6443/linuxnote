@@ -2,7 +2,7 @@
 
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的  
 
-可以用模块化的思想，将动画，窗口规则，绑定键位等设置独立出一个文件，并将各种值在一个文件中声明变量初始化并调用
+模块化思想，将动画，窗口规则，绑定键位等设置独立出一个文件，并将各种值在一个文件中声明变量初始化并调用
 
 ## 设置命令开机自启动
 
@@ -3614,7 +3614,7 @@ sudo ufw reload
 安装nautilus全套工具，包含nautilus，预览工具，解压工具等，重要的是polkit-gnome，这是密码认证工具，有些应用需要输入密码才能打开，这个工具会显示密码认证弹窗
 
 ```
-sudo pacman -S nautilus sushi file-roller unrar p7zip gvfs-mtp gvfs-smb gnome-disk-utility polkit-gnome
+sudo pacman -S nautilus sushi mpv loupe file-roller unrar p7zip gvfs-mtp gvfs-smb gnome-disk-utility polkit-gnome
 ```
 
 
