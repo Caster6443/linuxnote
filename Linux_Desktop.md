@@ -3889,6 +3889,41 @@ QT_QPA_PLATFORM=xcb QT_IM_MODULE=fcitx linguist zh_CN.ts
 
 # 常见问题
 
+## QQ无法复制
+
+我是通过pacman安装的linuxqq
+
+还是wayland的问题，可以通过修改desktop文件的方式指定qq以xwayland/x11方式打开
+
+为了防止软件更新后自定义配置被覆盖，因此将desktop文件复制到用户目录下
+
+```bash
+sudo cp /usr/share/applications/qq.desktop .local/share/applications/
+```
+
+修改文件所属用户与组
+
+```bash
+sudo chown -R caster:caster .local/share/applications/qq.desktop
+```
+
+编辑文件
+
+```bash
+vim ~/.local/share/applications/qq.desktop
+```
+
+修改Exec=开头的行，改成:
+
+```
+Exec=linuxqq --ozone-platform=x11 %U
+```
+
+然后重启qq即可
+
+
+
+
 ## 玩游戏帧率异常
 
 玩鸣潮的时候发现帧率不对劲，帧率不稳定，一战斗就掉帧  
