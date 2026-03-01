@@ -3916,8 +3916,10 @@ vim ~/.local/share/applications/qq.desktop
 修改Exec=开头的行，改成:
 
 ```
-Exec=linuxqq --ozone-platform=x11 %U
+Exec=env XMODIFIERS=@im=fcitx GTK_IM_MODULE=fcitx linuxqq --ozone-platform=x11 %U
 ```
+
+注: 我使用的是fcitx5输入法，而最新的fcitx5不推荐在环境变量中声明`XMODIFIERS=@im=fcitx`和`GTK_IM_MODULE=fcitx`，因此这里选择在命令行参数中添加而不是写进环境变量的配置文件
 
 然后重启qq即可
 
