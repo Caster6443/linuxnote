@@ -757,7 +757,8 @@ systemctl --user enable --now rclone-openlist
 
 # 截屏翻译方案
 
-主要使用 Crow Translate 这个程序  
+## Crow Translate
+
 1.安装主程序  
 
 ```
@@ -791,11 +792,51 @@ sudo pacman -S tesseract-data-eng tesseract-data-kor tesseract-data-chi_sim
 点一下最右边的按钮 Detect fastest  
 URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷新出新翻译引擎，不然用旧的会在翻译栏报 418 错误  
 
-目前只能在程序主界面点击截图才能截图翻译，关于快捷键截图翻译，关于全局的那一片是灰色的不能用，目前猜测是因为我的 plasma 和 hyprland 的混合桌面环境导致的，也有可能是因为 hyprland 禁止绕过它配置快捷键，反正目前还不知道为啥，有待后续排查（我也懒得排查这玩意，不如多找找别的开源项目，排不排查再说吧）  
+目前只能在程序主界面点击截图才能截图翻译，关于快捷键截图翻译，关于全局的那一片是灰色的不能用，因为 hyprland 禁止绕过它配置快捷键，这里官方文档应该有提到怎么在wayland下使用，但我没查了，我用的是pots
 
 ![2f595e1d4a2c51550e22cf213bcb7f00_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/2f595e1d4a2c51550e22cf213bcb7f00_MD5.png)  
 
 另外在安装过程中，有个注意事项，不能在包管理器 pacman 工作的时候后台跑游戏，尤其是 steam 游戏，不然 hyprland 会卡死，忘记是为啥了，反正最好别这样搞  
+
+## Pots
+
+```bash
+sudo pacman -S --needed tesseract-data-eng tesseract-data-chi_sim tesseract-data-jpn tesseract-data-kor tesseract-data-fra tesseract-data-deu tesseract-data-rus tesseract-data-spa
+```
+
+这里安装了常见语言包，英文，中文，日语，韩语，法语，德语，俄语，西班牙语
+
+安装需要的截图工具
+
+```bash
+sudo pacman -S --needed grim slurp
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
