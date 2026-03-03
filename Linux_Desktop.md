@@ -4672,19 +4672,19 @@ vim ~/.config/fontconfig/fonts.conf
     <alias>
         <family>sans-serif</family>
         <prefer>
-            <family>LXGW WenKai</family>
+            <family>LXGW WenKai Screen</family>
             <family>Noto Sans CJK SC</family>
         </prefer>
     </alias>
-    
+
     <alias>
         <family>serif</family>
         <prefer>
-            <family>LXGW WenKai</family>
+            <family>LXGW WenKai Screen</family>
             <family>Noto Serif CJK SC</family>
         </prefer>
     </alias>
-    
+
     <alias>
         <family>monospace</family>
         <prefer>
