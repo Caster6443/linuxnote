@@ -354,7 +354,7 @@ bind = SHIFT, mouse_up, layoutmsg, move +col
 
 
 
-出于使用体验考虑，做成仿niri的设计，横向无限延伸，那么切换工作区就弄成纵向滚动
+出于使用体验考虑，做成仿niri的设计，一个工作区内横向无限延伸，那么切换工作区就弄成纵向滚动
 
 编辑hyprland配置文件中的animations {...}区块
 
@@ -4629,3 +4629,76 @@ sudo ufw allow out on virbr0
 sudo ufw reload
 sudo systemctl restart libvirtd
 ```
+
+
+
+
+## 浏览器中文字体异常问题
+
+![](_resources/Linux_Desktop/bf425b660af1c1279215560377ace11f_MD5.jpg)
+
+例如这个”输“字不对，这是字体回退现象，我选择换成霞鹜文楷screen版
+
+安装字体
+
+```bash
+sudo pacman -S ttf-lxgw-wenkai
+```
+
+或者屏幕优化版 (UI 看起来更清晰，推荐)
+
+```bash
+sudo pacman -S ttf-lxgw-wenkai-screen
+```
+
+创建配置文件目录
+
+```bash
+mkdir -pv ~/.config/fontconfig
+```
+
+编辑配置文件
+
+```bash
+vim ~/.config/fontconfig/fonts.conf
+```
+
+写入如下内容
+
+```
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+    <alias>
+        <family>sans-serif</family>
+        <prefer>
+            <family>LXGW WenKai</family>
+            <family>Noto Sans CJK SC</family>
+        </prefer>
+    </alias>
+    
+    <alias>
+        <family>serif</family>
+        <prefer>
+            <family>LXGW WenKai</family>
+            <family>Noto Serif CJK SC</family>
+        </prefer>
+    </alias>
+    
+    <alias>
+        <family>monospace</family>
+        <prefer>
+            <family>LXGW WenKai Mono</family>
+            <family>Noto Sans Mono CJK SC</family>
+        </prefer>
+    </alias>
+</fontconfig>
+```
+
+刷新字体缓存
+
+```bash
+fc-cache -fv
+```
+
+然后在火狐的设置里修改字体为霞鹜文楷屏幕阅读版(screen)并重启浏览器即可
