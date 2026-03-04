@@ -2,7 +2,7 @@
 
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的  
 
-模块化思想，将动画，窗口规则，绑定键位等设置独立出一个文件，并将各种值在一个文件中声明变量初始化并调用
+简易采用模块化思想，将动画，窗口规则，绑定键位等设置独立出一个文件，并将各种值在一个文件中声明变量初始化并调用
 
 ## 设置命令开机自启动
 
@@ -286,17 +286,9 @@ bind = CTRL, F10, exec, ~/.config/hypr/scripts/toggle_touchpad.sh
 
 ## Scrolling 滚动布局
 
-效果类似niri，每个工作区是横向无限延伸的卷轴，而不是之前的仅在窗口内堆叠，截止2/26日，在hyprland-git中提供
+效果类似niri，每个工作区是横向无限延伸的卷轴，而不是之前的仅在窗口内堆叠
 
-安装git包
-
-```
-yay -S hyprland-git hyprland-plugins-git
-```
-
-重启
-
-重启后在配置文件中，将general {...}区块中原本的dwindle布局注释，改成scrolling
+在配置文件中，将general {...}区块中原本的dwindle布局注释，改成scrolling
 
 ```
 general {
