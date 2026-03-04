@@ -567,7 +567,7 @@ services:
 
 映射端口是5244，将本地的~/dockerspace/data目录映射到容器中的/opt/openlist/data目录，restart重启策略设置的是每次容器停止后重启容器，这样可以实现开机自启
 
-执行容器编排文件
+根据编排文件创建容器
 
 ```bash
 docker compose up -d
