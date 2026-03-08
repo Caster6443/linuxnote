@@ -3924,17 +3924,67 @@ QT_QPA_PLATFORM=xcb QT_IM_MODULE=fcitx linguist zh_CN.ts
 
 
 
+# QML
 
+安装系统依赖
 
+```
+sudo pacman -S --needed qt6-base qt6-declarative qt6-languageserver
+```
 
+编辑文件
 
+```bash
+vim ~/.config/nvim/lua/plugins/treesitter.lua 
+```
 
+写入如下内容
 
+```
+return {
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = function(_, opts)
+      -- 将 qmljs 加入到确保安装的列表中
+      vim.list_extend(opts.ensure_installed, { "qmljs" })
+    end,
+  },
+}
+```
 
+编辑文件
 
+```bash
+vim ~/.config/nvim/lua/plugins/lsp.lua 
+```
 
+写入如下内容
 
+```
+return {
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        -- 启用 QML 语言服务器
+        qmlls = {
+	      mason = false,
+          -- 注意：如果在 Arch Linux 上，这里通常是 "qmlls6"，如果是其他系统可能是 "qmlls"
+          cmd = { "qmlls6" }, 
+          filetypes = { "qml", "qmljs" },
+        },
+      },
+    },
+  },
+}
+```
 
+打开nvim，在命令行模式中输入LspInfo
+
+[Open: Pasted image 20260308150748.png](_resources/Linux_Desktop/b3d17983312216e1343257aae0edb729_MD5.jpg)
+![](_resources/Linux_Desktop/b3d17983312216e1343257aae0edb729_MD5.jpg)
+
+可以看到qmlls出现在了Active Clients里面
 
 
 
