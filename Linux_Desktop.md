@@ -3981,7 +3981,6 @@ return {
 
 打开nvim，在命令行模式中输入LspInfo
 
-[Open: Pasted image 20260308150748.png](_resources/Linux_Desktop/b3d17983312216e1343257aae0edb729_MD5.jpg)
 ![](_resources/Linux_Desktop/b3d17983312216e1343257aae0edb729_MD5.jpg)
 
 可以看到qmlls出现在了Active Clients里面
