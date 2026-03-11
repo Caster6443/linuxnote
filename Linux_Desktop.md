@@ -598,7 +598,55 @@ vim .config/caelestia/shell.json
 
 找到`"background"`区块，将下面的`enabled`的值由true改为false，禁用原生壁纸渲染
 
-重启hyprland即可，然后就可以通过原生的命令行>wallpaper界面使用swww切换壁纸了，不过暂时还没实现实时修改，因为没必要
+设置每10分钟自动切换一次壁纸
+
+编辑文件
+
+```bash
+vim ~/.config/hypr/scripts/auto_switch_wallpaper.sh
+```
+
+写入如下内容
+
+```
+#!/bin/bash
+
+# 无限循环
+while true; do
+  # 睡眠 600 秒 (也就是 10 分钟)
+  # 把它放在前面，意味着开机后等 10 分钟才开始第一次切换
+  sleep 600
+
+  # 从壁纸目录随机挑选一张图片
+  RANDOM_IMG=$(find ~/Pictures/Wallpapers -type f \( -iname \*.jpg -o -iname \*.png \) | shuf -n 1)
+
+  # 让系统的原版 Caelestia 算颜色 (静默更新 scheme.json)
+  /usr/bin/caelestia wallpaper -f "$RANDOM_IMG"
+
+  # 让 swww 播放带【随机动画】的切换特效
+  swww img "$RANDOM_IMG" --transition-type random --transition-step 90 --transition-fps 60
+done
+```
+
+添加执行权限
+
+```bash
+chmod +x ~/.config/hypr/scripts/auto_switch_wallpaper.sh 
+```
+
+写入开机自启动
+
+```bash
+vim .config/hypr/hyprland/execs.conf
+```
+
+写入如下内容
+
+```bash
+exec-once = ~/.config/hypr/scripts/auto_switch_wallpaper.sh &
+```
+
+重启hyprland即可，然后就可以通过原生的启动器命令行`>wallpaper`界面使用swww切换壁纸了，不过暂时还没实现实时修改，因为没必要
 
 
 
