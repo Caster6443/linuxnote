@@ -651,6 +651,52 @@ exec-once = ~/.config/hypr/scripts/auto_switch_wallpaper.sh &
 
 
 
+## 配置特殊工作区
+
+https://github.com/caelestia-dots/cli 里面有示例配置
+
+这里为我的obsidian设置在特殊工作区中打开，可以随叫随到
+
+编辑文件
+
+```bash
+vim .config/caelestia/cli.json 
+```
+
+写入如下内容
+
+```json
+{
+  "toggles": {
+    "notes": {
+      "obsidian": {
+        "enable": true,
+        "match": [
+          { "class": "obsidian" }
+        ],
+        "command": ["obsidian"],
+        "move": true
+      }
+    }
+  }
+}
+```
+
+然后就可以在命令行中通过`caelestia toggle notes`在特殊工作区中打开obsidian了
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # openlist(集成文件管理器)
