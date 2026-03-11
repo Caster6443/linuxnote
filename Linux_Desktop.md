@@ -516,6 +516,26 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 原生的壁纸功能集成了主题变色，但动画效果等于没有，因此这里选择部分切换为swww，同时保留它的变色功能，原理是通过本地的同名可执行文件，部分覆盖原本的caelestia命令行的功能
 
+安装swww
+
+```bash
+sudo pacman -S swww
+```
+
+设置开机自启动
+
+编辑文件
+
+```bash
+vim .config/hypr/hyprland/execs.conf
+```
+
+写入如下内容
+
+```
+exec-once = swww-daemon
+```
+
 创建本地文件夹
 
 ```bash
@@ -576,8 +596,9 @@ env = PATH,/home/caster/.local/bin:$PATH
 vim .config/caelestia/shell.json 
 ```
 
-找到`"background"`区块，将下面的`enabled`的值由true改为false，起到了禁用壁纸渲染的yong
+找到`"background"`区块，将下面的`enabled`的值由true改为false，禁用原生壁纸渲染
 
+重启hyprland即可，然后就可以通过原生的命令行>wallpaper界面使用swww切换壁纸了，不过暂时还没实现实时修改，因为没必要
 
 
 
