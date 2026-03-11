@@ -684,6 +684,8 @@ vim .config/caelestia/cli.json
 
 然后就可以在命令行中通过`caelestia toggle notes`在特殊工作区中打开obsidian了
 
+最后配置进快捷键即可
+
 
 
 
