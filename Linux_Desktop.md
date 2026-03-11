@@ -502,7 +502,86 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 这个命令就可以写进 hyprland 的 exec-once 设置开机自启  
 
 值得一提的是，视频壁纸作为layer被hyprland的规则匹配到，那么我就可以通过hyprland的动画规则实现视频壁纸切换的动画效果，然而前端切换工具waypaper调用waypaper的方法是先杀进程后切换，这样就会导致切换过程不可避免的闪一下，很不美观，我们可以通过改变waypaper调用mpvpaper的规则，改成下一个壁纸切换时，直接覆盖当前壁纸（mpvpaper支持这么做），然后再杀掉上一个壁纸的进程，这样就能展示出mpvpaper的简单切换过程动画效果
-  
+
+
+
+
+
+
+# Caelestia
+
+这是一个hyprland的一个dot项目，我在用
+
+## 修改壁纸后端为swww
+
+原生的壁纸功能集成了主题变色，但动画效果等于没有，因此这里选择部分切换为swww，同时保留它的变色功能，原理是通过本地的同名可执行文件，部分覆盖原本的caelestia命令行的功能
+
+创建本地文件夹
+
+```bash
+mkdir -pv .local/bin
+```
+
+编辑文件
+
+```bash
+vim .local/bin/caelestia
+```
+
+写入如下内容
+
+```
+#!/bin/bash
+
+# 明确指向系统真实的绝对路径
+REAL_CAELESTIA="/usr/bin/caelestia"
+
+if [[ "$1" == "wallpaper" && "$2" == "-f" ]]; then
+  IMG_PATH="$3"
+
+  # 计算配色
+  $REAL_CAELESTIA "$@"
+
+  swww img "$IMG_PATH" --transition-type random --transition-step 90 --transition-fps 60
+else
+  # 放行
+  $REAL_CAELESTIA "$@"
+fi
+```
+
+添加执行权限
+
+```bash
+chmod +x ~/.local/bin/caelestia
+```
+
+编辑hyprland的环境变量文件
+
+``` bash
+vim .config/hypr/hyprland/env.conf
+```
+
+写入如下内容(注意修改用户名为自己的桌面用户)
+
+```
+env = PATH,/home/caster/.local/bin:$PATH
+```
+
+
+这里设置了.local/bin下面的可执行文件的查找执行优先级高于原本的所有环境变量
+
+编辑文件
+
+```bash
+vim .config/caelestia/shell.json 
+```
+
+找到`"background"`区块，将下面的`enabled`的值由true改为false，起到了禁用壁纸渲染的yong
+
+
+
+
+
 
 
 # openlist(集成文件管理器)
