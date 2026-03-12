@@ -638,8 +638,7 @@ vim .config/hypr/hyprland/execs.conf
 exec-once = ~/.config/hypr/scripts/auto_switch_wallpaper.sh &
 ```
 
-重启hyprland即可，然后就可以通过原生的启动器命令行`>wallpaper`界面使用swww切换壁纸了，暂时还没实现实时修改，因为没必要,但是后台自动切换壁纸的脚本，没法修改caelestia-shell的配色，有待完善
-
+重启hyprland即可，然后就可以通过原生的启动器命令行`>wallpaper`界面使用swww切换壁纸了，暂时还没实现实时修改，因为没必要.
 
 
 
