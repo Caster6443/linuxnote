@@ -988,7 +988,7 @@ block块(数据块): 存放数据
 
 ![5291b5bebf2a0dff8ef97421fd6e7130_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/5291b5bebf2a0dff8ef97421fd6e7130_MD5.png)
 
-linux的/etc/skel目录
+## linux的/etc/skel目录
 
 该目录下方存放着所有新用户的家目录模板
 

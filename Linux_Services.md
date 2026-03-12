@@ -4389,8 +4389,6 @@ echo "000000"| passwd --stdin root
 
 # Ceph
 
-## 10/16
-
 ## 搭建ceph
 
 三个节点
