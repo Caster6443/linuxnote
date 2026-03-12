@@ -3470,9 +3470,7 @@ f      /dev/shm/looking-glass  0660  caster  qemu    -
 sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 ```
 
-然后回到虚拟机的硬件管理，删除`显卡QXL`,另外`显示协议Spice`不要删除，图片里我删错了，必须要确保`显示协议Spice`存在才行，没有的话添加一个
-
-![](_resources/Linux_Desktop/28c2af326cbc8ccedd7c8a6a69ba8e7d_MD5.jpg)
+然后回到虚拟机的硬件管理，删除`显卡QXL`,另外要确保`显示协议Spice`存在，没有的话添加一个
 
 然后添加两个设备，virtio类型的键盘和鼠标，键盘直接在 `添加设备->输入` 里找，鼠标则需要修改原本的鼠标的xml文件，将选中的`ps2`修改为`virtio`并应用，就会出现virtio类型的鼠标了
 
