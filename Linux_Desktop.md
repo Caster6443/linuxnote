@@ -995,18 +995,257 @@ void print_json(struct keybind_info *print_list, int count) {
 
 ```
 
-我在程序里指定了在~/.config/hypr/hyprland/keybinds.conf里通过在每行的结尾通过#@标记需要被读进cheatsheet的快捷键
+我在程序里指定了在~/.config/hypr/hyprland/keybinds.conf里定义了在每行的结尾通过#@标记需要被读进cheatsheet的快捷键，例如下面这行会被读取进cheatsheet
 
+```
+bind = $kbTerminal, exec, app2unit -- $terminal #@ 打开终端
+```
 
+它的快捷键变量会被自动解析，它的快捷键描述是#@后面的内容
 
+然后编译文件
 
+```bash
+gcc .config/quickshell/caelestia/utils/bin/getkeybind.c -o .config/quickshell/caelestia/utils/bin/getkeybind
+```
 
+同时编写cheatsheet的qml文件
 
+先创建cheatsheet的目录
 
+```bash
+mkdir -pv ~/.config/quickshell/caelestia/modules/cheatsheet
+```
 
+编辑文件
 
+```bash
+vim .config/quickshell/caelestia/modules/cheatsheet/Cheatsheet.qml
+```
 
+```
+pragma ComponentBehavior: Bound
+import QtQuick
+import Quickshell
+import Quickshell.Io
+import "../../services" as Services
+import QtQuick.Window
+import "../../config"
 
+FloatingWindow {
+    id: root
+    title: "cheatsheet"
+    implicitWidth: Screen.width * 0.75
+    implicitHeight: Screen.height * 0.75
+    visible: false
+    color: "transparent"
+
+    Shortcut {
+        sequence: "Escape"
+        onActivated: root.visible = false
+    }
+
+    Shortcut {
+        sequence: "q"
+        onActivated: root.visible = false
+    }
+
+    Process {
+        id: toggleWatcher
+        command: ["bash", "-c", "touch /tmp/cheatsheet_toggle && inotifywait -e close_write /tmp/cheatsheet_toggle"]
+        running: true
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.visible = !root.visible;
+                toggleWatcher.running = false;
+                toggleWatcher.running = true;
+            }
+        }
+    }
+    property var themeColours: ({})
+
+    property var keybindsData: []
+
+    Process {
+        id: fetchTheme
+        command: ["cat", "/home/caster/.local/state/caelestia/scheme.json"]
+        running: true
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var scheme = JSON.parse(this.text);
+                    root.themeColours = scheme.colours;
+                    console.log("Color scheme loaded successfully! Primary color: #" + root.themeColours.primary);
+                    themeWatcher.running = true;
+                } catch (e) {
+                    console.log("Failed to parse color scheme JSON: " + e);
+                }
+            }
+        }
+    }
+
+    Process {
+        id: themeWatcher
+        command: ["inotifywait", "-e", "close_write", "/home/caster/.local/state/caelestia/scheme.json"]
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                console.log("Wallpaper/color scheme change detected, preparing to reload");
+                fetchTheme.running = false;
+                fetchTheme.running = true;
+            }
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        color: root.themeColours.surface ? ("#" + root.themeColours.surface) : '#1e1e2e'
+        opacity: 0.5
+        radius: 18
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 40
+            spacing: 30
+
+            Text {
+                text: "Caelestia Cheatsheet"
+                font.family: Appearance.font.family.sans
+                font.pixelSize: 32
+                font.bold: true
+                color: root.themeColours.primary ? ("#" + root.themeColours.primary) : "#cdd6f4"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Grid {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 15
+                columns: Math.max(1, Math.floor(parent.width / 395))
+
+                Repeater {
+                    model: Services.Keybinds.data
+
+                    delegate: Item {
+                        id: keyCard
+                        required property var modelData
+                        width: 380
+                        height: 36
+
+                        Row {
+                            anchors.fill: parent
+                            spacing: 16
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            Row {
+                                id: keysRow
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 6
+
+                                property var keyArray: keyCard.modelData.key.split(/\s*\+\s*|\s+/).filter(function (i) {
+                                    return i;
+                                })
+
+                                Repeater {
+                                    model: keysRow.keyArray
+
+                                    delegate: Row {
+                                        id: keyDelegate
+                                        spacing: 6
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        required property int index
+                                        required property var modelData
+
+                                        Rectangle {
+                                            id: keycapBase
+                                            width: keyText.implicitWidth + 16
+                                            height: 28
+                                            radius: 5
+                                            color: root.themeColours.outline ? ("#" + root.themeColours.outline) : "#a6adc8"
+
+                                            Rectangle {
+                                                id: keycapTop
+                                                anchors.fill: parent
+                                                anchors.margins: 1
+                                                anchors.bottomMargin: 4
+                                                radius: 4
+                                                color: root.themeColours.surface ? ("#" + root.themeColours.surface) : "#181825"
+                                                border.width: 1
+                                                border.color: root.themeColours.outlineVariant ? ("#" + root.themeColours.outlineVariant) : "#45475a"
+
+                                                Text {
+                                                    id: keyText
+                                                    anchors.centerIn: parent
+                                                    anchors.verticalCenterOffset: -1
+                                                    text: keyDelegate.modelData.toUpperCase()
+                                                    font.family: Appearance.font.family.mono
+                                                    font.pixelSize: 12
+                                                    font.bold: true
+                                                    color: root.themeColours.primary ? ("#" + root.themeColours.primary) : "#cdd6f4"
+                                                }
+                                            }
+                                        }
+
+                                        Text {
+                                            text: "+"
+                                            font.family: Appearance.font.family.mono
+                                            font.pixelSize: 14
+                                            font.bold: true
+                                            color: root.themeColours.onSurfaceVariant ? ("#" + root.themeColours.onSurfaceVariant) : "#a6adc8"
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            visible: keyDelegate.index < (keysRow.keyArray.length - 1)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Text {
+                                text: keyCard.modelData.desc
+                                font.family: Appearance.font.family.sans
+                                color: root.themeColours.onSurface ? ("#" + root.themeColours.onSurface) : "#f5e0dc"
+                                font.pixelSize: 14
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: keyCard.width - keysRow.width - parent.spacing
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+```
+
+然后在caelestia主配置文件中调用
+
+编辑文件
+
+```bash
+vim .config/quickshell/caelestia/shell.qml 
+```
+
+在import行中添加一行
+
+```
+import "modules/cheatsheet"
+```
+
+在ShellRoot{...}代码块中添加一行
+
+```
+Cheatsheet {}
+```
+
+修改后内容参考如下
+
+[Open: Pasted image 20260314150222.png](_resources/Linux_Desktop/235bab3907c665b68ad1fefa161bfe4e_MD5.jpg)
+![](_resources/Linux_Desktop/235bab3907c665b68ad1fefa161bfe4e_MD5.jpg)
+
+重启
 
 
 
