@@ -680,6 +680,329 @@ vim .config/caelestia/cli.json
 
 
 
+## Cheatsheet
+
+自己做了一个cheatsheet的功能，我打算集成进caelestia里面
+
+caelestia把配置存放在了/etc/xdg/quickshell/caelestia/中，为了防止更新被覆盖，我选择复制到本地再做修改
+
+创建配置目录
+
+```bash
+mkdir -pv .config/quickshell/
+```
+
+复制配置文件
+
+```bash
+cp -r /etc/xdg/quickshell/caelestia ~/.config/quickshell/
+```
+
+这里选择遵守caelestia的目录规范，因此先把结构创建好
+
+创建结构目录
+
+这个用于存放我的获取快捷键的程序源代码和可执行文件
+
+```bash
+mkdir -pv ~/.config/quickshell/caelestia/utils/bin
+```
+
+这个用于存放我的cheatsheet的qml文件
+
+```bash
+mkdir -pv ~/.config/quickshell/caelestia/modules/cheatsheet
+```
+
+编辑文件
+
+```bash
+vim ~/.config/quickshell/caelestia/utils/bin/getkeybind.c
+```
+
+内容如下
+
+```c
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAX_LINE 1024
+#define MAX_LEN 512
+#define INFO_LEN 1024
+
+struct keybind_info {
+  char command[MAX_LEN];     // store key
+  char description[MAX_LEN]; // store value
+};
+struct keybind_info list[INFO_LEN];
+
+struct HyprVars {
+  char name[MAX_LEN];  // store "$xxx"
+  char value[MAX_LEN]; // store value
+};
+struct HyprVars var_list[INFO_LEN];
+
+void get_sym(struct HyprVars *dest, char *sym_ptr, int count);
+void get_def(struct HyprVars *dest, char *def_ptr, int count);
+int cmp_var(const void *a, const void *b);
+void get_value(struct keybind_info *dest, char *value_ptr, int count);
+void replace_ch(char *key_ptr);
+void get_key(struct keybind_info *dest, char *key_ptr, char *line, int count);
+void translate_all_keybinds(struct keybind_info *list, int list_size,
+                            struct HyprVars *var_list, int var_total);
+void wash_data(struct keybind_info *target_list, int count);
+void print_json(struct keybind_info *print_list, int count);
+
+int main(int argc, char *argv[]) {
+  int count = 0;
+  char *target_path;
+  char *target_file;
+  char line[MAX_LINE];
+  if (argc >= 3) {
+    target_path = argv[1];
+    target_file = argv[2];
+  } else {
+    fprintf(
+        stderr,
+        "Usage: %s <config_file_path> <variable_file_path>\nSuch as: %s "
+        "~/.config/hypr/hyprland/keybinds.conf ~/.config/hypr/variables.conf\n",
+        argv[0], argv[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  FILE *fb = fopen(target_file, "r");
+  if (!fb) {
+    fprintf(stderr, "error: Can't open file %s\n", target_file);
+    exit(EXIT_FAILURE);
+  }
+  while (fgets(line, sizeof(line), fb)) {
+    line[strcspn(line, "\n")] = '\0';
+    char *sym_ptr = strchr(line, '$'); // key
+    if (!sym_ptr)
+      continue;
+    get_sym(var_list, sym_ptr, count);
+    char *def_ptr = strchr(line, '='); // value
+    get_def(var_list, ++def_ptr, count);
+
+    count++;
+    if (count >= INFO_LEN - 1)
+      break;
+  }
+  qsort(var_list, count, sizeof(struct HyprVars),
+        cmp_var); // sort varlist a-Z
+  fclose(fb);
+  int var_total = count;
+
+  count = 0;
+
+  FILE *fp = fopen(target_path, "r");
+  if (!fp) {
+    fprintf(stderr, "error: Can't open file %s\n", target_path);
+    exit(EXIT_FAILURE);
+  }
+  while (fgets(line, sizeof(line), fp)) {
+    line[strcspn(line, "\n")] = '\0';
+
+    char *value_ptr = strstr(line, "#@");
+    if (value_ptr == NULL)
+      continue;
+    get_value(list, value_ptr, count);
+
+    char *key_ptr = strstr(line, "#@");
+    get_key(list, key_ptr, line, count);
+
+    count++;
+    if (count >= INFO_LEN - 1)
+      break;
+  }
+
+  translate_all_keybinds(list, count, var_list, var_total);
+
+  wash_data(list, count);
+  print_json(list, count);
+
+  fclose(fp);
+
+  return 0;
+}
+
+void get_sym(struct HyprVars *dest, char *sym_ptr, int count) {
+  int i = 0;
+  char *temp_ptr = sym_ptr;
+  while (*temp_ptr != '\0' && !isspace((unsigned char)*temp_ptr) &&
+         *temp_ptr != '=' && i < MAX_LEN - 1) {
+    dest[count].name[i] = *temp_ptr;
+    i++;
+    temp_ptr++;
+  }
+  dest[count].name[i] = '\0';
+}
+
+void get_def(struct HyprVars *dest, char *def_ptr, int count) {
+  while (isspace(*def_ptr))
+    def_ptr++;
+
+  strncpy(dest[count].value, def_ptr, MAX_LEN - 1);
+  dest[count].value[MAX_LEN - 1] = '\0';
+  replace_ch(dest[count].value);
+  char *end = dest[count].value + strlen(dest[count].value) - 1;
+  while (end >= dest[count].value && isspace((unsigned char)*end)) {
+    *end = '\0';
+    end--;
+  }
+}
+
+int cmp_var(const void *a, const void *b) {
+  struct HyprVars *var_a = (struct HyprVars *)a;
+  struct HyprVars *var_b = (struct HyprVars *)b;
+  return strcmp(var_a->name, var_b->name);
+}
+
+void get_value(struct keybind_info *dest, char *value_ptr, int count) {
+  value_ptr += 2;
+  while (isspace(*value_ptr)) {
+    value_ptr++;
+  }
+  strncpy(dest[count].description, value_ptr, MAX_LEN - 1);
+  dest[count].description[MAX_LEN - 1] = '\0';
+}
+
+void replace_ch(char *key_ptr) {
+  char *src = key_ptr;
+  char *dst = key_ptr;
+  int in_space = 0;
+
+  while (*src != '\0') {
+    if (*src == ',' || *src == '+' || isspace((unsigned char)*src)) {
+      if (!in_space) {
+        *dst++ = ' ';
+        in_space = 1;
+      }
+    } else {
+      *dst++ = *src;
+      in_space = 0;
+    }
+    src++;
+  }
+
+  *dst = '\0';
+}
+
+void get_key(struct keybind_info *dest, char *key_ptr, char *line, int count) {
+  *key_ptr = '\0';
+  key_ptr = strstr(line, "=");
+  key_ptr++;
+  while (isspace(*key_ptr))
+    key_ptr++;
+  int target_commas = (*key_ptr == '$') ? 1 : 2;
+  int mas = 0;
+  char *p = key_ptr;
+  while (*p != '\0') {
+    if (*p == ',') {
+      if (++mas == target_commas) {
+        *p = '\0';
+        break;
+      }
+    }
+    p++;
+  }
+
+  if (*key_ptr == ',')
+    key_ptr++;
+  while (isspace((unsigned char)*key_ptr))
+    key_ptr++;
+
+  char *end = key_ptr + strlen(key_ptr) - 1;
+  while (end >= key_ptr && isspace((unsigned char)*end)) {
+    *end = '\0';
+    end--;
+  }
+  replace_ch(key_ptr);
+
+  strncpy(dest[count].command, key_ptr, MAX_LEN - 1);
+  dest[count].command[MAX_LEN - 1] = '\0';
+}
+
+void translate_all_keybinds(struct keybind_info *list, int list_size,
+                            struct HyprVars *var_list, int var_total) {
+
+  for (int i = 0; i < list_size; i++) {
+    char final_res[MAX_LEN] = {0};
+    char temp_src[MAX_LEN] = {0};
+
+    strncpy(temp_src, list[i].command, MAX_LEN - 1);
+
+    char *token = strtok(temp_src, " ");
+    while (token) {
+      if (token[0] == '$') {
+        struct HyprVars key;
+        strncpy(key.name, token, MAX_LEN - 1);
+        key.name[MAX_LEN - 1] = '\0';
+
+        struct HyprVars *res = bsearch(&key, var_list, var_total,
+                                       sizeof(struct HyprVars), cmp_var);
+
+        if (res) {
+          strncat(final_res, res->value, MAX_LEN - strlen(final_res) - 1);
+        } else {
+          strncat(final_res, token, MAX_LEN - strlen(final_res) - 1);
+        }
+      } else {
+        strncat(final_res, token, MAX_LEN - strlen(final_res) - 1);
+      }
+
+      strncat(final_res, " ", MAX_LEN - strlen(final_res) - 1);
+      token = strtok(NULL, " ");
+    }
+
+    int len = strlen(final_res);
+    if (len > 0 && final_res[len - 1] == ' ')
+      final_res[len - 1] = '\0';
+
+    strncpy(list[i].command, final_res, MAX_LEN - 1);
+  }
+}
+
+void wash_data(struct keybind_info *target_list, int count) {
+  for (int i = 0; i < count; i++) {
+    char tmp[MAX_LEN], *s = target_list[i].description, *d = tmp;
+    while (*s && d < tmp + MAX_LEN - 2) {
+      if (*s == '"' || *s == '\\')
+        *d++ = '\\';
+      *d++ = *s++;
+    }
+    *d = '\0';
+    strncpy(target_list[i].description, tmp, MAX_LEN - 1);
+  }
+}
+
+void print_json(struct keybind_info *print_list, int count) {
+  puts("[");
+  for (int i = 0; i < count; i++) {
+    puts("  {");
+    printf("    \"key\": \"%s\",\n", print_list[i].command);
+    printf("    \"desc\": \"%s\"\n", print_list[i].description);
+
+    if (i < count - 1) {
+      puts("  },");
+    } else {
+      puts("  }");
+    }
+  }
+  puts("]");
+}
+
+```
+
+我在程序里指定了在~/.config/hypr/hyprland/keybinds.conf里通过在每行的结尾通过#@标记需要被读进cheatsheet的快捷键
+
+
+
+
+
+
+
 
 
 
