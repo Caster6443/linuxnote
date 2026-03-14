@@ -1010,7 +1010,13 @@ gcc .config/quickshell/caelestia/utils/bin/getkeybind.c -o .config/quickshell/ca
 ```
 
 编写cheatsheet的qml文件
+
+```bash
 vim .config/quickshell/caelestia/services/Keybinds.qml
+```
+
+写入如下内容
+
 ```
 pragma Singleton
 import QtQuick
@@ -1032,9 +1038,9 @@ QtObject {
                 try {
                     root.data = JSON.parse(this.text);
                     root.isLoaded = true;
-                    console.log("快捷键数据加载成功！");
+                    console.log("Keybinds data loaded successfully!");
                 } catch (e) {
-                    console.log("解析快捷键 JSON 失败: " + e);
+                    console.log("Failed to parse keybinds JSON: " + e);
                 }
             }
         }
@@ -1047,6 +1053,8 @@ QtObject {
 }
 
 ```
+
+编辑另一个文件
 
 ```bash
 vim .config/quickshell/caelestia/modules/cheatsheet/Cheatsheet.qml
