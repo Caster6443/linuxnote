@@ -1009,19 +1009,13 @@ bind = $kbTerminal, exec, app2unit -- $terminal #@ 打开终端
 gcc .config/quickshell/caelestia/utils/bin/getkeybind.c -o .config/quickshell/caelestia/utils/bin/getkeybind
 ```
 
-同时编写cheatsheet的qml文件
-
-先创建cheatsheet的目录
-
-```bash
-mkdir -pv ~/.config/quickshell/caelestia/modules/cheatsheet
-```
-
-编辑文件
+编写cheatsheet的qml文件
 
 ```bash
 vim .config/quickshell/caelestia/modules/cheatsheet/Cheatsheet.qml
 ```
+
+内容如下
 
 ```
 pragma ComponentBehavior: Bound
@@ -1242,10 +1236,15 @@ Cheatsheet {}
 
 修改后内容参考如下
 
-[Open: Pasted image 20260314150222.png](_resources/Linux_Desktop/235bab3907c665b68ad1fefa161bfe4e_MD5.jpg)
 ![](_resources/Linux_Desktop/235bab3907c665b68ad1fefa161bfe4e_MD5.jpg)
 
-重启
+然后在快捷键绑定文件中添加一行cheatsheet的调用即可，cheatsheet的调用命令被设置为`touch /tmp/cheatsheet_toggle`
+
+可以参考我写的这一行
+
+![](_resources/Linux_Desktop/1cdf15cabc3c0f6a2e831744fb860b23_MD5.jpg)
+
+然后重启电脑即可
 
 
 
