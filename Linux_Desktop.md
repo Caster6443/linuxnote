@@ -730,12 +730,21 @@ vim ~/.config/quickshell/caelestia/utils/bin/getkeybind.c
 #define MAX_LINE 1024
 #define MAX_LEN 512
 #define INFO_LEN 1024
+#define GROUP_NUM 4
 
 struct keybind_info {
   char command[MAX_LEN];     // store key
   char description[MAX_LEN]; // store value
 };
-struct keybind_info list[INFO_LEN];
+
+struct Category {
+  char name[GROUP_NUM];
+  struct keybind_info list[INFO_LEN];
+  int count;
+};
+
+struct Category group[GROUP_NUM] = {
+    {"app", {}, 0}, {"win", {}, 0}, {"sys", {}, 0}, {"msc", {}, 0}};
 
 struct HyprVars {
   char name[MAX_LEN];  // store "$xxx"
@@ -748,11 +757,11 @@ void get_def(struct HyprVars *dest, char *def_ptr, int count);
 int cmp_var(const void *a, const void *b);
 void get_value(struct keybind_info *dest, char *value_ptr, int count);
 void replace_ch(char *key_ptr);
-void get_key(struct keybind_info *dest, char *key_ptr, char *line, int count);
+void get_key(struct keybind_info *dest, char *key_ptr, int count);
 void translate_all_keybinds(struct keybind_info *list, int list_size,
                             struct HyprVars *var_list, int var_total);
 void wash_data(struct keybind_info *target_list, int count);
-void print_json(struct keybind_info *print_list, int count);
+void print_json(struct Category *group_array, int group_total);
 
 int main(int argc, char *argv[]) {
   int count = 0;
@@ -804,23 +813,45 @@ int main(int argc, char *argv[]) {
   while (fgets(line, sizeof(line), fp)) {
     line[strcspn(line, "\n")] = '\0';
 
-    char *value_ptr = strstr(line, "#@");
-    if (value_ptr == NULL)
+    char *marker_ptr = strstr(line, "#@");
+    if (marker_ptr == NULL)
       continue;
-    get_value(list, value_ptr, count);
+    int idx = -1;
+
+    if (strncmp(marker_ptr, "#@app", 5) == 0)
+      idx = 0;
+    else if (strncmp(marker_ptr, "#@win", 5) == 0)
+      idx = 1;
+    else if (strncmp(marker_ptr, "#@sys", 5) == 0)
+      idx = 2;
+    else if (strncmp(marker_ptr, "#@msc", 5) == 0)
+      idx = 3;
+
+    if (idx == -1)
+      continue;
+
+    struct Category *target = &group[idx];
+
+    get_value(target->list, marker_ptr + 5, target->count);
 
     char *key_ptr = strstr(line, "#@");
-    get_key(list, key_ptr, line, count);
+    *key_ptr = '\0';
+    key_ptr = strstr(line, "=");
+    key_ptr++;
+    get_key(target->list, key_ptr, target->count);
+    target->count++;
 
     count++;
     if (count >= INFO_LEN - 1)
       break;
   }
 
-  translate_all_keybinds(list, count, var_list, var_total);
+  for (int i = 0; i < GROUP_NUM; i++) {
+    translate_all_keybinds(group[i].list, group[i].count, var_list, var_total);
+    wash_data(group[i].list, group[i].count);
+  }
 
-  wash_data(list, count);
-  print_json(list, count);
+  print_json(group, GROUP_NUM);
 
   fclose(fp);
 
@@ -860,7 +891,6 @@ int cmp_var(const void *a, const void *b) {
 }
 
 void get_value(struct keybind_info *dest, char *value_ptr, int count) {
-  value_ptr += 2;
   while (isspace(*value_ptr)) {
     value_ptr++;
   }
@@ -889,10 +919,7 @@ void replace_ch(char *key_ptr) {
   *dst = '\0';
 }
 
-void get_key(struct keybind_info *dest, char *key_ptr, char *line, int count) {
-  *key_ptr = '\0';
-  key_ptr = strstr(line, "=");
-  key_ptr++;
+void get_key(struct keybind_info *dest, char *key_ptr, int count) {
   while (isspace(*key_ptr))
     key_ptr++;
   int target_commas = (*key_ptr == '$') ? 1 : 2;
@@ -977,31 +1004,43 @@ void wash_data(struct keybind_info *target_list, int count) {
   }
 }
 
-void print_json(struct keybind_info *print_list, int count) {
+void print_json(struct Category *group_array, int group_total) {
   puts("[");
-  for (int i = 0; i < count; i++) {
-    puts("  {");
-    printf("    \"key\": \"%s\",\n", print_list[i].command);
-    printf("    \"desc\": \"%s\"\n", print_list[i].description);
+  int first_category = 1;
 
-    if (i < count - 1) {
-      puts("  },");
-    } else {
-      puts("  }");
+  for (int i = 0; i < group_total; i++) {
+    if (group_array[i].count == 0)
+      continue;
+
+    if (!first_category)
+      puts("  ,");
+    first_category = 0;
+
+    puts("  {");
+    printf("    \"category\": \"%s\",\n", group_array[i].name);
+    puts("    \"keybinds\": [");
+
+    for (int j = 0; j < group_array[i].count; j++) {
+      puts("      {");
+      printf("        \"key\": \"%s\",\n", group_array[i].list[j].command);
+      printf("        \"desc\": \"%s\"\n", group_array[i].list[j].description);
+      printf("      }%s\n", (j < group_array[i].count - 1) ? "," : "");
     }
+    puts("    ]");
+    printf("  }");
   }
-  puts("]");
+  puts("\n]");
 }
 
 ```
 
-我在程序里指定了在~/.config/hypr/hyprland/keybinds.conf里定义了在每行的结尾通过#@标记需要被读进cheatsheet的快捷键，例如下面这行会被读取进cheatsheet
+我在程序里指定了在~/.config/hypr/hyprland/keybinds.conf里定义了在每行的结尾通过#@app/win/sys/msc标记需要被读进cheatsheet的快捷键并分类为四种类别，例如下面这行会被读取进cheatsheet的app类别
 
 ```
-bind = $kbTerminal, exec, app2unit -- $terminal #@ 打开终端
+bind = $kbTerminal, exec, app2unit -- $terminal #@app 打开终端
 ```
 
-它的快捷键变量会被自动解析，它的快捷键描述是#@后面的内容
+它的快捷键变量会被自动解析，它的快捷键描述是#@app后面的内容
 
 然后编译文件
 
@@ -1026,11 +1065,13 @@ import Quickshell.Io
 QtObject {
     id: root
 
+    readonly property string homeDir: Quickshell.env("HOME")
+
     property var data: []
     property bool isLoaded: false
 
     property Process fetcher: Process {
-        command: ["/home/caster/.config/quickshell/caelestia/utils/bin/getkeybind", "/home/caster/.config/hypr/hyprland/keybinds.conf", "/home/caster/.config/hypr/variables.conf"]
+        command: [root.homeDir + "/.config/quickshell/caelestia/utils/bin/getkeybind", root.homeDir + "/.config/hypr/hyprland/keybinds.conf", root.homeDir + "/.config/hypr/variables.conf"]
         running: true
 
         stdout: StdioCollector {
@@ -1039,9 +1080,25 @@ QtObject {
                     root.data = JSON.parse(this.text);
                     root.isLoaded = true;
                     console.log("Keybinds data loaded successfully!");
+
+                    fileWatcher.running = true;
                 } catch (e) {
                     console.log("Failed to parse keybinds JSON: " + e);
                 }
+            }
+        }
+    }
+
+    property Process fileWatcher: Process {
+        command: ["inotifywait", "-e", "close_write", root.homeDir + "/.config/hypr/hyprland/keybinds.conf", root.homeDir + "/.config/hypr/variables.conf"]
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                console.log("Hyprland config changed! Hot-reloading keybinds...");
+                root.reload();
+                fileWatcher.running = false;
+                fileWatcher.running = true;
             }
         }
     }
@@ -1062,7 +1119,7 @@ vim .config/quickshell/caelestia/modules/cheatsheet/Cheatsheet.qml
 
 内容如下
 
-```
+```qml
 pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
@@ -1073,6 +1130,7 @@ import "../../config"
 
 FloatingWindow {
     id: root
+    readonly property string homeDir: Quickshell.env("HOME")
     title: "cheatsheet"
     implicitWidth: Screen.width * 0.75
     implicitHeight: Screen.height * 0.75
@@ -1108,7 +1166,7 @@ FloatingWindow {
 
     Process {
         id: fetchTheme
-        command: ["cat", "/home/caster/.local/state/caelestia/scheme.json"]
+        command: ["cat", root.homeDir + "/.local/state/caelestia/scheme.json"]
         running: true
 
         stdout: StdioCollector {
@@ -1127,7 +1185,7 @@ FloatingWindow {
 
     Process {
         id: themeWatcher
-        command: ["inotifywait", "-e", "close_write", "/home/caster/.local/state/caelestia/scheme.json"]
+        command: ["inotifywait", "-e", "close_write", root.homeDir + "/.local/state/caelestia/scheme.json"]
         running: false
 
         stdout: StdioCollector {
@@ -1160,94 +1218,101 @@ FloatingWindow {
             }
 
             Grid {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 15
-                columns: Math.max(1, Math.floor(parent.width / 395))
+                width: parent.width
+                columns: Math.max(1, Math.floor(parent.width / 420)) 
+                columnSpacing: 40
+                rowSpacing: 35
 
                 Repeater {
                     model: Services.Keybinds.data
-
-                    delegate: Item {
-                        id: keyCard
+                    delegate: Column {
                         required property var modelData
-                        width: 380
-                        height: 36
+                        width: 400
+                        spacing: 15
+                        visible: modelData && modelData.keybinds && modelData.keybinds.length > 0
 
-                        Row {
-                            anchors.fill: parent
-                            spacing: 16
-                            anchors.verticalCenter: parent.verticalCenter
+                        Text {
+                            text: (modelData ? modelData.category : "").charAt(0).toUpperCase() + (modelData ? modelData.category : "").slice(1)
+                            font.family: Appearance.font.family.sans
+                            font.pixelSize: 22
+                            font.bold: true
+                            color: root.themeColours.primary ? ("#" + root.themeColours.primary) : "#cdd6f4"
+                        }
 
-                            Row {
-                                id: keysRow
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: 6
+                        Column {
+                            spacing: 10
+                            
+                            Repeater {
+                                model: modelData && modelData.keybinds ? modelData.keybinds : []
+                                delegate: Row {
+                                    required property var modelData
+                                    property var kb: modelData
+                                    width: 400
+                                    spacing: 15
 
-                                property var keyArray: keyCard.modelData.key.split(/\s*\+\s*|\s+/).filter(function (i) {
-                                    return i;
-                                })
-
-                                Repeater {
-                                    model: keysRow.keyArray
-
-                                    delegate: Row {
-                                        id: keyDelegate
+                                    Row {
                                         spacing: 6
                                         anchors.verticalCenter: parent.verticalCenter
-                                        required property int index
-                                        required property var modelData
+                                        width: 220 
+                                        
+                                        Repeater {
+                                            model: kb.key ? kb.key.split(" ") : []
+                                            delegate: Row {
+                                              required property string modelData 
+                                                required property int index
+                                                spacing: 6
+                                                anchors.verticalCenter: parent.verticalCenter
 
-                                        Rectangle {
-                                            id: keycapBase
-                                            width: keyText.implicitWidth + 16
-                                            height: 28
-                                            radius: 5
-                                            color: root.themeColours.outline ? ("#" + root.themeColours.outline) : "#a6adc8"
-
-                                            Rectangle {
-                                                id: keycapTop
-                                                anchors.fill: parent
-                                                anchors.margins: 1
-                                                anchors.bottomMargin: 4
-                                                radius: 4
-                                                color: root.themeColours.surface ? ("#" + root.themeColours.surface) : "#181825"
-                                                border.width: 1
-                                                border.color: root.themeColours.outlineVariant ? ("#" + root.themeColours.outlineVariant) : "#45475a"
-
-                                                Text {
-                                                    id: keyText
-                                                    anchors.centerIn: parent
-                                                    anchors.verticalCenterOffset: -1
-                                                    text: keyDelegate.modelData.toUpperCase()
-                                                    font.family: Appearance.font.family.mono
-                                                    font.pixelSize: 12
-                                                    font.bold: true
+                                                Rectangle {
                                                     color: root.themeColours.primary ? ("#" + root.themeColours.primary) : "#cdd6f4"
+                                                    radius: 5
+                                                    width: innerBg.width + 2
+                                                    height: innerBg.height + 4 
+
+                                                    Rectangle {
+                                                        id: innerBg
+                                                        color: root.themeColours.surface ? ("#" + root.themeColours.surface) : "#1e1e2e"
+                                                        radius: 4
+                                                        width: keyText.implicitWidth + 14 
+                                                        height: keyText.implicitHeight + 8 
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        anchors.top: parent.top
+                                                        anchors.topMargin: 1 
+
+                                                        Text {
+                                                            id: keyText
+                                                            text: modelData 
+                                                            anchors.centerIn: parent
+                                                            font.family: Appearance.font.family.sans
+                                                            font.pixelSize: 12
+                                                            font.bold: true
+                                                            color: root.themeColours.primary ? ("#" + root.themeColours.primary) : "#cdd6f4"
+                                                        }
+                                                    }
+                                                }
+                                                Text {
+                                                    text: "+"
+                                                    visible: index < (kb.key.split(" ").length - 1)
+                                                    anchors.verticalCenter: parent.verticalCenter
+                                                    font.pixelSize: 14
+                                                    color: root.themeColours.primary ? ("#" + root.themeColours.primary) : "#cdd6f4"
+                                                    opacity: 0.7
                                                 }
                                             }
                                         }
+                                    }
 
-                                        Text {
-                                            text: "+"
-                                            font.family: Appearance.font.family.mono
-                                            font.pixelSize: 14
-                                            font.bold: true
-                                            color: root.themeColours.onSurfaceVariant ? ("#" + root.themeColours.onSurfaceVariant) : "#a6adc8"
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            visible: keyDelegate.index < (keysRow.keyArray.length - 1)
-                                        }
+                                    Text {
+                                        text: kb.desc
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.family: Appearance.font.family.sans
+                                        font.pixelSize: 13
+                                        color: root.themeColours.onSurface ? ("#" + root.themeColours.onSurface) : 
+                                              (root.themeColours.text ? ("#" + root.themeColours.text) : "#cdd6f4")
+                                        width: parent.width - 220 - parent.spacing
+                                        wrapMode: Text.WordWrap
                                     }
                                 }
-                            }
-
-                            Text {
-                                text: keyCard.modelData.desc
-                                font.family: Appearance.font.family.sans
-                                color: root.themeColours.onSurface ? ("#" + root.themeColours.onSurface) : "#f5e0dc"
-                                font.pixelSize: 14
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: keyCard.width - keysRow.width - parent.spacing
-                                elide: Text.ElideRight
                             }
                         }
                     }
