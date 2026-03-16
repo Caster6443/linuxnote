@@ -922,7 +922,32 @@ void replace_ch(char *key_ptr) {
 void get_key(struct keybind_info *dest, char *key_ptr, int count) {
   while (isspace(*key_ptr))
     key_ptr++;
-  int target_commas = (*key_ptr == '$') ? 1 : 2;
+
+  int target_commas = 2;
+
+  if (*key_ptr == '$') {
+    char temp_str[MAX_LEN];
+    strncpy(temp_str, key_ptr, MAX_LEN - 1);
+    temp_str[MAX_LEN - 1] = '\0';
+
+    char *first_comma = strchr(temp_str, ',');
+    if (first_comma) {
+      char *t2 = first_comma + 1;
+      while (isspace(*t2))
+        t2++;
+
+      char *end = t2;
+      while (*end != '\0' && *end != ',' && !isspace((unsigned char)*end))
+        end++;
+      *end = '\0';
+
+      if (strlen(t2) > 1 && strcmp(t2, "up") != 0 && strcmp(t2, "down") != 0 &&
+          strcmp(t2, "left") != 0 && strcmp(t2, "right") != 0) {
+        target_commas = 1;
+      }
+    }
+  }
+
   int mas = 0;
   char *p = key_ptr;
   while (*p != '\0') {
