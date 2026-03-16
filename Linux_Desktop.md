@@ -1119,7 +1119,7 @@ vim .config/quickshell/caelestia/modules/cheatsheet/Cheatsheet.qml
 
 内容如下
 
-```qml
+```
 pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
