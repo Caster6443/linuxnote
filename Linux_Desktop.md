@@ -4857,11 +4857,11 @@ return {
 
 # 常见问题
 
-Thunar配置空格预览
+## Thunar配置空格预览
 
 thunar没有这个预览功能，这是借助了nautilus的sushi文件预览组件实现的，因此需要先安装sushi
 
-```
+```bash
 sudo pacman -S sushi
 ```
 
@@ -4869,7 +4869,7 @@ sudo pacman -S sushi
 
 安装thunar全套组件
 
-```
+```bash
 sudo pacman -S --needed thunar thunar-volman gvfs gvfs-mtp gvfs-smb tumbler ffmpegthumbnailer poppler-glib libgsf thunar-archive-plugin file-roller p7zip unzip unrar thunar-media-tags-plugin
 ```
 
@@ -4887,12 +4887,19 @@ sudo pacman -S --needed thunar thunar-volman gvfs gvfs-mtp gvfs-smb tumbler ffmp
 - **`gvfs-smb`**: 如果你需要访问局域网里 Windows 电脑或 NAS 的共享文件夹（Samba）。
 - **`thunar-media-tags-plugin`**: 增强插件，能让你在文件属性里直接查看和编辑 MP3 的音频标签（歌手、专辑等）。
 
+然后打开thunar，上方标签栏选择`编辑`->`配置自定义动作`->`添加新的自定义动作`
 
+名称随便写，命令写`sushi %f`，然后`thunar -q`退出thunar，查看文件`.config/Thunar/uca.xml` ，找到刚刚定义的自定义动作的区块，复制`unique-id`标签的值，然后编辑文件
 
+```bash
+vim .config/Thunar/accels.scm
+```
 
+在最后新增一行
 
-
-
+```
+(gtk_accel_path "<Actions>/ThunarActions/uca-action-这里换成你的那串数字" "space")
+```
 
 
 
