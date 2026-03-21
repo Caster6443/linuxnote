@@ -4857,6 +4857,45 @@ return {
 
 # 常见问题
 
+Thunar配置空格预览
+
+thunar没有这个预览功能，这是借助了nautilus的sushi文件预览组件实现的，因此需要先安装sushi
+
+```
+sudo pacman -S sushi
+```
+
+在thunar中配置
+
+安装thunar全套组件
+
+```
+sudo pacman -S --needed thunar thunar-volman gvfs gvfs-mtp gvfs-smb tumbler ffmpegthumbnailer poppler-glib libgsf thunar-archive-plugin file-roller p7zip unzip unrar thunar-media-tags-plugin
+```
+
+- **`gvfs`**: GNOME 虚拟文件系统（提供最基础的挂载支持）。
+- **`gvfs-mtp`**: 让 Thunar 能直接读取安卓手机里的文件。
+- **`thunar-volman`**: Thunar 官方的卷管理器（用于 U 盘插入自动挂载、光盘自动播放等）。
+- **`tumbler`**: Thunar 御用缩略图大管家（必须有它作为引擎）。
+- **`ffmpegthumbnailer`**: 负责生成视频（MP4, MKV 等）和动图的缩略图。
+- **`poppler-glib`**: 负责生成 PDF 的封面。
+- **`freetype2`**: （通常系统已自带）配合 tumbler 生成字体文件预览。
+- **`libgsf`**: 用于生成微软 Office 文档 (Word, Excel) 和 ODT 文档的缩略图。
+- **`thunar-archive-plugin`**: 在 Thunar 右键菜单添加解压/压缩选项的插件。
+- **`file-roller`** 或 **`xarchiver`**: 图形化的压缩包管理器后端（推荐 file-roller，界面更现代）。
+- **`p7zip`, `unzip`, `unrar`**: 最底层的解压干活工具（支持 7z, zip, rar 格式）。
+- **`gvfs-smb`**: 如果你需要访问局域网里 Windows 电脑或 NAS 的共享文件夹（Samba）。
+- **`thunar-media-tags-plugin`**: 增强插件，能让你在文件属性里直接查看和编辑 MP3 的音频标签（歌手、专辑等）。
+
+
+
+
+
+
+
+
+
+
 ## QQ无法复制
 
 我是通过pacman安装的linuxqq
