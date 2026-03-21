@@ -1385,6 +1385,16 @@ Cheatsheet {}
 
 
 
+## Thunar动态配色
+
+依旧使用了作者提供的动态配色的json文件
+
+1.安装json解析器
+
+```
+sudo pacman -S jq
+```
+
 
 
 
