@@ -353,7 +353,7 @@ bind = SHIFT, mouse_up, layoutmsg, move +col
 确保这一行存在，没有就修改
 
 ```
-animation = workspaces, 1, 5, standard, slidevert
+animation = workspaces, 1, 5, default, slidevert
 ```
 
 
