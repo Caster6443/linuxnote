@@ -1377,7 +1377,7 @@ Cheatsheet {}
 
 可以参考我写的这一行
 
-![](_resources/Linux_Desktop/1cdf15cabc3c0f6a2e831744fb860b23_MD5.jpg)
+![](_resources/Linux_Desktop/09e817795b6feb6e4dc1044f9b72dc0d_MD5.jpg)
 
 然后重启电脑即可
 
@@ -1387,7 +1387,7 @@ Cheatsheet {}
 
 ## Thunar动态配色
 
-
+待补充
 
 
 # openlist(集成文件管理器)
@@ -3339,7 +3339,7 @@ sudo pacman -S yt-dlp ffmpeg
 **`-x`**: 下载完成后，将视频提取/转换为音频。  
 **`--audio-format mp3`**: 指定输出格式为 MP3  
 **`--no-playlist`**: 如果你给的链接是一个播放列表里的某一首歌，只下载这一首，不要把整个列表几百首歌都下下来  
-**`--embed-metadata`**: 自动抓取 YouTube（或其他平台）的 标题、歌手、专辑信息，写入 MP3 的 ID3 标签中  
+**`--embed-metadata`**: 自动抓取 YouTube（或其他平台）的 标题、歌手、专辑信息，写入 MP3 的 ID3 标签中(可选，因为一般shi p)  
 **`--embed-thumbnail`**: 下载视频封面并将其嵌入为音频文件的封面图  
 
 我这里在`.zshrc`里把这条超长命令配置了别名为`getaudio`  
