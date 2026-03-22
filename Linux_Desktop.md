@@ -3334,16 +3334,16 @@ sudo pacman -S yt-dlp ffmpeg
 
 使用方法  
 
-`yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail 视频链接` 
+`yt-dlp -x --audio-format mp3 --no-playlist --embed-thumbnail 视频链接` 
 
 **`-x`**: 下载完成后，将视频提取/转换为音频。  
 **`--audio-format mp3`**: 指定输出格式为 MP3  
 **`--no-playlist`**: 如果你给的链接是一个播放列表里的某一首歌，只下载这一首，不要把整个列表几百首歌都下下来  
-**`--embed-metadata`**: 自动抓取 YouTube（或其他平台）的 标题、歌手、专辑信息，写入 MP3 的 ID3 标签中(可选，因为一般shi p)  
+**`--embed-metadata`**: 自动抓取 YouTube（或其他平台）的 标题、歌手、专辑信息，写入 MP3 的 ID3 标签中(可选，因为一般视频网站的元数据搜集起来都比较脏，这样会污染音频的元数据)  
 **`--embed-thumbnail`**: 下载视频封面并将其嵌入为音频文件的封面图  
 
 我这里在`.zshrc`里把这条超长命令配置了别名为`getaudio`  
-`alias getaudio='yt-dlp -x --audio-format mp3 --no-playlist --embed-metadata --embed-thumbnail'`  
+`alias getaudio='yt-dlp -x --audio-format mp3 --no-playlist --embed-thumbnail'`  
 
 下载的歌曲的元数据信息经常不尽人意，所以需要再引入工具来修改歌曲元数据
 这里有三个选择，我首推有图形化修改的kid3
@@ -3352,7 +3352,7 @@ sudo pacman -S yt-dlp ffmpeg
 sudo pacman -S kid3
 ```
 
-或者喜欢命令行操作那就eyeD3(截止我最后一次使用，该包已被标记过时)
+或者喜欢纯命令行操作那就eyeD3(截止我最后一次使用，该包已被标记过时)
 
 ```
 yay -S python-eyed3  
