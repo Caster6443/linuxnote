@@ -550,7 +550,7 @@ vim .config/caelestia/cli.json
     }
 ```
 
-然后在caelestia的设置里禁用壁纸
+然后在caelestia的设置里禁用壁纸渲染
 
 重启桌面
 
