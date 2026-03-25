@@ -550,8 +550,9 @@ vim .config/caelestia/cli.json
     }
 ```
 
+然后在caelestia的设置里禁用壁纸
 
-
+重启桌面
 
 设置每10分钟自动切换一次壁纸
 
