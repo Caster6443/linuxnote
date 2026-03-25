@@ -536,67 +536,22 @@ vim .config/hypr/hyprland/execs.conf
 exec-once = swww-daemon
 ```
 
-创建本地文件夹
+编辑文件(没有可自行创建)
 
 ```bash
-mkdir -pv .local/bin
+vim .config/caelestia/cli.json 
 ```
 
-编辑文件
+在大括号里写入这三行，注意json语法
 
-```bash
-vim .local/bin/caelestia
-```
-
-写入如下内容
-
-```
-#!/bin/bash
-
-# 明确指向系统真实的绝对路径
-REAL_CAELESTIA="/usr/bin/caelestia"
-
-if [[ "$1" == "wallpaper" && "$2" == "-f" ]]; then
-  IMG_PATH="$3"
-
-  # 计算配色
-  $REAL_CAELESTIA "$@"
-
-  swww img "$IMG_PATH" --transition-type random --transition-step 90 --transition-fps 60
-else
-  # 放行
-  $REAL_CAELESTIA "$@"
-fi
-```
-
-添加执行权限
-
-```bash
-chmod +x ~/.local/bin/caelestia
-```
-
-编辑hyprland的环境变量文件
-
-``` bash
-vim .config/hypr/hyprland/env.conf
-```
-
-写入如下内容(注意修改用户名为自己的桌面用户)
-
-```
-env = PATH,/home/caster/.local/bin:$PATH
+```json
+"wallpaper": {
+        "postHook": "swww img \"$WALLPAPER_PATH\" --transition-type grow --transition-duration 2 --transition-fps 60 --transition-pos $(hyprctl cursorpos | tr -d ' ') --invert-y"
+    }
 ```
 
 
-这里设置了.local/bin下面的可执行文件的查找执行优先级高于原本的所有环境变量
 
-编辑文件
-
-```bash
-vim .config/caelestia/shell.json 
-```
-
-找到`"background"`区块，将下面的`enabled`的值由true改为false，禁用原生壁纸渲染
 
 设置每10分钟自动切换一次壁纸
 
@@ -638,7 +593,7 @@ vim .config/hypr/hyprland/execs.conf
 exec-once = ~/.config/hypr/scripts/auto_switch_wallpaper.sh &
 ```
 
-重启hyprland即可，然后就可以通过原生的启动器命令行`>wallpaper`界面使用swww切换壁纸了，暂时还没实现实时修改，因为没必要.
+重启hyprland即可，然后就可以通过原生的启动器命令行`>wallpaper`界面使用swww切换壁纸了
 
 
 
