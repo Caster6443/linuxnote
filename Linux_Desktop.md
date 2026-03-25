@@ -546,13 +546,11 @@ vim .config/caelestia/cli.json
 
 ```json
 "wallpaper": {
-        "postHook": "swww img \"$WALLPAPER_PATH\" --transition-type grow --transition-duration 2 --transition-fps 60 --transition-pos $(hyprctl cursorpos | tr -d ' ') --invert-y"
+        "postHook": "swww img \"$WALLPAPER_PATH\" --transition-type random --transition-duration 2 --transition-fps 60 --transition-pos $(hyprctl cursorpos | tr -d ' ') --invert-y"
     }
 ```
 
 然后在caelestia的设置里禁用壁纸渲染
-
-重启桌面
 
 设置每10分钟自动切换一次壁纸
 
