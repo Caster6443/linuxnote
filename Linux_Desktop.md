@@ -4813,6 +4813,29 @@ return {
 
 # 常见问题
 
+## WPS黑块问题
+
+具体就像这样，这是wps的一个FreeType 伪粗体渲染 Bug
+
+WPS 在 Linux 下的字体渲染逻辑比较老。当你文档里的某个字体（比如正文用的宋体或华文新魏）**本身没有自带粗体字重**，但你又点了“加粗”时，WPS 会调用系统的底层字体引擎 `freetype2` 进行“算法伪加粗”（Synthetic Embolden）。
+
+要命的是，从 `freetype2` 升级到 2.13.1 版本之后，官方修改了加粗算法的代码。WPS 没跟上适配，导致它在处理较小字号（小于等于 36）的伪加粗时，内部坐标计算直接崩溃溢出，于是字体就糊成了一坨巨大的黑块。
+
+![](_resources/Linux_Desktop/7db80aafedff5229b84ba07a8922ca4c_MD5.jpg)
+
+解决方案
+
+安装社区补丁
+
+```bash
+paru -S freetype2-wps
+```
+
+然后重启wps即可
+
+
+
+
 ## Thunar配置空格预览
 
 thunar没有这个预览功能，这是借助了nautilus的sushi文件预览组件实现的，因此需要先安装sushi
