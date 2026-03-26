@@ -1580,9 +1580,13 @@ systemctl --user enable --now rclone-openlist
 ```
 
 
+# 办公软件
 
+## WPS
 
-
+```bash
+paru -S wps-office-cn
+```
 
 
 
