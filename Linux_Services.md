@@ -1612,6 +1612,7 @@ upstream webs {
 
 
 ## Nginx 负载均衡后端状态
+
 down             当前的 server 暂时不参与负载均衡
 
 backup          预留的备份服务器
