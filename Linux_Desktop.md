@@ -622,7 +622,64 @@ caster ALL=(ALL) NOPASSWD: /home/caster/.config/hypr/scripts/wake_nvidia.sh
 exec-once = sudo ~/.config/hypr/scripts/wake_nvidia.sh
 ```
 
-需要切换显卡归属时运行对应脚本即可
+需要切换显卡归属时运行对应脚本即可，我不想统一成一个脚本，因为下面要做自动化
+
+我们可以利用hook(钩子)的机制，每次打开虚拟机时就自动执行脚本解绑显卡，关机后就自动绑回去
+
+创建配置目录
+
+```bash
+sudo mkdir -p /etc/libvirt/hooks
+```
+
+编写钩子脚本(脚本叫qemu貌似是强制要求,不要自己加.sh后缀)
+
+```bash
+sudo vim /etc/libvirt/hooks/qemu
+```
+
+写入如下内容（注意里面的虚拟机名称和对应的脚本路径修改为自己的）
+
+```
+#!/bin/bash
+# 传入的参数依次是：虚拟机名称、操作类型、子操作类型
+VM_NAME="$1"
+OPERATION="$2"
+SUB_OPERATION="$3"
+
+# 这里填你 Virt-Manager 里显示的虚拟机名字（注意大小写）
+TARGET_VM="win11"
+
+if [ "$VM_NAME" == "$TARGET_VM" ]; then
+    # 场景 1：点击启动，虚拟机准备运行前
+    if [ "$OPERATION" == "prepare" ] && [ "$SUB_OPERATION" == "begin" ]; then
+        # 自动执行解绑脚本，把显卡交给 VFIO
+        /home/caster/.config/hypr/scripts/VFIO_nvidia.sh
+        
+    # 场景 2：虚拟机彻底关机，释放资源后
+    elif [ "$OPERATION" == "release" ] && [ "$SUB_OPERATION" == "end" ]; then
+        # 延迟 3 秒，等内核彻底回收 PCIe 硬件锁
+        sleep 3
+        # 自动执行唤醒脚本，把显卡还给宿主机
+        /home/caster/.config/hypr/scripts/wake_nvidia.sh
+    fi
+fi
+```
+
+添加执行权限
+
+```bash
+sudo chmod +x /etc/libvirt/hooks/qemu
+```
+
+然后打开虚拟系统管理器，点击`编辑`->`首选项`->勾选启用
+
+重启服务
+
+```bash
+sudo systemctl restart libvirtd
+```
+
 
 
 
