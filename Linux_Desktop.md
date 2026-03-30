@@ -507,7 +507,7 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 ## 显卡直通热切换
 
-开机前需要隔离显卡，如何隔离之前已经重复好多次了，在此省略
+开机前需要隔离显卡，如何隔离之前已经重复好多次了，在别的显卡直通章节有过程，在此省略，为什么写在hyprland章里面是因为这个涉及到hyprland的特殊问题，niri有别的处理方法
 
 编辑两个文件
 
@@ -600,12 +600,29 @@ echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers_probe
 echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind
 ```
 
-混合显卡模式下，hyprland会在开机后死死bang zhu
+混合显卡模式下，hyprland会在开机后死死绑住N卡，所以没法杀掉进程，hyprwiki给了一个环境变量，用于设置显卡加载的优先级，不过我试了没什么用，这里的方案是，每次开机都会自动隔离显卡，然后加载hyprland后，用hyprland的exec运行绑定显卡到主机的脚本，这样hyprland抓得就没那么紧了
 
+由于涉及大量sudo命令且需要自动化执行，因此需要设置这个脚本执行的免密sudo
 
+编辑文件
 
+```bash
+sudo EDITOR=vim visudo
+```
 
+在文件最后一行写入如下内容(一定要写在最后一行，有优先级问题)，caster改成自己的用户名
 
+```
+caster ALL=(ALL) NOPASSWD: /home/caster/.config/hypr/scripts/wake_nvidia.sh
+```
+
+然后将这个脚本写进hyprland的配置文件的开机自动执行中
+
+```
+exec-once = sudo ~/.config/hypr/scripts/wake_nvidia.sh
+```
+
+需要切换显卡归属时运行对应脚本即可
 
 
 
