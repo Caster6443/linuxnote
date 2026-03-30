@@ -602,7 +602,7 @@ echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind
 
 混合显卡模式下，hyprland会在开机后死死绑住N卡，所以没法杀掉进程，hyprwiki给了一个环境变量，用于设置显卡加载的优先级，不过我试了没什么用，这里的方案是，每次开机都会自动隔离显卡，然后加载hyprland后，用hyprland的exec运行绑定显卡到主机的脚本，这样hyprland抓得就没那么紧了
 
-由于涉及大量sudo命令且需要自动化执行，因此需要设置这个脚本执行的免密sudo
+由于涉及大量sudo命令且需要hyprland给它自动化执行，因此需要设置这个脚本执行的免密sudo
 
 编辑文件
 
@@ -672,7 +672,9 @@ fi
 sudo chmod +x /etc/libvirt/hooks/qemu
 ```
 
-然后打开虚拟系统管理器，点击`编辑`->`首选项`->勾选启用
+然后打开虚拟系统管理器，点击`编辑`->`首选项`->勾选`启用xml编辑`(我觉得都弄好显卡直通了，这一步肯定早就做过了)
+
+然后查看虚拟机的硬件信息，找到直通的那个显卡，编辑它的xml文件，将其中的`managed="yes"`改成`no`，不改的话，如果你在没有隔离显卡的前提下打开虚拟机，libvirtd会尝试强行把你的显卡扒下来，有点危险，虽然钩子会钩住这个打开虚拟机的动作，在打开前执行脚本解绑显卡，但这个不改总是个安全隐患
 
 重启服务
 
@@ -680,7 +682,7 @@ sudo chmod +x /etc/libvirt/hooks/qemu
 sudo systemctl restart libvirtd
 ```
 
-
+然后就完成了在hyprland下使用显卡直通虚拟机的显卡归属热切换
 
 
 
