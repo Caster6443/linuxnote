@@ -507,53 +507,109 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 ## 显卡直通热切换
 
-将显卡解绑
+开机前需要隔离显卡，如何隔离之前已经重复好多次了，在此省略
 
-剥夺控制台的画面输出（清理 Framebuffer）
-有时候 N 卡还绑着底层的 EFI 帧缓冲（这也会阻止解绑）。咱们先把它踢掉：
+编辑两个文件
+
+绑定显卡给主机的脚本
 
 ```bash
-echo 0 | sudo tee /sys/class/vtconsole/vtcon1/bind
+vim .config/hypr/scripts/wake_nvidia.sh
 ```
 
+写入如下内容
+
+```
+#!/bin/bash
+echo "开始安全唤醒 RTX 4060..."
+
+# 1. 强制通电 (笔记本防死锁核心，必须在操作前进行)
+echo "on" | sudo tee /sys/bus/pci/devices/0000:01:00.0/power/control >/dev/null 2>&1
+echo "on" | sudo tee /sys/bus/pci/devices/0000:01:00.1/power/control >/dev/null 2>&1
+sleep 1
+
+# 2. 提前加载基础模块
+sudo modprobe nvidia
+sudo modprobe nvidia_modeset
+sudo modprobe nvidia_uvm
+
+# 函数：智能解绑与认领 (修复了声卡错绑 Bug)
+bind_to_driver() {
+  PCI_ID=$1
+  TARGET_DRIVER=$2
+
+  # 检查并解绑旧驱动
+  if [ -L "/sys/bus/pci/devices/$PCI_ID/driver" ]; then
+    CURRENT_DRIVER=$(basename $(readlink /sys/bus/pci/devices/$PCI_ID/driver))
+    if [ "$CURRENT_DRIVER" != "$TARGET_DRIVER" ]; then
+      echo "设备 $PCI_ID 当前被 $CURRENT_DRIVER 占用，正在解绑..."
+      echo "$PCI_ID" | sudo tee /sys/bus/pci/drivers/$CURRENT_DRIVER/unbind >/dev/null
+    fi
+  fi
+
+  # 打上目标驱动的钢印并探测
+  echo "$TARGET_DRIVER" | sudo tee /sys/bus/pci/devices/$PCI_ID/driver_override >/dev/null
+  echo "$PCI_ID" | sudo tee /sys/bus/pci/drivers_probe >/dev/null
+
+  # 探测完毕后，擦除钢印 (保持系统纯净)
+  echo "" | sudo tee /sys/bus/pci/devices/$PCI_ID/driver_override >/dev/null
+}
+
+# 3. 分别绑定显卡(nvidia)和声卡(snd_hda_intel) —— 绝对不能搞混！
+bind_to_driver "0000:01:00.0" "nvidia"
+bind_to_driver "0000:01:00.1" "snd_hda_intel"
+
+# 4. 显卡就位后，最后加载 DRM 模块 (确保生成 /dev/dri/card 节点)
+sudo modprobe nvidia_drm
+
+# 5. 恢复底层控制台文字输出 (修复关机/重启没有日志的问题)
+echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind >/dev/null 2>&1
+
+echo "唤醒流程完美结束！"
+
+```
+
+
+隔离显卡的脚本
+
 ```bash
+vim .config/hypr/scripts/VFIO_nvidia.sh 
+```
+
+写入如下内容
+
+```
+#!/bin/bash
+
 echo efi-framebuffer.0 | sudo tee /sys/bus/platform/drivers/efi-framebuffer/unbind
-```
 
-(如果提示找不到文件没关系，说明没绑。)
-
-停止所有隐形的显卡调用
-
-以防万一，确保后台没有专门的 NVIDIA 服务在跑：
-
-```bash
+# 停止 NVIDIA 服务
 sudo systemctl stop nvidia-persistenced.service 2>/dev/null
-```
 
-直接通过 sysfs 让内核驱动“松手”
-
-```bash
+# 解绑显卡与声卡
 echo "0000:01:00.0" | sudo tee /sys/bus/pci/drivers/nvidia/unbind
-```
-
-解绑成功了。
-
-然后交给vfio
-
-解绑声卡
-
-```
 echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers/snd_hda_intel/unbind 2>/dev/null
-```
 
-强塞给 VFIO
-
-```
+# 强塞给 VFIO 并探测
 echo "vfio-pci" | sudo tee /sys/bus/pci/devices/0000:01:00.0/driver_override
 echo "vfio-pci" | sudo tee /sys/bus/pci/devices/0000:01:00.1/driver_override
 echo "0000:01:00.0" | sudo tee /sys/bus/pci/drivers_probe
 echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers_probe
+
+# 确保控制台输出正常，不设置的话也没事，但是关机就不显示日志了
+echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind
 ```
+
+混合显卡模式下，hyprland会在开机后死死bang zhu
+
+
+
+
+
+
+
+
+
 
 
 
