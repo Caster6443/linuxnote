@@ -505,6 +505,57 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 
 
+## 显卡直通热切换
+
+将显卡解绑
+
+剥夺控制台的画面输出（清理 Framebuffer）
+有时候 N 卡还绑着底层的 EFI 帧缓冲（这也会阻止解绑）。咱们先把它踢掉：
+
+```bash
+echo 0 | sudo tee /sys/class/vtconsole/vtcon1/bind
+```
+
+```bash
+echo efi-framebuffer.0 | sudo tee /sys/bus/platform/drivers/efi-framebuffer/unbind
+```
+
+(如果提示找不到文件没关系，说明没绑。)
+
+停止所有隐形的显卡调用
+
+以防万一，确保后台没有专门的 NVIDIA 服务在跑：
+
+```bash
+sudo systemctl stop nvidia-persistenced.service 2>/dev/null
+```
+
+直接通过 sysfs 让内核驱动“松手”
+
+```bash
+echo "0000:01:00.0" | sudo tee /sys/bus/pci/drivers/nvidia/unbind
+```
+
+解绑成功了。
+
+然后交给vfio
+
+解绑声卡
+
+```
+echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers/snd_hda_intel/unbind 2>/dev/null
+```
+
+强塞给 VFIO
+
+```
+echo "vfio-pci" | sudo tee /sys/bus/pci/devices/0000:01:00.0/driver_override
+echo "vfio-pci" | sudo tee /sys/bus/pci/devices/0000:01:00.1/driver_override
+echo "0000:01:00.0" | sudo tee /sys/bus/pci/drivers_probe
+echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers_probe
+```
+
+
 
 
 
@@ -1342,6 +1393,8 @@ Cheatsheet {}
 ## Thunar动态配色
 
 待补充
+
+
 
 
 # openlist(集成文件管理器)
