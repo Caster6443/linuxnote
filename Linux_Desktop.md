@@ -507,7 +507,11 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 ## 显卡直通热切换
 
-开机前需要隔离显卡，如何隔离之前已经重复好多次了，在别的显卡直通章节有过程，在此省略，为什么写在hyprland章里面是因为这个涉及到hyprland的特殊问题，niri有别的处理方法
+**⚠️注意：有bug，如果有副屏，开机后有个问题，副屏能正常被hyprland识别并交互，但就是无法亮屏，只有虚拟机windows开机能让它亮屏，也就是说这样配置后就变成了windows独享副屏了，暂时还不确定是hyprland的问题还是wayland的问题又或者是我的问题，有空了再排查吧，因为我不怎么使用副屏**
+
+前置要求是开机前需要隔离显卡，如何隔离之前已经重复好多次了，在别的显卡直通章节有过程，在此省略，为什么写在hyprland章里面是因为这个涉及到hyprland的特殊问题，niri有别的处理方法
+
+混合显卡模式下，hyprland会在开机后死死绑住N卡，所以没法杀掉进程，hyprwiki给了一个环境变量，用于设置显卡加载的优先级，不过我试了没什么用，这里的方案是，每次开机都自动隔离显卡，加载hyprland后，用hyprland的exec运行绑定显卡到主机的脚本，这样hyprland抓得就没那么紧了
 
 编辑两个文件
 
@@ -523,17 +527,17 @@ vim .config/hypr/scripts/wake_nvidia.sh
 #!/bin/bash
 echo "开始安全唤醒 RTX 4060..."
 
-# 1. 强制通电 (笔记本防死锁核心，必须在操作前进行)
+# 强制通电 (笔记本防死锁核心，必须在操作前进行)
 echo "on" | sudo tee /sys/bus/pci/devices/0000:01:00.0/power/control >/dev/null 2>&1
 echo "on" | sudo tee /sys/bus/pci/devices/0000:01:00.1/power/control >/dev/null 2>&1
 sleep 1
 
-# 2. 提前加载基础模块
+# 提前加载基础模块
 sudo modprobe nvidia
 sudo modprobe nvidia_modeset
 sudo modprobe nvidia_uvm
 
-# 函数：智能解绑与认领 (修复了声卡错绑 Bug)
+# 函数：智能解绑与认领 
 bind_to_driver() {
   PCI_ID=$1
   TARGET_DRIVER=$2
@@ -555,17 +559,17 @@ bind_to_driver() {
   echo "" | sudo tee /sys/bus/pci/devices/$PCI_ID/driver_override >/dev/null
 }
 
-# 3. 分别绑定显卡(nvidia)和声卡(snd_hda_intel) —— 绝对不能搞混！
+# 分别绑定显卡(nvidia)和声卡(snd_hda_intel)
 bind_to_driver "0000:01:00.0" "nvidia"
 bind_to_driver "0000:01:00.1" "snd_hda_intel"
 
-# 4. 显卡就位后，最后加载 DRM 模块 (确保生成 /dev/dri/card 节点)
+# 显卡就位后，最后加载 DRM 模块 (确保生成 /dev/dri/card 节点)
 sudo modprobe nvidia_drm
 
-# 5. 恢复底层控制台文字输出 (修复关机/重启没有日志的问题)
+# 恢复底层控制台文字输出 (关于关机/重启没有日志的问题)
 echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind >/dev/null 2>&1
 
-echo "唤醒流程完美结束！"
+echo "唤醒流程结束！"
 
 ```
 
@@ -599,8 +603,6 @@ echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers_probe
 # 确保控制台输出正常，不设置的话也没事，但是关机就不显示日志了
 echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind
 ```
-
-混合显卡模式下，hyprland会在开机后死死绑住N卡，所以没法杀掉进程，hyprwiki给了一个环境变量，用于设置显卡加载的优先级，不过我试了没什么用，这里的方案是，每次开机都会自动隔离显卡，然后加载hyprland后，用hyprland的exec运行绑定显卡到主机的脚本，这样hyprland抓得就没那么紧了
 
 由于涉及大量sudo命令且需要hyprland给它自动化执行，因此需要设置这个脚本执行的免密sudo
 
@@ -642,28 +644,49 @@ sudo vim /etc/libvirt/hooks/qemu
 
 ```
 #!/bin/bash
-# 传入的参数依次是：虚拟机名称、操作类型、子操作类型
 VM_NAME="$1"
 OPERATION="$2"
 SUB_OPERATION="$3"
 
-# 这里填你 Virt-Manager 里显示的虚拟机名字（注意大小写）
+# 虚拟机名称
 TARGET_VM="win11"
+# 当前登录用户名，用于发送通知
+MY_USER="caster"
+USER_ID=$(id -u $MY_USER)
+
+# 让后台 root 进程跨界向桌面发送 notify-send
+send_notify() {
+    local urgency=$1
+    local msg=$2
+    # 指定 DBUS 地址并以普通用户身份执行 notify-send
+    sudo -u $MY_USER DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$USER_ID/bus" notify-send -u "$urgency" "🚀 虚>拟机直通" "$msg"
+}
 
 if [ "$VM_NAME" == "$TARGET_VM" ]; then
-    # 场景 1：点击启动，虚拟机准备运行前
     if [ "$OPERATION" == "prepare" ] && [ "$SUB_OPERATION" == "begin" ]; then
-        # 自动执行解绑脚本，把显卡交给 VFIO
+        # 启动前发通知
+        send_notify "normal" "正在隔离GPU..."
+
+        # 执行解绑脚本
         /home/caster/.config/hypr/scripts/VFIO_nvidia.sh
-        
-    # 场景 2：虚拟机彻底关机，释放资源后
+
+        # 剥离完成后再发一个高优先级通知
+        send_notify "critical" "GPU隔离成功, 准备启动Windows"
+
     elif [ "$OPERATION" == "release" ] && [ "$SUB_OPERATION" == "end" ]; then
-        # 延迟 3 秒，等内核彻底回收 PCIe 硬件锁
+        # 关机后发通知
+        send_notify "normal" "Windows 已关闭\n3秒后将GPU重新绑定到linux..."
+
         sleep 3
-        # 自动执行唤醒脚本，把显卡还给宿主机
+
+        # 执行绑定脚本
         /home/caster/.config/hypr/scripts/wake_nvidia.sh
+
+        # 归还完成后发通知
+        send_notify "critical" "GPU已重新绑定\n"
     fi
 fi
+exit 0
 ```
 
 添加执行权限
