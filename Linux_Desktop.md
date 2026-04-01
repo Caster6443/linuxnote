@@ -573,6 +573,11 @@ echo "唤醒流程结束！"
 
 ```
 
+添加执行权限
+
+```bash
+chmod +x .config/hypr/scripts/wake_nvidia.sh
+```
 
 隔离显卡的脚本
 
@@ -604,6 +609,12 @@ echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers_probe
 echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind
 ```
 
+添加执行权限
+
+```bash
+chmod +x .config/hypr/scripts/VFIO_nvidia.sh
+```
+
 由于涉及大量sudo命令且需要hyprland给它自动化执行，因此需要设置这个脚本执行的免密sudo
 
 编辑文件
@@ -618,10 +629,37 @@ sudo EDITOR=vim visudo
 caster ALL=(ALL) NOPASSWD: /home/caster/.config/hypr/scripts/wake_nvidia.sh
 ```
 
+为了防止重复注销登录hyprland导致重复执行脚本，这里选择使用另一个脚本调用它
+
+```bash
+vim .config/hypr/scripts/wake_once.sh
+```
+
+写入如下内容(注意用户名的修改)
+
+```shell
+#!/bin/bash
+
+if [ -f /tmp/nvidia_is_awake ]; then
+  echo "本次开机已经唤醒过显卡，跳过执行，防止死锁。"
+  exit 0
+fi
+
+sudo /home/caster/.config/hypr/scripts/wake_nvidia.sh
+
+touch /tmp/nvidia_is_awake
+```
+
+添加执行权限
+
+```bash
+chmod +x .config/hypr/scripts/wake_once.sh 
+```
+
 然后将这个脚本写进hyprland的配置文件的开机自动执行中
 
 ```
-exec-once = sudo ~/.config/hypr/scripts/wake_nvidia.sh
+exec-once = sudo ~/.config/hypr/scripts/wake_once.sh
 ```
 
 需要切换显卡归属时运行对应脚本即可，我不想统一成一个脚本，因为下面要做自动化
