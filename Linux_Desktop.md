@@ -2,7 +2,7 @@
 
 大多数的配置都是通过修改 hyprland 的配置文件~/.config/hypr/hyprland.conf实现的  
 
-建议将动画，窗口规则，绑定键位等设置独立出一个文件，并将各种值在一个文件中声明变量初始化并调用
+建议参考caelestia的配置文件布局设计，将动画，窗口规则，绑定键位等设置独立出一个文件，并将各种值在一个文件中声明变量初始化并调用
 
 ## 设置命令开机自启动
 
@@ -589,24 +589,102 @@ vim .config/hypr/scripts/VFIO_nvidia.sh
 
 ```
 #!/bin/bash
+echo "====================================="
+echo "开始温和剥离 RTX 4060 并移交 VFIO..."
+echo "====================================="
 
-echo efi-framebuffer.0 | sudo tee /sys/bus/platform/drivers/efi-framebuffer/unbind
+# 拔掉 EFI 帧缓冲的显示输出权
+echo efi-framebuffer.0 | tee /sys/bus/platform/drivers/efi-framebuffer/unbind >/dev/null 2>&1
 
-# 停止 NVIDIA 服务
-sudo systemctl stop nvidia-persistenced.service 2>/dev/null
+# 停止 NVIDIA 常驻服务
+systemctl stop nvidia-persistenced.service 2>/dev/null
+
+echo "正在检测是否有进程占用 N 卡..."
+
+NV_PCI="0000:01:00.0"
+TARGET_DEVS="/dev/nvidia* /dev/nvidia-modeset /dev/nvidia-uvm"
+
+# 动态获取当前 N 卡分配的 DRM 节点
+if [ -d "/sys/bus/pci/devices/${NV_PCI}/drm" ]; then
+  for node in $(ls /sys/bus/pci/devices/${NV_PCI}/drm 2>/dev/null); do
+    TARGET_DEVS="$TARGET_DEVS /dev/dri/$node"
+  done
+fi
+
+# 抓取 fuser 输出，并用 grep 严格过滤出纯数字 PID
+PIDS_LIST=$(fuser $TARGET_DEVS 2>/dev/null | grep -Eo '[0-9]+' | sort -u)
+
+DANGER_PIDS=""
+DANGER_NAMES=""
+
+if [ -n "$PIDS_LIST" ]; then
+  for pid in $PIDS_LIST; do
+    pname=$(ps -p $pid -o comm= 2>/dev/null)
+
+    # 系统基础进程和桌面环境属于被动占用，强剥不影响，直接放行
+    if [[ "$pname" != "systemd" && "$pname" != "systemd-logind" && "$pname" != "Hyprland" ]]; then
+      DANGER_PIDS="$DANGER_PIDS $pid"
+      DANGER_NAMES="$DANGER_NAMES $pname"
+    fi
+  done
+fi
+
+# 只有当发现“非白名单”的危险流氓软件时，才阻断流程
+if [ -n "$DANGER_PIDS" ]; then
+  echo "❌ 发现 N 卡被高危进程占用，拒绝强行剥离："
+
+  # 整理名字去重并加逗号，适应 ps 格式和弹窗展示
+  APP_NAMES=$(echo "$DANGER_NAMES" | tr ' ' '\n' | sort -u | paste -sd, - | sed 's/,/, /g')
+
+  # 万一拿不到名字，打印 PID
+  if [ -z "$APP_NAMES" ]; then
+    APP_NAMES="未知残留进程 (PID: $DANGER_PIDS)"
+  fi
+
+  echo "占用进程: $APP_NAMES"
+
+  # 弹出警告并终止
+  sudo -u caster DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u caster)/bus" notify-send -u critical "⚠️ 显卡占用中" "直通被阻断！请手动关闭以下程序后重试：
+👉 $APP_NAMES"
+  exit 1
+else
+  echo "✅ 检测通过：当前处于空闲状态，或仅有系统基础进程挂载，允许安全剥离！"
+fi
+
+MAX_TRIES=5
+for ((i = 1; i <= MAX_TRIES; i++)); do
+  echo "尝试卸载 NVIDIA 模块 (第 $i 次)..."
+  modprobe -r nvidia_drm nvidia_uvm nvidia_modeset nvidia 2>/dev/null
+
+  if ! lsmod | grep -q "^nvidia "; then
+    echo "✅ 模块彻底卸载成功！"
+    break
+  fi
+  sleep 1
+done
+
+if lsmod | grep -q "^nvidia "; then
+  echo "⚠️ 提示：因为存在系统进程 (systemd等) 保底挂载，NVIDIA 模块未完全卸载。"
+  echo "👉 但已确认无高危渲染进程，将执行安全强行剥离..."
+fi
 
 # 解绑显卡与声卡
-echo "0000:01:00.0" | sudo tee /sys/bus/pci/drivers/nvidia/unbind
-echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers/snd_hda_intel/unbind 2>/dev/null
+echo "正在从 NVIDIA 驱动解绑设备..."
+echo "0000:01:00.0" | tee /sys/bus/pci/drivers/nvidia/unbind >/dev/null 2>&1
+echo "0000:01:00.1" | tee /sys/bus/pci/drivers/snd_hda_intel/unbind >/dev/null 2>&1
 
 # 强塞给 VFIO 并探测
-echo "vfio-pci" | sudo tee /sys/bus/pci/devices/0000:01:00.0/driver_override
-echo "vfio-pci" | sudo tee /sys/bus/pci/devices/0000:01:00.1/driver_override
-echo "0000:01:00.0" | sudo tee /sys/bus/pci/drivers_probe
-echo "0000:01:00.1" | sudo tee /sys/bus/pci/drivers_probe
+echo "正在将设备移交至 VFIO..."
+echo "vfio-pci" | tee /sys/bus/pci/devices/0000:01:00.0/driver_override >/dev/null
+echo "vfio-pci" | tee /sys/bus/pci/devices/0000:01:00.1/driver_override >/dev/null
+echo "0000:01:00.0" | tee /sys/bus/pci/drivers_probe >/dev/null
+echo "0000:01:00.1" | tee /sys/bus/pci/drivers_probe >/dev/null
 
-# 确保控制台输出正常，不设置的话也没事，但是关机就不显示日志了
-echo 1 | sudo tee /sys/class/vtconsole/vtcon1/bind
+# 确保控制台输出正常
+echo 1 | tee /sys/class/vtconsole/vtcon1/bind >/dev/null 2>&1
+
+echo "✅ VFIO 绑定完成，显卡已准备好直通！"
+
 ```
 
 添加执行权限
@@ -682,49 +760,77 @@ sudo vim /etc/libvirt/hooks/qemu
 
 ```
 #!/bin/bash
+# 全局日志记录，方便排错 
+exec >> /var/log/libvirt_vfio_hook.log 2>&1
+set -x
+
 VM_NAME="$1"
 OPERATION="$2"
 SUB_OPERATION="$3"
 
 # 虚拟机名称
 TARGET_VM="win11"
-# 当前登录用户名，用于发送通知
+# 当前登录用户名，用于发送桌面通知
 MY_USER="caster"
 USER_ID=$(id -u $MY_USER)
+# 定义状态标记文件路径 (用于区分是正常关机，还是开机失败后的自动清理)
+STATE_FLAG="/tmp/vfio_gpu_isolated"
 
-# 让后台 root 进程跨界向桌面发送 notify-send
+# 让后台 root 进程跨界向桌面发送通知
 send_notify() {
     local urgency=$1
     local msg=$2
-    # 指定 DBUS 地址并以普通用户身份执行 notify-send
-    sudo -u $MY_USER DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$USER_ID/bus" notify-send -u "$urgency" "🚀 虚>拟机直通" "$msg"
+    sudo -u $MY_USER DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$USER_ID/bus" notify-send -u "$urgency" "🚀 虚拟机直通" "$msg"
 }
 
 if [ "$VM_NAME" == "$TARGET_VM" ]; then
     if [ "$OPERATION" == "prepare" ] && [ "$SUB_OPERATION" == "begin" ]; then
-        # 启动前发通知
-        send_notify "normal" "正在隔离GPU..."
-
-        # 执行解绑脚本
-        /home/caster/.config/hypr/scripts/VFIO_nvidia.sh
-
-        # 剥离完成后再发一个高优先级通知
-        send_notify "critical" "GPU隔离成功, 准备启动Windows"
-
+        send_notify "normal" "正在检查并隔离 GPU..."
+        
+        # 每次准备前，先清理掉可能残留的旧标记
+        rm -f "$STATE_FLAG"
+        
+        # 执行解绑脚本，并严格检查其退出状态
+        if ! /home/caster/.config/hypr/scripts/VFIO_nvidia.sh; then
+            send_notify "critical" "❌ GPU 隔离中止，已取消启动！\n详情请查看日志: /var/log/libvirt_vfio_hook.log"
+            exit 1 
+        fi
+        
+        # 剥离成功了，留下一个成功的标记！
+        touch "$STATE_FLAG"
+        send_notify "critical" "✅ GPU 隔离成功, 准备启动 Windows"
+        
     elif [ "$OPERATION" == "release" ] && [ "$SUB_OPERATION" == "end" ]; then
-        # 关机后发通知
-        send_notify "normal" "Windows 已关闭\n3秒后将GPU重新绑定到linux..."
-
+        
+        # 检查是真关机，还是失败后的自动清理
+        if [ -f "$STATE_FLAG" ]; then
+            # 标记存在，说明经历了完整的开机关机流程
+            send_notify "normal" "Windows 已关闭\n3秒后将 GPU 重新绑定到 Linux..."
+            rm -f "$STATE_FLAG"  # 用完删掉
+            WAS_NORMAL_RUN=1
+        else
+            # 标记不存在，说明是开机失败触发的 Libvirt 强制清理
+            echo "检测到启动失败引发的自动清理，跳过关机通知，静默复原环境..."
+            WAS_NORMAL_RUN=0
+        fi
+        
+        # 留点时间给系统释放句柄
         sleep 3
-
-        # 执行绑定脚本
-        /home/caster/.config/hypr/scripts/wake_nvidia.sh
-
-        # 归还完成后发通知
-        send_notify "critical" "GPU已重新绑定\n"
+        
+        # 执行唤醒/绑定脚本
+        if ! /home/caster/.config/hypr/scripts/wake_nvidia.sh; then
+            send_notify "critical" "❌ GPU 重新绑定失败！\n请务必检查日志: /var/log/libvirt_vfio_hook.log"
+            exit 1
+        fi
+        
+        # 如果是正常关机，还原成功后再发个通知
+        if [ "$WAS_NORMAL_RUN" == "1" ]; then
+            send_notify "critical" "✅ GPU 已重新绑定"
+        fi
     fi
 fi
 exit 0
+
 ```
 
 添加执行权限
