@@ -1136,6 +1136,51 @@ visibilities.overview = false; // 点击屏幕其他地方时，自动关闭 ove
 
 3.为 Overview 穿上“抽屉滑轨”外衣
 
+编辑文件
+
+```
+nvim modules/overview/Wrapper.qml
+```
+
+ 文件内容依旧放在dotfile仓库里
+
+
+4.把 Overview 挂载到主排版界面上
+
+```
+nvim modules/drawers/Panels.qml
+```
+
+在顶部加一行引用
+
+```
+import qs.modules.overview as Overview
+```
+
+在底部加上装配代码，把 Overview 抽屉贴在屏幕最左边（Bar的旁边）
+
+```
+    Overview.Wrapper {
+        id: overview
+        visibilities: root.visibilities
+        panels: root
+
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+    }
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
