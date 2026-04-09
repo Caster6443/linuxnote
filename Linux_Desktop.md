@@ -1091,6 +1091,60 @@ Cheatsheet {}
 然后重启桌面即可
 
 
+## Overview
+
+做了一个overview的功能，涉及的相关文件有
+新增了 modules/overview及其下面的所有文件， services/HyprlandData.qml文件，依旧修改了shell.qml文件
+
+接下来想彻底集成进caelestia里面
+
+```shell
+cd ~/.config/quickshell/caelestia/
+```
+
+1.注册全局状态
+
+```shell
+nvim components/DrawerVisibilities.qml
+```
+
+按照格式在下面加上
+
+```
+property bool overview
+```
+
+2.接管点击空白关闭 & 键盘焦点
+
+```shell
+nvim modules/drawers/Drawers.qml
+```
+
+找到HyprlandFocusGrab那一区块的定义，在字段active的值的末尾追加上
+
+```
+|| visibilities.overview
+```
+
+在字段onCleared里面新增一行
+
+```
+visibilities.overview = false; // 点击屏幕其他地方时，自动关闭 overview
+```
+
+
+
+3.为 Overview 穿上“抽屉滑轨”外衣
+
+
+
+
+
+
+
+
+
+
 
 
 
