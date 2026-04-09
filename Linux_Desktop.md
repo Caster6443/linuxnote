@@ -1171,12 +1171,40 @@ import qs.modules.overview as Overview
     }
 ```
 
+编辑文件
 
+```
+nvim modules/drawers/Interactions.qml 
+```
 
+`function inBottomPanel` 这一行 。在它**下面**加入一个新的判定函数
 
+```
+    function inOverviewPanel(panel: Item, x: real, y: real): bool {
+        return x >= bar.implicitWidth && x <= bar.implicitWidth + panel.width + Config.border.rounding && withinPanelHeight(panel, x, y);
+    }
 
+```
 
+往下翻，找到 `onPositionChanged: event => {` 这一大块，可以在 **`// Show utilities on hover`** 这一块的**上面**（大概在第 112 行附近） ，插入 Overview 的手势控制代码
 
+```
+        const outOfOverview = x > bar.implicitWidth + panels.overview.width;
+
+        // 悬浮显示/隐藏逻辑 (如果在区域内就显示，离开就隐藏)
+        const showOverview = !outOfOverview && inOverviewPanel(panels.overview, x, y);
+        visibilities.overview = showOverview;
+
+        // 拖拽划出逻辑 (如果在屏幕最左侧按住并向右拖拽)
+        if (pressed && dragStart.x <= bar.implicitWidth + 20) { // 20是触发边缘的容差
+            if (dragX > 50) { // 拖拽超过50像素就触发 (相当于Config.xxx.dragThreshold)
+                visibilities.overview = true;
+            } else if (dragX < -50) {
+                visibilities.overview = false;
+            }
+        }
+
+```
 
 
 
