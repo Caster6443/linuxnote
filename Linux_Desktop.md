@@ -1091,10 +1091,6 @@ Cheatsheet {}
 然后重启桌面即可
 
 
-## Overview
-
-做了一个overview的功能，涉及的相关文件有
-新增了 modules/overview及其下面的所有文件， services/HyprlandData.qml文件，依旧修改了shell.qml文件
 
 
 
