@@ -854,6 +854,39 @@ sudo systemctl restart libvirtd
 
 
 
+# 闭源驱动换开源
+
+```bash
+sudo vim /etc/modprobe.d/disable-nvidia.conf
+```
+
+写入如下内容
+
+```
+blacklist nvidia
+blacklist nvidia_drm
+blacklist nvidia_modeset
+blacklist nvidia_uvm
+```
+
+放出开源驱动nouveau
+
+```bash
+grep -rn "blacklist nouveau" /etc/modprobe.d/ /usr/lib/modprobe.d/
+```
+
+将找到的文件的相关内容注释
+
+
+
+
+
+
+
+
+
+
+
 
 
 
