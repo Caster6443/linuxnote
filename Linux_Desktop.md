@@ -597,10 +597,53 @@ ls /usr/share/glvnd/egl_vendor.d/
 
 注意: 每行开头的那段数字比如`01:00.0`就是`PCI ID`，
 
+```bash
+ls -l /sys/class/drm/card*/device/driver
+ls -l /sys/class/drm/render*/device/driver
+```
 
+运行这个命令，看箭头后面指向的驱动名。 指向 **amdgpu** 或 **i915/xe** 的就是你的核显； 指向 **nvidia** 的就是你的独显。 记下左边的 `card0` 或 `card1`
 
+可以参考我的命令执行结果
 
+```
+/sys/class/drm/card0/device/driver:
+lrwxrwxrwx    - root 13 4月  20:54  0000:01:00.0 -> ../../../../devices/pci0000:00/0000:00:01.1/0000:01:00.0
+lrwxrwxrwx    - root 13 4月  20:54  module -> ../../../../module/nvidia
+.-w------- 4.1k root 13 4月  20:54 󰡯 bind
+.-w------- 4.1k root 13 4月  20:54 󰡯 new_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 remove_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 uevent
+.-w------- 4.1k root 13 4月  20:54 󰡯 unbind
 
+/sys/class/drm/card1/device/driver:
+lrwxrwxrwx    - root 13 4月  20:54  0000:66:00.0 -> ../../../../devices/pci0000:00/0000:00:08.1/0000:66:00.0
+lrwxrwxrwx    - root 13 4月  19:58  module -> ../../../../module/amdgpu
+.-w------- 4.1k root 13 4月  20:54 󰡯 bind
+.-w------- 4.1k root 13 4月  20:54 󰡯 new_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 remove_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 uevent
+.-w------- 4.1k root 13 4月  20:54 󰡯 unbind
+/sys/class/drm/renderD128/device/driver:
+lrwxrwxrwx    - root 13 4月  20:54  0000:66:00.0 -> ../../../../devices/pci0000:00/0000:00:08.1/0000:66:00.0
+lrwxrwxrwx    - root 13 4月  19:58  module -> ../../../../module/amdgpu
+.-w------- 4.1k root 13 4月  20:54 󰡯 bind
+.-w------- 4.1k root 13 4月  20:54 󰡯 new_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 remove_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 uevent
+.-w------- 4.1k root 13 4月  20:54 󰡯 unbind
+
+/sys/class/drm/renderD129/device/driver:
+lrwxrwxrwx    - root 13 4月  20:54  0000:01:00.0 -> ../../../../devices/pci0000:00/0000:00:01.1/0000:01:00.0
+lrwxrwxrwx    - root 13 4月  20:54  module -> ../../../../module/nvidia
+.-w------- 4.1k root 13 4月  20:54 󰡯 bind
+.-w------- 4.1k root 13 4月  20:54 󰡯 new_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 remove_id
+.-w------- 4.1k root 13 4月  20:54 󰡯 uevent
+.-w------- 4.1k root 13 4月  20:54 󰡯 unbind
+```
+
+记下N卡的card号和render，这里我的是card0和renderD129
 
 
 
