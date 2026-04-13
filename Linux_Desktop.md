@@ -587,8 +587,15 @@ ls /usr/share/glvnd/egl_vendor.d/
 
 然后重新登录桌面(如果是选择修改uwsm-hyprland，注意要选择hyprland(uwsm)会话进入hyprland)
 
-编辑两个脚本
+我们先确认显卡
 
+```bash
+❯ lspci -nn | grep -E 'VGA|Display'
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation AD107M [GeForce RTX 4060 Max-Q / Mobile] [10de:28e0] (rev a1)
+66:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Phoenix1 [1002:15bf] (rev c1)
+```
+
+注意: 每行开头的那段数字比如`01:00.0`就是`PCI ID`，
 
 
 
