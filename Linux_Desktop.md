@@ -527,6 +527,9 @@ sudo pacman -Q uwsm
 
 可以使用 udev 规则创建指向特定设备卡的可靠符号链接。例如，要在路径 `/dev/dri/amd-igpu` 下创建指向 AMD 显卡的符号链接，我们可以创建一个 udev 规则。 通过编程方式修改 `/etc/udev/rules.d/amd-igpu-dev-path.rules` ，如下所示，直接在终端粘贴运行这段shell命令：
 
+如果是Intel用户，可以尝试把第三行改成
+`INTEL_IGPU_ID=$(lspci -d ::03xx | grep 'Intel' | cut -f1 -d' ')`
+
 ```bash
 SYMLINK_NAME="amd-igpu"
 RULE_PATH="/etc/udev/rules.d/amd-igpu-dev-path.rules"
@@ -575,12 +578,16 @@ export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/radeon_icd.x86_64.json"
 export __EGL_VENDOR_LIBRARY_FILENAMES="/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 ```
 
-这里指定了`Vulkan 驱动开关VK_ICD_FILENAMES`和`EGL 驱动开关__EGL_VENDOR_LIBRARY_FILENAMES`，如果是i卡集显用户，第二行的`radeon_icd.x86_64.json`可以尝试修改为`intel_icd.x86_64.json`，第三行保持不变，不过具体情况应当自行查看系统中存在的驱动 JSON 文件验证
+这里指定了`Vulkan 驱动开关VK_ICD_FILENAMES`和`EGL 驱动开关__EGL_VENDOR_LIBRARY_FILENAMES`，如果是i卡集显用户，第二行的`radeon_icd.x86_64.json`可以尝试修改为`intel_icd.x86_64.json`，第三行保持不变，不过具体情况应当自行查看系统中存在的驱动 JSON 文件名验证
 
 ```bash
 ls /usr/share/vulkan/icd.d/ 
 ls /usr/share/glvnd/egl_vendor.d/
 ```
+
+然后重新登录桌面(如果是选择修改uwsm-hyprland，注意要选择hyprland(uwsm)会话进入hyprland)
+
+编辑两个脚本
 
 
 
