@@ -519,13 +519,55 @@ sudo pacman -Q uwsm
 
 然后设置hyprland只在我的A卡上运行
 
-编辑这个文件
+### 为特定卡创建一致的设备路径
+
+参考资料`https://wiki.hypr.land/Configuring/Multi-GPU/#telling-hyprland-which-gpu-to-use`
+
+我们现在可以通过设置 `AQ_DRM_DEVICES` 环境变量来告诉 Hyprland 要使用哪些 GPU,另外不建议使用 `/dev/dri/card*` 设备路径，因为它们会定期更改所指向的符号链接设备。此外，实际卡设备路径中的冒号在 `AQ_DRM_DEVICES` 环境变量中无法使用，因为冒号 ( `:` 用作多个路径的分隔符。
+
+可以使用 udev 规则创建指向特定设备卡的可靠符号链接。例如，要在路径 `/dev/dri/amd-igpu` 下创建指向 AMD 显卡的符号链接，我们可以创建一个 udev 规则。 通过编程方式修改 `/etc/udev/rules.d/amd-igpu-dev-path.rules` ，如下所示，直接在终端粘贴运行这段shell命令：
+
+```bash
+SYMLINK_NAME="amd-igpu"
+RULE_PATH="/etc/udev/rules.d/amd-igpu-dev-path.rules"
+AMD_IGPU_ID=$(lspci -d ::03xx | grep 'AMD' | cut -f1 -d' ')
+UDEV_RULE="$(cat <<EOF
+KERNEL=="card*", \
+KERNELS=="0000:$AMD_IGPU_ID", \
+SUBSYSTEM=="drm", \
+SUBSYSTEMS=="pci", \
+SYMLINK+="dri/$SYMLINK_NAME"
+EOF
+)"
+
+echo "$UDEV_RULE" | sudo tee "$RULE_PATH"
+```
+
+如果shell语法不支持，比如fish，可以写进脚本里执行
+
+然后使用以下命令重新加载 udev 规则：
+
+```bash
+sudo udevadm control --reload
+sudo udevadm trigger
+```
+
+现在 `/dev/dri/amd-igpu` 应该有一个指向您显卡文件的符号链接：
+
+```bash
+❯ ls -l /dev/dri/amd-igpu
+lrwxrwxrwx - root 13 4月  19:57 󰡯 /dev/dri/amd-igpu -> card1
+```
+
+如果卡片文件发生更改，此符号链接将自动更新以指向正确的卡片文件。
+
+然后编辑这个文件添加环境变量，不想用uwsm启动hyprland的可以直接编辑hyprland配置文件(注意:uwsm与hyprland的配置文件的环境变量语法)
 
 ```bash
 vim .config/uwsm/env-hyprland
 ```
 
-写入如下内容，不想用uwsm启动hyprland的可以直接写进hyprland配置文件里
+写入如下内容
 
 ```
 export AQ_DRM_DEVICES="/dev/dri/amd-igpu"
