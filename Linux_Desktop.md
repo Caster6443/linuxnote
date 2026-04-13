@@ -561,7 +561,7 @@ lrwxrwxrwx - root 13 4月  19:57 󰡯 /dev/dri/amd-igpu -> card1
 
 如果卡片文件发生更改，此符号链接将自动更新以指向正确的卡片文件。
 
-然后编辑这个文件添加环境变量，不想用uwsm启动hyprland的可以直接编辑hyprland配置文件(注意:uwsm与hyprland的配置文件的环境变量语法)
+然后编辑这个文件添加环境变量，不想用uwsm启动hyprland的可以直接编辑hyprland配置文件(注意:uwsm与hyprland的配置文件的环境变量语法不同，如果选择编辑hyprland配置文件，应当自行修改)
 
 ```bash
 vim .config/uwsm/env-hyprland
@@ -575,9 +575,7 @@ export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/radeon_icd.x86_64.json"
 export __EGL_VENDOR_LIBRARY_FILENAMES="/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 ```
 
-这里指定了`Vulkan 驱动开关VK_ICD_FILENAMES`和`EGL 驱动开关__EGL_VENDOR_LIBRARY_FILENAMES`
-
-如果是其他独显，可以自行查看系统中存在的驱动 JSON 文件
+这里指定了`Vulkan 驱动开关VK_ICD_FILENAMES`和`EGL 驱动开关__EGL_VENDOR_LIBRARY_FILENAMES`，如果是i卡集显用户，第二行的`radeon_icd.x86_64.json`可以尝试修改为`intel_icd.x86_64.json`，第三行保持不变，不过具体情况应当自行查看系统中存在的驱动 JSON 文件验证
 
 ```bash
 ls /usr/share/vulkan/icd.d/ 
