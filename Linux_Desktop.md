@@ -511,14 +511,36 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 我是使用uwsm拉起的hyprland会话，感兴趣的可以使用这个
 
+```bash
+sudo pacman -Q uwsm
+```
 
+然后在显示管理器(例如sddm,gdm,ly等)选择hyprland(uwsm)会话启动即可
 
+然后设置hyprland只在我的A卡上运行
 
+编辑这个文件
 
+```bash
+vim .config/uwsm/env-hyprland
+```
 
+写入如下内容，不想用uwsm启动hyprland的可以直接写进hyprland配置文件里
 
+```
+export AQ_DRM_DEVICES="/dev/dri/amd-igpu"
+export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/radeon_icd.x86_64.json"
+export __EGL_VENDOR_LIBRARY_FILENAMES="/usr/share/glvnd/egl_vendor.d/50_mesa.json"
+```
 
+这里指定了`Vulkan 驱动开关VK_ICD_FILENAMES`和`EGL 驱动开关__EGL_VENDOR_LIBRARY_FILENAMES`
 
+如果是其他独显，可以自行查看系统中存在的驱动 JSON 文件
+
+```bash
+ls /usr/share/vulkan/icd.d/ 
+ls /usr/share/glvnd/egl_vendor.d/
+```
 
 
 
