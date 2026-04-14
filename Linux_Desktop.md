@@ -517,9 +517,9 @@ sudo pacman -S uwsm
 
 然后在显示管理器(例如sddm,gdm,ly等)选择hyprland(uwsm)会话启动即可
 
-然后设置hyprland只在我的A卡上运行
-
 ### 为特定卡创建一致的设备路径
+
+设置hyprland只在我的A卡上运行
 
 参考资料`https://wiki.hypr.land/Configuring/Multi-GPU/#telling-hyprland-which-gpu-to-use`
 
