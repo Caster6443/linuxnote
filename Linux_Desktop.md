@@ -517,6 +517,8 @@ sudo pacman -S uwsm
 
 然后在显示管理器(例如sddm,gdm,ly等)选择hyprland(uwsm)会话启动即可
 
+注意: 如果你是用的是一些x11的DM，比如sddm，需要配置sddm启用wayland会话，不然它会
+
 ### 为特定卡创建一致的设备路径
 
 设置hyprland只在我的A卡上运行
