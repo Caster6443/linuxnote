@@ -517,7 +517,7 @@ sudo pacman -S uwsm
 
 然后在显示管理器(例如sddm,gdm,ly等)选择hyprland(uwsm)会话启动即可
 
-注意: 如果你是用的是一些x11的DM，比如sddm，需要配置sddm启用wayland会话，不然它会
+**注意**：如果你的显示管理器（DM，比如 SDDM）**默认是在 X11 环境下运行登录界面的**，你需要配置它启用 Wayland 会话。不然它会在N卡上跑自己的xorg进程，如何启用参考archwiki的内容[SDDM - ArchWiki](https://wiki.archlinux.org/title/SDDM)
 
 ### 为特定卡创建一致的设备路径
 
