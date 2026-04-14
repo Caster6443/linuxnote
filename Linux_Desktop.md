@@ -589,7 +589,9 @@ ls /usr/share/glvnd/egl_vendor.d/
 
 然后重新登录桌面(如果是选择修改uwsm-hyprland，注意要选择hyprland(uwsm)会话进入hyprland)
 
-我们先确认显卡
+### 确认显卡ID
+
+运行这个命令
 
 ```bash
 ❯ lspci -nn | grep -E 'VGA|Display'
@@ -653,7 +655,7 @@ sudo fuser -v /dev/dri/card0 /dev/dri/renderD129
 
 注意修改对应的card和render，一般情况下，如果一切正常，这个命令不应该有任何输出内容
 
-然后我们就可以开始写解绑显卡的脚本了
+### 创建显卡解绑/绑定脚本
 
 执行命令
 
@@ -673,6 +675,7 @@ GPU_PCI="0000:01:00.0"
 AUD_PCI="0000:01:00.1"
 ```
 
+我们先写解绑显卡的脚本
 
 编辑文件
 
@@ -759,6 +762,8 @@ chmod +x ~/.config/hypr/scripts/bind_nvidia.sh
 ```
 
 这里之所以分成两个脚本而不是写成什么统一切换程序是为了下面做HOOK钩子自动化，让我们实现打开虚拟机自动解绑并使用显卡，关闭虚拟机自动绑回显卡到主机
+
+### 钩子HOOK自动化
 
 创建钩子工作目录
 
@@ -892,6 +897,8 @@ exit 0
 sudo chmod +x /etc/libvirt/hooks/qemu
 ```
 
+### 收尾
+
 重启libvirtd
 
 ```bash
@@ -907,6 +914,8 @@ env = VK_DRIVER_FILES,/usr/share/vulkan/icd.d/nvidia_icd.json
 # 如果是旧版加载器，可能需要这个（兼容性补丁）
 env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 ```
+
+### 总结
 
 我来解释一下为什么这么配置，以及我们配置的流程的基本原理
 
