@@ -645,7 +645,15 @@ lrwxrwxrwx    - root 13 4月  20:54  module -> ../../../../module/nvidia
 
 记下N卡的card号和render，这里我的是card0和renderD129
 
+```bash
+sudo fuser -v /dev/dri/card0 /dev/dri/renderD129
+```
 
+注意修改对应的card和render，一般情况下，如果一切正常，这个命令不应该有任何输出
+
+不过有时部分进程可以忽略，参考这些进程
+
+![](_resources/Linux_Desktop/f3362e3acc3fa8059d2c1a2a86a955ac_MD5.jpg)
 
 
 
