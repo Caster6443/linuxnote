@@ -792,7 +792,7 @@ DETACH_SCRIPT="/home/caster/.config/hypr/scripts/detach_nvidia.sh"
 BIND_SCRIPT="/home/caster/.config/hypr/scripts/bind_nvidia.sh"
 # ================================
 
-# urgency 可以是: low, normal, critical
+# urgency 可以自行修改为: low, normal, critical这三种之一，这取决于你想让钩子发送的通知是什么级别的信息
 send_notify() {
     local urgency=$1
     local msg=$2
@@ -905,6 +905,18 @@ env = VK_DRIVER_FILES,/usr/share/vulkan/icd.d/nvidia_icd.json
 # 如果是旧版加载器，可能需要这个（兼容性补丁）
 env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 ```
+
+我来解释一下为什么这么配置，以及我们配置的流程的基本原理
+
+- **启动阶段 (A 卡承载桌面)** 通过 DM (Display Manager) 使用 `uwsm` 启动 Hyprland 时，系统不传递任何 N 卡相关的环境变量。因此，Hyprland 进程本身会完全在 A 卡（核显）上完成初始化。这保证了桌面基础环境绝不会去占用 N 卡的任何资源或句柄。
+    
+- **变量加载阶段 (环境注入)** 在进入桌面的过程中，Hyprland 开始解析配置文件并加载内部环境变量。此时，虽然它“看见”了 N 卡变量并将其写入了自己的环境块中，但由于 Hyprland 自身的图形初始化已经完成，它依然安稳地跑在 A 卡上。
+    
+- **变量继承阶段 (应用调用 N 卡)** 后续你在桌面中打开的任何软件（如游戏、浏览器等），作为 Hyprland 的子进程，都会自动继承它环境块中的 N 卡变量。这些软件在启动时会遵循变量的指示，主动调用 N 卡进行渲染。
+
+我在钩子里配置了一个流程，它会解析正在占用N卡的进程名并报告给用户，让用户自己何时关闭这些进程，说人话就是虚拟机开机前，钩子会发系统通知提醒哪些应用在占用N卡(如果有的话)，让用户自行关闭这些应用然后再次打开虚拟机
+
+至此就完成了hyprland下的显卡直通热切换钩子自动化全流程
 
 
 
