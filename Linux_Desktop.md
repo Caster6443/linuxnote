@@ -512,7 +512,7 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 我是使用uwsm拉起的hyprland会话，感兴趣的可以使用这个
 
 ```bash
-sudo pacman -Q uwsm
+sudo pacman -S uwsm
 ```
 
 然后在显示管理器(例如sddm,gdm,ly等)选择hyprland(uwsm)会话启动即可
@@ -546,7 +546,7 @@ EOF
 echo "$UDEV_RULE" | sudo tee "$RULE_PATH"
 ```
 
-如果shell语法不支持，比如fish，可以写进脚本里执行
+如果shell语法不支持，比如fish，可以把这段命令写成脚本执行
 
 然后使用以下命令重新加载 udev 规则：
 
@@ -578,7 +578,7 @@ export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/radeon_icd.x86_64.json"
 export __EGL_VENDOR_LIBRARY_FILENAMES="/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 ```
 
-这里指定了`Vulkan 驱动开关VK_ICD_FILENAMES`和`EGL 驱动开关__EGL_VENDOR_LIBRARY_FILENAMES`，如果是i卡集显用户，第二行的`radeon_icd.x86_64.json`可以尝试修改为`intel_icd.x86_64.json`，第三行保持不变，不过具体情况应当自行查看系统中存在的驱动 JSON 文件名验证
+这里指定了`Vulkan 驱动开关VK_ICD_FILENAMES`和`EGL 驱动开关__EGL_VENDOR_LIBRARY_FILENAMES`，如果是i卡集显用户，第二行的`radeon_icd.x86_64.json`可以尝试修改为`intel_icd.x86_64.json`，第三行保持不变，不过具体情况应当自行查看系统中实际存在的驱动 JSON 文件名验证:
 
 ```bash
 ls /usr/share/vulkan/icd.d/ 
@@ -649,16 +649,42 @@ lrwxrwxrwx    - root 13 4月  20:54  module -> ../../../../module/nvidia
 sudo fuser -v /dev/dri/card0 /dev/dri/renderD129
 ```
 
-注意修改对应的card和render，一般情况下，如果一切正常，这个命令不应该有任何输出
+注意修改对应的card和render，一般情况下，如果一切正常，这个命令不应该有任何输出内容
 
-不过有时部分进程可以忽略，参考这些进程
+然后我们就可以开始写解绑显卡的脚本了
 
-![](_resources/Linux_Desktop/f3362e3acc3fa8059d2c1a2a86a955ac_MD5.jpg)
+编辑文件
 
+```bash
+vim .config/hypr/scripts/detach_nvidia.sh
+```
 
+写入如下内容
 
+```
+#!/bin/bash
 
+GPU_PCI="0000:01:00.0"
+AUD_PCI="0000:01:00.1"
 
+# 停止N卡电源和持久化服务，释放硬件控制权
+systemctl stop nvidia-powerd 2>/dev/null
+systemctl stop nvidia-persistenced 2>/dev/null
+
+# 从内核卸载NVIDIA全家桶驱动
+modprobe -r nvidia_drm nvidia_uvm nvidia_modeset nvidia 2>/dev/null
+
+# 将伴生声卡从系统原生音频驱动中强制剥离
+if [ -d "/sys/bus/pci/drivers/snd_hda_intel/$AUD_PCI" ]; then
+  echo "$AUD_PCI" >/sys/bus/pci/drivers/snd_hda_intel/unbind
+fi
+
+# 加载VFIO模块在后台待命，剩下的移交工作由Libvirt(managed=yes)自动完成
+modprobe vfio-pci
+
+```
+
+注意:这里并没有写绑定显卡到VFIO，因为显卡直通默认情况下，在虚拟机信息中，你添加的pci设备显卡的xml文件内容的`managed`的值默认是`yes`，设置为`yes`时，`libvirt`会主动去绑定`VFIO`。如果xml里面的值是`no`，改成`yes`即可
 
 
 
