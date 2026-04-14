@@ -653,13 +653,32 @@ sudo fuser -v /dev/dri/card0 /dev/dri/renderD129
 
 然后我们就可以开始写解绑显卡的脚本了
 
+执行命令
+
+```bash
+lspci -nn | grep -i nvidia
+```
+
+参考我的输出
+
+![](_resources/Linux_Desktop/d7601020826a6664ac98cf71515f427f_MD5.jpg)
+
+记住第一行和第二行开头的那段数字，它们下面将作为GPU_PCI和AUD_PCI的值
+，我这里记录下数值为
+
+```
+GPU_PCI="0000:01:00.0"
+AUD_PCI="0000:01:00.1"
+```
+
+
 编辑文件
 
 ```bash
 vim .config/hypr/scripts/detach_nvidia.sh
 ```
 
-写入如下内容
+写入如下内容(注意修改GPU_PCI和AUD_PCI的值为你上面记录的实际内容)
 
 ```
 #!/bin/bash
@@ -684,9 +703,48 @@ modprobe vfio-pci
 
 ```
 
-注意:这里并没有写绑定显卡到VFIO，因为显卡直通默认情况下，在虚拟机信息中，你添加的pci设备显卡的xml文件内容的`managed`的值默认是`yes`，设置为`yes`时，`libvirt`会主动去绑定`VFIO`。如果xml里面的值是`no`，改成`yes`即可
+注意:这里脚本并没有写绑定显卡到VFIO的步骤，因为显卡直通默认情况下，在虚拟机信息中，你添加的pci设备显卡(也就是直通的那个显卡)的xml文件内容的`managed`的值默认是`yes`，设置为`yes`时，`libvirt`会主动去绑定`VFIO`。如果xml里面的值是`no`，改成`yes`即可，不过嫌麻烦的话，可以修改脚本加上绑定VFIO的步骤
 
+然后我们再编辑一个绑定显卡回到主机的脚本
 
+```bash
+vim .config/hypr/scripts/bind_nvidia.sh
+```
+
+写入以下内容(注意上面修改GPU_PCI和AUD_PCI的值为记录的)
+
+```
+#!/bin/bash
+
+GPU_PCI="0000:01:00.0"
+AUD_PCI="0000:01:00.1"
+
+# 1. 清除所有的驱动覆写规则，防止后续绑定混乱
+echo "" >/sys/bus/pci/devices/$GPU_PCI/driver_override
+echo "" >/sys/bus/pci/devices/$AUD_PCI/driver_override
+
+# 2. 将显卡和声卡从 VFIO 驱动中剥离
+if [ -d "/sys/bus/pci/drivers/vfio-pci/$GPU_PCI" ]; then
+  echo "$GPU_PCI" >/sys/bus/pci/drivers/vfio-pci/unbind
+fi
+if [ -d "/sys/bus/pci/drivers/vfio-pci/$AUD_PCI" ]; then
+  echo "$AUD_PCI" >/sys/bus/pci/drivers/vfio-pci/unbind
+fi
+
+# 3. 重新加载 NVIDIA 驱动栈
+modprobe nvidia
+modprobe nvidia_drm
+modprobe nvidia_modeset
+modprobe nvidia_uvm
+
+# 4. 触发内核重新探测硬件，驱动正式接管设备
+echo "$GPU_PCI" >/sys/bus/pci/drivers_probe
+echo "$AUD_PCI" >/sys/bus/pci/drivers_probe
+
+# 5. (可选) 重新启动持久化服务，保持驱动就绪状态
+systemctl start nvidia-persistenced 2>/dev/null
+
+```
 
 
 
