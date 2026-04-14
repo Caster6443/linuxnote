@@ -649,6 +649,8 @@ lrwxrwxrwx    - root 13 4月  20:54  module -> ../../../../module/nvidia
 
 记下N卡的card号和render，这里我的是card0和renderD129
 
+然后查看有哪些进程在使用N卡
+
 ```bash
 sudo fuser -v /dev/dri/card0 /dev/dri/renderD129
 ```
@@ -929,7 +931,11 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 
 至此就完成了hyprland下的显卡直通热切换钩子自动化全流程, 如果要使用副屏的话，建议插在核显接口上而不是独显接口上
 
+另外如果发现显卡绑回主机后N卡上面出现了这个三个进程
 
+![](_resources/Linux_Desktop/05ba91abf879c6cbcd96c8b4e88e276c_MD5.jpg)
+
+这是正常现象不必理会，它们也不会干扰脚本和钩子的正常运行
 
 
 # Caelestia
