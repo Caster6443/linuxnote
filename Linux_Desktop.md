@@ -917,6 +917,7 @@ env = VK_DRIVER_FILES,/usr/share/vulkan/icd.d/nvidia_icd.json
 env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 ```
 
+然后重启桌面或者重启系统
 ### 总结
 
 我来解释一下为什么这么配置，以及我们配置的流程的基本原理
