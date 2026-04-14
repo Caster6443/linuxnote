@@ -884,9 +884,27 @@ fi
 exit 0
 ```
 
+添加执行权限
 
+```bash
+sudo chmod +x /etc/libvirt/hooks/qemu
+```
 
+重启libvirtd
 
+```bash
+sudo systemctl restart libvirtd
+```
+
+配置完成后，hyprland不会去主动摸N卡，但是有些需要使用N卡的应用也不会去主动使用N卡，如果想让它们使用N卡，配置启动时的命令行参数的方法较为繁琐，有时甚至需要指定N卡的vulkan驱动文件的具体位置，所以我们这里选择配置一个hyprland的环境变量一劳永逸
+
+编辑hyprland的配置文件并写入如下环境变量
+
+```
+env = VK_DRIVER_FILES,/usr/share/vulkan/icd.d/nvidia_icd.json
+# 如果是旧版加载器，可能需要这个（兼容性补丁）
+env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
+```
 
 
 
