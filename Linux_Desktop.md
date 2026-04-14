@@ -711,7 +711,7 @@ modprobe vfio-pci
 vim .config/hypr/scripts/bind_nvidia.sh
 ```
 
-写入以下内容(注意上面修改GPU_PCI和AUD_PCI的值为记录的)
+写入以下内容(注意修改GPU_PCI和AUD_PCI的值为上面记录的值)
 
 ```
 #!/bin/bash
@@ -746,13 +746,143 @@ systemctl start nvidia-persistenced 2>/dev/null
 
 ```
 
+为两个脚本添加执行权限
 
+```bash
+chmod +x ~/.config/hypr/scripts/detach_nvidia.sh
+```
 
+```bash
+chmod +x ~/.config/hypr/scripts/bind_nvidia.sh
+```
 
+这里之所以分成两个脚本而不是写成什么统一切换程序是为了下面做HOOK钩子自动化，让我们实现打开虚拟机自动解绑并使用显卡，关闭虚拟机自动绑回显卡到主机
 
+创建钩子工作目录
 
+```bash
+sudo mkdir -pv /etc/libvirt/hooks/
+```
 
+编辑文件
 
+```bash
+sudo vim /etc/libvirt/hooks/qemu
+```
+
+写入如下内容(注意修改TARGET_VM和MY_USER的值为你的实际虚拟机名称和linux桌面用户名)
+
+```
+#!/bin/bash
+# 全局日志记录，方便排错
+exec >> /var/log/libvirt_vfio_hook.log 2>&1
+set -x
+
+VM_NAME="$1"
+OPERATION="$2"
+SUB_OPERATION="$3"
+
+# ========== 用户配置区 ==========
+TARGET_VM="win11"
+MY_USER="caster"
+USER_ID=$(id -u $MY_USER)
+STATE_FLAG="/tmp/vfio_gpu_isolated"
+
+DETACH_SCRIPT="/home/caster/.config/hypr/scripts/detach_nvidia.sh"
+BIND_SCRIPT="/home/caster/.config/hypr/scripts/bind_nvidia.sh"
+# ================================
+
+# urgency 可以是: low, normal, critical
+send_notify() {
+    local urgency=$1
+    local msg=$2
+    sudo -u $MY_USER DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$USER_ID/bus" notify-send -u "$urgency" "🎮 直通助理" "$msg"
+}
+
+if [ "$VM_NAME" == "$TARGET_VM" ]; then
+    if [ "$OPERATION" == "prepare" ] && [ "$SUB_OPERATION" == "begin" ]; then
+        
+        # 每次准备前，先清理掉可能残留的旧标记
+        rm -f "$STATE_FLAG"
+        
+	# ----------------------------------------------------
+        # 定位 N 卡并检查占用
+        # ----------------------------------------------------
+        # 先确保 NVIDIA 服务停止
+        systemctl stop nvidia-powerd 2>/dev/null
+        systemctl stop nvidia-persistenced 2>/dev/null
+        sleep 1 # 等待 1 秒让它们彻底释放文件句柄
+        
+        NVIDIA_DRM_NODE=$(ls -l /sys/class/drm/renderD*/device/driver/module 2>/dev/null | grep nvidia | grep -o 'renderD[0-9]*' | head -n 1)
+        
+        CHECK_NODES="/dev/nvidia*"
+        if [ -n "$NVIDIA_DRM_NODE" ]; then
+            CHECK_NODES="$CHECK_NODES /dev/dri/$NVIDIA_DRM_NODE"
+        fi
+        
+        # 抓出正在摸这些节点的进程 PID
+        OCCUPYING_PIDS=$(fuser $CHECK_NODES 2>/dev/null)
+        
+        if [ -n "$OCCUPYING_PIDS" ]; then
+            # 将空格分隔的 PID 列表转换成逗号分隔 (去除首尾多余空格)
+            CLEAN_PIDS=$(echo $OCCUPYING_PIDS | xargs | tr ' ' ',')
+            
+            # 把 PID 转换成具体的软件名称
+            APP_NAMES=$(ps -p $CLEAN_PIDS -o comm= 2>/dev/null | sort -u | paste -sd ", ")
+            
+            # 如果进程名字获取失败，直接显示 PID
+            if [ -z "$APP_NAMES" ]; then
+                APP_NAMES="未知进程 (PID: $CLEAN_PIDS)"
+            fi
+            
+            # 弹红色警告，并取消启动
+            send_notify "critical" "⚠️ 发现 N 卡正在被使用！\n请先关闭以下应用后重试：\n<b>$APP_NAMES</b>"
+            echo "GPU is occupied by: $APP_NAMES. Aborting VM startup."
+            exit 1 
+        fi
+        # ----------------------------------------------------
+
+        send_notify "normal" "正在隔离 GPU..."
+        
+        # 执行解绑脚本
+        if ! $DETACH_SCRIPT; then
+            send_notify "critical" "❌ GPU 隔离失败，已取消启动！\n详情请查看日志: /var/log/libvirt_vfio_hook.log"
+            exit 1 
+        fi
+        
+        # 剥离成功，留下标记
+        touch "$STATE_FLAG"
+        send_notify "normal" "✅ GPU 隔离成功，Windows 启动中..."
+        
+    elif [ "$OPERATION" == "release" ] && [ "$SUB_OPERATION" == "end" ]; then
+        
+        # 检查是真关机，还是失败后的自动清理
+        if [ -f "$STATE_FLAG" ]; then
+            send_notify "normal" "Windows 已关闭，正在交还 GPU..."
+            rm -f "$STATE_FLAG"  # 用完删掉
+            WAS_NORMAL_RUN=1
+        else
+            echo "检测到启动失败引发的自动清理，跳过关机通知，静默复原环境..."
+            WAS_NORMAL_RUN=0
+        fi
+        
+        # 留点时间给系统释放句柄
+        sleep 3
+        
+        # 执行绑回脚本
+        if ! $BIND_SCRIPT; then
+            send_notify "critical" "❌ GPU 重新绑定失败！\n请务必检查日志: /var/log/libvirt_vfio_hook.log"
+            exit 1
+        fi
+        
+        # 如果是正常关机，还原成功后再发个友好通知
+        if [ "$WAS_NORMAL_RUN" == "1" ]; then
+            send_notify "normal" "✅ GPU 已成功交还宿主机"
+        fi
+    fi
+fi
+exit 0
+```
 
 
 
