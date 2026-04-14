@@ -564,7 +564,9 @@ lrwxrwxrwx - root 13 4月  19:57 󰡯 /dev/dri/amd-igpu -> card1
 
 如果卡片文件发生更改，此符号链接将自动更新以指向正确的卡片文件。
 
-然后编辑这个文件添加环境变量，不想用uwsm启动hyprland的可以直接编辑hyprland配置文件(注意:uwsm与hyprland的配置文件的环境变量语法不同，如果选择编辑hyprland配置文件，应当自行修改)
+### 编辑环境变量
+
+编辑这个文件添加环境变量，不想用uwsm启动hyprland的可以直接编辑hyprland配置文件(注意:uwsm与hyprland的配置文件的环境变量语法不同，如果选择编辑hyprland配置文件，应当自行修改)
 
 ```bash
 vim .config/uwsm/env-hyprland
