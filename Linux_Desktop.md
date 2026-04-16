@@ -5345,7 +5345,13 @@ bash -c $curl --fail --show-error --silent --location https://raw.githubusercont
 
 用 hyprland 发现一个终端即使不关闭，只要一段时间不 sudo，就要我重复输入密码，很烦人，顺便再设置一下首次 sudo 后无论在哪个终端半小时内都不用再次输入密码  
 
+如果现在已经密码锁定了，可以尝试切换到别的终端，运行一下命令清空指定用户的密码失败记录
+
+```bash
+faillock --user 你的用户名 --reset
 ```
+
+```bash
 sudo EDITOR=vim visudo -f /etc/sudoers.d/99-custom-timeout  
 ```
 
