@@ -509,7 +509,7 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 
 首先需要设置环境变量，让hyprland不要在N卡上跑进程
 
-我是使用uwsm拉起的hyprland会话，感兴趣的可以使用这个
+我是使用uwsm拉起的hyprland会话，建议使用这个
 
 ```bash
 sudo pacman -S uwsm
