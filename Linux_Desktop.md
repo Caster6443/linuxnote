@@ -941,6 +941,30 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 这是正常现象不必理会，它们也不会干扰脚本和钩子的正常运行
 
 
+# 开机动画自定义
+
+1.创建工作目录
+
+```bash
+mkdir -p ~/my_boot_theme && cd ~/my_boot_theme
+```
+
+将想要用于播放的视频放在该目录下
+
+2.用 ffmpeg 提取图片
+
+```bash
+ffmpeg -i 你的视频.mp4 -vf "fps=30,scale=-1:1080" frame-%d.png
+```
+
+3.看一下总共有多少张图片
+
+```bash
+ls -1 | grep png | wc -l
+```
+
+
+
 # Caelestia
 
 这是一个hyprland的一个dot项目，我在用
