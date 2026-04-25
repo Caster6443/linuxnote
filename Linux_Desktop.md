@@ -984,7 +984,7 @@ pip install --upgrade pip
 pip install marker-pdf
 ```
 
-出于arch系滚动更新的原因，有时会因为某个组件比如Pillow版本太新导致安装过程报错，如果出现报错，需要设置环境变量
+出于arch系滚动更新的原因，有时会因为某个组件比如Pillow版本太新导致安装过程报错，如果出现这类报错，需要设置环境变量
 
 ```bash
 export CFLAGS="-Wno-error=incompatible-pointer-types"
@@ -997,6 +997,14 @@ set -x CFLAGS "-Wno-error=incompatible-pointer-types"
 ```
 
 然后重新执行安装命令即可
+
+5.如何使用
+
+```bash
+marker_single "PDF文件路径" --output_dir 文件保存路径(可重命名)
+```
+
+它会自动检测到显卡并开启显卡加速
 
 
 # Caelestia
