@@ -940,7 +940,49 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 
 这是正常现象不必理会，它们也不会干扰脚本和钩子的正常运行
 
+# PDF转MD
 
+为了方便我看资料时集成AI阅读,这里选择安装Marker
+
+1.安装系统依赖
+
+```bash
+sudo pacman -S --needed python-pip python-virtualenv file hdf5
+```
+
+2.建立并激活虚拟环境
+
+```bash
+mkdir -p ~/marker_tool && cd ~/marker_tool
+```
+
+```bash
+python -m venv venv
+```
+
+激活虚拟环境
+
+```bash
+source venv/bin/activate
+```
+
+如果是fish，运行另一段命令
+
+```fish
+source venv/bin/activate.fish
+```
+
+3.升级 pip
+
+```bash
+pip install --upgrade pip
+```
+
+4.安装Marker
+
+```shell
+pip install marker-pdf
+```
 
 
 # Caelestia
