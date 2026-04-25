@@ -984,6 +984,18 @@ pip install --upgrade pip
 pip install marker-pdf
 ```
 
+出于arch系滚动更新的原因，有时会因为某个组件比如Pillow版本太新导致安装过程报错，如果出现报错，需要设置环境变量
+
+```bash
+export CFLAGS="-Wno-error=incompatible-pointer-types"
+```
+
+如果是fish，使用另一行命令设置环境变量
+
+```
+set -x CFLAGS "-Wno-error=incompatible-pointer-types"
+```
+
 
 # Caelestia
 
