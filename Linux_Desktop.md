@@ -992,9 +992,11 @@ export CFLAGS="-Wno-error=incompatible-pointer-types"
 
 如果是fish，使用另一行命令设置环境变量
 
-```
+```fish
 set -x CFLAGS "-Wno-error=incompatible-pointer-types"
 ```
+
+然后重新执行安装命令即可
 
 
 # Caelestia
