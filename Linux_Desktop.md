@@ -525,7 +525,7 @@ sudo pacman -S uwsm
 
 参考资料`https://wiki.hypr.land/Configuring/Multi-GPU/#telling-hyprland-which-gpu-to-use`
 
-我们现在可以通过设置 `AQ_DRM_DEVICES` 环境变量来告诉 Hyprland 要使用哪些 GPU,另外不建议使用 `/dev/dri/card*` 设备路径，因为它们会定期更改所指向的符号链接设备。此外，实际卡设备路径中的冒号在 `AQ_DRM_DEVICES` 环境变量中无法使用，因为冒号 ( `:` 用作多个路径的分隔符。
+我们现在可以通过设置 `AQ_DRM_DEVICES` 环境变量来告诉 Hyprland 要使用哪些 GPU,另外不建议使用 `/dev/dri/card*` 设备路径，因为它们会定期更改所指向的符号链接设备。此外，实际卡设备路径中的冒号在 `AQ_DRM_DEVICES` 环境变量中无法使用，因为冒号  `:` 用作多个路径的分隔符。
 
 可以使用 udev 规则创建指向特定设备卡的可靠符号链接。例如，要在路径 `/dev/dri/amd-igpu` 下创建指向 AMD 显卡的符号链接，我们可以创建一个 udev 规则。 通过编程方式修改 `/etc/udev/rules.d/amd-igpu-dev-path.rules` ，如下所示，直接在终端粘贴运行这段shell命令：
 
