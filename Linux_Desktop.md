@@ -1311,6 +1311,13 @@ QT_QPA_PLATFORM=xcb QT_IM_MODULE=fcitx linguist zh_CN.ts
 
 # openlist(集成文件管理器)
 
+openlist将网盘存储统一起来bian yu效果预览
+
+[Open: Pasted image 20260426194244.png](_resources/Linux_Desktop/4f80af065d4eb4e4cdd67a59d5e42f10_MD5.jpg)
+![](_resources/Linux_Desktop/4f80af065d4eb4e4cdd67a59d5e42f10_MD5.jpg)
+
+
+
 ## 基础部署
 
 这个工具可以集成各种网盘存储，这样就不用下载各种网盘客户端了，更何况有的网盘压根就没有linux客户端
