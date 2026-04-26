@@ -16,10 +16,10 @@ exec-once=需要开机自动执行的命令
 我就把它提供的设置播放视频壁纸的命令写进了配置文件里设置开机自启  
 
 ```
-exec-once=mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4 &  
+exec-once=mpvpaper -o "--loop-file" eDP-1 Downloads/影像.mp4 &  
 ```
 
-其实这个写哪里应该是无所谓，但还是美观一些吧  
+其实这个写哪里无所谓，但还是美观一些吧  
 
 ## 设置快捷键
 
