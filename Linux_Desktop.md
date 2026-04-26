@@ -525,7 +525,7 @@ sudo pacman -S uwsm
 
 参考资料`https://wiki.hypr.land/Configuring/Multi-GPU/#telling-hyprland-which-gpu-to-use`
 
-我们现在可以通过设置 `AQ_DRM_DEVICES` 环境变量来告诉 Hyprland 要使用哪些 GPU,另外不建议使用 `/dev/dri/card*` 设备路径，因为它们会定期更改所指向的符号链接设备。此外，实际卡设备路径中的冒号在 `AQ_DRM_DEVICES` 环境变量中无法使用，因为冒号  `:` 用作多个路径的分隔符。
+我们现在可以通过设置 `AQ_DRM_DEVICES` 环境变量来告诉 Hyprland 要使用哪些 GPU,另外不建议使用 `/dev/dri/card*` 设备路径，因为它们会定期更改所指向的符号链接设备。此外，实际卡设备路径中的冒号在 `AQ_DRM_DEVICES` 环境变量中无法使用，因为冒号 `:` 用作多个路径的分隔符。
 
 可以使用 udev 规则创建指向特定设备卡的可靠符号链接。例如，要在路径 `/dev/dri/amd-igpu` 下创建指向 AMD 显卡的符号链接，我们可以创建一个 udev 规则。 通过编程方式修改 `/etc/udev/rules.d/amd-igpu-dev-path.rules` ，如下所示，直接在终端粘贴运行这段shell命令：
 
@@ -589,7 +589,6 @@ ls /usr/share/vulkan/icd.d/
 ls /usr/share/glvnd/egl_vendor.d/
 ```
 
-然后重新登录桌面(如果是选择修改uwsm-hyprland，注意要选择hyprland(uwsm)会话进入hyprland)
 
 ### 确认显卡ID
 
@@ -767,6 +766,8 @@ chmod +x ~/.config/hypr/scripts/bind_nvidia.sh
 
 这里之所以分成两个脚本而不是写成什么统一切换程序是为了下面做HOOK钩子自动化，让我们实现打开虚拟机自动解绑并使用显卡，关闭虚拟机自动绑回显卡到主机
 
+重新登录桌面(如果是选择修改uwsm-hyprland，注意要选择hyprland(uwsm)会话进入hyprland)
+
 ### 钩子HOOK自动化
 
 创建钩子工作目录
@@ -920,6 +921,7 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 ```
 
 然后重启桌面或者重启系统
+
 ### 总结
 
 我来解释一下为什么这么配置，以及我们配置的流程的基本原理
@@ -966,7 +968,7 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-如果是fish，运行另一段命令
+(如果是fish，运行另一段命令)
 
 ```fish
 source venv/bin/activate.fish
@@ -990,7 +992,7 @@ pip install marker-pdf
 export CFLAGS="-Wno-error=incompatible-pointer-types"
 ```
 
-如果是fish，使用另一行命令设置环境变量
+(如果是fish，使用另一行命令设置环境变量)
 
 ```fish
 set -x CFLAGS "-Wno-error=incompatible-pointer-types"
