@@ -945,7 +945,7 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 
 ### 进阶配置
 
-有时让所有应用都使用独显也挺麻烦的，体现在启动虚拟机时要手动关闭这些应用，我的cpu核显性能不错，所以这里让指定应用忽略 Hyprland 全局 NVIDIA 环境变量，强制使用 AMD 核显，至于为什么我要在hyprland的环境变量里设置全部使用N卡，我觉得，she
+有时让所有应用都使用独显也挺麻烦的，体现在启动虚拟机时要手动关闭这些应用，我的cpu核显性能不错，所以这里让指定应用忽略 Hyprland 全局 NVIDIA 环境变量，强制使用 AMD 核显，至于为什么我要在hyprland的环境变量里设置全部使用N卡，而不是使用相反的方案，这其实也是个麻烦事，比如没法用普通的prime-run之类的方法调用N卡
 
 ---
 #### 一、背景
@@ -1057,7 +1057,7 @@ ln -sf ~/.local/bin/amd-gpu-wrapper ~/.local/bin/vesktop
 #### 五、验证
 
 ```bash
-# 查看 N 卡设备是否被占用（目标：不出现 codium/electron/obsidian 等）
+# 查看 N 卡设备是否被占用（注意修改对应card号和render号）
 sudo fuser -v /dev/dri/card2 /dev/dri/renderD129
 
 # 确认 PATH 优先级
@@ -1078,12 +1078,6 @@ which codium obsidian mihomo-party vesktop
 ```bash
 ln -s ~/.local/bin/amd-gpu-wrapper ~/.local/bin/新应用名
 ```
-
-
-
-
-
-
 
 
 
