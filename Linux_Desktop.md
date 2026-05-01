@@ -942,6 +942,153 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 
 这是正常现象不必理会，它们也不会干扰脚本和钩子的正常运行
 
+
+### 进阶配置
+
+有时让所有应用都使用独显也挺麻烦的，体现在启动虚拟机时要手动关闭这些应用，我的cpu核显性能不错，所以这里让指定应用忽略 Hyprland 全局 NVIDIA 环境变量，强制使用 AMD 核显，至于为什么我要在hyprland的环境变量里设置全部使用N卡，我觉得，she
+
+---
+#### 一、背景
+
+之前在 Hyprland 的 `~/.config/hypr/hyprland/env.conf` 里设置了两行全局环境变量：
+
+```javascript
+env = VK_DRIVER_FILES,/usr/share/vulkan/icd.d/nvidia_icd.json
+env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
+```
+
+这导致 **所有应用** 启动时都继承这两个变量，强制使用 NVIDIA 显卡。  
+而我希望 VSCodium、Obsidian、Mihomo-party、QQ、Vesktop 这几个应用 **忽略 NVIDIA，改用 AMD 核显（Radeon 780M）**。不然每次都要我手动关闭(或自动关闭)都挺麻烦的
+
+---
+
+#### 二、方案：PATH 优先级 + 环境变量注入 wrapper
+
+核心思路：在 `$PATH` 的最前面放置一个同名脚本，劫持应用启动，注入 AMD 环境变量后再 `exec` 真实二进制。
+
+```javascript
+PATH 顺序:
+~/.local/bin    ← 我们的 wrapper symlink 在这里，优先命中
+/usr/bin        ← 真实二进制在这里
+```
+
+#### 核心文件：`~/.local/bin/amd-gpu-wrapper`
+
+```bash
+#!/bin/bash
+export DRI_PRIME=0
+export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/radeon_icd.json
+export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.json
+export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
+export __NV_PRIME_RENDER_OFFLOAD=0
+export __GLX_VENDOR_LIBRARY_NAME=mesa
+
+# 模式 1：参数传了绝对路径 → desktop 文件调用路径
+if [ $# -gt 0 ] && [ "${1#/}" != "$1" ]; then
+    exec "$@"
+fi
+
+# 模式 2：符号链接调用 → $0 即程序名，去 /usr/bin 找
+exec "/usr/bin/$(basename "$0")" "$@"
+```
+
+关键点：
+
+- 设置 AMD 核显的 Vulkan ICD 路径（`radeon_icd.json`），**覆盖** 全局的 NVIDIA ICD
+- `export` 确保子进程继承
+- `exec` 替换当前进程，不 fork（否则 systemd-run 会认为 wrapper 退出）
+
+---
+
+#### 三、两种启动路径的统一处理
+
+#### 路径 A：desktop 文件（启动器点击）
+
+桌面文件显式传递绝对路径：
+
+```javascript
+Exec=/home/caster/.local/bin/amd-gpu-wrapper /usr/bin/codium %F
+Exec=/home/caster/.local/bin/amd-gpu-wrapper /usr/bin/obsidian %U
+Exec=/home/caster/.local/bin/amd-gpu-wrapper /usr/bin/mihomo-party %U
+Exec=/home/caster/.local/bin/amd-gpu-wrapper /usr/bin/linuxqq --ozone-platform=x11 %U
+```
+
+→ wrapper 检测到 `$1` 是绝对路径 → 直接 `exec /usr/bin/xxx ...`
+
+#### 路径 B：快捷键 / 终端（$PATH 劫持）
+
+Hyprland 快捷键绑定：
+
+```javascript
+bind = $kbEditor, exec, app2unit -- $editor    # $editor = codium
+bind = $kbTerminal, exec, app2unit -- $terminal
+```
+
+`app2unit` 解析 desktop 文件后，最终调用 `systemd-run --user --scope -- codium`。  
+`systemd-run` 从 `$PATH` 查找 `codium` → 命中 `~/.local/bin/codium`（wrapper 的 symlink）。  
+同理，`exec obsidian`、终端输入 `vesktop` 也都命中。
+
+→ wrapper 被调用时 $0 = `codium` → 进入模式 2 → `exec /usr/bin/codium`
+
+---
+
+#### 四、symlink 清单
+
+|应用|symlink → wrapper|
+|---|---|
+|VSCodium|`~/.local/bin/codium`|
+|Obsidian|`~/.local/bin/obsidian`|
+|Mihomo-party|`~/.local/bin/mihomo-party`|
+|QQ|`~/.local/bin/linuxqq`|
+|Vesktop|`~/.local/bin/vesktop`|
+
+创建命令：
+
+```bash
+ln -sf ~/.local/bin/amd-gpu-wrapper ~/.local/bin/codium
+ln -sf ~/.local/bin/amd-gpu-wrapper ~/.local/bin/obsidian
+ln -sf ~/.local/bin/amd-gpu-wrapper ~/.local/bin/mihomo-party
+ln -sf ~/.local/bin/amd-gpu-wrapper ~/.local/bin/linuxqq
+ln -sf ~/.local/bin/amd-gpu-wrapper ~/.local/bin/vesktop
+```
+
+---
+
+#### 五、验证
+
+```bash
+# 查看 N 卡设备是否被占用（目标：不出现 codium/electron/obsidian 等）
+sudo fuser -v /dev/dri/card2 /dev/dri/renderD129
+
+# 确认 PATH 优先级
+which codium obsidian mihomo-party vesktop
+# 全部输出 /home/caster/.local/bin/xxx
+
+# 确认 wrapper 环境变量指向 AMD
+~/.local/bin/amd-gpu-wrapper vulkaninfo --summary | grep deviceName
+# 输出: AMD Radeon 780M Graphics (RADV PHOENIX)
+```
+
+---
+
+#### 六、以后添加新应用
+
+只需一条命令，无需修改任何配置文件：
+
+```bash
+ln -s ~/.local/bin/amd-gpu-wrapper ~/.local/bin/新应用名
+```
+
+
+
+
+
+
+
+
+
+
+
 # PDF转MD
 
 为了方便我看资料时集成AI阅读,这里选择安装Marker
