@@ -1069,6 +1069,68 @@ root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan
 ![4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png)
 没用的小知识又增加了
 
+
+
+
+# Shell编程
+
+## 基础语法
+
+### 1. 读取用户输入
+
+```shell
+#!/bin/bash
+echo "请输入名字: "
+read user_name
+echo "欢迎, $user_name"
+```
+
+### 2. if..else判断语句
+
+```shell
+#!/bin/bash
+score=85
+if [ $score -ge 90 ]; then
+  echo "nice~"
+elif [ $score -ge 60 ]; then
+  echo "good"
+else
+  echo "well"
+fi
+
+```
+
+### 3. for/while循环语句
+
+```shell
+#!/bin/bash
+for i in {1..10}; do
+  echo "$i"
+done
+```
+
+```shell
+#!/bin/bash
+count=3
+while [ $count -ge 1 ]; do
+  echo "倒数: $count"
+  ((count--))
+done
+```
+
+### 一些总结
+
+1. **赋值不能有空格**：
+`score=85`。因为一旦有空格（如 `score = 85`），Shell 就会把 `score` 当作一个要执行的命令，把 `=` 当作参数，从而报错“找不到命令”。
+
+2. **左中括号 `[` 不是括号，它是一个“程序”**
+`[` 是早期 UNIX 系统中 `test` 命令的“马甲”（系统里真的存在一个名字叫 `[` 的可执行文件）。
+**空格规则**：因为 `[` 是命令，`-ge`、`5`、`3` 都是传给它的参数，所以**必须用空格隔开**：`[ 5 -ge 3 ]`。
+**闭合规则**：`[` 命令内部有一条硬性规定，传入的最后一个参数必须是 `]`，仅仅是为了视觉上好看。
+
+
+
+
 # http 协议原理总结
 
 ![109d66a9732bed4014db20be12c68878_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/109d66a9732bed4014db20be12c68878_MD5.png)
