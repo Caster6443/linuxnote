@@ -1562,6 +1562,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 
 ## Nginx 负载均衡调度算法
+
 1.rr 轮询
 2.加权轮询
 3.ip_hash   ip 哈希
