@@ -6,7 +6,7 @@
 
 不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
 
-例：![944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png)
+![944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png)
 
 想要使用bash则需要确保拥有lib下的各个函数库文件
 
@@ -498,9 +498,14 @@ sudo lvreduce -L 15G /dev/vg01/lv_data
 sudo mount /dev/vg01/lv_data /mnt/data
 ```
 
+---
+
 ## namespance分类
 
 ![21d6eb1b235d93b35c05bff409736782_MD5.png](_resources/linux%E7%AC%94%E8%AE%B0/21d6eb1b235d93b35c05bff409736782_MD5.png)
+
+
+---
 
 ## 基于插入内核进程的直接生效流量转发
 
@@ -517,6 +522,8 @@ sysctl -p
 
 ```
 
+---
+
 ## 关于dm
 
 dm是Device Mapper的缩写，Device Mapper 是 Linux 2.6 内核中提供的一种从逻辑设备到物理设备的映射框架机制，在该机制下，用户可以很方便的根据自己的需要制定实现存储资源的管理策略，当前比较流行的 Linux 下的逻辑卷管理器如 LVM2（Linux Volume Manager 2 version)、EVMS(Enterprise Volume Management System)、dmraid(Device Mapper Raid Tool)等都是基于该机制实现的。
@@ -527,6 +534,8 @@ dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
 
 参考文章：linux dm-0 dm-1 设备映射 简介-CSDN博客 ([https://blog.csdn.net/whatday/article/details/106354092](https://blog.csdn.net/whatday/article/details/106354092))
 
+---
+
 ## 关于vim搜索指定字符串和指定多行注释
 
 在命令模式下（默认进入vim时就是命令模式，shift加：是末行模式）按下/可以进入搜索模式，输入指定字符串并回车进行查找，按下n跳转到下一个匹配字符串
@@ -534,9 +543,13 @@ dm-1 对应LVM的 VolGroup00-LogVol01 对应swap
 指定多行注释是在末行模式中进行，格式是 起始行号,结束行号s/^/#/g
 g是全局匹配，不加g仅替换每行的第一个匹配项
 
+---
+
 ## 关于&和&&的使用
 
 在dockerfile的CMD指令中需要指定一个前台运行的指令来保障容器的运行，例如在编写mysql的dockerfile用初始化脚本时使用mysqld --user=root来启动mysql，但该命令是前台运行会导致阻塞，所以需要&来而不是&&来衔接下一条指令，&的使用可以保证即使前一条指令未执行完毕也能够继续执行下一条指令，&&则必须要前一条指令执行成功才能继续执行下一条指令
+
+---
 
 ## 如何设置ssh连接后执行指定可执行文件
 
@@ -560,6 +573,8 @@ SSH_CONNECTION变量在ssh连接成功后会被自动赋值，内容格式为:
 
 基于这些原理，就可以设置指定用户ssh登录时自动执行指定的可执行文件
 
+---
+
 ## 在linux系统的cli中如何实现字体属性设置
 
 这里用C程序举例（使用echo时要加-e选项，参数要加双引号)
@@ -574,10 +589,12 @@ return 0;
 }
 ```
 
+---
 ## 使用ifconfig临时修改网卡配置
 
 格式: ifconfig 网卡名 参数
 
+---
 ## FQDN
 
 "完全限定域名",实际上就是字面意思。本质上，它是互联网上计算机或主机的完整域名。它由几个不同的元素组成
@@ -592,6 +609,7 @@ return 0;
 
 可以将完全限定域名视为地址。这个地址的目的是在 DNS 系统中指定位置。使用 FQDN，网站或其他线上实体的位置有都自己的唯一识别符号和位置。
 
+---
 ## 私网ip地址范围
 
 ```
@@ -602,9 +620,12 @@ return 0;
 192.168.0.0-192.168.255.255
 ```
 
+---
 ## 为什么空目录的硬链接索引值默认为2
 
 一个是自身目录，另一个是特殊文件'.'，就是代表当前目录的'.'，它和".."是linux中的特殊文件，'.'是当前目录的特殊硬链接文件，".."是对当前目录的父目录的特殊硬链接文件，以此类推，当一个目录为空时,该目录只有一个'.'和自身，所以硬链接索引值为2，当该目录存在一个空的子文件夹时，又多了一个该子文件夹下的".."文件作为又一个硬链接
+
+---
 
 ## 特殊重定向的使用
 
@@ -630,11 +651,16 @@ echo hello &>> hello.log
 
 在定时任务中常用，同时记录正确和错误信息
 
+---
+
 ## 使用管道非交互式修改用户密码
 
 ```
 echo "000000" | passwd --stdin user
 ```
+
+
+---
 
 ## linux的用户与组提权
 
@@ -684,6 +710,8 @@ hello!
 
 ```
 
+---
+
 ## cron定时任务
 
 /etc/crontab 计划任务列表配置文件
@@ -710,6 +738,8 @@ crontab -u 指定用户 -e 开始编辑定时任务
 代表每三分钟执行一次echo hello
 以此类推
 
+
+---
 ## semanager port
 
 用来管理端口安全上下文
@@ -724,6 +754,8 @@ crontab -u 指定用户 -e 开始编辑定时任务
 -l列出所有端口安全上下文
 ```
 
+---
+
 ## 关于su和ssh特性
 
 1. su 切换用户的环境问题  
@@ -736,6 +768,8 @@ crontab -u 指定用户 -e 开始编辑定时任务
 Podman 可正常访问运行时目录，因此认证成功。
 3. 根本原因总结  
 su 命令的缺陷：不加载目标用户的完整环境（尤其 systemd 相关的登录会话）。
+
+---
 
 ## systemd
 

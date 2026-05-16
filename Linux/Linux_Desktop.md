@@ -83,10 +83,8 @@ super + 右键拖动		    拉伸窗口（当窗口处于平铺状态时）
 super + 鼠标滚轮		    快捷切换工作区
 super + q				关闭 waybar
 super + F2			    重启 waybar
-super + s				快速最小化当前桌面窗口，再次使用就会回来
+super + s				打开特殊工作区
 ```
-
-关于这个 super + s 快捷键，我是这样理解的，所有的工作区都是桌面的不同区域，而 super s 则是把当前使用的桌面上的所有窗口收进下面的抽屉里，再次按下就会当前使用的桌面上展开，也就是从抽屉里拿出来放上  
 
 hyprland 自己也有 wiki，肯定是比 archwiki 在这方面更详细的，可以多看看  
 [https://wiki.hypr.land/](https://wiki.hypr.land/)  
@@ -268,7 +266,6 @@ else
     touch "$STATE_FILE"
 fi
 
-
 ```
 
 加上执行权限  
@@ -344,8 +341,6 @@ bind = SHIFT, mouse_down, layoutmsg, move -col
 bind = SHIFT, mouse_up, layoutmsg, move +col
 ```
 
-
-
 出于使用体验考虑，做成仿niri的设计，一个工作区内横向无限延伸，那么切换工作区就弄成纵向滚动
 
 编辑hyprland配置文件中的animations {...}区块
@@ -360,7 +355,7 @@ animation = workspaces, 1, 5, default, slidevert
 
 ## overview概览
 
-这是hyprland的一个插件
+这是hyprland的一个插件，感觉没啥用，没有窗口操作功能，真就单纯的overview
 
 安装插件
 
@@ -405,9 +400,6 @@ bind = Super, G, hyprexpo:expo, toggle
 
 
 
-
-
-
 ## 浮动窗口间隙设置
 
 在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观  
@@ -438,7 +430,7 @@ general {
 
 ```
 
-这个变量同样可以在 hyprland 的 wiki 里查到，还是吃了英语不好的亏  
+这个变量同样可以在 hyprland 的 wiki 里查到
 
 本来想把四周全设置 0 的，但我又想想，没有四周留白和平铺模式有啥区别，那不就成了不能动的窗口吗？所以我故意除了顶部全都设置了10像素的留白空间，这样才知道我用的是浮动窗口模式（其实平铺模式会和 waybar 重叠，通过这个也能看出来😅）  
 
@@ -446,7 +438,7 @@ general {
 
 项目名 mpvpaper  
 
-有内存泄露问题，截止2026/2/26仍未修复，只能说勉强能用，但我不想用了
+有内存泄露问题，截止2026/2/26仍未修复，只能说勉强能用，因为它漏得比较慢，但我不想用了
 
 项目地址 [https://github.com/GhostNaN/mpvpaper](https://github.com/GhostNaN/mpvpaper)  
 这个项目要求三个前置软件包  
@@ -519,6 +511,7 @@ sudo pacman -S uwsm
 
 **注意**：如果你的显示管理器（DM，比如 SDDM）**默认是在 X11 环境下运行登录界面的**，你需要配置它启用 Wayland 会话。不然它会在N卡上跑自己的xorg进程，如何启用参考archwiki的内容[SDDM - ArchWiki](https://wiki.archlinux.org/title/SDDM)
 
+---
 ### 为特定卡创建一致的设备路径
 
 设置hyprland只在我的A卡上运行
@@ -566,6 +559,7 @@ lrwxrwxrwx - root 13 4月  19:57 󰡯 /dev/dri/amd-igpu -> card1
 
 如果卡片文件发生更改，此符号链接将自动更新以指向正确的卡片文件。
 
+---
 ### 编辑环境变量
 
 编辑这个文件添加环境变量，不想用uwsm启动hyprland的可以直接编辑hyprland配置文件(注意:uwsm与hyprland的配置文件的环境变量语法不同，如果选择编辑hyprland配置文件，应当自行修改)
@@ -589,7 +583,7 @@ ls /usr/share/vulkan/icd.d/
 ls /usr/share/glvnd/egl_vendor.d/
 ```
 
-
+---
 ### 确认显卡ID
 
 运行这个命令
@@ -658,6 +652,7 @@ sudo fuser -v /dev/dri/card0 /dev/dri/renderD129
 
 注意修改对应的card和render，一般情况下，如果一切正常，这个命令不应该有任何输出内容
 
+---
 ### 创建显卡解绑/绑定脚本
 
 执行命令
@@ -768,6 +763,7 @@ chmod +x ~/.config/hypr/scripts/bind_nvidia.sh
 
 重新登录桌面(如果是选择修改uwsm-hyprland，注意要选择hyprland(uwsm)会话进入hyprland)
 
+---
 ### 钩子HOOK自动化
 
 创建钩子工作目录
@@ -902,6 +898,7 @@ exit 0
 sudo chmod +x /etc/libvirt/hooks/qemu
 ```
 
+---
 ### 收尾
 
 重启libvirtd
@@ -922,6 +919,7 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 
 然后重启桌面或者重启系统
 
+---
 ### 总结
 
 我来解释一下为什么这么配置，以及我们配置的流程的基本原理
@@ -972,7 +970,7 @@ PATH 顺序:
 /usr/bin        ← 真实二进制在这里
 ```
 
-#### 核心文件：`~/.local/bin/amd-gpu-wrapper`
+核心文件：`~/.local/bin/amd-gpu-wrapper`
 
 ```bash
 #!/bin/bash
@@ -1002,7 +1000,7 @@ exec "/usr/bin/$(basename "$0")" "$@"
 
 #### 三、两种启动路径的统一处理
 
-#### 路径 A：desktop 文件（启动器点击）
+##### 路径 A：desktop 文件（启动器点击）
 
 桌面文件显式传递绝对路径：
 
@@ -1015,7 +1013,7 @@ Exec=/home/caster/.local/bin/amd-gpu-wrapper /usr/bin/linuxqq --ozone-platform=x
 
 → wrapper 检测到 `$1` 是绝对路径 → 直接 `exec /usr/bin/xxx ...`
 
-#### 路径 B：快捷键 / 终端（$PATH 劫持）
+##### 路径 B：快捷键 / 终端（$PATH 劫持）
 
 Hyprland 快捷键绑定：
 
