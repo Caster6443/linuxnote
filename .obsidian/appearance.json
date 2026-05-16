@@ -1,7 +1,7 @@
 {
   "accentColor": "",
-  "theme": "obsidian",
-  "cssTheme": "Border",
+  "theme": "system",
+  "cssTheme": "Catppuccin",
   "nativeMenus": false,
   "enabledCssSnippets": [],
   "baseFontSizeAction": true,
