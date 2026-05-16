@@ -1,1 +1,10 @@
-我的linux学习笔记
+# 🐧 Linux Note
+
+![Visitor Count](_resources/README/314d8b4d4419b0fcd408c2f8a0e5fa59_MD5.svg) ![GitHub repo size](_resources/README/1133e3ffe90441a7ea748c9f600f71b8_MD5.svg)![GitHub last commit](_resources/README/5a51ee59e16e3966f3acbf66aa686d82_MD5.svg)
+
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/notion-pet/notion-pet/master/assets/images/tritritri.gif" width="100px" />
+  <br>
+  <sub>*我的 Linux 学习伴侣*</sub>
+</div>
