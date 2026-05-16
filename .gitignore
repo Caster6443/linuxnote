@@ -4,6 +4,7 @@
 .obsidian/cache/
 .obsidian/plugins/*/data.json
 .obsidian/community-plugins.json.bak
+copilot/
 
 .DS_Store
 Thumbs.db
