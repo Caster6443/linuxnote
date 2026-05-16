@@ -1085,12 +1085,14 @@ ln -s ~/.local/bin/amd-gpu-wrapper ~/.local/bin/新应用名
 
 为了方便我看资料时集成AI阅读,这里选择安装Marker
 
+---
 1.安装系统依赖
 
 ```bash
 sudo pacman -S --needed python-pip python-virtualenv file hdf5
 ```
 
+---
 2.建立并激活虚拟环境
 
 ```bash
@@ -1113,12 +1115,14 @@ source venv/bin/activate
 source venv/bin/activate.fish
 ```
 
+---
 3.升级 pip
 
 ```bash
 pip install --upgrade pip
 ```
 
+---
 4.安装Marker
 
 ```shell
@@ -1139,6 +1143,7 @@ set -x CFLAGS "-Wno-error=incompatible-pointer-types"
 
 然后重新执行安装命令即可
 
+---
 5.如何使用
 
 ```bash
@@ -1154,7 +1159,7 @@ marker_single "PDF文件路径" --output_dir 文件保存路径(可重命名)
 
 ## 修改壁纸后端为swww
 
-原生的壁纸功能集成了主题变色，但动画效果等于没有，因此这里选择部分切换为swww，同时保留它的变色功能，原理是通过本地的同名可执行文件，部分覆盖原本的caelestia命令行的功能
+原生的壁纸功能集成了主题变色，但动画效果等于没有，因此这里选择部分切换为swww，同时保留它的变色功能
 
 安装swww
 
@@ -1232,9 +1237,9 @@ vim .config/hypr/hyprland/execs.conf
 exec-once = ~/.config/hypr/scripts/auto_switch_wallpaper.sh &
 ```
 
-重启hyprland即可，然后就可以通过原生的启动器命令行`>wallpaper`界面使用swww切换壁纸了
+重启hyprland即可
 
-
+---
 
 ## 配置特殊工作区
 
@@ -1271,9 +1276,7 @@ vim .config/caelestia/cli.json
 
 最后配置进快捷键即可
 
-
-
-
+---
 ## Cheatsheet
 
 自己做了一个cheatsheet的功能，我打算集成进caelestia里面
