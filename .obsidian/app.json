@@ -10,5 +10,6 @@
   "useMarkdownLinks": true,
   "strictLineBreaks": true,
   "readableLineLength": false,
-  "attachmentFolderPath": "_resources"
+  "attachmentFolderPath": "_resources",
+  "alwaysUpdateLinks": true
 }
