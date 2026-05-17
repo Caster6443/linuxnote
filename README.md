@@ -1,6 +1,6 @@
 # <img src="./assets/images/p3.gif" width="35" align="center"/> Study Note <img src="./assets/images/p2.png" width="35" align="center"/>
 
-![Visitor Count](_resources/314d8b4d4419b0fcd408c2f8a0e5fa59_MD5.svg) ![GitHub repo size|118](_resources/1133e3ffe90441a7ea748c9f600f71b8_MD5.svg)![GitHub last commit](_resources/5a51ee59e16e3966f3acbf66aa686d82_MD5.svg)
+![Visitor Count](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/Caster6443/linuxnote&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Repository+Views&edge_flat=false) ![GitHub repo size](https://img.shields.io/github/repo-size/Caster6443/linuxnote) ![GitHub last commit](https://img.shields.io/github/last-commit/Caster6443/linuxnote)
 
 
 <img src="assets/images/honkai-star-rail-hsr.gif" width="200" align="center" />
