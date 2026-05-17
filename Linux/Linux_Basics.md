@@ -6,13 +6,13 @@
 
 不同的文件执行起来有不同的函数库依赖，这些函数库通常保存在lib64目录下，可使用ldd命令查看相关的依赖
 
-![944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png](944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png)
+![944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png](../_resources/944a6e02d4ce24ebf02f5b2f3ca1e114_MD5.png)
 
 想要使用bash则需要确保拥有lib下的各个函数库文件
 
 没有依赖库但想要使用bash则会报错如下
 
-![87727257087262a186f7eebb6995744f_MD5.png](87727257087262a186f7eebb6995744f_MD5.png)
+![87727257087262a186f7eebb6995744f_MD5.png](../_resources/87727257087262a186f7eebb6995744f_MD5.png)
 
 ---
 ## sed命令
@@ -55,11 +55,11 @@ RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取
 
 也可以使用正则表达式
 
-![01d58b0c95d05afd4079b03dd508cc4e_MD5.png](01d58b0c95d05afd4079b03dd508cc4e_MD5.png)
+![01d58b0c95d05afd4079b03dd508cc4e_MD5.png](../_resources/01d58b0c95d05afd4079b03dd508cc4e_MD5.png)
 
 其他的内建变量的使用示例
 
-![77fd632d9cffa87c49ac40ffdbb3825a_MD5.png](77fd632d9cffa87c49ac40ffdbb3825a_MD5.png)
+![77fd632d9cffa87c49ac40ffdbb3825a_MD5.png](../_resources/77fd632d9cffa87c49ac40ffdbb3825a_MD5.png)
 
 该命令用于统计以字符 ‘行’ 结尾的行数量
 
@@ -71,7 +71,7 @@ RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取
 
 -F参数的使用
 
-![13d1232062bae2b5368670376d4444ee_MD5.png](13d1232062bae2b5368670376d4444ee_MD5.png)
+![13d1232062bae2b5368670376d4444ee_MD5.png](../_resources/13d1232062bae2b5368670376d4444ee_MD5.png)
 
 该命令筛选出了该文件的所有行的第一列，而区分列的规范由” ”里的内容指定，在这里是以:起作分隔不同行的作用,{}里面可以指定一行的多个列，用 , 分隔开
 
@@ -79,7 +79,7 @@ RS：行分隔符。awk从文件上读取资料时,将根据RS的定义把读取
 
 例如/etc/passwork在以:作为分隔符时，第三个字段是数字，这里就可以做筛选
 
-![f10da89e0b07e0eda8c4d28b216cd874_MD5.png](f10da89e0b07e0eda8c4d28b216cd874_MD5.png)
+![f10da89e0b07e0eda8c4d28b216cd874_MD5.png](../_resources/f10da89e0b07e0eda8c4d28b216cd874_MD5.png)
 
 在这里筛选出了第三个字段小于10的字符串（给$3<10打个括号更美观一些）
 
@@ -309,7 +309,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 ## alisa命令别名
 
 以docker为例
-![55b91cf1ca8373b5e6b33246b327e1f7_MD5.png](55b91cf1ca8373b5e6b33246b327e1f7_MD5.png)
+![55b91cf1ca8373b5e6b33246b327e1f7_MD5.png](../_resources/55b91cf1ca8373b5e6b33246b327e1f7_MD5.png)
 
 ---
 
@@ -331,7 +331,7 @@ gzip-1.12-1.el9.x86_64 : The GNU data compression program
 
 &和\的示例(以sed命令示例)
 
-![215f862977ebe34f865d059a684c4d22_MD5.png](215f862977ebe34f865d059a684c4d22_MD5.png)
+![215f862977ebe34f865d059a684c4d22_MD5.png](../_resources/215f862977ebe34f865d059a684c4d22_MD5.png)
 
 ---
 
@@ -397,7 +397,7 @@ PS2：定义多行命令的提示符的格式。
 
 ## 关于echo $PATH的回显释义
 
-![91238653c6e8e6603e279c474409f9ab_MD5.png](91238653c6e8e6603e279c474409f9ab_MD5.png)
+![91238653c6e8e6603e279c474409f9ab_MD5.png](../_resources/91238653c6e8e6603e279c474409f9ab_MD5.png)
 
 ---
 
@@ -502,7 +502,7 @@ sudo mount /dev/vg01/lv_data /mnt/data
 
 ## namespance分类
 
-![21d6eb1b235d93b35c05bff409736782_MD5.png](21d6eb1b235d93b35c05bff409736782_MD5.png)
+![21d6eb1b235d93b35c05bff409736782_MD5.png](../_resources/21d6eb1b235d93b35c05bff409736782_MD5.png)
 
 
 ---
@@ -1041,11 +1041,11 @@ block块(数据块): 存放数据
 
 如图，从 curl -v 的标准输出中过滤关键词 Date 失败
 
-![5868337d1d74cb62f25fbe671bfdafe5_MD5.png](5868337d1d74cb62f25fbe671bfdafe5_MD5.png)
+![5868337d1d74cb62f25fbe671bfdafe5_MD5.png](../_resources/5868337d1d74cb62f25fbe671bfdafe5_MD5.png)
 
 只需要在管道符后面加上一个&即可
 
-![5291b5bebf2a0dff8ef97421fd6e7130_MD5.png](5291b5bebf2a0dff8ef97421fd6e7130_MD5.png)
+![5291b5bebf2a0dff8ef97421fd6e7130_MD5.png](../_resources/5291b5bebf2a0dff8ef97421fd6e7130_MD5.png)
 
 ## linux的/etc/skel目录
 
@@ -1121,11 +1121,11 @@ root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan
 
 有两种方式
 1.使用 history 命令查看执行过的命令，输入对应历史命令的序号，前面加上！即可快速执行该命令
-![0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png](0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png)
+![0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png](../_resources/0a9ff3e23f5be961b7f6d8b4d9a2621e_MD5.png)
 
 2.直接使用 ！
 使用 '!关键字' 可以快速查找并执行 最后一次执行的 以该关键字开头的命令
-![4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png](4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png)
+![4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png](../_resources/4b6f5fca635758aa4ed26d1ddc0094b2_MD5.png)
 没用的小知识又增加了
 
 
@@ -1134,7 +1134,7 @@ root 2482 0.0 0.1 221680 2448 pts/0 S+ 16:46 0:00 grep --color=auto orphan
 
 # http 协议原理总结
 
-![109d66a9732bed4014db20be12c68878_MD5.png](109d66a9732bed4014db20be12c68878_MD5.png)
+![109d66a9732bed4014db20be12c68878_MD5.png](../_resources/109d66a9732bed4014db20be12c68878_MD5.png)
 
 ## HTTP 状态码格式规范
 
@@ -1179,7 +1179,7 @@ GPT 分区表下的类型代码: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
 
 # TCP 三次握手原理
 
-![338cb5e208708cf7466e0de831fba7a5_MD5.png](338cb5e208708cf7466e0de831fba7a5_MD5.png)
+![338cb5e208708cf7466e0de831fba7a5_MD5.png](../_resources/338cb5e208708cf7466e0de831fba7a5_MD5.png)
 
 ```
 
@@ -1233,7 +1233,7 @@ DNS端口因为使用的是udp，所以是53号端口
 
 在浏览器的 url 栏中输入域名 rocky.linux.com 时，有多个流程，当前流程失败就走下一个流程
 
-![f310b68af89c66d83487d5c9b5a03840_MD5.jpg](f310b68af89c66d83487d5c9b5a03840_MD5.jpg)
+![f310b68af89c66d83487d5c9b5a03840_MD5.jpg](../_resources/f310b68af89c66d83487d5c9b5a03840_MD5.jpg)
 
 # 报文、数据包 、帧的关系
 
@@ -1347,11 +1347,11 @@ btrfs文件系统的COW在每个时期的动作是怎样的，可以参考如下
 
 ## ssh报错kex_exchange_identification
 
-[Open: Pasted image 20251222202418.png](ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
-![ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg](ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
+[Open: Pasted image 20251222202418.png](../_resources/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
+![ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg](../_resources/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
 虚拟机内部的sshd服务报错是
-[Open: Pasted image 20251222202505.png](6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
-![6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg](6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
+[Open: Pasted image 20251222202505.png](../_resources/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
+![6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg](../_resources/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
 SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
 - 它会启动一个拥有 root 权限的主进程。
     
@@ -1391,9 +1391,9 @@ SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）**
 
 ## centos7虚拟机强制重启后无法因无法挂载到系统而进入紧急模式
 
-![d3c4ccd82df00fadf72ecaeccf298f63_MD5.png](d3c4ccd82df00fadf72ecaeccf298f63_MD5.png)
+![d3c4ccd82df00fadf72ecaeccf298f63_MD5.png](../_resources/d3c4ccd82df00fadf72ecaeccf298f63_MD5.png)
 
-![675a64bc9f80cf73c9e88af566904b64_MD5.png](675a64bc9f80cf73c9e88af566904b64_MD5.png) 因服务器无端重启，导致无法挂载系统
+![675a64bc9f80cf73c9e88af566904b64_MD5.png](../_resources/675a64bc9f80cf73c9e88af566904b64_MD5.png) 因服务器无端重启，导致无法挂载系统
 
 解决方案：使用xfs_repair工具修复
 
@@ -1415,7 +1415,7 @@ SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）**
 
 ## NetworkManager与network冲突问题
 
-![bc77c767c2a42758bf93c8dd27ce79b7_MD5.png](bc77c767c2a42758bf93c8dd27ce79b7_MD5.png)
+![bc77c767c2a42758bf93c8dd27ce79b7_MD5.png](../_resources/bc77c767c2a42758bf93c8dd27ce79b7_MD5.png)
 
 使用ip a命令时发现网卡未读取到网卡配置文件中的静态网络配置信息，查看网卡配置没有错误，使用systemctl restart network报错
 job for network.service failed
@@ -1441,7 +1441,7 @@ systemctl status network
 设备:vmware虚拟机rh9.2
 
 原图
-![62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png](62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png)
+![62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png](../_resources/62bfcb336d9ed3efbd8ca3daa6e5e033_MD5.png)
 
 
 解决方案:

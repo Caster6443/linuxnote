@@ -142,7 +142,7 @@ bind = $mainMod CTRL, v, exec, pkill -SIGINT wf-recorder  # 停止录制
 参考的别人的美化风格，整体配置比较模块化，总体文件结构如图  
 ，文件位置目前存放在我的dotfiles仓库里
 
-![e5bef4dea6e712828b69b69bad2ee1b3_MD5.png](e5bef4dea6e712828b69b69bad2ee1b3_MD5.png)  
+![e5bef4dea6e712828b69b69bad2ee1b3_MD5.png](../_resources/e5bef4dea6e712828b69b69bad2ee1b3_MD5.png)  
 
 一个个介绍吧  
 
@@ -196,7 +196,7 @@ switch-audio-output.sh
 
 桌面美化效果预览如下  
 
-![3714b46c5aee50f0520ab81ef0acdbb1_MD5.png](3714b46c5aee50f0520ab81ef0acdbb1_MD5.png)  
+![3714b46c5aee50f0520ab81ef0acdbb1_MD5.png](../_resources/3714b46c5aee50f0520ab81ef0acdbb1_MD5.png)  
 
 有个小瑕疵，就是那个控制息屏的模块，它的两个状态切换的图标大小是不一样的，当前是启用息屏，中间的图标正好居中，我切换到另一个状态，图标就小了一点，中间的图标就会往左移动一些，但我也懒得改了，不过修改也简单，改成大小一致的图标就行，但我还没找到合适的，另一个方案是用 css 的 padding 字段，严格控制该字符的边距就行了，但我暂时也不改了  
 
@@ -663,7 +663,7 @@ lspci -nn | grep -i nvidia
 
 参考我的输出
 
-![](d7601020826a6664ac98cf71515f427f_MD5.jpg)
+![](../_resources/d7601020826a6664ac98cf71515f427f_MD5.jpg)
 
 记住第一行和第二行开头的那段数字，它们下面将作为GPU_PCI和AUD_PCI的值
 ，我这里记录下数值为
@@ -936,7 +936,7 @@ env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/nvidia_icd.json
 
 另外如果发现显卡绑回主机后N卡上面出现了这个三个进程
 
-![](05ba91abf879c6cbcd96c8b4e88e276c_MD5.jpg)
+![](../_resources/05ba91abf879c6cbcd96c8b4e88e276c_MD5.jpg)
 
 这是正常现象不必理会，它们也不会干扰脚本和钩子的正常运行
 
@@ -1283,7 +1283,7 @@ vim .config/caelestia/cli.json
 
 效果预览
 
-![](47527c260fbfbee403705d669ec83b3e_MD5.jpg)
+![](../_resources/47527c260fbfbee403705d669ec83b3e_MD5.jpg)
 
 **注: 所有文件都存放在我的dotfiles仓库里，没有把文件内容写在这里是因为我在持续完善这个cheatsheet**
 
@@ -1373,13 +1373,13 @@ Cheatsheet {}
 
 修改后内容参考如下
 
-![](235bab3907c665b68ad1fefa161bfe4e_MD5.jpg)
+![](../_resources/235bab3907c665b68ad1fefa161bfe4e_MD5.jpg)
 
 然后在快捷键绑定文件中添加一行cheatsheet的调用即可，cheatsheet的调用命令被设置为`touch /tmp/cheatsheet_toggle`
 
 可以参考我写的这一行
 
-![](09e817795b6feb6e4dc1044f9b72dc0d_MD5.jpg)
+![](../_resources/09e817795b6feb6e4dc1044f9b72dc0d_MD5.jpg)
 
 然后重启桌面即可
 
@@ -1457,7 +1457,7 @@ openlist将各种网盘存储统一起来便于管理，这样就不用下载各
 
 效果预览
 
-![](4f80af065d4eb4e4cdd67a59d5e42f10_MD5.jpg)
+![](../_resources/4f80af065d4eb4e4cdd67a59d5e42f10_MD5.jpg)
 
 
 ## 基础部署
@@ -1780,18 +1780,18 @@ sudo pacman -S tesseract-data-eng tesseract-data-kor tesseract-data-chi_sim
 
 打开软件Crow Translate  
 点右下角三个横线进入这个界面的这个设置  
-![0a0a553e147730d9c419a9bde4feaf87_MD5.png](0a0a553e147730d9c419a9bde4feaf87_MD5.png)  
+![0a0a553e147730d9c419a9bde4feaf87_MD5.png](../_resources/0a0a553e147730d9c419a9bde4feaf87_MD5.png)  
 把安装的 OCR 语言包都勾选上  
 
 再到这个选项  
-![4a6cfd13a058ea72523797bb98fca63f_MD5.png](4a6cfd13a058ea72523797bb98fca63f_MD5.png)  
+![4a6cfd13a058ea72523797bb98fca63f_MD5.png](../_resources/4a6cfd13a058ea72523797bb98fca63f_MD5.png)  
 
 点一下最右边的按钮 Detect fastest  
 URL 里面是翻译引擎，默认的早就失效了，需要按这个按钮刷新出新翻译引擎，不然用旧的会在翻译栏报 418 错误  
 
 目前只能在程序主界面点击截图才能截图翻译，关于快捷键截图翻译，关于全局的那一片是灰色的不能用，因为 WM 禁止绕过它配置快捷键，这里官方文档应该有提到怎么在wayland下使用，但我没查了，我用的是pots
 
-![2f595e1d4a2c51550e22cf213bcb7f00_MD5.png](2f595e1d4a2c51550e22cf213bcb7f00_MD5.png)  
+![2f595e1d4a2c51550e22cf213bcb7f00_MD5.png](../_resources/2f595e1d4a2c51550e22cf213bcb7f00_MD5.png)  
 
 
 
@@ -1922,7 +1922,7 @@ yay -S waydroid-helper
 
 类似这样，我映射了游戏的方向键，因为这个 b 游戏的方向键只支持滑动操作，可以看到，我的方向键在窗口中的位置是等比例缩小游戏窗口和方向键的对应位置，我需要使用映射时必须把鼠标聚焦到左下角的映射窗口  
 
-![a7e2f3ce98025b7463ef958137883955_MD5.png](a7e2f3ce98025b7463ef958137883955_MD5.png)  
+![a7e2f3ce98025b7463ef958137883955_MD5.png](../_resources/a7e2f3ce98025b7463ef958137883955_MD5.png)  
 
 这个工具还提供其他功能，比如伪装成指定机型，获取设备 id，之类的常见需求  
 
@@ -2113,7 +2113,7 @@ search.fs_uuid 1B9C-667B root hd0,gpt1
 
 我选择这样填写，uuid 是我的 efi 分区，注意这里的 root 并不是指/分区，而是指 boot 分区，gpt1 则是因为 efi 分区的索引为 1  
 
-![b3ade282afba90d071c64eae7e0094b2_MD5.png](b3ade282afba90d071c64eae7e0094b2_MD5.png)  
+![b3ade282afba90d071c64eae7e0094b2_MD5.png](../_resources/b3ade282afba90d071c64eae7e0094b2_MD5.png)  
 
 
 
@@ -2198,7 +2198,7 @@ sudo efibootmgr --unicode --disk /dev/nvme0n1 --part 1 --create --label "arch-sh
 
 在这个界面，找到并选中我们复制的 MOK.cer，并导入到 Machine Owner Key 列表中，重新启动，配置即可完成。  
 
-![3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png](3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png)  
+![3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png](../_resources/3336fc2cde1b2d0b9e23a4ecf5bb1b30_MD5.png)  
 
 ### 5. 自动更新 GRUB 的 EFI 文件和配置数据
 
@@ -2251,7 +2251,7 @@ Depends=grub
 
 重新安装 GRUB，看看是否有执行 pacman hook，如果成功执行则配置成功。  
 注意看 1/5 和 3/5,钩子执行成功了  
-![e958a4e711bd12a528ab5a5ce2093e19_MD5.png](e958a4e711bd12a528ab5a5ce2093e19_MD5.png)  
+![e958a4e711bd12a528ab5a5ce2093e19_MD5.png](../_resources/e958a4e711bd12a528ab5a5ce2093e19_MD5.png)  
 
 
 
@@ -2259,7 +2259,7 @@ Depends=grub
 # archlinux（niri）配置
 
 我的设备信息  
-![05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg](05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg)  
+![05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg](../_resources/05fb4d754cd84c33fdca4e18c3f79d6d_MD5.jpg)  
 
 我是用archinstall安装的，并安装了显卡驱动，它支持安装niri的初始环境，不过感觉不如最小化安装，但是装都装好了，在此基础上开始我的配置  
 在archinstall的过程中，我设置了根分区文件系统类型为btrfs，子卷及其挂载情况如下  
@@ -2554,7 +2554,7 @@ paru -S btrfsmaintenance
 
 安装后打开btrfs-assistant会看到新增了一个选项卡btrfs maintenance  
 在里面设置如下（其实是默认配置，balance和Scrub选中挂载点都为/）  
-![3cffcf9af553ff1be660276dffd6b4de_MD5.jpg](3cffcf9af553ff1be660276dffd6b4de_MD5.jpg)  
+![3cffcf9af553ff1be660276dffd6b4de_MD5.jpg](../_resources/3cffcf9af553ff1be660276dffd6b4de_MD5.jpg)  
 
 ### 配置swap分区
 
@@ -2871,7 +2871,7 @@ sudo dmesg | grep -e DMAR -e IOMMU
 ```
 
 现代设备通常都支持IOMMU且默认开启，BIOS里的选项通常为Intel VT-d、AMD-V或者IOMMU。如果没有的话搜索一下自己的cpu和主板型号看看是否支持。  
-![0213e11d14c3c5017942db2882b877b0_MD5.jpg](0213e11d14c3c5017942db2882b877b0_MD5.jpg)  
+![0213e11d14c3c5017942db2882b877b0_MD5.jpg](../_resources/0213e11d14c3c5017942db2882b877b0_MD5.jpg)  
 
 
 
@@ -2886,8 +2886,8 @@ done
 ```
 
 这里获得了我的显卡所在组和对应id  
-[Open: Pasted image 20251213134113.png](41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
-![41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg](41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
+[Open: Pasted image 20251213134113.png](../_resources/41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
+![41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg](../_resources/41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
 
 3.隔离GPU  
 
@@ -2945,15 +2945,15 @@ nvram = [
 
 8.添加显卡到虚拟机  
 这里重启后可以看到N卡已经被独立出去了，在win11虚拟机配置中，添加pci硬件设备，选择被独立出的4060  
-![62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg](62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg)  
+![62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg](../_resources/62676cbb4a42c76b7f395b46c97e51ad_MD5.jpg)  
 
 开机后装上n卡驱动，在设备管理器上可以看到n卡成功安装使用了  
-![099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg](099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg)  
+![099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg](../_resources/099e5e3183ec6f56a47ff67d14f8f207_MD5.jpg)  
 
 #### moonlight远程连接方案(不建议使用)
 
 删除虚拟机的硬件的显示协议和QXL的显卡，然后添加鼠标和键盘，键盘随便拿了个外接键盘，鼠标就用我现在的雷柏，直通开机后，我直通进去的鼠标键盘就会被虚拟机独占了，所以我的笔记本可以使用自带键盘和触摸板  
-![a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg](a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg)  
+![a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg](../_resources/a5b461818005e59b7a9bd18f0bbef7cc_MD5.jpg)  
 
 开机后显示输出会出现在外接显示器中，之后会尝试hdmi欺骗器，因为这个显示器分辨率不行，但是hdmi欺骗器还没送到，所以现在还是先用外接屏吧  
 
@@ -3080,7 +3080,7 @@ sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 ```
 
 配置结束大概是这样  
-![52a72e57902a24011dcd312b0bdf4e83_MD5.jpg](52a72e57902a24011dcd312b0bdf4e83_MD5.jpg)  
+![52a72e57902a24011dcd312b0bdf4e83_MD5.jpg](../_resources/52a72e57902a24011dcd312b0bdf4e83_MD5.jpg)  
 
 
 5.开启虚拟机，安装looking glass 服务端  
@@ -3271,7 +3271,7 @@ sudo btrfs filesystem defragment -v -f /var/lib/libvirt/images/win11-clone.qcow2
 
 首先确认启用了内存共享(Virtio-FS 强依赖共享内存)  
 添加文件系统类型的硬件  
-![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](3c515fd8863a183782d1c8f03217cd43_MD5.jpg)  
+![3c515fd8863a183782d1c8f03217cd43_MD5.jpg](../_resources/3c515fd8863a183782d1c8f03217cd43_MD5.jpg)  
 就是这样，然后进入虚拟机内部，安装winfsp驱动，在github的项目地址下面找，后缀名msi，安装成功后，打开windows的服务管理，启动Virtio-FS Service服务，默认是手动启动的，但也可以设置自动启动，不过感觉有点小风险？启动成功后可以找到一个独立的盘，盘名就是设置的目标路径  
 
 
@@ -3868,7 +3868,7 @@ done
 
 这是我的显卡硬件ID
 
-![](ed084d865cdcd356f214e7dd747b23ea_MD5.jpg)
+![](../_resources/ed084d865cdcd356f214e7dd747b23ea_MD5.jpg)
 
 配置 Dracut 强制加载 VFIO 驱动
 
@@ -3917,7 +3917,7 @@ lspci -nnk -d 10de:28e0
 
 参考我的
 
-![](b0bef7f22d0d581b4363ee5e034a1129_MD5.jpg)
+![](../_resources/b0bef7f22d0d581b4363ee5e034a1129_MD5.jpg)
 
 其实发现副屏不亮我就知道隔离成功了
 
@@ -4060,9 +4060,9 @@ sudo switch-gpu-owner
 
 CPU配置可以参考`lscpu`命令的信息酌情配置
 
-![](3fa5b505a50a0693ba96d352e9f3749c_MD5.jpg)
+![](../_resources/3fa5b505a50a0693ba96d352e9f3749c_MD5.jpg)
 
-![](eafec5e8b28d295ef5aa1c173dbf3dd0_MD5.jpg)
+![](../_resources/eafec5e8b28d295ef5aa1c173dbf3dd0_MD5.jpg)
 
 下载`virtio-win` 
 
@@ -4070,25 +4070,25 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 添加一个CDROM,镜像选择`virtio-win`，`virtio-win`是 Windows 虚拟机在 KVM 下专用的一套**半虚拟化驱动包**（类似于“主板驱动光盘”），必须挂载它才能让 Windows 识别高性能的 VirtIO 硬盘、网卡以及 Looking Glass 所需的内存共享设备。
 
-![](c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
+![](../_resources/c7958b92165b96808c97ef8e5d38d9f2_MD5.jpg)
 
 网络的设备型号选virtio,网络源选NAT和桥接我觉得在性能上没什么区别，选桥接的话理论上网络传输效率更高，而且如果有局域网串流画面的需求，更推荐使用桥接模式
 
-![](abf503c458692eb568e04e6df0ab530d_MD5.jpg)
+![](../_resources/abf503c458692eb568e04e6df0ab530d_MD5.jpg)
 
-![](6f1d25d40fccb82836792deb569bc3e7_MD5.jpg)
+![](../_resources/6f1d25d40fccb82836792deb569bc3e7_MD5.jpg)
 
 添加PCI主机设备，把显卡那一组的硬件设备添加进去（我的4060一组有两个）
 
-![](b495564764da2be2e27f4aeaa03dd8d2_MD5.jpg)
+![](../_resources/b495564764da2be2e27f4aeaa03dd8d2_MD5.jpg)
 
 注意磁盘的总线应该选择virtio而不是SATA,因为SATA的虚拟化性能较差，刚刚创建虚拟机时选择存储时的总线忘记修改了，我们把SATA的删掉，重新添加一个virtio的，**另外绘图板要删除掉！**，做完了才发现不删除绘图板会导致鼠标输入异常
 
-![](73a018411914a8dca8a0fe0f9ec75eb7_MD5.jpg)
+![](../_resources/73a018411914a8dca8a0fe0f9ec75eb7_MD5.jpg)
 
 然后开始安装，开机后在界面出现`Press any key to boot from CD or DVD`时回车进入windows的安装界面，手慢了会进入下面这个界面
 
-![](880468bcbc77b5834d3516c365dacd7a_MD5.jpg)
+![](../_resources/880468bcbc77b5834d3516c365dacd7a_MD5.jpg)
 
 选择第一行回车，再次出现`Press any key to boot from CD or DVD`时回车即可
 
@@ -4096,30 +4096,30 @@ CPU配置可以参考`lscpu`命令的信息酌情配置
 
 在这里点击`加载驱动程序`
 
-![](dcc9ecca7e04c4e8b95b8ccd1a682078_MD5.jpg)
+![](../_resources/dcc9ecca7e04c4e8b95b8ccd1a682078_MD5.jpg)
 
 找到驱动程序并选中安装，这里的E盘对应的是刚刚添加的`win-virtio`的`CDROM`，注意磁盘名即可
 
-![](8229e4a5e61a30034d83948c4a7ca386_MD5.jpg)
+![](../_resources/8229e4a5e61a30034d83948c4a7ca386_MD5.jpg)
 
 安装后，磁盘总线类型为virtio的磁盘才会被识别
 
-![](3f135ea48e336226b8dd7d52af62889f_MD5.jpg)
+![](../_resources/3f135ea48e336226b8dd7d52af62889f_MD5.jpg)
 
 
 接着在这个界面按下`Shift` + `F10`打开cmd,输入指令`OOBE\BYPASSNRO`来跳过联网强制验证，因为这时virtio类型的网卡还没打驱动，虚拟机是断网的
 
-![](f9478f72e40ceed2891513a8727ec7a6_MD5.jpg)
+![](../_resources/f9478f72e40ceed2891513a8727ec7a6_MD5.jpg)
 
-![](d3189bb6672f08c5c3bd12c1d4d855b0_MD5.jpg)
+![](../_resources/d3189bb6672f08c5c3bd12c1d4d855b0_MD5.jpg)
 
 输入指令后会自动重启，然后跟着下一步，在这里选择`我没有Internet连接`
 
-![](7d8bf2269349f0fb2898fa29aa5f8930_MD5.jpg)
+![](../_resources/7d8bf2269349f0fb2898fa29aa5f8930_MD5.jpg)
 
 然后一直跟着流程走，进入桌面后，打开文件管理器在E盘（也就是win-virtio的那个盘），双击那个选中的`virtio-win-guest-tool`安装驱动程序
 
-![](6bc4e18503d3a95c65da16d2757fe0ba_MD5.jpg)
+![](../_resources/6bc4e18503d3a95c65da16d2757fe0ba_MD5.jpg)
 
 安装后可以看到虚拟机通网了，这时就可以上英伟达官网安装显卡驱动（因为刚刚添加了显卡硬件设备到虚拟机中）,到这里就算完成了显卡直通，
 
@@ -4146,13 +4146,13 @@ https://looking-glass.io/downloads
 
 然后关闭虚拟机，打开`虚拟系统管理器`，在`编辑->首选项`中启用xml编辑
 
-![](0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
+![](../_resources/0e056d3bdcf7737cdae0a5ace0e4a892_MD5.jpg)
 
 回到虚拟机概况，打开xml,写入高亮的那几行
 
 注意：64 MB 对于 2K/4K 分辨率比较稳，如果你只用 1080p，32 也行。
 
-![](e088c81bf21b904c82649070873d7296_MD5.jpg)
+![](../_resources/e088c81bf21b904c82649070873d7296_MD5.jpg)
 
 然后在宿主机安装lookingglass,因为我们在windows客户端中安装的是最新的bleededge版本，所以fedora上我们需要编译安装最新的lookingglass,做好版本对应
 
@@ -4237,11 +4237,11 @@ sudo systemd-tmpfiles --create /etc/tmpfiles.d/10-looking-glass.conf
 
 然后添加两个设备，virtio类型的键盘和鼠标，键盘直接在 `添加设备->输入` 里找，鼠标则需要修改原本的鼠标的xml文件，将选中的`ps2`修改为`virtio`并应用，就会出现virtio类型的鼠标了
 
-![](a17c2adfe98778b6637516debae7da83_MD5.jpg)
+![](../_resources/a17c2adfe98778b6637516debae7da83_MD5.jpg)
 
-![](211233c75d597957a5184283e623b1fb_MD5.jpg)
+![](../_resources/211233c75d597957a5184283e623b1fb_MD5.jpg)
 
-![](8b7ba4ab86d5793c5090759561ae7930_MD5.jpg)
+![](../_resources/8b7ba4ab86d5793c5090759561ae7930_MD5.jpg)
 
 出于安全策略，selinux会拦截lookingglass,因此有两个选择，一个是生成规则来让selinux放行，另一个是直接禁用selinux,禁用selinux较为简单，但selinux也是fedora不得不品的特色之一，所以这里的方案是让selinux放行
 
@@ -4273,7 +4273,7 @@ sudo dnf install dejavu-sans-mono-fonts
 
 虚拟机开机后打开应用`looking glass Client`或者在命令行输入`looking glass Client`启动即可
 
-![](9ea39142a6b1426e9d5d742fb2d27f36_MD5.jpg)
+![](../_resources/9ea39142a6b1426e9d5d742fb2d27f36_MD5.jpg)
 
 
 
@@ -4296,7 +4296,7 @@ sudo dnf install dejavu-sans-mono-fonts
 
 右键进入编辑模式，点击左上角添加或管理小部件--->获取新小部件--->下载新Plasma小部件，里面搜索`Panel colorizer`并安装，然后将该组件添加到任务栏上后配置即可
 
-![](2100b306817511fff3739259eaec0555_MD5.jpg)
+![](../_resources/2100b306817511fff3739259eaec0555_MD5.jpg)
 
 
 ### 视频壁纸
@@ -4402,7 +4402,7 @@ sudo flatpak install com.vysp3r.ProtonPlus
 
 然后打开`protonplus`下载最新的`GEpronton`和`DWproton`,完成后打开`lutris`,替换`wine`的默认版本为`dwproton`（可选，我觉得dwproton好一点吧，就是个单纯的工具选择问题）
 
-![](430ecc883a2a9f6616039bb36d9df36c_MD5.jpg)
+![](../_resources/430ecc883a2a9f6616039bb36d9df36c_MD5.jpg)
 
 如果需要游戏性能监视器，可以装一个`mangohud`,它不仅有性能监视器的功能，不过一般都用来做这个
 
@@ -4645,7 +4645,7 @@ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_obsidian -C "linux_note_key"
 一路回车即可  
 
 在github上创建私有仓库linuxnote  
-![b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg](b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg)  
+![b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg](../_resources/b79450be15fd37f4bd46d8e4e9e00025_MD5.jpg)  
 
 **2.将密钥配置到 GitHub 仓库**  
 查看并复制公钥  
@@ -4870,7 +4870,7 @@ return {
 
 打开nvim，在命令行模式中输入LspInfo
 
-![](b3d17983312216e1343257aae0edb729_MD5.jpg)
+![](../_resources/b3d17983312216e1343257aae0edb729_MD5.jpg)
 
 可以看到qmlls出现在了Active Clients里面
 
@@ -4887,7 +4887,7 @@ WPS 在 Linux 下的字体渲染逻辑比较老。当你文档里的某个字体
 
 要命的是，从 `freetype2` 升级到 2.13.1 版本之后，官方修改了加粗算法的代码。WPS 没跟上适配，导致它在处理较小字号（小于等于 36）的伪加粗时，内部坐标计算直接崩溃溢出，于是字体就糊成了一坨巨大的黑块。
 
-![](7db80aafedff5229b84ba07a8922ca4c_MD5.jpg)
+![](../_resources/7db80aafedff5229b84ba07a8922ca4c_MD5.jpg)
 
 解决方案
 
@@ -5343,7 +5343,7 @@ menuentry 'Pop!_OS(Chainload)' {
 
 这个有两种解决方案  
 一个是在mkinit 中配置 A 卡优先加载  
-![3d4acfcc17d6def5939c834ae1bd67cb_MD5.png](3d4acfcc17d6def5939c834ae1bd67cb_MD5.png)  
+![3d4acfcc17d6def5939c834ae1bd67cb_MD5.png](../_resources/3d4acfcc17d6def5939c834ae1bd67cb_MD5.png)  
 就是在 MODULES 里指定加载顺序即可，当然还需要sudo mkinitcpio -P重新加载一下配置  
 
 另一个方案是把登录管理器的自启动服务添加一个 sleep 2延迟2秒启动  
@@ -5481,7 +5481,7 @@ systemctl --user enable --now force-quantum.service
 
 如何验证？  
 `pw-top`命令查看  
-![fac656bba474cf4bdd53348fe1d1c242_MD5.jpg](fac656bba474cf4bdd53348fe1d1c242_MD5.jpg)  
+![fac656bba474cf4bdd53348fe1d1c242_MD5.jpg](../_resources/fac656bba474cf4bdd53348fe1d1c242_MD5.jpg)  
 bluez_output那一行是我的蓝牙耳机输出，从256变成了2048  
 
 这个方案是用声音延迟的代价换取稳定  
@@ -5590,7 +5590,7 @@ Defaults timestamp_timeout=30, !tty_tickets
 
 比如用proton,或者geproton之类的玩游戏会有短暂的花屏问题，大概是这样
 
-![](f1bb7e77c7c7849a9a5c8432824527a6_MD5.jpg)
+![](../_resources/f1bb7e77c7c7849a9a5c8432824527a6_MD5.jpg)
 
 解决方案是在启动参数里写入`PROTON_ENABLE_WEBVIEW2=1`即可
 
@@ -5640,7 +5640,7 @@ sudo systemctl restart libvirtd
 
 ## 浏览器中文字体异常问题
 
-![](bf425b660af1c1279215560377ace11f_MD5.jpg)
+![](../_resources/bf425b660af1c1279215560377ace11f_MD5.jpg)
 
 例如这个”输“字不对，这是字体回退现象，我选择换成霞鹜文楷screen版
 
