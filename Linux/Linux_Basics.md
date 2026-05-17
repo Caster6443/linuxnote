@@ -17,11 +17,11 @@
 ---
 ## sed命令
 
--i参数：
-sed命令对文件内容的增删改查都是在内存空间中进行的，并不直接影响到文件内容，若想实现对文件内容的直接修改需要加上-i参数
+- -i参数：
+	sed命令对文件内容的增删改查都是在内存空间中进行的，并不直接影响到文件内容，若想实现对文件内容的直接修改需要加上-i参数
 
--n参数：
-由于sed命令的默认机制，即使某行文本未被匹配，也会被打印到终端上，因此在不想显示不匹配文本内容时，需要-n参数来取消sed命令的默认输出
+- -n参数：
+	由于sed命令的默认机制，即使某行文本未被匹配，也会被打印到终端上，因此在不想显示不匹配文本内容时，需要-n参数来取消sed命令的默认输出
 
 ---
 ## awk命令
@@ -1347,10 +1347,10 @@ btrfs文件系统的COW在每个时期的动作是怎样的，可以参考如下
 
 ## ssh报错kex_exchange_identification
 
-[[ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg|Open: Pasted image 20251222202418.png]]
+[Open: Pasted image 20251222202418.png](ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
 ![ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg](ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
 虚拟机内部的sshd服务报错是
-[[6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg|Open: Pasted image 20251222202505.png]]
+[Open: Pasted image 20251222202505.png](6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
 ![6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg](6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
 SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
 - 它会启动一个拥有 root 权限的主进程。

@@ -2886,7 +2886,7 @@ done
 ```
 
 这里获得了我的显卡所在组和对应id  
-[[41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg|Open: Pasted image 20251213134113.png]]  
+[Open: Pasted image 20251213134113.png](41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
 ![41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg](41c68fa8ab9ceef4adba6aa125d824f5_MD5.jpg)  
 
 3.隔离GPU  
