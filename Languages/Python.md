@@ -6,22 +6,29 @@
 
 我使用的是linux所以python环境基本开箱即用，只需要创建虚拟环境并安装需要的包即可
 
-在当前目录下创建虚拟环境，目录名为myenv
+创建工作目录(linux)
 
 ```
-python -m venv myenv
+mkdir -pv ~/Code/Python/alien_invasion/
+cd ~/Code/Python/alien_invasion/
+```
+
+在当前目录下创建虚拟环境，目录名venv
+
+```
+python -m venv venv
 ```
 
 激活环境
 
 ```
-source myenv/bin/activate
+source venv/bin/activate
 ```
 
 如果shell为fish的话则需要使用提供的另一个文件，执行命令
 
 ```
-source myenv/bin/activate.fish 
+source venv/bin/activate.fish 
 ```
 
 安装 Pygame
@@ -36,7 +43,7 @@ python -m pip install pygame
 
 ## 一. 创建 **Pygame** 窗口及响应用户输入
 
-下面创建一个表示游戏的类,以创建空的 Pygame 窗口。在文本编辑器中新建一个文件,将其保存为 alien\_invasion.py,再在其中输入如下代码:
+下面创建一个表示游戏的类,以创建空的 Pygame 窗口。在文本编辑器中新建一个文件,将其保存为 `alien\_invasion.py`,再在其中输入如下代码:
 
 *alien\_invasion.py*
 
@@ -64,6 +71,7 @@ class AlienInvasion:
                 if event.type == pygame.QUIT:
                     sys.exit()
                     # 让最近绘制的屏幕可见
+                    # 只要不点退出按键，就不断重绘刷新画面以实现动态效果
                 pygame.display.flip()
 
 
