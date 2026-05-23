@@ -311,3 +311,27 @@ class AlienInvasion:
 #### 2.4.2 \_update\_screen() 方法
 
 为了进一步简化 run\_game(),我们把更新屏幕的代码移到一个名为 \_update\_screen() 的方法中:
+
+```
+    def run_game(self):
+        """开始游戏主循环"""
+        while True:
+            self._check_events()
+            self._update_screen()
+            self.clock.tick(60)
+
+    def _check_events(self):
+        # 侦听键盘和鼠标事件
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+    def _update_screen(self):
+        # 每次循环时都重绘屏幕
+        self.screen.fill(self.settings.bg_color)
+        self.ship.blitme()
+        # 让最近绘制的屏幕可见
+        pygame.display.flip()
+
+```
+
