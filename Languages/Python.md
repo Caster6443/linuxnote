@@ -246,4 +246,28 @@ class Ship:
 
 *alien\_invasion.py*
 
+```python
+--snip--
+from settings import Settings
+from ship import Ship
 
+
+class AlienInvasion:
+    """管理游戏资源和行为的类"""
+
+    def __init__(self):
+        --snip--
+        # 给窗口起名
+        pygame.display.set_caption("Alien Invasion")
+        self.ship = Ship(self)
+
+    def run_game(self):
+        --snip--
+                # 每次循环时都重绘屏幕
+                self.screen.fill(self.settings.bg_color)
+                self.ship.blitme()
+                # 让最近绘制的屏幕可见
+                pygame.display.flip()
+				--snip--
+
+```
