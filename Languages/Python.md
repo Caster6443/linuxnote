@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
 ```
 
-- 赋给属性 self.screen 的对象是一个 surface。在 Pygame 中, **surface** 是屏幕的一部分,用于显示游戏元素。在这个游戏中,每个元素(如外星人或飞船)都是一个 surface。display.set\_mode() 返回的 surface 表示整个游戏窗口,激活游戏的动画循环后,每经过一次循环都将自动重绘这个 surface,将用户输入触发的所有变化都反映出来。
+- 赋给属性 self.screen 的对象是一个 surface。在 Pygame 中, **surface** 是屏幕的一部分, 个人理解surface是一个类，用于显示游戏元素。在这个游戏中,每个元素(如外星人或飞船)都是一个 surface。display.set\_mode() 返回的 surface 表示整个游戏窗口,激活游戏的动画循环后,每经过一次循环都将自动重绘这个 surface,将用户输入触发的所有变化都反映出来。
 
 ### 1.2 控制帧率
 
@@ -213,4 +213,37 @@ class AlienInvasion:
 ### 2.2 创建 **Ship** 类
 
 选择好用于表示飞船的图像后, 需要将其显示到屏幕上。我们创建一个名为 ship 的 模块, 其中包含 Ship 类, 负责管理飞船的大部分行为:
+
+*ship.py*
+
+```python
+import pygame
+
+
+class Ship:
+    """管理飞船的类"""
+
+    def __init__(self, ai_game):
+        """初始化飞船并设置其初始位置"""
+        self.screen = ai_game.screen
+        self.screen_rect = ai_game.screen.get_rect()
+        # 加载飞船图像并获取其外接矩形
+        self.image = pygame.image.load("images/ship.bmp")
+        self.rect = self.image.get_rect()
+        # 每艘新飞船都放在屏幕底部的中央
+        # 让飞船图片的底部中心点，对齐整个游戏窗口（屏幕）的底部中心点
+        self.rect.midbottom = self.screen_rect.midbottom
+
+        def blitme(self):
+            """在指定位置绘制飞船"""
+            self.screen.blit(self.image, self.rect)
+
+```
+
+### 2.3 在屏幕上绘制飞船
+
+下面更新 alien\_invasion.py,创建一艘飞船并调用其方法 blitme():
+
+*alien\_invasion.py*
+
 
