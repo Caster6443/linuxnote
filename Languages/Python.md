@@ -149,6 +149,56 @@ Pygame 默认创建一个黑色屏幕,这太乏味了。下面在 \_\_init\_\_()
 
 ### 1.4 创建 **Settings** 类
 
-每次给游戏添加新功能时, 通常会引入一些新设置。下面来编写一个名为 settings 的模块,其中包含一个名为 Settings 的类,用于将所有设置都存储在一个地方,以免在代码中到处添加设置。这样,每当需要访问设置时, 只需使用一个 settings 对象。在项目规模增大时,这还让游戏的外观和行为修改起来更加容易:在(接下来将 创建的)settings.py 中修改一些相关的值即可,无须查找散布在项目中的各种设置。
+每次给游戏添加新功能时, 通常会引入一些新设置。下面来编写一个名为 settings 的模块, 其中包含一个名为 Settings 的类, 用于将所有设置都存储在一个地方, 以免在代码中到处添加设置。这样, 每当需要访问设置时, 只需使用一个 settings 对象。在项目规模增大时, 这还让游戏的外观和行为修改起来更加容易: 在(接下来将 创建的)settings.py 中修改一些相关的值即可, 无须查找散布在项目中的各种设置。
 
 在文件夹 alien\_invasion 中,新建一个名为 settings.py 的文件,并在其中添加如下 Settings 类:
+
+*settings.py*
+
+```
+class Settings:
+    """存储游戏<<外星人入侵>> 中所有设置的类"""
+    def __init__(self):
+        """初始化游戏的设置"""
+        self.screen_width = 1200
+        self.screen_height = 800
+        self.bg_color = (230, 230, 230)
+
+```
+
+为了在项目中创建 Settings 实例,并使用它来访问设置,需要将 alien\_invasion.py 修改成下面这样:
+
+*alien\_invasion.py*
+
+```
+--snip--
+import pygame
+from settings import Settings
+
+
+class AlienInvasion:
+    """管理游戏资源和行为的类"""
+
+    def __init__(self):
+        """初始化游戏并创建游戏资源"""
+        pygame.init()
+        self.clock = pygame.time.Clock()
+        self.settings = Settings()
+        # 绘制窗口
+        self.screen = pygame.display.set_mode(
+            (self.settings.screen_width, self.settings.screen_height)
+        )
+        # 给窗口起名
+        pygame.display.set_caption("Alien Invasion")
+
+    def run_game(self):
+        """开始游戏主循环"""
+        while True:
+            --snip--
+                # 每次循环时都重绘屏幕
+                self.screen.fill(self.settings.bg_color)
+                # 让最近绘制的屏幕可见
+                pygame.display.flip()
+                --snip--
+
+```
