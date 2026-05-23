@@ -155,7 +155,7 @@ Pygame 默认创建一个黑色屏幕,这太乏味了。下面在 \_\_init\_\_()
 
 *settings.py*
 
-```
+```python
 class Settings:
     """存储游戏<<外星人入侵>> 中所有设置的类"""
     def __init__(self):
@@ -170,7 +170,7 @@ class Settings:
 
 *alien\_invasion.py*
 
-```
+```python
 --snip--
 import pygame
 from settings import Settings
@@ -199,6 +199,11 @@ class AlienInvasion:
                 self.screen.fill(self.settings.bg_color)
                 # 让最近绘制的屏幕可见
                 pygame.display.flip()
+                self.clock.tick(60)
                 --snip--
 
 ```
+
+## 二
+
+### 2.1 添加飞船图像
