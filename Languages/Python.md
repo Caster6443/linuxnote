@@ -280,7 +280,7 @@ class AlienInvasion:
 
 在大型项目中,经常需要在添加新代码前重构既有的代码。重构旨在简化既有代码的结构,使其更容易扩展。我们在这里将把越来越长的 run\_game() 方法拆分成两个辅助方法。辅助方法(helper method)一般只在类中调用,不会在类外调用。在 Python 中, 辅助方法的名称以单下划线打头。
 
-#### 2.4.1  \_check\_events() 方法
+#### 2.4.1 \_check\_events() 方法
 
 我们将把管理事件的代码移到一个名为 \_check\_events() 的方法中,以简化 run\_game() 并隔离事件循环。通过隔离事件循环,可将事件管理与游戏的其他方面 (如更新屏幕)分离。
 
@@ -288,5 +288,26 @@ class AlienInvasion:
 
 *alien\_invasion.py*
 
+```python
+    def run_game(self):
+        """开始游戏主循环"""
+        while True:
+            self._check_events()
+            # 每次循环时都重绘屏幕
+            self.screen.fill(self.settings.bg_color)
+            self.ship.blitme()
+            # 让最近绘制的屏幕可见
+            pygame.display.flip()
+            self.clock.tick(60)
 
+    def _check_events(self):
+        # 侦听键盘和鼠标事件
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
 
+```
+
+#### 2.4.2 \_update\_screen() 方法
+
+为了进一步简化 run\_game(),我们把更新屏幕的代码移到一个名为 \_update\_screen() 的方法中:
