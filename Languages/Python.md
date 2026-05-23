@@ -128,7 +128,7 @@ Pygame 默认创建一个黑色屏幕,这太乏味了。下面在 \_\_init\_\_()
 
 *alien\_invasion.py*
 
-```
+```python
     def __init__(self):
         --snip--
         # 设置背景色
@@ -158,11 +158,13 @@ Pygame 默认创建一个黑色屏幕,这太乏味了。下面在 \_\_init\_\_()
 ```python
 class Settings:
     """存储游戏<<外星人入侵>> 中所有设置的类"""
+
     def __init__(self):
         """初始化游戏的设置"""
-        self.screen_width = 1200
-        self.screen_height = 800
+        self.screen_width = 1080
+        self.screen_height = 1350
         self.bg_color = (230, 230, 230)
+
 
 ```
 
@@ -229,14 +231,16 @@ class Ship:
         self.screen_rect = ai_game.screen.get_rect()
         # 加载飞船图像并获取其外接矩形
         self.image = pygame.image.load("images/ship.bmp")
+        # 调整飞船尺寸
+        self.image = pygame.transform.scale(self.image, (56, 72))
         self.rect = self.image.get_rect()
         # 每艘新飞船都放在屏幕底部的中央
         # 让飞船图片的底部中心点，对齐整个游戏窗口（屏幕）的底部中心点
         self.rect.midbottom = self.screen_rect.midbottom
 
-        def blitme(self):
-            """在指定位置绘制飞船"""
-            self.screen.blit(self.image, self.rect)
+    def blitme(self):
+        """在指定位置绘制飞船"""
+        self.screen.blit(self.image, self.rect)
 
 ```
 
@@ -271,3 +275,18 @@ class AlienInvasion:
 				--snip--
 
 ```
+
+### 2.4 重构:**\_check\_events()** 方法和 **\_update\_screen()** 方法
+
+在大型项目中,经常需要在添加新代码前重构既有的代码。重构旨在简化既有代码的结构,使其更容易扩展。我们在这里将把越来越长的 run\_game() 方法拆分成两个辅助方法。辅助方法(helper method)一般只在类中调用,不会在类外调用。在 Python 中, 辅助方法的名称以单下划线打头。
+
+#### 2.4.1  \_check\_events() 方法
+
+我们将把管理事件的代码移到一个名为 \_check\_events() 的方法中,以简化 run\_game() 并隔离事件循环。通过隔离事件循环,可将事件管理与游戏的其他方面 (如更新屏幕)分离。
+
+下面是新增 \_check\_events() 方法后的 AlienInvasion 类,只有 run\_game() 的代码受到了影响:
+
+*alien\_invasion.py*
+
+
+
