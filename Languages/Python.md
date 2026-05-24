@@ -693,7 +693,7 @@ class Bullet(Sprite):
         self.rect = pygame.Rect(
             0, 0, self.settings.bullet_width, self.settings.bullet_height
         )
-        self.rect.midtop = ai_game.rect.midtop
+        self.rect.midtop = ai_game.ship.rect.midtop
         # 存储用浮点数表示的子弹位置
         self.y = float(self.rect.y)
 
@@ -773,3 +773,37 @@ from bullet import Bullet
 
 为了发射子弹,需要做的工作不少,因此编写一个新方法 \_fire\_bullet() 来完成 这项任务:
 
+*alien\_invasion.py*
+
+```python
+    def _check_keydown_events(self, event):
+        --snip--
+        elif event.key == pygame.K_q:
+            sys.exit()
+        elif event.key == pygame.K_SPACE:
+            self._fire_bullet()
+
+    def _check_keyup_events(self, event):
+        --snip--
+
+    def _fire_bullet(self):
+        """创建一颗子弹,并将其加入编组 bullets"""
+        new_bullet = Bullet(self)
+        self.bullets.add(new_bullet)
+
+    def _update_screen(self):
+        """更新屏幕上的图像，并切换到新屏幕"""
+        self.screen.fill(self.settings.bg_color)
+        for bullet in self.bullets.sprites():
+            bullet.draw_bullet()
+        self.ship.blitme()
+        # 让最近绘制的屏幕可见
+        pygame.display.flip()
+
+```
+
+当玩家按空格键时,我们调用 \_fire\_bullet()。在 \_fire\_bullet() 中,创建一个 Bullet 实例并将其赋给 new\_bullet再使用 add() 方法 将其加入编组 bullets(见❸)。add() 方法类似于列表的 append() 方法,不过是专门为 Pygame 编组编写的。
+
+bullets.sprites() 方法返回一个列表,其中包含 bullets 编组中的所有精灵。为了在屏幕上绘制发射出的所有子弹,遍历 bullets 编组中的精灵,并对每个精灵都调用 draw\_bullet()(见❹)。我们将这个循环放在绘制飞船的代码行前面,以防子弹出现在飞船上。
+
+如果此时运行 alien\_invasion.py,将能够左右移动飞船,并发射任意数量的子弹。子弹在屏幕上直线上升,抵达屏幕上边缘后消失,如图所示。子弹的尺寸、颜色和速度可以在 settings.py 中修改。
