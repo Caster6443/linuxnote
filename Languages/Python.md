@@ -495,3 +495,37 @@ class Settings:
 通过将速度设置指定为浮点数,可在稍后加快游戏的节奏时更细致地控制飞船的速度。然而,rect 的 x 等属性只能存储整数值,因此需要对 Ship 类做些修改:
 
 *ship.py*
+
+```
+class Ship:
+    """管理飞船的类"""
+
+    def __init__(self, ai_game):
+        """初始化飞船并设置其初始位置"""
+        self.screen = ai_game.screen
+        self.settings = ai_game.settings
+        --snip-
+        # 每艘新飞船都放在屏幕底部的中央
+        # 让飞船图片的底部中心点，对齐整个游戏窗口（屏幕）的底部中心点
+        self.rect.midbottom = self.screen_rect.midbottom
+        # 在飞船的属性x中存储一个浮点数
+        self.x = float(self.rect.x)
+        # 移动标志
+        self.moving_right = False
+        self.moving_left = False
+
+    def update(self):
+        """根据移动标志调整飞船的位置"""
+        # 更新飞船的属性 x 的值,而不是其外接矩形的属性 x 的值
+        if self.moving_right:
+            self.x += self.settings.ship_speed
+        if self.moving_left:
+            self.x -= self.settings.ship_speed
+            # 根据self.x更新rect对象
+        self.rect.x = int(self.x)
+
+    def blitme(self):
+        """在指定位置绘制飞船"""
+        self.screen.blit(self.image, self.rect)
+
+```
