@@ -382,7 +382,7 @@ class Ship:
 
     def update(self):
         if self.moving_right:
-            self.rect.x += 10
+            self.rect.x += 1
 
     def blitme(self):
 	    --snip--
@@ -441,9 +441,9 @@ class Ship:
 
     def update(self):
         if self.moving_right:
-            self.rect.x += 5
+            self.rect.x += 1
         if self.moving_left:
-            self.rect.x -= 5
+            self.rect.x -= 1
 	--snip--
 ```
 
@@ -475,7 +475,7 @@ class Ship:
 
 #### 2.5.4 调整飞船的速度
 
-当前,每次执行 while 循环时,飞船都移动 5 像素。但是,可以在 Settings 类中添加属性 ship\_speed,用于控制飞船的速度。我们将根据这个属性决定飞船在每次循环时最多移动多远。下面演示了如何在 settings.py 中添加这个新属性:
+当前,每次执行 while 循环时,飞船都移动 1 像素。但是,可以在 Settings 类中添加属性 ship\_speed,用于控制飞船的速度。我们将根据这个属性决定飞船在每次循环时最多移动多远。下面演示了如何在 settings.py 中添加这个新属性:
 
 *settings.py*
 
@@ -490,7 +490,7 @@ class Settings:
 
 ```
 
-这里将 ship\_speed 的初始值设置成 1.5。现在在移动飞船时,每次循环将移动 7.5 像素而不是 5 像素。
+这里将 ship\_speed 的初始值设置成 1.5。现在在移动飞船时,每次循环将移动 1.5 像素而不是 1 像素。
 
 通过将速度设置指定为浮点数,可在稍后加快游戏的节奏时更细致地控制飞船的速度。然而,rect 的 x 等属性只能存储整数值,因此需要对 Ship 类做些修改:
 
