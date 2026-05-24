@@ -336,3 +336,28 @@ class AlienInvasion:
 ```
 
 ### 2.5 驾驶飞船
+
+#### 2.5.1 响应按键
+
+在 Pygame 中,事件都是通过 pygame.event.get() 方法获取的,因此需要在 \_check\_events() 方法中指定要检查的事件类型。每当用户按键时,都将在 Pygame 中产生一个 KEYDOWN 事件。
+
+在检测到 KEYDOWN 事件时,需要检查按下的是否是触发行动的键。如果玩家按下的是右方向键,就增大飞船的 rect.x 值,使飞船向右移动:
+
+*alien\_invasion.py*
+
+```python
+    def _check_events(self):
+        # 侦听键盘和鼠标事件
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.rect.x += 1
+
+```
+
+- 如果现在运行 alien\_invasion.py,那么每按一次右方向键,飞船都将向右移动 1 像素。 这只是一个开端,并非控制飞船的高效方式。下面来改进控制方式,允许飞船持续移动。
+
+#### 2.5.2 允许持续移动
+
