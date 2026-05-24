@@ -730,5 +730,46 @@ class Bullet(Sprite):
 
 *alien\_invasion.py*
 
+```python
+--snip--
+from ship import Ship
+from bullet import Bullet
+```
 
+接下来,在 \_\_init\_\_() 中创建用于存储子弹的编组:
+
+*alien\_invasion.py*
+
+```python
+    def __init__(self):
+        """初始化游戏并创建游戏资源"""
+        --snip--
+        self.ship = Ship(self)
+        self.bullets = pygame.sprite.Group()
+
+```
+
+然后在 while 循环中更新子弹的位置:
+
+*alien\_invasion.py*
+
+```python
+    def run_game(self):
+        """开始游戏主循环"""
+        while True:
+            self._check_events()
+            self.ship.update()
+            self.bullets.update()
+            self._update_screen()
+            self.clock.tick(60)
+
+```
+
+在对编组调用 update() 时,编组会自动对其中的每个精灵调用 update(),因此 self.bullets.update() 将为 bullets 编组中的每颗子弹调用 bullet.update()。
+
+#### 2.7.4 开火
+
+在 AlienInvasion 中,需要修改 \_check\_keydown\_events(),以便在玩家按空格键时发射一颗子弹。无须修改 \_check\_keyup\_events(),因为在玩家释放空格键时不需要做任何操作。还需修改 \_update\_screen(),确保在调用 flip() 前在屏幕上重绘每颗子弹。
+
+为了发射子弹,需要做的工作不少,因此编写一个新方法 \_fire\_bullet() 来完成 这项任务:
 
