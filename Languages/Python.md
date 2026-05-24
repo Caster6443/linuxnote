@@ -802,8 +802,10 @@ from bullet import Bullet
 
 ```
 
-当玩家按空格键时,我们调用 \_fire\_bullet()。在 \_fire\_bullet() 中,创建一个 Bullet 实例并将其赋给 new\_bullet再使用 add() 方法 将其加入编组 bullets(见❸)。add() 方法类似于列表的 append() 方法,不过是专门为 Pygame 编组编写的。
+当玩家按空格键时,我们调用 \_fire\_bullet()。在 \_fire\_bullet() 中,创建一个 Bullet 实例并将其赋给 new\_bullet再使用 add() 方法 将其加入编组 bullets。add() 方法类似于列表的 append() 方法,不过是专门为 Pygame 编组编写的。
 
-bullets.sprites() 方法返回一个列表,其中包含 bullets 编组中的所有精灵。为了在屏幕上绘制发射出的所有子弹,遍历 bullets 编组中的精灵,并对每个精灵都调用 draw\_bullet()(见❹)。我们将这个循环放在绘制飞船的代码行前面,以防子弹出现在飞船上。
+bullets.sprites() 方法返回一个列表,其中包含 bullets 编组中的所有精灵。为了在屏幕上绘制发射出的所有子弹,遍历 bullets 编组中的精灵,并对每个精灵都调用 draw\_bullet()。我们将这个循环放在绘制飞船的代码行前面,以防子弹出现在飞船上。
 
 如果此时运行 alien\_invasion.py,将能够左右移动飞船,并发射任意数量的子弹。子弹在屏幕上直线上升,抵达屏幕上边缘后消失,如图所示。子弹的尺寸、颜色和速度可以在 settings.py 中修改。
+
+![627](_resources/Python/8cc05a96a0024a6e72f7f746b4c0f5fa_MD5.jpg)
