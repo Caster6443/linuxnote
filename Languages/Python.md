@@ -371,3 +371,55 @@ class AlienInvasion:
 
 *ship.py*
 
+```python
+class Ship:
+    --snip--
+        # 每艘新飞船都放在屏幕底部的中央
+        # 让飞船图片的底部中心点，对齐整个游戏窗口（屏幕）的底部中心点
+        self.rect.midbottom = self.screen_rect.midbottom
+        # 移动标志
+        self.moving_right = False
+
+    def update(self):
+        if self.moving_right:
+            self.rect.x += 10
+
+    def blitme(self):
+	    --snip--
+
+```
+
+接下来,需要修改 \_check\_events(),使其在玩家按下右方向键时将 moving\_right 设置为 True,并在玩家释放时将 moving\_right 设置为 False:
+
+*alien\_invasion.py*
+
+```python
+    def _check_events(self):
+        --snip--
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = False
+
+```
+
+最后,需要修改 run\_game() 中的 while 循环,以便在每次执行循环时都调用飞船 的 update() 方法:
+
+*alien\_invasion.py*
+
+```python
+    def run_game(self):
+        """开始游戏主循环"""
+        while True:
+            self._check_events()
+            self.ship.update()
+            self._update_screen()
+            self.clock.tick(60)
+
+```
+
+飞船的位置将在检测到键盘事件后(但在更新屏幕前)更新。这样能让飞船的位置根据玩家输入进行更新,并确保使用更新后的位置将飞船绘制到屏幕上。
+
+如果现在运行 alien\_invasion.py 并按下右方向键,飞船将持续向右移动,直到释放右方向键为止。总之就是将键盘输入这个动作拆分成了 *按下按键*  和 *按键回弹* 两个过程处理
