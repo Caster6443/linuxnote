@@ -446,3 +446,52 @@ class Ship:
             self.rect.x -= 5
 	--snip--
 ```
+
+在 \_\_init\_\_() 方法中,添加标志 self.moving\_left。在 update() 方法中,添加一个 if 代码块,而不是 elif 代码块。这样,如果玩家同时按下左右方向键,将先增大再减小飞船的 rect.x 值,即飞船的位置保持不变。如果使用一个 elif 代码块来处理向左移动的情况,右方向键将始终处于优先地位。在改变飞船的移动方向时, 玩家可能会同时按住左右方向键,此时使用两个 if 块能让移动更准确。
+
+还需对 \_check\_events() 做两处调整:
+
+*alien\_invasion.py*
+
+```
+    def _check_events(self):
+        # 侦听键盘和鼠标事件
+        for event in pygame.event.get():
+            --snip--
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = False
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = False
+
+```
+
+
+
+#### 2.5.4 调整飞船的速度
+
+当前,每次执行 while 循环时,飞船都移动 5 像素。但是,可以在 Settings 类中添加属性 ship\_speed,用于控制飞船的速度。我们将根据这个属性决定飞船在每次循环时最多移动多远。下面演示了如何在 settings.py 中添加这个新属性:
+
+*settings.py*
+
+```
+class Settings:
+    """存储游戏<<外星人入侵>> 中所有设置的类"""
+
+    def __init__(self):
+        --snip--
+        # 飞船的设置
+        self.ship_speed = 1.5
+
+```
+
+这里将 ship\_speed 的初始值设置成 1.5。现在在移动飞船时,每次循环将移动 7.5 像素而不是 5 像素。
+
+通过将速度设置指定为浮点数,可在稍后加快游戏的节奏时更细致地控制飞船的速度。然而,rect 的 x 等属性只能存储整数值,因此需要对 Ship 类做些修改:
+
+*ship.py*
