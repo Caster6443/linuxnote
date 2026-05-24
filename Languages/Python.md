@@ -361,3 +361,13 @@ class AlienInvasion:
 
 #### 2.5.2 允许持续移动
 
+当玩家按住右方向键不放时,我们希望飞船持续向右移动,直到玩家释放该键为止。 我们将让游戏检测 pygame.KEYUP 事件,以便知道玩家何时释放右方向键。然后,将结合使用 KEYDOWN 和 KEYUP 事件以及一个名为 moving\_right 的标志来实现持续移动。
+
+当标志 moving\_right 为 False 时,飞船不会移动。当玩家按下右方向键时,我们将这个标志设置为 True;当玩家释放该键时,将这个标志重新设置为 False。
+
+飞船的属性都由 Ship 类控制,因此要给这个类添加一个名为 moving\_right 的属性 和一个名为 update() 的方法。update() 方法检查标志 moving\_right 的状态。 如果这个标志为 True,就调整飞船的位置。我们将在每次通过 while 循环时调用一次这个方法,以更新飞船的位置。
+
+下面是对 Ship 类所做的修改:
+
+*ship.py*
+
