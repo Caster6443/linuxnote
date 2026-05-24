@@ -554,3 +554,31 @@ class Ship:
 
 *alien\_invasion.py*
 
+```
+    def _check_events(self):
+        """响应鼠标和键盘事件"""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                self._check_keydown_events(event)
+            elif event.type == pygame.KEYUP:
+                self._check_keyup_events(event)
+
+    def _check_keydown_events(self, event):
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = True
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = True
+
+    def _check_keyup_events(self, event):
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = False
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = False
+```
+
+#### 2.5.7 按 **Q** 键退出
+
+省的每次鼠标移到右上角按关闭，但我用的wm其实无所谓，还是当案例了
+
