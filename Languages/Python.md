@@ -554,7 +554,7 @@ class Ship:
 
 *alien\_invasion.py*
 
-```
+```python
     def _check_events(self):
         """响应鼠标和键盘事件"""
         for event in pygame.event.get():
@@ -580,5 +580,64 @@ class Ship:
 
 #### 2.5.7 按 **Q** 键退出
 
-省的每次鼠标移到右上角按关闭，但我用的wm其实无所谓，还是当案例了
+省的每次鼠标移到右上角按关闭，但我用的wm其实无所谓，还是当案例了(其实就是加两行代码而已)
+
+*alien\_invasion.py*
+
+```python
+    def _check_keydown_events(self, event):
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = True
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = True
+        elif event.key == pygame.K_q:
+            sys.exit()
+
+```
+
+
+#### 2.5.8 在全屏模式下运行游戏
+
+Pygame 支持全屏模式,相比于常规窗口,你可能更喜欢在这种模式下运行游戏。有些游戏在全屏模式下看起来更舒服,而且在一些系统中,游戏在全屏模式下可能有性能上的提升
+
+要在全屏模式下运行这款游戏,可在 \_\_init\_\_() 中做如下修改(记得注释之前的绘制窗口代码):
+
+*alien\_invasion.py*
+
+```python
+    def __init__(self):
+        """初始化游戏并创建游戏资源"""
+        --snip--
+        self.settings = Settings()
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.settings.screen_width = self.screen.get_rect().width
+        self.settings.screen_height = self.screen.get_rect().height
+        # 绘制窗口
+        # self.screen = pygame.display.set_mode(
+        #    (self.settings.screen_width, self.settings.screen_height)
+        # )
+        # 给窗口起名
+        pygame.display.set_caption("Alien Invasion")
+        --snip--
+
+```
+
+### 2.6 简单回顾
+
+#### <span id="page-303-1"></span>**2.6.1 alien\_invasion.py**
+
+主文件 alien\_invasion.py 包含 AlienInvasion 类,这个类创建在游戏的很多地方会用到的一系列属性:赋给 settings 的设置,赋给 self.screen 的主显示 surface, 以及一个飞船实例。这个模块还包含游戏的主循环,即一个调用 \_check\_events()、ship.update() 和 \_update\_screen() 的 while 循环。它 还在每次通过循环后让时钟按键计时。
+
+\_check\_events() 方法检测相关的事件(如按下和释放),并通过调用 \_check\_keydown\_events() 方法和 \_check\_keyup\_events() 方法处理这些事件。当前,这些方法负责管理飞船的移动。AlienInvasion 类还包含 \_update\_screen() 方法,这个方法在每次主循环中重绘屏幕。
+
+要开始游戏《外星人入侵》,只需运行文件 alien\_invasion.py,其他文件(settings.py 和 ship.py)包含的代码会被导入这个文件。
+
+#### <span id="page-303-2"></span>**12.7.2 settings.py**
+
+文件 settings.py 包含 Settings 类,这个类只包含 \_\_init\_\_() 方法,用于初始化控制游戏外观和飞船速度的属性。
+
+#### <span id="page-303-3"></span>**12.7.3 ship.py**
+
+文件 ship.py 包含 Ship 类,这个类包含 \_\_init\_\_() 方法、管理飞船位置的 update() 方法和在屏幕上绘制飞船的 blitme() 方法。表示飞船的图像 ship.bmp 存储在文件夹 images 中。
+
 
