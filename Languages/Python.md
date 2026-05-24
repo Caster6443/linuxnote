@@ -423,3 +423,26 @@ class Ship:
 飞船的位置将在检测到键盘事件后(但在更新屏幕前)更新。这样能让飞船的位置根据玩家输入进行更新,并确保使用更新后的位置将飞船绘制到屏幕上。
 
 如果现在运行 alien\_invasion.py 并按下右方向键,飞船将持续向右移动,直到释放右方向键为止。总之就是将键盘输入这个动作拆分成了 *按下按键*  和 *按键回弹* 两个过程处理
+
+
+#### 2.5.3 左右移动
+
+在飞船能够持续向右移动后,添加向左移动的逻辑很容易。我们再次修改 Ship 类和 \_check\_events() 方法。下面显示了对 Ship 类的 \_\_init\_\_() 方法和 update() 方法所做的相关修改:
+
+```
+class Ship:
+    """管理飞船的类"""
+
+    def __init__(self, ai_game):
+        --snip--
+        # 移动标志
+        self.moving_right = False
+        self.moving_left = False
+
+    def update(self):
+        if self.moving_right:
+            self.rect.x += 5
+        if self.moving_left:
+            self.rect.x -= 5
+	--snip--
+```
