@@ -429,7 +429,7 @@ class Ship:
 
 在飞船能够持续向右移动后,添加向左移动的逻辑很容易。我们再次修改 Ship 类和 \_check\_events() 方法。下面显示了对 Ship 类的 \_\_init\_\_() 方法和 update() 方法所做的相关修改:
 
-```
+```python
 class Ship:
     """管理飞船的类"""
 
@@ -453,7 +453,7 @@ class Ship:
 
 *alien\_invasion.py*
 
-```
+```python
     def _check_events(self):
         # 侦听键盘和鼠标事件
         for event in pygame.event.get():
@@ -479,7 +479,7 @@ class Ship:
 
 *settings.py*
 
-```
+```python
 class Settings:
     """存储游戏<<外星人入侵>> 中所有设置的类"""
 
@@ -496,7 +496,7 @@ class Settings:
 
 *ship.py*
 
-```
+```python
 class Ship:
     """管理飞船的类"""
 
@@ -504,7 +504,7 @@ class Ship:
         """初始化飞船并设置其初始位置"""
         self.screen = ai_game.screen
         self.settings = ai_game.settings
-        --snip-
+        --snip--
         # 每艘新飞船都放在屏幕底部的中央
         # 让飞船图片的底部中心点，对齐整个游戏窗口（屏幕）的底部中心点
         self.rect.midbottom = self.screen_rect.midbottom
@@ -524,8 +524,33 @@ class Ship:
             # 根据self.x更新rect对象
         self.rect.x = int(self.x)
 
-    def blitme(self):
-        """在指定位置绘制飞船"""
-        self.screen.blit(self.image, self.rect)
+    --snip--
 
 ```
+
+#### 2.5.5 限制飞船的活动范围
+
+当前,如果玩家按住方向键的时间足够长,飞船将移到屏幕之外,消失得无影无踪。下面来修复这个问题,让飞船到达屏幕边缘后停止移动。为此,将修改 Ship 类的 update() 方法:
+
+*ship.py*
+
+```python
+    def update(self):
+        """根据移动标志调整飞船的位置"""
+        # 更新飞船的属性 x 的值,而不是其外接矩形的属性 x 的值
+        if self.moving_right and self.rect.right < self.screen_rect.right:
+            self.x += self.settings.ship_speed
+        if self.moving_left and self.rect.left > 0:
+            self.x -= self.settings.ship_speed
+            # 根据self.x更新rect对象
+        self.rect.x = int(self.x)
+
+```
+
+
+#### 2.5.6 重构 **\_check\_events()**
+
+随着游戏的开发,\_check\_events() 方法将越来越长。因此我们将其部分代码放在两个方法中,其中一个处理 KEYDOWN 事件,另一个处理 KEYUP 事件:
+
+*alien\_invasion.py*
+
