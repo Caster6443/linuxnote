@@ -1082,7 +1082,29 @@ class SharkInvasion:
 
 #### 3.3.1 创建一行太空鲨鱼
 
+*shark\_invasion.py*
 
+```python
+    def _create_fleet(self):
+        """创建一个太空鲨舰队"""
+        # 创建一个太空鲨, 再不断添加，直到没有空间添加太空鲨为止
+        # 太空鲨的间距为太空鲨的宽度
+        shark = Shark(self)
+        shark_width = shark.rect.width
+        current_x = shark_width
+        while current_x < (self.settings.screen_width - 2 * shark_width):
+            new_shark = Shark(self)
+            new_shark.x = current_x
+            new_shark.rect.x = current_x
+            self.sharks.add(new_shark)
+            current_x += 2 * shark_width
 
+```
+
+#### 3.3.2 重构 **\_create\_fleet()**
+
+倘若只需使用前面的代码就能创建一个鲨鱼舰队,也许应该让 \_create\_fleet() 保持原样,但鉴于创建鲨鱼舰队的工作还未完成,我们稍微整理一下这个方法。为此,添加辅助方法 \_create\_alien(),并在 \_create\_fleet() 中调用它:
+
+*shark\_invasion.py*
 
 
