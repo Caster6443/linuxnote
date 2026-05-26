@@ -899,8 +899,12 @@ run\_game() 中的 while 循环又变得简单了:
         while True:
             self._check_events()
             self.ship.update()
-            self.bullets.update()
+            self._update_bullets()
             self._update_screen()
             self.clock.tick(60)
 ```
+
+我们让主循环包含尽可能少的代码,这样只要看方法名就能迅速知道游戏中发生的情况了。主循环检查玩家的输入,并更新飞船的位置和所有未消失的子弹的位置。然后,在每次循环末尾,都使用更新后的位置来绘制新屏幕,并让时钟计时。
+
+请再次运行 alien\_invasion.py,确认发射子弹时没有错误。
 
