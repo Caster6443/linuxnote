@@ -1290,7 +1290,7 @@ class SharkInvasion:
         """将整个太空鲨舰队向下移动，并改变它们的方向"""
         for shark in self.sharks.sprites():
             shark.rect.y += self.settings.fleet_drop_speed
-            self.settings.fleet_direction *= -1
+        self.settings.fleet_direction *= -1
 
 ```
 
