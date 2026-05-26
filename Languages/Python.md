@@ -39,7 +39,7 @@ python -m pip install pygame
 
 如果你在运行程序或启动终端会话时使用的命令不是 python,而是 python3,务必 将上述命令中的 python 替换为 python3。
 
-## 一
+## 一. 基础环境
 
 现在开始开发游戏《外星人入侵》。首先创建一个空的 Pygame 窗口,稍后将在其中绘制游戏元素,如飞船和外星人。之后,我们还将让这个游戏响应用户输入,设置背景色,以及加载飞船图像。
 
@@ -206,7 +206,7 @@ class AlienInvasion:
 
 ```
 
-## 二
+## 二. 太空飞船
 
 ### 2.1 添加飞船图像
 
@@ -1561,4 +1561,58 @@ from ship import Ship
 
 #### 3.6.4 游戏结束
 
-现在这个游戏看起来更完整了,但它永远都不会结束——ships\_left 只会不断地变成越来越小的负数。下面添加标志 game\_active,以便在玩家的飞船用完后结束游戏。首先,在 AlienInvasion 类的方法 \_\_init\_\_() 末尾设置这个标志:
+现在这个游戏看起来更完整了,但它永远都不会结束——ships\_left 只会不断地变成越来越小的负数。下面添加标志 game\_active,以便在玩家的飞船用完后结束游戏。首先,在 SharkInvasion 类的方法 \_\_init\_\_() 末尾设置这个标志:
+
+*shark\_invasion.py*
+
+```python
+    def __init__(self):
+        """初始化游戏并创建游戏资源"""
+        --snip--
+        # 游戏启动后处于活动状态
+        self.game_active = True
+```
+
+接下来在 \_ship\_hit() 中添加代码,在玩家的飞船用完后将 game\_active 设置为 False:
+
+```python
+    def _ship_hit(self):
+        """响应飞船和太空鲨的碰撞"""
+        if self.stats.ships_left > 0:
+            # 将 ships_left 减1
+            self.stats.ships_left -= 1
+            # 清空太空鲨列表和子弹列表
+            self.bullets.empty()
+            self.sharks.empty()
+            # 创建一个新的太空鲨舰队，并将飞船放在屏幕底部的中央
+            self._create_fleet()
+            self.ship.center_ship()
+            # 暂停
+            sleep(0.5)
+        else:
+            self.game_active = False
+
+```
+
+### 3.7 确定应运行游戏的哪些部分
+
+我们需要确定游戏的哪些部分在所有情况下都应运行,哪些部分仅在游戏处于活动状态时才运行:
+
+*shark\_invasion.py*
+
+```python
+    def run_game(self):
+        """开始游戏主循环"""
+        while True:
+            self._check_events()
+            if self.game_active:
+                self.ship.update()
+                self._update_bullets()
+                self._update_sharks()
+                self._update_screen()
+                self.clock.tick(60)
+```
+
+在主循环中,在所有情况下都需要调用 \_check\_events(),即便游戏处于非活动状态也是如此。例如,程序需要知道玩家是否按了 Q 键以退出游戏或单击了关闭窗口的按钮;还需要在等待玩家重新开始游戏时持续更新屏幕,以便显示这期间的更改(比如提供一个等待动画)。其他的方法仅在游戏处于活动状态时才需要调用,因为当游戏处于非活动状态时,不用更新游戏元素的位置。
+
+现在运行这个游戏时,它将在飞船用完后停止不动。
