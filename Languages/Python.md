@@ -968,11 +968,66 @@ class Shark(Sprite):
 
 要让第一个太空鲨在屏幕上现身,需要创建一个 Shark 实例。这属于初始化工作之一,因此需要把这些代码放在 SharkInvasion 类的 \_\_init\_\_() 方法末尾。我们最终会创建一个太空鲨舰队,涉及的工作量不少,因此将新建一个名为 \_create\_fleet() 的辅助方法。
 
-在类中,方法的定义顺序无关紧要,只要按统一的标准排列就行。我们将把 \_create\_fleet() 放在 \_update\_screen() 前面,但其实放在 SharkInvasion 类的任何地方都行。首先,需要导入 Sharl 类。
+在类中,方法的定义顺序无关紧要,只要按统一的标准排列就行。我们将把 \_create\_fleet() 放在 \_update\_screen() 前面,但其实放在 SharkInvasion 类的任何地方都行。首先,需要导入 Shark 类。
 
+*shark_invasion.py*
 
+```python
+--snip--
+from bullet import Bullet
+from shark import Shark
+```
 
+下面是修改后的\_\_init\_\_方法:
 
+*shark_invasion.py*
+
+```python
+    def __init__(self):
+        """初始化游戏并创建游戏资源"""
+        --snip--
+        self.bullets = pygame.sprite.Group()
+        self.sharks = pygame.sprite.Group()
+        self._create_fleet()
+
+```
+
+这创建了一个用于存储鲨鱼舰队的编组,还调用了接下来将编写的 \_create\_fleet() 方法。
+
+下面是新编写的 \_create\_fleet() 方法:
+
+*shark\_invasion.py*
+
+```python
+    def _update_bullets(self):
+        --snip--
+
+    def _create_fleet(self):
+        """创建一个太空鲨舰队"""
+        # 创建一个太空鲨
+        shark = Shark(self)
+        self.sharks.add(shark)
+
+    def _update_screen(self):
+	    --snip--
+```
+
+在这个方法中,先创建一个 Shark 实例,再将其添加到用于存储鲨鱼舰队的编组中。 太空鲨默认被放在屏幕的左上角附近。
+
+要让太空鲨现身,需要在 \_update\_screen() 中对太空鲨编组调用 draw() 方法:
+
+*shark\_invasion.py*
+
+```python
+    def _update_screen(self):
+        """更新屏幕上的图像，并切换到新屏幕"""
+        --snip--
+        self.ship.blitme()
+        self.sharks.draw(self.screen)
+        # 让最近绘制的屏幕可见
+        pygame.display.flip()
+
+```
 
 
 
