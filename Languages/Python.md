@@ -1029,11 +1029,45 @@ from shark import Shark
 
 ```
 
+这时运行程序，屏幕上就会出现鲨鱼了。我们在这里不妨为游戏添加一个背景美观
 
+依旧自己找素材，另存为images/bg.png
 
+*shark\_invasion.py*
 
+```python
+class SharkInvasion:
+    """管理游戏资源和行为的类"""
 
+    def __init__(self):
+        """初始化游戏并创建游戏资源"""
+        --snip--
+        # 绘制窗口
+        self.screen = pygame.display.set_mode(
+            (self.settings.screen_width, self.settings.screen_height)
+        )
+        self.background = pygame.image.load("images/bg.png").convert()
+        # 给窗口起名
+        pygame.display.set_caption("Shark Invasion")
 
+```
+
+- 这里注意到调用了convert()方法对图片进行优化，不然游戏帧会不稳定，可能会有疑问，为什么让万年不变且图层不同的背景也参与进帧重画中呢？这不是资源浪费吗？因为pygame的每帧重画无法实现图层独立刷新
+
+然后我们把它画出来
+
+*shark\_invasion.py*
+
+```python
+    def _update_screen(self):
+        """更新屏幕上的图像，并切换到新屏幕"""
+        self.screen.fill(self.settings.bg_color)
+        self.screen.blit(self.background, (0, 0))
+        for bullet in self.bullets.sprites():
+        --snip--
+```
+
+- 考虑到图层问题所以要注意先后画出的顺序
 
 
 
