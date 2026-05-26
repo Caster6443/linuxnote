@@ -1510,12 +1510,55 @@ from ship import Ship
 
 *shark\_invasion.py*
 
+```python
+    def _update_sharks(self):
+        --snip--
+        # 检测太空鲨和飞船之间的碰撞
+        if pygame.sprite.spritecollideany(self.ship, self.sharks):
+            self._ship_hit()
+```
 
 下面是新方法 center\_ship(),请将其添加到 ship.py 中:
 
 *ship.py*
 
+```python
     def center_ship(self):
         """将飞船放在屏幕底部的中央"""
         self.rect.midbottom = self.screen_rect.midbottom
         self.x = float(self.rect.x)
+```
+
+然后可以运行游戏进行测试，飞船碰到太空鲨会短暂暂停后重新开始游戏
+
+#### 3.6.3 有太空鲨到达屏幕下边缘
+
+如果有太空鲨到达屏幕的下边缘,游戏应该像有太空鲨撞到飞船那样做出响应。为了检测这种情况,在 shark\_invasion.py 中添加一个新方法:
+
+*shark\_invasion.py*
+
+```python
+    def _check_sharks_bottom(self):
+        """检查是否有太空鲨到达了屏幕的下边缘"""
+        for shark in self.sharks.sprites():
+            if shark.rect.bottom >= self.settings.screen_height:
+                # 像飞船被撞到一样进行处理
+                self._ship_hit()
+                break
+```
+
+我们在 \_update\_sharks() 中调用 \_check\_sharks\_bottom():
+
+```python
+    def _update_sharks(self):
+        --snip--
+        # 检测太空鲨和飞船之间的碰撞
+        if pygame.sprite.spritecollideany(self.ship, self.sharks):
+            self._ship_hit()
+        # 检查是否有太空鲨到达了屏幕的下边缘
+        self._check_sharks_bottom()
+```
+
+#### 3.6.4 游戏结束
+
+现在这个游戏看起来更完整了,但它永远都不会结束——ships\_left 只会不断地变成越来越小的负数。下面添加标志 game\_active,以便在玩家的飞船用完后结束游戏。首先,在 AlienInvasion 类的方法 \_\_init\_\_() 末尾设置这个标志:
