@@ -1186,22 +1186,24 @@ class SharkInvasion:
 
 *shark.py*
 
+```python
     def __init__(self, ai_game):
-        """初始化太空鲨鱼并设置其起始位置"""
-        super().__init__()
+        --snip--
         self.screen = ai_game.screen
         self.settings = ai_game.settings
         # 加载太空鲨图像并设置其rect属性
         self.image = pygame.image.load("images/shark.png")
-        self.image = pygame.transform.scale(self.image, (66, 106))
-        self.rect = self.image.get_rect()
-        # 每个太空鲨最初都在屏幕左上角生成
-        self.rect.x = self.rect.width
-        self.rect.y = self.rect.height
-        # 储存太空鲨的精确水平位置
-        self.x = float(self.rect.x)
+        --snip--
 
     def update(self):
         """向右移动外星人"""
         self.x += self.settings.shark_speed
         self.rectx = self.x
+
+```
+
+在 \_\_init\_\_() 中添加属性 settings,以便能够在 update() 中获取太空鲨鱼的速度。每次更新太空鲨时,都将它向右移动,移动量为 shark_speed 的值。我们使用属性 self.x 跟踪每个太空鲨的精确位置,这个属性可存储浮点数。然后, 使用 self.x 的值来更新太空鲨的 rect 的水平位置。
+
+在主 while 循环中,我们已调用了更新飞船和子弹的方法,现在还要调用更新每个太空鲨位置的方法。
+
+需要编写一些代码来管理太空鲨舰队的移动,因此新建一个名为 \_update\_sharks() 的方法。我们在更新子弹后更新太空鲨的位置,因为稍后要检查是否有子弹击中了太空鲨:
