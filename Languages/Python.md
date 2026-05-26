@@ -904,7 +904,7 @@ run\_game() 中的 while 循环又变得简单了:
             self.clock.tick(60)
 ```
 
-我们让主循环包含尽可能少的代码,这样只要看方法名就能迅速知道游戏中发生的情况了。主循环检查玩家的输入,并更新飞船的位置和所有未消失的子弹的位置。然后,在每次循环末尾,都使用更新后的位置来绘制新屏幕,并让时钟计时。
+- 我们让主循环包含尽可能少的代码,这样只要看方法名就能迅速知道游戏中发生的情况了。主循环检查玩家的输入,并更新飞船的位置和所有未消失的子弹的位置。然后,在每次循环末尾,都使用更新后的位置来绘制新屏幕,并让时钟计时。
 
 请再次运行 alien\_invasion.py,确认发射子弹时没有错误。
 
@@ -932,13 +932,43 @@ run\_game() 中的 while 循环又变得简单了:
 
 自行寻找素材并保存为images/shark.bmp
 
+#### 3.2.1 创建Shark类
+
+*shark.py*
+
+```python
+import pygame
+from pygame.sprite import Sprite
 
 
+class Shark(Sprite):
+    """表示单个太空鲨的类"""
+
+    def __init__(self, ai_game):
+        """初始化太空鲨鱼并设置其起始位置"""
+        super().__init__()
+        self.screen = ai_game.screen
+        # 加载太空鲨图像并设置其rect属性
+        self.image = pygame.image.load("images/shark.png")
+        self.rect = self.image.get_rect()
+        # 每个太空鲨最初都在屏幕左上角生成
+        self.rect.x = self.rect.width
+        self.rect.y = self.rect.height
+        # 储存太空鲨的精确水平位置
+        self.x = float(self.rect.x)
+
+```
+
+- 除了位置不同以外,这个类的大部分代码与 Ship 类相似。每个太空鲨最初都位于屏幕的左上角附近。将每个太空鲨的左边距都设置为太空鲨的宽度,并将上边距设置为太空鲨的高度,这样较为美观。我们主要关心的是太空鲨的水平移动速度,因此精确地记录了每个太空鲨的水平位置。
+
+- Shark类不需要在屏幕上绘制外星人的方法,因为我们将使用一个 Pygame 编组方法,自动地在屏幕上绘制编组中的所有元素。
 
 
+#### 3.2.2 创建 **Shark** 实例
 
+要让第一个太空鲨在屏幕上现身,需要创建一个 Shark 实例。这属于初始化工作之一,因此需要把这些代码放在 SharkInvasion 类的 \_\_init\_\_() 方法末尾。我们最终会创建一个太空鲨舰队,涉及的工作量不少,因此将新建一个名为 \_create\_fleet() 的辅助方法。
 
-
+在类中,方法的定义顺序无关紧要,只要按统一的标准排列就行。我们将把 \_create\_fleet() 放在 \_update\_screen() 前面,但其实放在 SharkInvasion 类的任何地方都行。首先,需要导入 Sharl 类。
 
 
 
