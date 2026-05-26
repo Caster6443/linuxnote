@@ -1481,3 +1481,41 @@ from ship import Ship
         self.ship = Ship(self)
         --snip--
 ```
+
+在创建游戏窗口后(但在定义诸如飞船等其他游戏元素之前),创建一个 GameStats 实例。
+
+当有太空鲨撞到飞船时,将余下的飞船数减 1,创建一个新的太空鲨舰队,并将飞船重新放在屏幕底部的中央。另外,让游戏暂停一会儿,让玩家意识到发生了碰撞,并在创建新的太空鲨舰队前重整旗鼓。
+
+下面将实现这些功能的大部分代码都放到新方法 \_ship\_hit() 中(我们会在 \_update\_aliens() 中调用它,在有太空鲨撞到飞船时执行其中的代码):
+
+*shark\_invasion.py*
+
+```python
+    def _ship_hit(self):
+        """响应飞船和太空鲨的碰撞"""
+        # 将 ships_left 减1
+        self.stats.ships_left -= 1
+        # 清空太空鲨列表和子弹列表
+        self.bullets.empty()
+        self.sharks.empty()
+        # 创建一个新的太空鲨舰队，并将飞船放在屏幕底部的中央
+        self._create_fleet()
+        self.ship.center_ship()
+        # 暂停
+        sleep(0.5)
+
+```
+
+在 \_update\_aliens() 中,在有外星人撞到飞船时,不调用 print() 函数,而是 调用 \_ship\_hit():
+
+*shark\_invasion.py*
+
+
+下面是新方法 center\_ship(),请将其添加到 ship.py 中:
+
+*ship.py*
+
+    def center_ship(self):
+        """将飞船放在屏幕底部的中央"""
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.x = float(self.rect.x)
