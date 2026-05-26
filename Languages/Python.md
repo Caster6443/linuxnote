@@ -1207,3 +1207,28 @@ class SharkInvasion:
 在主 while 循环中,我们已调用了更新飞船和子弹的方法,现在还要调用更新每个太空鲨位置的方法。
 
 需要编写一些代码来管理太空鲨舰队的移动,因此新建一个名为 \_update\_sharks() 的方法。我们在更新子弹后更新太空鲨的位置,因为稍后要检查是否有子弹击中了太空鲨:
+
+*shark\_invasion.py*
+
+```python
+    def run_game(self):
+        """开始游戏主循环"""
+        while True:
+            self._check_events()
+            self.ship.update()
+            self._update_bullets()
+            self._update_sharks()
+            self._update_screen()
+            self.clock.tick(60)
+
+```
+
+只要缩进正确,将这个方法定义在模块的什么地方无关紧要,但为了确保代码有条理,我将它放在 \_update\_bullets() 方法的后面,以便与 while 循环中的调用顺序保持一致。下面是我们编写的第一版 \_update\_aliens():
+
+*shark\_invasion.py*
+
+```python
+    def _update_sharks(self):
+        """更新太空鲨舰队中所有太空鲨的位置"""
+        self.sharks.update()
+```
