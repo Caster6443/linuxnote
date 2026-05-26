@@ -1271,3 +1271,27 @@ class SharkInvasion:
         self.rect.x = self.x
 
 ```
+
+#### 3.4.4 向下移动太空鲨舰队并改变移动方向
+
+当有太空鲨到达屏幕(右/左)边缘时,需要让整个太空鲨舰队向下移动,并改变它们的移动方向(向左/向右)。因此,需要在 SharkInvasion 中添加一些代码,检查是否有太空鲨到达了左边缘或右边缘。为此,编写方法 \_check\_fleet\_edges() 和 \_change\_fleet\_direction(),并修改 \_update\_sharks()。我把这些新方法 放在 \_create\_shark() 后面,不过将其放在 SharkInvasion 类中的什么位置其实也是无关紧要的(只要缩进正确):
+
+*shark\_invasion.py*
+
+```python
+    def _check_fleet_edges(self):
+        """在有太空鲨到达边缘时采取相应的措施"""
+        for shark in self.sharks.sprites():
+            if shark.check.edges():
+                self._change_fleet_direction()
+                break
+
+    def _change_fleet_direction(self):
+        """将整个太空鲨舰队向下移动，并改变它们的方向"""
+        for shark in self.sharks.sprites():
+            shark.rect.y += self.settings.fleet_drop_speed
+            self.settings.fleet_direction *= -1
+
+```
+
+原理简单易懂，通过循环遍历每只太空鲨，如果有触碰到边缘的太空鲨，就调用函数
