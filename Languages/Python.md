@@ -1107,4 +1107,58 @@ class SharkInvasion:
 
 *shark\_invasion.py*
 
+```python
+    def _create_fleet(self):
+        """创建一个太空鲨舰队"""
+        --snip--
+        while current_x < (self.settings.screen_width - 2 * shark_width):
+            self._create_shark(current_x)
+            current_x += 2 * shark_width
+
+    def _create_shark(self, x_position):
+        """创建一个太空鲨鱼并将其放在当前行中"""
+        new_shark = Shark(self)
+        new_shark.x = x_position
+        new_shark.rect.x = x_position
+        self.sharks.add(new_shark)
+```
+
+#### 3.3.3 添加多行太空鲨鱼
+
+- 为了创建一个太空鲨鱼舰队,我们需要不断添加太空鲨,直到没有足够的空间再添加一行为止。我们将使用一个嵌套循环:将当前循环放在另一个 while 循环中。里面的循环负责沿水平方向添加太空鲨,关注的是太空鲨的 *x* 值;而外面的循环沿垂直方向添加太空鲨,关注的是太空鲨的 *y* 值。我们将在到达屏幕底部附近后停止添加太空鲨,以避免覆盖飞船,并且在飞船和太空鲨舰队之间留下一些空间,让玩家有足够的时间去击落外星人。
+
+下面演示了如何在 \_create\_fleet() 中嵌套两个 while 循环:
+
+*shark\_invasion.py*
+
+```python
+    def _create_fleet(self):
+        """创建一个太空鲨舰队"""
+        # 创建一个太空鲨, 再不断添加，直到没有空间添加太空鲨为止
+        # 太空鲨的间距为太空鲨的宽度
+        shark = Shark(self)
+        shark_width, shark_height = shark.rect.size
+        current_x, current_y = shark_width, shark_height
+        while current_y < (self.settings.screen_height - 3 * shark_height):
+            while current_x < (self.settings.screen_width - 2 * shark_width):
+                self._create_shark(current_x, current_y)
+                current_x += 2 * shark_width
+                # 添加一行鲨鱼后，重置x值并递增y值
+                current_x = shark_width
+                current_y += 2 * shark_height
+
+```
+
+注意到我们传给辅助方法两个参数，但目前只支持一个，因此需要修改 \_create\_shark(),以正确地设置太空鲨的垂直位置:
+
+```python
+    def _create_shark(self, x_position, y_position):
+        """创建一个太空鲨鱼并将其放在当前行中"""
+        new_shark = Shark(self)
+        new_shark.x = x_position
+        new_shark.rect.x = x_position
+        new_shark.rect.y = y_position
+        self.sharks.add(new_shark)
+
+```
 
