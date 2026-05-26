@@ -1143,9 +1143,9 @@ class SharkInvasion:
             while current_x < (self.settings.screen_width - 2 * shark_width):
                 self._create_shark(current_x, current_y)
                 current_x += 2 * shark_width
-                # 添加一行鲨鱼后，重置x值并递增y值
-                current_x = shark_width
-                current_y += 2 * shark_height
+            # 添加一行鲨鱼后，重置x值并递增y值
+            current_x = shark_width
+            current_y += 2 * shark_height
 
 ```
 
@@ -1162,3 +1162,46 @@ class SharkInvasion:
 
 ```
 
+此时运行程序，多行太空鲨已经被画出来了
+
+#### 3.4 让太空鲨舰队移动
+
+下面来让太空鲨舰队在屏幕上向右移动,到达屏幕右边缘后下移一定的距离,再向左移动,依此类推。这样不断地移动所有的太空鲨,直到太空鲨都被击落、有太空鲨撞上飞船或有太空鲨抵达屏幕的下边缘。下面先来让太空鲨向右移动。
+
+#### 3.4.1 向右移动太空鲨舰队
+
+移动太空鲨舰队需要使用 shark.py 中的 update() 方法。对于太空鲨舰队中的每个太空鲨,都要调用它。首先,添加一个控制太空鲨速度的设置:
+
+*settings.py*
+
+```python
+    def __init__(self):
+        """初始化游戏的设置"""
+        --snip--
+        # 太空鲨设置
+        self.shark_speed = 1.0
+```
+
+然后,在 shark.py 中使用这个设置来实现 update():
+
+*shark.py*
+
+    def __init__(self, ai_game):
+        """初始化太空鲨鱼并设置其起始位置"""
+        super().__init__()
+        self.screen = ai_game.screen
+        self.settings = ai_game.settings
+        # 加载太空鲨图像并设置其rect属性
+        self.image = pygame.image.load("images/shark.png")
+        self.image = pygame.transform.scale(self.image, (66, 106))
+        self.rect = self.image.get_rect()
+        # 每个太空鲨最初都在屏幕左上角生成
+        self.rect.x = self.rect.width
+        self.rect.y = self.rect.height
+        # 储存太空鲨的精确水平位置
+        self.x = float(self.rect.x)
+
+    def update(self):
+        """向右移动外星人"""
+        self.x += self.settings.shark_speed
+        self.rectx = self.x
