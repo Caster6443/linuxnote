@@ -1078,6 +1078,42 @@ ln -s ~/.local/bin/amd-gpu-wrapper ~/.local/bin/新应用名
 ```
 
 
+## 腾讯会议
+
+主要是为了解决屏幕共享问题
+
+1.安装必备的 Portal 组件
+
+```bash
+sudo pacman -S --needed xdg-desktop-portal-hyprland xdg-desktop-portal-gnome xdg-desktop-portal-gtk
+```
+
+
+2.配置 Portal 路由（解锁窗口共享）
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
