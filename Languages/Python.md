@@ -1640,3 +1640,10 @@ class SharkInvasion:
     def run_game(self):
 ```
 
+现在,游戏在一开始处于非活动状态,等玩家单击我们创建的 Play 按钮后,才能开始游戏。
+
+### 4.1 创建 **Button** 类
+
+由于 Pygame 没有内置创建按钮的方法,我们将编写一个 Button 类,用于创建带标签的实心矩形。你可在游戏中使用这些代码来创建任意按钮。下面是 Button 类的第一部分,请将这个类保存为文件 button.py:
+
+*button.py*
