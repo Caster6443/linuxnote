@@ -1685,3 +1685,28 @@ class Button:
 
 ### 4.2 在屏幕上绘制按钮
 
+将在 SharkInvasion 中使用 Button 类来创建一个 Play 按钮。首先,更新 import 语句:
+
+*shark\_invasion.py*
+
+```python
+--snip--
+from game_stats import GameStats
+from button import Button
+```
+
+由于只需要一个 Play 按钮,因此在 SharkInvasion 类的 \_\_init\_\_() 方法中创建它。可以将这些代码放在 \_\_init\_\_() 方法的末尾:
+
+*shark\_invasion.py*
+
+```python
+    def __init__(self):
+        --snip--
+        # 游戏启动后处于活动状态
+        self.game_active = False
+
+        # 创建Play按钮
+        self.play_button = Button(self, "Play")
+
+```
+
