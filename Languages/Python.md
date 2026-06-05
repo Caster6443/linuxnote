@@ -1761,10 +1761,52 @@ from button import Button
 
 ### 4.4 重置游戏
 
-前面编写的代码只处理了玩家第一次单击Play按钮的
+前面编写的代码只处理了玩家第一次单击Play按钮的情况，没有处理游戏结束的情况，因为还没有重置导致游戏结束的条件。
+
+为了在玩家每次单击 Play 按钮时都重置游戏,需要重置统计信息、删除现有的太空鲨鱼和子弹、创建一个新的太空鲨舰队并让飞船居中,如下所示:
+
+*shark\_invasion.py*
+
+```python
+    def _check_play_button(self, mouse_pos):
+        """在玩家单击Play按钮时开始新游戏"""
+        if self.play_button.rect.collidepoint(mouse_pos):
+            # 重置游戏的统计信息
+            self.stats.reset_stats()
+            self.game_active = True
+            # 清空太空鲨鱼列表和子弹列表
+            self.bullets.empty()
+            self.sharks.empty()
+            # 创建一个新的太空鲨舰队，并将飞船放在屏幕底部的中央
+            self._create_fleet()
+            self.ship.center_ship()
+
+```
+
+- 重置游戏的统计信息,给玩家提供三艘新飞船。接下来,将 game\_active 设置为 True(这样,只要这个方法的代码执行完毕,游戏就将开始),清空编组 sharks 和 bullets,创建一个新的太空鲨舰队并将飞船居中。
+
+现在,每当玩家单击 Play 按钮时,这个游戏都将正确地重置,让玩家想玩多少次就玩多少次。
 
 
 
+### 4.5 将 **Play** 按钮切换到非活动状态
+
+当前存在一个问题:即便 Play 按钮不可见,当玩家单击其原来所在的区域时,游戏也依然会做出响应。游戏开始后,如果玩家不小心单击了 Play 按钮原来所处的区域,游戏将重新开始。
+
+为了修复这个问题,可让游戏仅在 game\_active 为 False 时才开始:
+
+*shark\_invasion.py*
+
+```python
+    def _check_play_button(self, mouse_pos):
+        """在玩家单击Play按钮时开始新游戏"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
+            # 重置游戏的统计信息
+            self.stats.reset_stats()
+            --snip--
+
+```
 
 
 
