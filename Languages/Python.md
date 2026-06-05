@@ -1710,3 +1710,83 @@ from button import Button
 
 ```
 
+这些代码创建一个标签为 Play 的 Button 实例,但没有将它显示到屏幕上。要显示这个按钮,在 \_update\_screen() 中对这个按钮调用 draw\_button() 方法:
+
+*shark\_invasion.py*
+
+```python
+    def _update_screen(self):
+        --snip--
+        self.sharks.draw(self.screen)
+        # 如果游戏处于非活动状态，就绘制Play按钮
+        if not self.game_active:
+            self.play_button.draw_button()
+        pygame.display.flip()
+
+```
+
+为了让 Play 按钮显示在屏幕上其他所有元素之上,要在绘制其他所有元素后再绘制这个按钮,然后切换到新屏幕。将这些代码放在一个 if 代码块中,让按钮仅在游戏处于非活动状态时才出现。
+
+现在运行这个游戏,将在屏幕中央看到一个 Play 按钮。
+
+
+### 4.3 开始游戏
+
+为了在玩家单击 Play 按钮时开始新游戏,在 \_check\_events() 末尾添加如下 elif 代码块,以监视与这个按钮相关的鼠标事件:
+
+*shark\_invasion.py*
+
+```python
+    def _check_events(self):
+        """响应鼠标和键盘事件"""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+            --snip--
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
+
+    def _check_play_button(self, mouse_pos):
+        """在玩家单击Play按钮时开始新游戏"""
+        if self.play_button.rect.collidepoint(mouse_pos):
+            self.game_active = True
+
+```
+
+- 无论玩家单击屏幕的什么地方,Pygame 都将检测到一个 MOUSEBUTTONDOWN 事件,但我们只想让这个游戏在玩家单击 Play 按钮时做出响应。为此,使用 pygame.mouse.get\_pos(),它返回一个元组,其中包含玩家单击鼠标时光标的 *x* 坐标和 *y* 坐标。我们将这个元组传递给新方法 \_check\_play\_button() 。
+- 然后在新方法中使用 rect 的 collidepoint() 方法检查鼠标的单击位置是否在 Play 按钮的 rect 内。如果是,就将 game\_active 设置为 True,让游戏开始。
+
+至此,现在应该能够开始这个游戏了。游戏结束时,game\_active 会被设置为 False,从而重新显示 Play 按钮。
+
+
+### 4.4 重置游戏
+
+前面编写的代码只处理了玩家第一次单击Play按钮的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
