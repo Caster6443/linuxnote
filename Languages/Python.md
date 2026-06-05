@@ -1808,12 +1808,42 @@ from button import Button
 
 ```
 
+- 标志 button\_clicked 的值为 True 或 False。仅当玩家单击了 Play 按钮且游戏当前处于非活动状态时,游戏才会重新开始。要测试这种行为,可开始新游戏,并不断地单击 Play 按钮原来所在的区域。如果一切正常,单击 Play 按钮原来所处的区域应该没有任何影响。
 
 
+### 4.6 隐藏光标
 
+当游戏处于非活动状态时,我们要让光标可见,但游戏开始后,光标只会添乱。为了修复这个问题,需要在游戏处于活动状态时让光标不可见。可在 \_check\_play\_button() 方法末尾的 if 代码块中完成这项任务:
 
+*shark\_invasion.py*
 
+```python
+    def _check_play_button(self, mouse_pos):
+        """在玩家单击Play按钮时开始新游戏"""
+        --snip--
+            self.ship.center_ship()
+            # 隐藏光标
+            pygame.mouse.set_visible(False)
 
+```
+
+- 通过向 set\_visible() 传递 False,让 Pygame 在光标位于游戏窗口内时将其隐藏起来。
+
+游戏结束后,将重新显示光标,让玩家能够单击 Play 按钮来开始新游戏。相关的代码如下:
+
+*shark\_invasion.py*
+
+```python
+    def _ship_hit(self):
+        """响应飞船和太空鲨的碰撞"""
+        if self.stats.ships_left > 0:
+            --snip--
+        else:
+            self.game_active = False
+            # 游戏结束时显示光标
+            pygame.mouse.set_visible(True) 
+
+```
 
 
 
