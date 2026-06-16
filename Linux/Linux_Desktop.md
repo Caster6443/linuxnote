@@ -4915,6 +4915,71 @@ return {
 
 # 常见问题
 
+## Flatpak游戏无法使用N卡运行
+
+### 1. 环境与现象
+
+- **操作系统：** CachyOS (Arch Linux 衍生版)
+    
+- **硬件配置：** 双显卡，独显为 RTX 4060
+    
+- **系统显卡驱动：** 610.43.02
+    
+- **软件环境：** The Honkers Railway Launcher (通过 Flatpak 安装的《崩坏：星穹铁道》第三方启动器)
+    
+- **故障现象：** * 不添加任何参数时，游戏能正常启动，但运行在核显（集显）上，性能极差。
+    
+    - 在启动器中使用 `prime-run` 命令或直接添加环境变量强行调用 N 卡时，游戏直接秒退。
+        
+    - 报错日志显示在 `dxgi` 层面发生了读取冲突（`page fault on read access... in dxgi`）。
+
+### 2. 根本原因分析
+
+1. **沙盒隔离机制：** Flatpak 运行在隔离的沙盒环境中，它**无法直接读取**主机系统 (CachyOS) 上安装的闭源 Nvidia 驱动库。它需要一套自己专属的运行时（Runtime）插件。
+    
+2. **32 位库缺失：** 运行 Windows 游戏强依赖 Wine 和 DXVK（将 DirectX 转换为 Vulkan）。DXVK 在初始化图形 API 时，必须读取 32 位的 Vulkan 底层运行库。如果 Flatpak 沙盒内部只装了 64 位的 N 卡驱动包，或者完全没装，游戏在尝试唤醒独显时就会因为找不到 32 位初始化组件而导致 DXGI 崩溃。
+    
+
+### 3. 解决步骤
+
+核心思路：为 Flatpak 沙盒补齐与主机当前 N 卡驱动版本**完全一致**的 64 位和 32 位环境插件。
+
+1).确认主机驱动版本
+
+在终端运行以下命令，查看当前系统使用的 N 卡驱动版本：
+
+```shell
+nvidia-smi
+```
+
+> _注：本次记录中的驱动版本为 610.43.02。_
+
+2).安装对应的 Flatpak N 卡运行库
+
+在终端中手动为 Flatpak 安装匹配的驱动包（注意将版本号中的 `.` 替换为 `-`）：
+
+1. 安装 64 位基础包：
+
+```shell
+flatpak install flathub org.freedesktop.Platform.GL.nvidia-610-43-02
+```
+
+2. 安装 32 位支持包（**解决 DXGI 闪退的关键**）：
+
+```shell
+flatpak install flathub org.freedesktop.Platform.GL32.nvidia-610-43-02
+```
+
+一般到这里就能解决了，如果还是没有启动，可以尝试添加环境变量
+
+
+
+
+
+
+
+
+
 ## WPS黑块问题
 
 具体就像这样，这是wps的一个FreeType 伪粗体渲染 Bug
