@@ -2154,3 +2154,27 @@ from scoreboard import Scoreboard
 ```
 
 - 在开始新游戏时,我们重置游戏的统计信息再调用 prep\_score()。此时生成的记分牌上显示的得分为 0。
+
+#### 4.9.3 将每个被击落的太空鲨都计入得分
+
+当前的代码可能会遗漏一些被击落的太空鲨。如果在一次循环中有两颗子弹分别击中了两个太空鲨,或者因一颗子弹太宽而同时击中了多个太空鲨,玩家将只能得到一个太空鲨的分数。为了修复这个问题,我们来调整检测子弹和太空鲨碰撞的方式。
+
+在 \_check\_bullet\_shark\_collisions() 中,与太空鲨碰撞的子弹都是字典 collisions 中的一个键,而与每颗子弹相关的的值都是一个列表,其中包含该子弹击中的太空鲨。我们遍历字典 collisions,确保将每个被击落的太空鲨都计入得分:
+
+*shark\_invasion.py*
+
+```python
+    def _check_bullet_shark_collisions(self):
+        """响应子弹和外星人的碰撞"""
+        # 删除发生碰撞的子弹和外星人
+        collisions = pygame.sprite.groupcollide(self.bullets, self.sharks, True, True)
+        if collisions:
+            for sharks in collisions.values():
+                self.stats.score += self.settings.shark_points * len(sharks)
+                self.sb.prep_score()
+
+        if not self.sharks:
+            --snip--
+```
+
+- 如果字典 collisions 存在,就遍历其中的所有值。别忘了,每个值都是一个列表, 包含被同一颗子弹击中的所有太空鲨。对于每个列表,都将其包含的太空鲨数量乘以一个太空鲨的分数,并将结果加入当前得分。为了进行测试,可以将子弹的宽度改为 300 像素,并验证用这颗更宽的子弹击中每个太空鲨都会得分,然后将子弹的宽度恢复到正常值。
