@@ -1898,14 +1898,40 @@ initialize\_dynamic\_settings() 的代码如下:
         self.fleet_direction = 1
 ```
 
+- 这个方法设置飞船、子弹和外星人的初始速度。随着游戏的进行,这些速度都将逐渐加快。每当玩家开始新游戏时,都将重置这些速度。在这个方法中,还设置了 fleet\_direction,使得在游戏刚开始时,外星人总是向右移动。不需要增大 fleet\_drop\_speed 的值,因为外星人移动的速度越快,到达屏幕下边缘所需的时间就已经越短了。
 
+为了在玩家的等级提高时加快飞船、子弹和外星人的速度,编写一个名为 increase\_speed() 的新方法:
 
+*settings.py*
 
+```python
+    def increase_speed(self):
+        """提高速度设置的值"""
+        self.ship_speed *= self.speedup_scale
+        self.bullet_speed *= self.speedup_scale
+        self.shark_speed *= self.speedup_scale
+```
 
+- 为了加快这些游戏元素的速度,将每个速度设置都乘以 speedup\_scale 的值。
 
+在 \_check\_bullet\_shark\_collisions() 中,在整个外星舰队被全部击落后调用 increase\_speed() 来加快游戏的节奏:
 
+*shark\_invasion.py*
 
+```python
+    def _check_bullet_shark_collisions(self):
+        """响应子弹和外星人的碰撞"""
+        # 删除发生碰撞的子弹和外星人
+        collisions = pygame.sprite.groupcollide(self.bullets, self.sharks, True, True)
 
+        if not self.sharks:
+            self.bullets.empty()
+            self._create_fleet()
+            self.settings.increase_speed()
+
+```
+
+- 通过修改速度设置 ship\_speed、shark\_speed 和 bullet\_speed 的值,足以加快整个游戏的节奏。
 
 
 
