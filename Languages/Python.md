@@ -1981,6 +1981,33 @@ class GameStats:
 
 *scoreboard.py*
 
+```python
+import pygame.font
+
+
+class Scoreboard:
+    """显示得分信息的类"""
+
+    def __init__(self, ai_game):
+        """初始化显示得分涉及的属性"""
+        self.screen = ai_game.screen
+        self.screen_rect = self.screen.get_rect()
+        self.settings = ai_game.settings
+        self.stats = ai_game.stats
+        # 显示得分信息时使用的字体设置
+        self.text_color = (30, 30, 30)
+        self.font = pygame.font.SysFont(None, 48)
+        # 准备初始得分图像
+        self.prep_score()
+
+```
+
+
+因为 Scoreboard 需要在屏幕上显示文本,所以首先导入模块 pygame.font。接下来,为了获取我们跟踪的值,在 \_\_init\_\_() 中包含形参 ai\_game,以便访问游戏中的对象 settings、screen 和 stats。然后,设置文本颜色并实例化一个字体对象。
+
+为了将要显示的文本转换为图像,调用 prep\_score(),其定义如下:
+
+*scoreboard.py*
 
 
 
