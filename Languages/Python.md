@@ -1933,19 +1933,53 @@ initialize\_dynamic\_settings() 的代码如下:
 
 - 通过修改速度设置 ship\_speed、shark\_speed 和 bullet\_speed 的值,足以加快整个游戏的节奏。
 
+#### 4.7.2 重置速度
 
+每当玩家开始新游戏时,都需要将发生了变化的设置还原为初始值,否则新游戏将沿用上一轮已经调整了的速度参数:
 
+*shark\_invasion.py*
 
+```python
+    def _check_play_button(self, mouse_pos):
+        """在玩家单击Play按钮时开始新游戏"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
+            # 还原游戏设置
+            self.settings.initialize_dynamic_settings()
+            # 重置游戏的统计信息
+            self.stats.reset_stats()
+            --snip--
 
+```
 
+### 4.8 记分
 
+下面来实现记分系统,以实时地跟踪玩家的得分,并显示最高分、等级和余下的飞船数。
 
+得分是游戏的一项统计信息,因此在 GameStats 中添加一个 score 属性:
 
+*game\_stats.py*
 
+```python
+class GameStats:
+    """跟踪游戏的统计信息"""
 
+    --snip--
 
+    def reset_stats(self):
+        """初始化在游戏运行期间可能变化的统计信息"""
+        self.ships_left = self.settings.ship_limit
+        self.score = 0
 
+```
 
+- 为了在每次开始游戏时都重置得分,在 reset\_stats() 而不是 \_\_init\_\_() 中初始化 score。
+
+#### 4.8.1 显示得分
+
+为了在屏幕上显示得分,首先创建一个新类 Scoreboard。当前,这个类只显示当前得分,但后面也将用来显示最高分、等级和余下的飞船数。下面是这个类的前半部分,它被保存为文件 scoreboard.py:
+
+*scoreboard.py*
 
 
 
