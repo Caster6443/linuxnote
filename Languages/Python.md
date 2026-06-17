@@ -2009,6 +2009,19 @@ class Scoreboard:
 
 *scoreboard.py*
 
+```python
+    def prep_score(self):
+        """将得分渲染为图像"""
+        score_str = str(self.stats.score)
+        self.score_image = self.font.render(score_str, True, self.text_color, self.settings.bg_color)
+        # 在屏幕右上角显示得分
+        self.score_rect = self.score_image.get_rect()
+        self.score_rect.right = self.screen_rect.right - 20
+        self.score_rect.top = 20
 
+```
 
+- 在 prep\_score() 中,将数值 stats.score 转换为字符串,再将这个字符串传递给创建图像的 render()。为了在屏幕上清晰地显示得分,向 render() 传递并设置屏幕的背景色和文本颜色。
+
+- 得分放在屏幕的右上角,当位数增加导致数更宽时,它会向左延伸。为了确保得分始终锚定在屏幕的右上角,创建一个名为 score\_rect 的 rect(见❸),让其右边缘 与屏幕右边缘相距 20 像素(见❹),并让其上边缘与屏幕上边缘也相距 20 像素(见 ❺)。
 
