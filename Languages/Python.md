@@ -1855,7 +1855,40 @@ from button import Button
 
 *settings.py*
 
+```python
+class Settings:
+    """存储游戏<<太空鲨入侵>> 中所有设置的类"""
 
+    def __init__(self):
+        """初始化游戏的静态设置"""
+        # 屏幕设置
+        self.screen_width = 1080
+        self.screen_height = 1350
+        self.bg_color = (230, 230, 230)
+        # 飞船的设置
+        self.ship_speed = 5.5
+        self.ship_limit = 3
+
+        # 子弹设置
+        self.bullet_speed = 5.0
+        self.bullet_width = 3
+        self.bullet_height = 15
+        self.bullet_color = (60, 60, 60)
+        self.bullet_allowed = 50
+
+        # 太空鲨设置
+        self.fleet_drop_speed = 20
+        # 以什么速度加快游戏的节奏
+        self.speedup_scale = 1.1
+        self.initialize_dynamic_settings()
+
+```
+
+- 依然在 \_\_init\_\_() 中初始化静态设置。添加设置 speedup\_scale,用来控制游戏节奏的加快速度:2 表示玩家每提高一个等级,游戏的节奏就翻一倍;1 表示 游戏的节奏始终不变。将这个值设置为 1.1 既可以不断加快游戏的节奏,又可以避免因难度提升过快而玩不下去。最后,调用 initialize\_dynamic\_settings() 初始化随游戏进行而变化的属性。
+
+initialize\_dynamic\_settings() 的代码如下:
+
+*settings.py*
 
 
 
