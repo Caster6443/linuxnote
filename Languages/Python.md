@@ -2081,3 +2081,15 @@ from scoreboard import Scoreboard
 - 在显示 Play 按钮前调用 show\_score()。
 
 现在运行这个游戏,将在屏幕右上角看到 0。(当前,我们只想在进一步开发记分系统前确认得分出现在了正确的地方。)
+
+如果效果不太美观，想设置透明背景，修改`scoreboard.py`的  `self.score_image = self.font.render(score_str, True, self.text_color, self.settings.bg_color)`删除第四个参数即可，这里代码和我的背景图片有一定视觉冲突，所以我设置了透明背景并设置了`self.text_color的`RGB值为亮白色(255, 255, 255)
+
+![](_resources/Python/0ab921175a361b9c051bc38e6de51590_MD5.jpg)
+
+
+
+### 4.9 得分出现在屏幕右上角
+
+下面来指定每个太空鲨鱼值多少分。
+
+4.9.1在外星人被击落时更新得分
