@@ -1866,11 +1866,9 @@ class Settings:
         self.screen_height = 1350
         self.bg_color = (230, 230, 230)
         # 飞船的设置
-        self.ship_speed = 5.5
         self.ship_limit = 3
 
         # 子弹设置
-        self.bullet_speed = 5.0
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
@@ -1884,11 +1882,35 @@ class Settings:
 
 ```
 
-- 依然在 \_\_init\_\_() 中初始化静态设置。添加设置 speedup\_scale,用来控制游戏节奏的加快速度:2 表示玩家每提高一个等级,游戏的节奏就翻一倍;1 表示 游戏的节奏始终不变。将这个值设置为 1.1 既可以不断加快游戏的节奏,又可以避免因难度提升过快而玩不下去。最后,调用 initialize\_dynamic\_settings() 初始化随游戏进行而变化的属性。
+- 依然在 \_\_init\_\_() 中初始化静态设置。添加设置 speedup\_scale,用来控制游戏节奏的加快速度: 如果设置成 2 的话表示玩家每提高一个等级,游戏的节奏就翻一倍;如果设置为 1 表示游戏的节奏始终不变。将这个值设置为 1.1 既可以不断加快游戏的节奏,又可以避免因难度提升过快而玩不下去。最后,调用 initialize\_dynamic\_settings() 初始化随游戏进行而变化的属性。
 
 initialize\_dynamic\_settings() 的代码如下:
 
 *settings.py*
+
+```python
+    def initialize_dynamic_settings(self):
+        """初始化随游戏进行而变化的设置"""
+        self.ship_speed = 5.5
+        self.bullet_speed = 5.0
+        self.shark_speed = 5.0
+        # fleet_direction 为 1 表示向右移动，为 -1 表示向左移动
+        self.fleet_direction = 1
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
