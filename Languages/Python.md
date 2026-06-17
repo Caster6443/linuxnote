@@ -2023,5 +2023,61 @@ class Scoreboard:
 
 - 在 prep\_score() 中,将数值 stats.score 转换为字符串,再将这个字符串传递给创建图像的 render()。为了在屏幕上清晰地显示得分,向 render() 传递并设置屏幕的背景色和文本颜色。
 
-- 得分放在屏幕的右上角,当位数增加导致数更宽时,它会向左延伸。为了确保得分始终锚定在屏幕的右上角,创建一个名为 score\_rect 的 rect(见❸),让其右边缘 与屏幕右边缘相距 20 像素(见❹),并让其上边缘与屏幕上边缘也相距 20 像素(见 ❺)。
+- 得分放在屏幕的右上角,当位数增加导致数更宽时,它会向左延伸。为了确保得分始终锚定在屏幕的右上角,创建一个名为 score\_rect 的 rect,让其右边缘与屏幕右边缘相距 20 像素,并让其上边缘与屏幕上边缘也相距 20 像素。
 
+接下来,创建 show\_score() 方法,用于显示渲染好的得分图像:
+
+*scoreboard.py*
+
+```python
+    def show_score(self):
+        """在屏幕上显示得分"""
+        self.screen.blit(self.score_image, self.score_rect)
+```
+
+- 这个方法将在屏幕上显示得分图像,并将其放在 score\_rect 指定的位置上。
+
+#### 4.8.2 创建记分牌
+
+为了显示得分,在 SharkInvasion 中创建一个 Scoreboard 实例。先来更新 import 语句:
+
+*shark\_invasion.py*
+
+```python
+--snip--
+from game_stats import GameStats
+from scoreboard import Scoreboard
+--snip--
+```
+
+接下来,在 \_\_init\_\_() 方法中创建一个 Scoreboard 实例:
+
+*shark\_invasion.py*
+
+```python
+    def __init__(self):
+        """初始化游戏并创建游戏资源"""
+        --snip--
+        # 创建一个用于存储游戏统计信息的实例
+        self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
+```
+
+然后,在 \_update\_screen() 中将记分牌绘制到屏幕上:
+
+*shark\_invasion.py*
+
+```python
+    def _update_screen(self):
+        """更新屏幕上的图像，并切换到新屏幕"""
+        --snip--
+        self.sharks.draw(self.screen)
+        # 显示得分
+        self.sb.show_score()
+        # 如果游戏处于非活动状态，就绘制Play按钮
+        --snip--
+```
+
+- 在显示 Play 按钮前调用 show\_score()。
+
+现在运行这个游戏,将在屏幕右上角看到 0。(当前,我们只想在进一步开发记分系统前确认得分出现在了正确的地方。)
