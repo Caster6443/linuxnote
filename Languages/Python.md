@@ -2092,4 +2092,65 @@ from scoreboard import Scoreboard
 
 下面来指定每个太空鲨鱼值多少分。
 
-4.9.1在外星人被击落时更新得分
+#### 4.9.1 在太空鲨被击落时更新得分
+
+为了在屏幕上实时地显示得分,每当有太空鲨被击中时,都先更新 stats.score 的值,再调用 prep\_score() 更新得分图像。但在此之前,需要指定玩家每击落一个太空鲨将得到多少分:
+
+*settings.py*
+
+```python
+    def initialize_dynamic_settings(self):
+        """初始化随游戏进行而变化的设置"""
+        --snip--
+        # 记分设置
+        self.shark_points = 50
+
+```
+
+- 随着游戏的进行,将提高每个太空鲨的分数。为了确保每次开始新游戏时这个值都会重置,在 initialize\_dynamic\_settings() 中设置它。
+
+在 \_check\_bullet\_shark\_collisions() 中,每当有太空鲨被击落时,都更新得分:
+
+*shark\_invasion.py*
+
+```python
+    def _check_bullet_shark_collisions(self):
+        """响应子弹和外星人的碰撞"""
+        # 删除发生碰撞的子弹和外星人
+        collisions = pygame.sprite.groupcollide(self.bullets, self.sharks, True, True)
+        if collisions:
+            self.stats.score += self.settings.shark_points
+            self.sb.prep_score()
+
+        if not self.sharks:
+        --snip--
+```
+
+- 当有子弹击中太空鲨时,Pygame 返回字典 collisions。我们检查这个字典是否存在,如果存在,就将得分加上一个太空鲨的分数。接下来,调用 prep\_score() 来创建一幅包含最新得分的新图像。
+
+现在,运行这个游戏,尽情得分吧!
+
+
+
+#### 4.9.2 重置得分
+
+当前,仅在有太空鲨被击落之后生成得分,这在大多数情况下可行,但从开始新游戏到有太空鲨被击落之间,显示的还是上一局的得分。
+
+为了修复这个问题,可在开始新游戏时生成得分:
+
+*shark\_invasion.py*
+
+```python
+    def _check_play_button(self, mouse_pos):
+        """在玩家单击Play按钮时开始新游戏"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
+            --snip--
+            # 重置游戏的统计信息
+            self.stats.reset_stats()
+            self.sb.prep_score()
+            self.game_active = True
+			--snip--
+```
+
+- 在开始新游戏时,我们重置游戏的统计信息再调用 prep\_score()。此时生成的记分牌上显示的得分为 0。
