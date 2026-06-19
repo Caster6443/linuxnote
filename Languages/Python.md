@@ -2457,7 +2457,7 @@ import pygame
 from pygame.sprite import Sprite
 
 
-class Ship:
+class Ship(Sprite):
     """管理飞船的类"""
 
     def __init__(self, ai_game):
@@ -2491,8 +2491,9 @@ from ship import Ship
         """初始化显示得分涉及的属性"""
         self.ai_game = ai_game
         self.screen = ai_game.screen
-        self.screen = ai_game.screen
         --snip--
+        self.prep_level()
+        self.prep_ships()
 ```
 
 - 我们将游戏实例赋给一个属性,因为创建飞船时需要用到它。然后在调用 prep\_level() 后调用 prep\_ships()。
@@ -2505,7 +2506,7 @@ prep\_ships() 的代码如下:
     def prep_ships(self):
         """显示还余下多少艘飞船"""
         self.ships = Group()
-        for ship_number in range(self.stats.ship_left):
+        for ship_number in range(self.stats.ships_left):
             ship = Ship(self.ai_game)
             ship.rect.x = 10 + ship_number * ship.rect.width
             ship.rect.y = 10
@@ -2594,7 +2595,7 @@ def load_high_score(self):
             return 0
 ```
 
-然后在退出前保存最高分, 先修改*shark\_invasion.py*文件，在`sys.exit()`前添加一行`self.save_high_score()`，待添加处应有两行，此处新方法的声明写在*game\_stats.py中:
+然后在退出前保存最高分, 先修改*shark\_invasion.py*文件，在`sys.exit()`前添加一行`self.stats.save_high_score()`，待添加处应有两行，此处新方法的声明写在*game\_stats.py中:
 
 *game\_stats.py*
 
@@ -2605,3 +2606,4 @@ def load_high_score(self):
             f.write((str(self.high_score)))
 ```
 
+至此这个游戏就有了应有的各种基础功能，这个游戏
