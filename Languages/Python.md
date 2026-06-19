@@ -2606,4 +2606,4 @@ def load_high_score(self):
             f.write((str(self.high_score)))
 ```
 
-至此这个游戏就有了应有的各种基础功能，这个游戏
+至此这个游戏就有了应有的各种基础功能，这个游戏也算完成了
