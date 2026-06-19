@@ -2594,6 +2594,14 @@ def load_high_score(self):
             return 0
 ```
 
-然后在退出前保存最高分:
+然后在退出前保存最高分, 先修改*shark\_invasion.py*文件，在`sys.exit()`前添加一行`self.save_high_score()`，待添加处应有两行，此处新方法的声明写在*game\_stats.py中:
 
-先修改*shark\_invasion.py*文件，在sys.exit()前添加一行self.save_high_score()
+*game\_stats.py*
+
+```python
+    def save_high_score(self):
+        """将当前最高分写入文件"""
+        with open("high_score.txt", "w") as f:
+            f.write((str(self.high_score)))
+```
+
