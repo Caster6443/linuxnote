@@ -2427,3 +2427,7 @@ prep\_level() 的代码如下:
 ```
 
 - 如果整个太空鲨鱼舰队都被击落,就将 stats.level 的值加 1,并调用 prep\_level() 以确保正确地显示了新等级。
+
+为了确保在开始新游戏时更新等级图像,还需在玩家单击按钮 Play 时调用 prep\_level():
+
+*shark\_invasion.py*
