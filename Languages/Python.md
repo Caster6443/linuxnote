@@ -2349,3 +2349,60 @@ prep\_high\_score() 方法的代码如下:
 - 如果字典 collisions 存在,就根据击落了多少个太空鲨更新得分,再调用 check\_high\_score()。
 
 在第一次玩这款游戏时,当前得分就是最高分,因此两个地方显示的都是当前得分。 但是再次开始这个游戏时,最高分会出现在屏幕顶部的中央,而当前得分则会出现在屏幕的右上角,
+
+
+#### 4.9.7 显示等级
+
+为了在游戏中显示玩家的等级,首先需要在 GameStats 中添加一个表示当前等级的属性。要确保在每次开始新游戏时都重置等级,我们在 reset\_stats() 中初始化该属性:
+
+*game\_stats.py*
+
+```python
+    def reset_stats(self):
+        --snip--
+        self.score = 0
+        self.level = 1
+```
+
+为了让 Scoreboard 显示当前等级,在 \_\_init\_\_() 中调用一个新方法 prep\_level():
+
+*scoreboard.py*
+
+```python
+    def __init__(self, ai_game):
+        """初始化显示得分涉及的属性"""
+        --snip--
+        self.prep_high_score()
+        self.prep_level()
+```
+
+prep\_level() 的代码如下:
+
+*scoreboard.py*
+
+```python
+    def prep_level(self):
+        """将等级渲染为图像"""
+        level_str = str(self.stats.level)
+        self.level_image = self.font.render(level_str, True, self.text_color)
+        # 将等级放在得分下方
+        self.level_rect = self.level_image.get_rect()
+        self.level_rect.right = self.score_rect.right
+        self.level_rect.top = self.score_rect.bottom + 10
+```
+
+- prep\_level() 方法会根据存储在 stats.level 中的值创建一幅图像,并将其 right 属性设置为得分的 right 属性。然后,将 top 属性设置得比得分图像的 bottom 属性大 10 像素,在得分和等级之间留出一定的空间。
+
+还需要更新 show\_score():
+
+*scoreboard.py*
+
+```python
+    def show_score(self):
+        """在屏幕上显示得分"""
+        self.screen.blit(self.score_image, self.score_rect)
+        self.screen.blit(self.high_score_image, self.high_score_rect)
+        self.screen.blit(self.level_image, self.level_rect)
+```
+
+新增的代码行用于在屏幕上显示等级图像。
