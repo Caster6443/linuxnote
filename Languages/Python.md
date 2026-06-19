@@ -2226,3 +2226,25 @@ class Settings:
 
 大多数街机风格的射击游戏将得分显示为 10 的整数倍,下面就让记分系统遵循这个原则。我们还将设置得分的格式,在大数中添加用逗号表示的千位分隔符。在 Scoreboard 中进行这种修改:
 
+*scoreboard.py*
+
+```python
+    def prep_score(self):
+        """将得分渲染为图像"""
+        rounded_score = round(self.stats.score, -1)
+        score_str = f"{rounded_score:,}"
+        # score_str = str(self.stats.score)
+        # self.score_image = self.font.render(
+        #    score_str, True, self.text_color, self.settings.bg_color
+        # )
+        self.score_image = self.font.render(score_str, True, self.text_color)
+        --snip--
+```
+
+
+- round() 函数通常让浮点数(第一个实参)精确到小数点后某一位,其中的小数位数由第二个实参指定。如果将第二个实参指定为负数,round() 会将第一个实参舍入到最近的 10 的整数倍,如 10、100、1000 等。这里的代码让 Python 将 stats.score 的值舍入到最近的 10 的整数倍,并将结果存储到 rounded\_score 中。
+
+- 接下来,在表示得分的 f 字符串中使用一个格式说明符。格式说明符是一个特殊的字符序列,用于指定如何显示变量的值。这里使用的字符序列为冒号和逗号(:,),它 让 Python 在数值的合适位置插入逗号,生成的字符串类似于 1,000,000(而不是 1000000)。
+
+现在运行这个游戏,看到的得分将是 10 的整数倍,即便得分很高也是如此
+
