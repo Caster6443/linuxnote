@@ -2405,4 +2405,25 @@ prep\_level() 的代码如下:
         self.screen.blit(self.level_image, self.level_rect)
 ```
 
-新增的代码行用于在屏幕上显示等级图像。
+- 新增的代码行用于在屏幕上显示等级图像。
+
+接下来,我们在 \_check\_bullet\_shark\_collisions() 中提高等级 stats.level 并更新等级图像:
+
+*shark\_invasion.py*
+
+```python
+    def _check_bullet_shark_collisions(self):
+        """响应子弹和外星人的碰撞"""
+        --snip--
+
+        if not self.sharks:
+            # 删除现有的子弹并创建一个新的外型舰队
+            self.bullets.empty()
+            self._create_fleet()
+            self.settings.increase_speed()
+            # 提高等级
+            self.stats.level += 1
+            self.sb.prep_score()
+```
+
+- 如果整个太空鲨鱼舰队都被击落,就将 stats.level 的值加 1,并调用 prep\_level() 以确保正确地显示了新等级。
