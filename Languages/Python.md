@@ -2248,3 +2248,43 @@ class Settings:
 
 现在运行这个游戏,看到的得分将是 10 的整数倍,即便得分很高也是如此
 
+
+
+#### 4.9.6 最高分
+
+每个玩家都想超过游戏的最高分记录。下面来跟踪并显示最高分,给玩家提供要超越的目标。我们将最高分存储在 GameStats 中:
+
+*game\_stats.py*
+
+```python
+class GameStats:
+    """跟踪游戏的统计信息"""
+
+    def __init__(self, ai_game):
+        --snip--
+        self.reset_stats()
+        # 在任何情况下都不应重置最高分
+        self.high_score = 0
+
+    def reset_stats(self):
+        --snip--
+
+```
+
+- 由于在任何情况下都不会重置最高分,因此在 \_\_init\_\_() 而不是 reset\_stats() 中初始化 high\_score。
+
+下面来修改 Scoreboard 以显示最高分。先来修改 \_\_init\_\_() 方法:
+
+*scoreboard.py*
+
+```python
+class Scoreboard:
+    """显示得分信息的类"""
+
+    def __init__(self, ai_game):
+        --snip--
+        # 准备包含最高分和当前得分的图像
+        self.prep_score()
+        self.prep_high_score()
+```
+
