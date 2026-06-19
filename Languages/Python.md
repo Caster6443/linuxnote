@@ -2185,3 +2185,38 @@ from scoreboard import Scoreboard
 
 *settings.py*
 
+```python
+class Settings:
+    --snip--
+        # 以什么速度加快游戏的节奏
+        self.speedup_scale = 1.1
+        # 太空鲨分数的提高速度
+        self.score_scale = 1.5
+
+        self.initialize_dynamic_settings()
+
+    def initialize_dynamic_settings(self):
+        --snip--
+    def increase_speed(self):
+        --snip--
+        self.shark_speed *= self.speedup_scale
+        self.shark_points = int(self.shark_points * self.score_scale)
+
+```
+
+- 我们定义了分数的提高速度,并称之为 score\_scale。较慢的节奏加快速度(1.1)也能让游戏很快变得极具挑战性,但为了让得分发生显著的变化,需要将分数的提高速度设置为更大的值(1.5)。现在,在加快游戏节奏的同时,还提高了每个太空鲨的分数。为了让太空鲨的分数为整数,使用函数 int()。
+
+**测试:** 为了显示太空鲨的分数,在 Settings 的方法 increase\_speed() 中调用函数 print():
+
+*settings.py*
+
+```python
+    def increase_speed(self):
+        --snip--
+        self.shark_points = int(self.shark_points * self.score_scale)
+        print(self.shark_points)
+```
+
+现在每提高一个等级,你都将在终端窗口看到新的分数值。
+
+注意:确认分数在不断增加后,请记得删除调用函数 print() 的代码,否则可能影响游戏的性能,分散玩家的注意力。
