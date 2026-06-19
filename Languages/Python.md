@@ -2501,3 +2501,61 @@ prep\_ships() 的代码如下:
 
 *scoreboard.py*
 
+```python
+    def prep_ships(self):
+        """显示还余下多少艘飞船"""
+        self.ships = Group()
+        for ship_number in range(self.stats.ship_left):
+            ship = Ship(self.ai_game)
+            ship.rect.x = 10 + ship_number * ship.rect.width
+            ship.rect.y = 10
+            self.ships.add(ship)
+```
+
+- prep\_ships() 方法会创建一个空编组 self.ships,用于存储飞船实例。 根据玩家还有多少艘飞船,以相应的次数运行一个循环,来填充这个编组。 在这个循环中,我们创建新飞船并设置其 *x* 坐标,让整个飞船编组都位于屏幕左边 缘,且每艘飞船的左边距都为 10 像素。我们还将飞船的 *y* 坐标设置为距离屏幕上边缘 10 像素,让所有飞船都出现在屏幕的左上角。最后,将每艘新飞船都添加到 ships 编组中。
+
+现在需要在屏幕上绘制飞船了:
+
+*scoreboard.py*
+
+```python
+    def show_score(self):
+        """在屏幕上显示得分, 等级和余下的飞船数"""
+        self.screen.blit(self.score_image, self.score_rect)
+        self.screen.blit(self.high_score_image, self.high_score_rect)
+        self.screen.blit(self.level_image, self.level_rect)
+        self.ships.draw(self.screen)
+```
+
+- 对编组调用 draw(),Pygame 将在屏幕上绘制每艘飞船。
+
+为了在游戏开始时让玩家知道自己有多少艘飞船,可以在开始新游戏时调用 prep\_ships()。因此修改 SharkInvasion 类中的 \_check\_play\_button() 方法:
+
+*shark\_invasion.py*
+
+```python
+    def _check_play_button(self, mouse_pos):
+        """在玩家单击Play按钮时开始新游戏"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
+            --snip--
+            self.sb.prep_level()
+            self.sb.prep_ships()
+```
+
+当然,还要在飞船被太空鲨撞到时调用 prep\_ships(),从而在玩家损失飞船时更新飞船图像:
+
+*shark\_invasion.py*
+
+```python
+    def _ship_hit(self):
+        """响应飞船和太空鲨的碰撞"""
+        if self.stats.ships_left > 0:
+            # 将 ships_left 减1 并更新记分牌
+            self.stats.ships_left -= 1
+            self.sb.prep_ships()
+            # 清空太空鲨列表和子弹列表
+            --snip--
+```
+
+- 这里在将 ships\_left 的值减 1 后调用 prep\_ships()。这样每次损失飞船后,显示的剩余飞船数都是正确的。
