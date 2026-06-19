@@ -2288,3 +2288,64 @@ class Scoreboard:
         self.prep_high_score()
 ```
 
+最高分将与当前得分分开显示,因此需要编写一个新方法 prep\_high\_score(),用于准备包含最高分的图像
+
+prep\_high\_score() 方法的代码如下:
+
+*scoreboard.py*
+
+```python
+    def prep_high_score(self):
+        """将最高分渲染为图像"""
+        high_score = round(self.stats.high_score, -1)
+        high_score_str = f"{high_score:,}"
+        self.high_score_image = self.font.render(high_score_str, True, self.text_color)
+        # 将最高分放在屏幕顶部的中央
+        self.high_score_rect = self.high_score_image.get_rect()
+        self.high_score_rect.centerx = self.screen_rect.centerx
+        self.high_score_rect.top = self.score_rect.top
+```
+
+- 首先,将最高分舍入到最近的 10 的整数倍,并添加用逗号表示的千分位分隔符。然后,根据最高分生成一幅图像,使其水平居中,并将其 top 属性设置为当前得分图像的 top 属性。
+
+现在,show\_score() 方法需要在屏幕右上角显示当前得分,并在屏幕顶部的中央显示最高分:
+
+*scoreboard.py*
+
+```python
+    def show_score(self):
+        """在屏幕上显示得分"""
+        self.screen.blit(self.score_image, self.score_rect)
+        self.screen.blit(self.high_score_image, self.high_score_rect)
+```
+
+为了检查是否诞生了新的最高分,在 Scoreboard 中添加一个新方法 check\_high\_score():
+
+*scoreboard.py*
+
+```python
+    def check_high_score(self):
+        """检查是否诞生了新的最高分"""
+        if self.stats.score > self.stats.high_score:
+            self.stats.high_score = self.stats.score
+            self.prep_high_score()
+```
+
+在 \_check\_bullet\_shark\_collisions() 中,每当有太空鲨被击落时,都需要在更新得分后调用 check\_high\_score():
+
+*shark\_invasion.py*
+
+```python
+    def _check_bullet_shark_collisions(self):
+        --snip--
+        if collisions:
+            for sharks in collisions.values():
+                self.stats.score += self.settings.shark_points * len(sharks)
+                self.sb.prep_score()
+                self.sb.check_high_score()
+		--snip--
+```
+
+- 如果字典 collisions 存在,就根据击落了多少个太空鲨更新得分,再调用 check\_high\_score()。
+
+在第一次玩这款游戏时,当前得分就是最高分,因此两个地方显示的都是当前得分。 但是再次开始这个游戏时,最高分会出现在屏幕顶部的中央,而当前得分则会出现在屏幕的右上角,
