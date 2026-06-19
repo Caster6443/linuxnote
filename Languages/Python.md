@@ -2423,7 +2423,7 @@ prep\_level() 的代码如下:
             self.settings.increase_speed()
             # 提高等级
             self.stats.level += 1
-            self.sb.prep_score()
+            self.sb.prep_level()
 ```
 
 - 如果整个太空鲨鱼舰队都被击落,就将 stats.level 的值加 1,并调用 prep\_level() 以确保正确地显示了新等级。
@@ -2431,3 +2431,16 @@ prep\_level() 的代码如下:
 为了确保在开始新游戏时更新等级图像,还需在玩家单击按钮 Play 时调用 prep\_level():
 
 *shark\_invasion.py*
+
+```python
+    def _check_play_button(self, mouse_pos):
+        --snip--
+        if button_clicked and not self.game_active:
+            --snip--
+            pygame.mouse.set_visible(False)
+            self.sb.prep_score()
+            self.sb.prep_level()
+```
+
+- 这里在调用 prep\_score() 后立即调用 prep\_level()。
+
