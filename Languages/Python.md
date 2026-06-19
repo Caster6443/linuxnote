@@ -2559,3 +2559,41 @@ prep\_ships() 的代码如下:
 ```
 
 - 这里在将 ships\_left 的值减 1 后调用 prep\_ships()。这样每次损失飞船后,显示的剩余飞船数都是正确的。
+
+### 4.10 保留最高分
+
+现在的程序有个问题是，最高分在退出游戏后会被重置为0，这里需要修改:
+
+*game\_stats.py*
+
+```python
+class GameStats:
+    """跟踪游戏的统计信息"""
+
+    def __init__(self, ai_game):
+        """初始化统计信息"""
+        self.settings = ai_game.settings
+        self.reset_stats()
+        # 在任何情况下都不应重置最高分
+        self.high_score = self.load_high_score()
+        
+	--snip--
+```
+
+- 这里修改了原本的初始化为0，添加了新方法load\_high\_score()
+
+下面是新方法load\_high\_score()的内容:
+
+```python
+def load_high_score(self):
+        """从文件加载历史最高分"""
+        try:
+            with open("high_score.txt", "r") as f:
+                return int(f.read())
+        except (FileNotFoundError, ValueError):
+            return 0
+```
+
+然后在退出前保存最高分:
+
+先修改*shark\_invasion.py*文件，在sys.exit()前添加一行self.save_high_score()
