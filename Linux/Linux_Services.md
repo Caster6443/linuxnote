@@ -7033,6 +7033,8 @@ grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
 
 ## paramiko模块
 
-此模块用于
+此模块用于远程链接服务器并进行远程操作
+
+
 
 
