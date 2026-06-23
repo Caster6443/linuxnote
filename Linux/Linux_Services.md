@@ -7025,7 +7025,10 @@ grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
 
 
 
-CMD
+# CMDB
+
+项目架构
+
 
 
 
