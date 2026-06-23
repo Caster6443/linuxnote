@@ -7023,3 +7023,9 @@ grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
 
 
 
+
+
+CMD
+
+
+
