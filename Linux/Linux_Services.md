@@ -7041,7 +7041,9 @@ grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
 pip install paramiko
 ```
 
-用例代码
+用例代码:
+
+### 远程操作
 
 ```python
 import paramiko
@@ -7055,7 +7057,8 @@ ssh.connect(hostname="192.168.100.100", port=22, username="root", password="0000
 
 # 执行命令
 stdin, stdout, stderr = ssh.exec_command("df -Th")
-# 获取命令结果,stdout.read默认采用二进制模式，因此会返回一堆转义字符
+# 获取命令结果,stdout.read默认采用二进制模式，因此会返回一堆转义序列(如\xe5, \xb7, \n等)
+# 所以我们使用decode方法并指定字符集来转成易读的输出
 result = stdout.read().decode("utf-8")
 
 print(result)
@@ -7064,7 +7067,19 @@ print(result)
 ssh.close()
 ```
 
+代码参考输出:
+
+![](_resources/Linux_Services/a184816ddaa2979e9523b3e7fd7acba8_MD5.jpg)
+
+同时还可以传入标准输入
+
+```python
+stdin.write(b'y')
+```
+
+比如yum install xxx时，需要y/n/d来让用户输入确认，我们就可以直接传进去一个y作为标准输入进去
 
 
 
+### 文件传输
 
