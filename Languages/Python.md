@@ -2606,4 +2606,4 @@ def load_high_score(self):
             f.write((str(self.high_score)))
 ```
 
-至此这个游戏就有了应有的各种基础功能，这个游戏也算完成了
+至此这个游戏就有了应有的各种基础功能，这个游戏也算完成了,后续我将游戏开源到了github上，发了release并写了yml文件编排cicd交付exe和tar.gz包到release中

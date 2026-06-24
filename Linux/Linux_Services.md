@@ -7035,6 +7035,19 @@ grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
 
 此模块用于远程链接服务器并进行远程操作
 
+安装
+
+```shell
+pip install pa
+```
+
+用例代码
+
+```python
+import paramiko
+```
+
+
 
 
 
