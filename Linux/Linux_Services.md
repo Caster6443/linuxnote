@@ -7045,6 +7045,23 @@ pip install paramiko
 
 ```python
 import paramiko
+
+# 创建SSH对象
+ssh = paramiko.SSHClient()
+# 允许连接不在know_hosts文件中的主机
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+# 连接服务器
+ssh.connect(hostname="192.168.100.100", port=22, username="root", password="000000")
+
+# 执行命令
+stdin, stdout, stderr = ssh.exec_command("df -Th")
+# 获取命令结果,stdout.read默认采用二进制模式，因此会返回一堆转义字符
+result = stdout.read().decode("utf-8")
+
+print(result)
+
+# 关闭连接
+ssh.close()
 ```
 
 
