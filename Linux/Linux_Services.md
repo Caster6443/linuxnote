@@ -7038,7 +7038,7 @@ grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
 安装
 
 ```shell
-pip install pa
+pip install paramiko
 ```
 
 用例代码
