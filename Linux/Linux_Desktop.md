@@ -5808,3 +5808,21 @@ fc-cache -fv
 ```
 
 然后在火狐的设置里修改字体为霞鹜文楷屏幕阅读版(screen)并重启浏览器即可
+
+
+
+## Neovim中文字体报红
+
+原因: LazyVim 默认开启了拼写检查（`spell = true`），并且默认字典只有英文。当它看到输入的汉字时，它会觉得这些全是“它不认识的错误英文单词”，然后画上红色下划线。
+
+通过修改文件~/.config/nvim/lua/config/options.lua实现修复
+
+```shell
+nvim ~/.config/nvim/lua/config/options.lua
+```
+
+写入如下内容(将CJK(中日韩)字符加入拼写白名单)
+
+```lua
+vim.opt.spelllang:append("cjk")
+```
