@@ -140,41 +140,6 @@ sudo chmod +x ~/.config/hypr/scripts/toggle_touchpad.sh
 然后自行在 hyprland 配置文件上绑定键位调用该脚本
 
 
-
-## 浮动窗口间隙设置
-
-在使用时注意到我的 waybar 和浮动窗口之间有一段空白，不太美观  
-这个空白大小是可以修改的，还是在那个 hyprland 配置文件里  
-
-```bash
-# https://wiki.hypr.land/Configuring/Variables/#general
-general {
-    gaps_in = 5
-    gaps_out = 0,10,10,10
-    就是gaps_out这个变量，它可以设定浮动窗口四周的空白保留区域的像素大小，只设定一个值就是只保
-留上部分区域的空白像素大小，多个值就要之间加上逗号    
-    border_size = 2
-
-    # https://wiki.hypr.land/Configuring/Variables/#variable-types for info about colors
-    col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
-    col.inactive_border = rgba(595959aa)
-
-    # Set to true enable resizing windows by clicking and dragging on borders and gaps
-    resize_on_border = false
-
-    # Please see https://wiki.hypr.land/Configuring/Tearing/ before you turn this on
-    allow_tearing = false
-
-    layout = dwindle
-}
-
-
-```
-
-这个变量同样可以在 hyprland 的 wiki 里查到
-
-本来想把四周全设置 0 的，但我又想想，没有四周留白和平铺模式有啥区别，那不就成了不能动的窗口吗？所以我故意除了顶部全都设置了10像素的留白空间，这样才知道我用的是浮动窗口模式（其实平铺模式会和 waybar 重叠，通过这个也能看出来😅）  
-
 ## 视频壁纸方案
 
 项目名 mpvpaper  
@@ -232,7 +197,7 @@ mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.
 mpvpaper -o "--loop-file" eDP-1 Downloads/【哲风壁纸】剪影-多重影像.mp4 &  
 ```
 
-这个命令就可以写进 hyprland 的 exec-once 设置开机自启  
+这个命令就可以写进 hyprland设置开机自启  
 
 值得一提的是，视频壁纸作为layer被hyprland的规则匹配到，那么我就可以通过hyprland的动画规则实现视频壁纸切换的动画效果，然而前端切换工具waypaper调用waypaper的方法是先杀进程后切换，这样就会导致切换过程不可避免的闪一下，很不美观，我们可以通过改变waypaper调用mpvpaper的规则，改成下一个壁纸切换时，直接覆盖当前壁纸（mpvpaper支持这么做），然后再杀掉上一个壁纸的进程，这样就能展示出mpvpaper的简单切换过程动画效果
 
@@ -624,7 +589,7 @@ if [ "$VM_NAME" == "$TARGET_VM" ]; then
             exit 1
         fi
         
-        # 如果是正常关机，还原成功后再发个友好通知
+        # 如果是正常关机，还原成功后再发个通知
         if [ "$WAS_NORMAL_RUN" == "1" ]; then
             send_notify "normal" "✅ GPU 已成功交还宿主机"
         fi
