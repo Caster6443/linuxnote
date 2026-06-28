@@ -7083,3 +7083,19 @@ stdin.write(b'y')
 
 ### 文件传输
 
+```python
+import paramiko
+
+transport = paramiko.Transport(("192.168.100.100", 22))
+transport.connect(username="root", password="000000")
+
+sftp = paramiko.SFTPClient.from_transport(transport)
+
+# 将testfile/location.py 上传至服务器 /tmp/test.py
+sftp.put("/home/caster/Code/CMDB/testfile/location.py", "/tmp/test.py")
+# 将remove_path 下载到本地local_path
+sftp.get("remove_path", "local_path")
+
+transport.close()
+```
+
