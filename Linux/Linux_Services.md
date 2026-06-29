@@ -3337,9 +3337,22 @@ Please review the log for errors.
 ```
 
 2. 编辑dockerfile
-vim Docker
+```shell
+vim Dockerfile
+```
 
+写入如下内容:
 
+```dockerfile
+FROM mcr.microsoft.com/devcontainers/python:1-3.12-bookworm
+
+RUN python3 -m pip install poetry~=1.8.2
+```
+
+3. 构建镜像
+```shell
+docker build -t ansible-control -f Dockerfile .
+```
 
 
 
