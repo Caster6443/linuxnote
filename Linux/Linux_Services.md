@@ -2703,25 +2703,23 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 
 ## Ansible 的主要组件
 
-控制节点（Control Node）： Ansible 的运行所在的机器。控制节点发出指令，通过 SSH 连接到目标主机执行任务。
+- 控制节点（Control Node）： Ansible 的运行所在的机器。控制节点发出指令，通过 SSH 连接到目标主机执行任务。
 
-被管理节点（Managed Nodes）： 需要被管理和配置的目标主机。
+- 被管理节点（Managed Nodes）： 需要被管理和配置的目标主机。
 
-库存（Inventory）： 一个定义了所有被管理节点的文件。库存文件通常是一个简单的 INI 文件，也可以是动态生成的。
+- 库存（Inventory）： 一个定义了所有被管理节点的文件。库存文件通常是一个简单的 INI 文件，也可以是动态生成的。
 
-模块（Modules）： Ansible 的工作单元，执行特定任务的脚本。模块可以管理文件、安装软件包、执行命令等。
+- 模块（Modules）： Ansible 的工作单元，执行特定任务的脚本。模块可以管理文件、安装软件包、执行命令等。
 
-剧本（Playbooks）： Ansible 的配置、部署和编排的文件，使用 YAML 编写。剧本由一个或多个剧本（Play）组成，每个剧本定义了在一组主机上执行的任务。
+- 剧本（Playbooks）： Ansible 的配置、部署和编排的文件，使用 YAML 编写。剧本由一个或多个剧本（Play）组成，每个剧本定义了在一组主机上执行的任务。
 
-角色（Roles）： 角色是剧本的一种组织方式，用于将任务、变量和文件结构化。角色使得剧本更易读、可维护和可重用。
+- 角色（Roles）： 角色是剧本的一种组织方式，用于将任务、变量和文件结构化。角色使得剧本更易读、可维护和可重用。
 
-/etc/ansible/hosts文件
+*\/etc\/ansible\/hosts文件*
 
-这是ansible的默认库存文件
+这是ansible的默认库存文件, 当ansible-playbook开始运行剧本时，默认先查找这个库存文件，但可以通过-i选项指定自定义库存文件(通常以.ini文件结尾)
 
-当ansible-playbook开始运行剧本时，默认先查找这个库存文件，但可以通过-i选项指定自定义库存文件(通常以.ini文件结尾)
-
-Adhoc
+*Adhoc*
 
 Ansible 的 ad-hoc 命令是一种快速、临时执行任务的方式，无需编写完整的 Playbook。它适用于执行一次性任务、进行快速测试或在多台主机上同步执行简单命令。这种方法非常灵活，能够利用 Ansible 的模块库来完成各种任务。
 
@@ -2731,9 +2729,11 @@ Ansible ad-hoc 命令语法解析
 pattern选项 指定要操作的主机或主机组的模式。
 
 常见的 pattern 语法
+
 `[root@server ansible]# cat node.ini [node] node1 node2`
 
 由于主机密钥检查问题暂时没有好的解决办法，这里的举例使用 在 ansible 的配置文件中禁用 ansible 的密钥检查
+
 `[defaults] host_key_checking = False`
 
 1. 全量匹配 all 或 *：选择所有主机
@@ -2742,7 +2742,6 @@ pattern选项 指定要操作的主机或主机组的模式。
 2. 单主机/主机组
 
 ```
-
 -i：指定库存文件的位置。
 
 -m：指定要使用的模块（例如 ping, shell, copy 等）。
@@ -2750,25 +2749,35 @@ pattern选项 指定要操作的主机或主机组的模式。
 -a：指定模块的参数。
 
 --become：使用 sudo 提权执行命令（需要适当的权限配置）。
-
 ```
 
 pipx的安装
+
 `python3 -m pip install --user pipx`
 `python3 -m pipx ensurepath`
 
 
 
 ## ansible 模块
-`ansible-doc -l`
+
+```shell
+ansible-doc -l
+```
+
 列出 ansible-core 的模块列表，不加 l 可以查看指定模块
 
-setup 模块 在 剧本执行前,ansible 会自动调用 setup 模块采集目标清单的 fact(事实信息集合)（可禁用自动调用，在剧本的属性中添加gather_facts: no），采集到的 fact 使用该模块的内置变量以键值对的形式存储，格式为 json 格式，剧本调用 setup 模块的内置变量的子属性时，使用' . '来连接父属性和子属性，这个格式使用的是 嵌套字典的形式，例如内置变量 ansible_devices,它的子属性有 vda，vda 的子属性有 size，那么调用 size 变量就需要使用嵌套字典表示 : ansible_devices.vda.size，等价于 python 的嵌套字典语法 ansible_devices['vda']['size'](https://www.google.com/search?q=%E4%B8%8D%E6%98%AF%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84%EF%BC%8C%E6%98%AF%E5%AD%97%E5%85%B8%E5%B5%8C%E5%A5%97)
+setup 模块会在剧本执行前由 Ansible 自动调用，用于采集目标主机的 **fact**（事实信息集合）。可以在剧本属性中设置 `gather_facts: no` 来禁用自动采集。  
+采集到的 fact 以该模块的内置变量形式存储，数据结构为 JSON，本质是**嵌套字典**。在剧本中引用子属性时使用 `.` 连接，例如内置变量 `ansible_devices` 包含子属性 `vda`，`vda` 又包含 `size`，那么访问 `size` 的写法是 `ansible_devices.vda.size`，它等价于 Python 的 `ansible_devices['vda']['size']`。
 
-- name: get vda_info lineinfile: path: /root/hwreport.txt regexp: "disk_vda_size" line: "{{ ansible_devices.vda.size | default ('none') }}"
-    
-查看指定模块的使用帮助 ansible-navigator doc 模块名 -m stdout
-比 ansible-doc 更完善
+```yaml
+- name: 将 vda 磁盘信息写入文件
+  lineinfile:
+    path: /root/hwreport.txt
+    regexp: "disk_vda_size"
+    line: "{{ ansible_devices.vda.size | default('none') }}"
+```
+
+查看指定模块的使用帮助可以使用 `ansible-navigator doc 模块名 -m stdout`，它比 `ansible-doc` 的信息更完善。
 
 
 ## ansible-playbook 中 loop 的使用
