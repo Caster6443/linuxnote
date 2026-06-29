@@ -2701,6 +2701,36 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 
 # Ansible
 
+ansible可以使用pip安装，因此，可以使用python创建虚拟环境并激活，然后安装ansible-core
+
+1. 创建工作目录
+```shell
+mkdir -pv Ansible
+```
+
+2. 创建虚拟环境并激活
+```shell
+python -m venv venv
+```
+
+```shell
+source venv/bin/activate.fish
+```
+
+3. 安装ansible-core
+```shell
+pip install ansible-core
+```
+
+4. 验证
+```shell
+ansible --version
+```
+
+```shell
+ansible localhost -m ping
+```
+
 ## Ansible 的主要组件
 
 - 控制节点（Control Node）： Ansible 的运行所在的机器。控制节点发出指令，通过 SSH 连接到目标主机执行任务。
