@@ -3286,10 +3286,11 @@ Please review the log for errors.
 
 
 - 你必须将插件返回的所有字符串转换为 Python 的 unicode 类型。转换为 unicode 可以确保这些字符串能够在 Jinja2 中运行。转换字符串的方法如下：
+
+```python
 from ansible.module_utils.common.text.converters import to_text
 result_string = to_text(result_string)
-
-
+```
 
 
 # Zabbix
