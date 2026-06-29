@@ -2715,7 +2715,26 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 
 - 角色（Roles）： 角色是剧本的一种组织方式，用于将任务、变量和文件结构化。角色使得剧本更易读、可维护和可重用。
 
-**
+*生成默认配置文件*
+
+ansible会默认优先读取当前目录下的配置文件，可以通过命令生成一个默认配置文件
+
+```shell
+ansible-config init --disabled > ansible.cfg
+```
+
+--disabled的作用是默认注释所有的配置项
+
+
+
+
+
+
+
+
+
+
+
 
 *\/etc\/ansible\/hosts文件*
 
