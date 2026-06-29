@@ -2701,7 +2701,7 @@ rewrite ^/2025/(.*)$ /2030/$1 redirect;
 
 # Ansible
 
-ansible可以使用pip安装，因此，可以使用python创建虚拟环境并激活，然后安装ansible-core
+ansible也可以使用pip安装，因此，可以使用python创建虚拟环境并激活，然后安装ansible-core
 
 1. 创建工作目录
 ```shell
@@ -3326,6 +3326,8 @@ Please review the log for errors.
 
 
 ## 开发指南
+
+本地开发ansible可能会缺环境，尤其是windows，可以在vscode中安装`Dev Containers`这个插件在官方给的虚拟环境中开发
 
 ### 入门须知
 
