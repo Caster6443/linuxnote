@@ -3329,6 +3329,29 @@ Please review the log for errors.
 
 本地开发ansible可能会缺环境，尤其是windows，可以在vscode中安装`Dev Containers`这个插件在官方给的虚拟环境中开发
 
+但是我选择直接在docker里开发
+
+1. 创建开发目录
+```shell
+ mkdir -pv Ansible
+```
+
+2. 编辑dockerfile
+vim Docker
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 入门须知
 
 - 当你的代码里出了错，你想把系统的原始报错信息打印给用户看时，必须套一层 `to_native()`
