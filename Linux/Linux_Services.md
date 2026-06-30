@@ -3390,6 +3390,9 @@ Poetry (version 1.8.5)
 poetry init
 ```
 
+参考初始化过程如图
+
+![](_resources/Linux_Services/5637bd636c6da768be0bc6ad269d522d_MD5.jpg)
 
 
 
