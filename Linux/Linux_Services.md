@@ -3354,6 +3354,48 @@ RUN python3 -m pip install poetry~=1.8.2
 docker build -t ansible-control -f Dockerfile .
 ```
 
+4. 启动并进入容器
+```shell
+docker run -it --name ansible-control ansible-control:latest /bin/bash
+```
+
+5. 创建并进入容器内工作目录
+```shell
+mkdir -pv /workspaces/ansible
+```
+
+```shell
+cd /workspaces/ansible
+```
+
+6. 检查python3和poetry的版本
+```shell
+python3 -V
+poetry --version
+```
+
+我的输出是:
+
+```shell
+root ➜ / $ python3 -V
+Python 3.12.11
+root ➜ / $ poetry --version
+Poetry (version 1.8.5)
+```
+
+过去使用venv虚拟化环境管理python项目，现代偏向使用poetry
+
+7. 使用poetry初始化环境
+```shell
+poetry init
+```
+
+
+
+
+
+
+
 
 
 
