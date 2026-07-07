@@ -5532,3 +5532,20 @@ nvim ~/.config/nvim/lua/config/options.lua
 ```lua
 vim.opt.spelllang:append("cjk")
 ```
+
+
+
+
+## GNOME使用fcitx5输入法候选词位置异常
+
+具体表现是输入法候选词的框没有跟随输入时的光标下面出现，可以通过安装拓展修复(在此之前需要安装拓展管理器)
+
+安装拓展管理器
+
+```shell
+flatpak install flathub com.mattjakeman.ExtensionManager
+```
+
+打开拓展管理器后搜索安装这个插件就可以了
+
+![685](_resources/Linux_Desktop/81a490ff9d4eb9ce0599e27992c7275e_MD5.jpg)
