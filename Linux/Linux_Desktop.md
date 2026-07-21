@@ -4639,7 +4639,7 @@ return {
         
     - 报错日志显示在 `dxgi` 层面发生了读取冲突（`page fault on read access... in dxgi`）。
 
-### 2. 根本原因分析
+### 2. 原因分析
 
 1. **沙盒隔离机制：** Flatpak 运行在隔离的沙盒环境中，它**无法直接读取**主机系统 (CachyOS) 上安装的闭源 Nvidia 驱动库。它需要一套自己专属的运行时（Runtime）插件。
     
@@ -4677,6 +4677,52 @@ flatpak install flathub org.freedesktop.Platform.GL32.nvidia-610-43-02
 ```
 
 一般到这里就能解决了，如果还是没有启动，可以尝试添加环境变量
+
+
+## GNOME设置窗口聚焦模式
+
+gnome默认是点击窗口聚焦，这样效率很低
+
+有两种方式可以修改
+
+*1.安装 GNOME Tweaks*
+
+```shell
+sudo pacman -S gnome-tweaks
+```
+
+- 在应用列表中找到并打开 **优化 (Tweaks)**。
+    
+- 在左侧菜单中点击 **窗口 (Windows)**。
+    
+- 找到 **窗口焦点 (Window Focus)** 选项。
+    
+- 将其从“点击聚焦 (Click to Focus)” 更改为 **“悬停聚焦 (Focus on Hover)”**。
+
+
+*2.直接通过终端命令修改*
+
+```shell
+gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+```
+
+**一共有三种聚焦模式：**
+
+- **`click`**：默认模式。必须鼠标点击窗口才能获得焦点。
+    
+- **`sloppy`**：焦点会随着鼠标移动到新窗口。但如果你的鼠标移动到了空白的桌面背景上，**上一个被选中的窗口依然会保持焦点**，这样你依然可以通过键盘对它进行操作。
+    
+- **`mouse`**：极其严格的鼠标跟随。如果鼠标移动到空白桌面背景，焦点会直接丢失，所有窗口都会变成非活跃状态。
+
+
+
+
+
+
+
+
+
+
 
 
 
