@@ -4572,63 +4572,46 @@ Ceph安装错了位置，全部重置
 
 ## ceph源配置的官方repo文件
 
+```
 [Ceph]
-
 name=Ceph packages for $basearch
-
 baseurl=[http://download.ceph.com/rpm-nautilus/el7/$basearch](http://download.ceph.com/rpm-nautilus/el7/$basearch)
-
 enabled=1
-
 gpgcheck=1
-
 type=rpm-md
-
 gpgkey=[https://download.ceph.com/keys/release.asc](https://download.ceph.com/keys/release.asc)
-
 priority=1
 
 [Ceph-noarch]
-
 name=Ceph noarch packages
-
 baseurl=[http://download.ceph.com/rpm-nautilus/el7/noarch](http://download.ceph.com/rpm-nautilus/el7/noarch)
-
 enabled=1
-
 gpgcheck=1
-
 type=rpm-md
-
 gpgkey=[https://download.ceph.com/keys/release.asc](https://download.ceph.com/keys/release.asc)
-
 priority=1
 
 [ceph-source]
-
 name=Ceph source packages
-
 baseurl=[http://download.ceph.com/rpm-nautilus/el7/SRPMS](http://download.ceph.com/rpm-nautilus/el7/SRPMS)
-
 enabled=1
-
 gpgcheck=1
-
 type=rpm-md
-
 gpgkey=[https://download.ceph.com/keys/release.asc](https://download.ceph.com/keys/release.asc)
-
 priority=1
 
+```
 但是网络连接很差，修改为阿里云的ceph源，[即将配置文件中出现的download.ceph.com全部修改为mirrors.aliyun.com/ceph即可](https://www.google.com/search?q=https://%E5%8D%B3%E5%B0%86%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E5%87%BA%E7%8E%B0%E7%9A%84download.ceph.com%E5%85%A8%E9%83%A8%E4%BF%AE%E6%94%B9%E4%B8%BAmirrors.aliyun.com/ceph%E5%8D%B3%E5%8F%AF)
 
-执行yum -y install ceph ceph-radosgw遇到的报错
+执行`yum -y install ceph ceph-radosgw`遇到的报错
 
 ![783df5932e4e96aac58bce37adddb368_MD5.png](../_resources/Linux_Services/783df5932e4e96aac58bce37adddb368_MD5.png)
 
 报错原因是阿里云提供的centos源的epel仓库源配置有问题，导致无法启用
 
-解决方案：手动添加一个epel源，这里在阿里云找到了epel源Wget -O /etc/yum.repos.d/epel.repo [https://mirrors.aliyun.com/repo/epel-7.repo](https://mirrors.aliyun.com/repo/epel-7.repo)
+解决方案：手动添加一个epel源，这里在阿里云找到了epel源
+
+`Wget -O /etc/yum.repos.d/epel.repo [https://mirrors.aliyun.com/repo/epel-7.repo](https://mirrors.aliyun.com/repo/epel-7.repo)`
 
 
 ## 关于ceph-deploy new报错
@@ -4666,6 +4649,7 @@ Linux内核支持两个功能，与容器技术的实现有关![3b85d5e8cae5347d
 
 ## 国内的docker可用镜像源
 
+```
 "[https://docker.m.daocloud.io](https://docker.m.daocloud.io)",
 
 "[https://noohub.ru](https://noohub.ru)",
@@ -4675,15 +4659,20 @@ Linux内核支持两个功能，与容器技术的实现有关![3b85d5e8cae5347d
 "[https://dockerhub.timeweb.cloud](https://dockerhub.timeweb.cloud)",
 
 "[https://docker.rainbond.cc](https://docker.rainbond.cc)"
+```
 
 
 ## docker命令补全问题
 
 默认是无法补全的，但可以通过以下命令实现
 
+```shell
 yum install -y bash-completion
+```
 
+```shell
 source /usr/share/bash-completion/bash_completion
+```
 
 
 ## docker基础操作
@@ -4974,7 +4963,9 @@ protected-mode yes
 
 与 8.4 不同，使用 mysql -u root -p 直接进入数据库（注意不是 mysqld），密码输入直接回车，因为默认是空密码,进入数据库，为了安全起见，还是设置一下 root 密码，在数据库中执行以下代码
 
+```sql
 ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码'; FLUSH PRIVILEGES;
+```
 
 
 
@@ -5011,9 +5002,17 @@ mysql_native_password=ON
 
 ## 不进入数据库命令行界面实现交互
 
-可参考该命令mysql -uroot -proot -e " create database djangoblog;"
+可参考该命令
 
-另外还可以直接进入指定数据库mysql -uroot -proot djangoblog
+```shell
+mysql -uroot -proot -e " create database djangoblog;"
+```
+
+另外还可以直接进入指定数据库
+
+```shell
+mysql -uroot -proot djangoblog
+```
 
 
 
@@ -5028,14 +5027,6 @@ lower_case_table_names =1 //数据库支持大小写
 innodb_buffer_pool_size = 4G //设置数据库缓存（缓冲区）大小为4G innodb_log_buffer_size = 64MB //设置数据库的log buffer即redo日志缓冲为64MB 
 innodb_log_file_size = 256MB //设置数据库的redo log即redo日志大小为256MB 
 innodb_log_files_in_group = 2 //数据库的redo log文件组即redo日志的个数配置为2
-
-systemctl restart mariadb
-
-
-
-
-
-
 
 
 
@@ -5858,19 +5849,23 @@ Docker-ce和docker-compose，containerd的安装，Harbor仓库的部署，k8s�
 
 基础环境的配置
 
-//////////////////////////////////////////////////////////////////
+--- 
 
 防火墙，selinux，swap分区禁用，基础yum源和docker源的配置，设置主机名映射，配置时间同步，开启路由转发和ipvs所需模块的加载（因为flannel需要调用这些内核模块），安装docker，containerd等，修改docker的cgroup驱动为systemd，配置docker镜像拉取使用协议支持http，修改containerd的沙盒为指定的镜像，启用Systemd作为cgroup驱动
 
+---
+
 Harbor仓库的搭建
 
-/////////////////////////////////////////////////////////
+---
 
 修改harbor仓库的配置文件，建议端口修改为5000，禁用https协议，做好后用prepare脚本检查，而后使用安装脚本部署Harbor仓库
 
+---
+
 K8s集群初始化
 
-/////////////////////////////////////////////////////////////
+---
 
 用ctr导入k8s初始化所需镜像到k8s.io命名空间中，而后开始集群的初始化，因为给出的镜像是打了aliyun网址的标签，[所以要指定镜像拉取网址为registry.aliyuncs.com/google_containerd](https://www.google.com/search?q=https://%E6%89%80%E4%BB%A5%E8%A6%81%E6%8C%87%E5%AE%9A%E9%95%9C%E5%83%8F%E6%8B%89%E5%8F%96%E7%BD%91%E5%9D%80%E4%B8%BAregistry.aliyuncs.com/google_containerd) ,即使这个网址不可用，初始化完成后在当前用户家目录下创建.kube目录，并将k8s的配置文件admin.conf移动到该目录更名为conf，而后node节点加入集群，修改kube-flannel.yml配置文件，修改Network的参数为初始化时--pod-network-cidr所指定的参数，还要修改iface的参数为本地的网卡名，由于本地主机只有一张名为ens33的网卡，则将默认的eth0修改为ens33，/run/flannel/subnet.env文件有时不会自动生成（操作顺序正确的话，该文件是会自动生成的），没有的话要手动编写一个，配置参考如下
 

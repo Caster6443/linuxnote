@@ -1350,8 +1350,9 @@ btrfs文件系统的COW在每个时期的动作是怎样的，可以参考如下
 [Open: Pasted image 20251222202418.png](../_resources/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
 ![ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg](../_resources/Linux_Basics/ad9ec2e60c1b667abd430f21d04cd9dc_MD5.jpg)
 虚拟机内部的sshd服务报错是
-[Open: Pasted image 20251222202505.png](../_resources/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
+
 ![6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg](../_resources/Linux_Basics/6cfa3dbdb7e58c1692e3035740d16cf3_MD5.jpg)
+
 SSH 为了安全，使用了一种叫 **Privilege Separation（权限分离）** 的技术
 - 它会启动一个拥有 root 权限的主进程。
     
