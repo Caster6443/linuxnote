@@ -3325,7 +3325,7 @@ Please review the log for errors.
 ```
 
 
-## 开发指南
+## 开发指南(待补充)
 
 本地开发ansible可能会缺环境，尤其是windows，可以在vscode中安装`Dev Containers`这个插件在官方给的虚拟环境中开发
 
@@ -7174,7 +7174,7 @@ grub2-mkconfig -o /boot/efi/EFI/kylin/grub.cfg
 
 
 
-# CMDB
+# CMDB(待补充)
 
 ## 项目架构
 
