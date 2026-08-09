@@ -1343,6 +1343,82 @@ btrfs文件系统的COW在每个时期的动作是怎样的，可以参考如下
 5. 拒绝回收: 1001号格子的"关注人数"降到了1，因为不是0，所以Btrfs绝不回收1001号格子
 结果: 你的硬盘里同时存在"hello"(1001号)和"bye"(2002号)，这就是空间占用翻倍的根本原因
 
+
+
+# KVM/QEMU
+
+## 创建网桥
+
+需求是给我的虚拟机弄一个桥接网卡使用，直接桥接网卡不靠谱，这里选择做一个网桥br0间接桥接网卡
+
+1）创建虚拟网桥
+
+```bash
+sudo nmcli connection add type bridge ifname br0 con-name br0
+```
+
+1.2）配置：自动获取 IP，开机自启
+
+```bash
+sudo nmcli connection modify br0 ipv4.method auto ipv6.method auto connection.autoconnect yes
+```
+
+1.3）把物理网卡 enp3s0 挂到 br0 上
+
+```bash
+sudo nmcli connection add type ethernet ifname enp3s0 master br0 con-name br0-slave
+sudo nmcli connection modify br0-slave connection.autoconnect yes
+```
+
+2）启动
+
+```bash
+sudo nmcli connection up br0
+sudo nmcli connection up br0-slave
+```
+
+3）libvirt 注册桥接网络
+
+```bash
+sudo tee /tmp/bridged.xml << 'EOF'
+<network>
+  <name>bridged</name>
+  <forward mode='bridge'/>
+  <bridge name='br0'/>
+</network>
+EOF
+
+sudo virsh net-define /tmp/bridged.xml
+sudo virsh net-start bridged
+sudo virsh net-autostart bridged
+```
+
+3.1）验证
+
+```bash
+sudo virsh net-list --all
+# 应看到 bridged 状态为 active
+```
+
+4）虚拟机新增网卡
+
+```bash
+sudo virsh edit 虚拟机名称
+```
+
+在</devide>
+
+
+
+
+
+
+
+
+
+
+
+
 # 常见问题
 
 ## ssh报错kex_exchange_identification
