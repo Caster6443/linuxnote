@@ -3017,7 +3017,50 @@ sudo btrfs filesystem defragment -v -f /var/lib/libvirt/images/win11-clone.qcow2
 就是这样，然后进入虚拟机内部，安装winfsp驱动，在github的项目地址下面找，后缀名msi，安装成功后，打开windows的服务管理，启动Virtio-FS Service服务，默认是手动启动的，但也可以设置自动启动，不过感觉有点小风险？启动成功后可以找到一个独立的盘，盘名就是设置的目标路径  
 
 
+#### 剪切板共享
 
+让主机和虚拟机之间共享剪切板，很实用的功能，有两处需要修改
+
+打开文件
+
+```shell
+sudo virsh edit 虚拟机名称
+```
+
+==1）：`<graphics>` 标签内加剪贴板开关==
+
+找到这段
+
+```xml
+    <graphics type='spice' autoport='yes'>
+      <listen type='address'/>
+      <image compression='off'/>
+      <gl enable='no'/>
+    </graphics>
+```
+
+修改为:
+
+```xml
+    <graphics type='spice' autoport='yes'>
+      <listen type='address'/>
+      <image compression='off'/>
+      <gl enable='no'/>
+      <clipboard copypaste='yes'/>
+      <filetransfer enable='yes'/>
+    </graphics>
+```
+
+==2)：添加 Spice Guest Agent 通道==
+
+在 `</devices>` 之前（随便哪个设备后面插进去都行，建议插在 `virtio-serial` 控制器后面），加上：
+
+```xml
+    <channel type='spicevmc'>
+      <target type='virtio' name='com.redhat.spice.0'/>
+      <address type='virtio-serial' controller='0' bus='0' port='1'/>
+    </channel>
+```
 
 ## 系统体验优化配置
 
@@ -4625,7 +4668,7 @@ return {
 
 ### 1. 环境与现象
 
-- **操作系统：** CachyOS (Arch Linux 衍生版)
+- **操作系统：** CachyOS
     
 - **硬件配置：** 双显卡，独显为 RTX 4060
     
