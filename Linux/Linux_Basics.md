@@ -1349,7 +1349,7 @@ btrfs文件系统的COW在每个时期的动作是怎样的，可以参考如下
 
 ## 创建网桥
 
-需求是给我的虚拟机弄一个桥接网卡使用，直接桥接网卡不靠谱，这里选择做一个网桥br0间接桥接网卡
+出于内网做实验的需求，给我的虚拟机弄一个桥接网卡使用，直接桥接物理网卡貌似不行或者有问题，这里选择做一个网桥br0来间接桥接我的物理网卡，这样当物理网卡插入网线后up，虚拟机就能分到桥接的ip
 
 1）创建虚拟网桥
 
@@ -1406,9 +1406,15 @@ sudo virsh net-list --all
 sudo virsh edit 虚拟机名称
 ```
 
-在</devide>
+在\<\/devices\>之前新增一段(MAC 地址最后一位改成和第一块不同)
 
-
+```xml
+    <interface type='bridge'>
+      <mac address='52:54:00:8d:ee:07'/>
+      <source bridge='br0'/>
+      <model type='virtio'/>
+    </interface>
+```
 
 
 
