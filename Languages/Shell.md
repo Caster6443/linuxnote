@@ -106,6 +106,28 @@ echo "done"
 
 在 Shell 里，除非你使用了特殊的严格模式（`set -e`），否则**一条命令哪怕执行失败（返回非 0），脚本也会硬着头皮往下执行下一行。**
 
+内建 shell 命令 shift 可与参数变量一起使用，用于移除第一个参数（\$1）并让其余参数前移，使 \$2 变成 \$1、\$3 变成 \$2，依此类推。例如，假设下面脚本名为 *shiftex*：
+
+```shell
+#!/bin/sh
+echo Argument: $1 
+shift
+echo Argument: $1
+shift
+echo Argument: $1
+```
+
+像这样运行它来观察效果：
+
+```shell
+$ ./shiftex one two three
+Argument: one
+Argument: two
+Argument: three
+```
+
+如你所见，shiftex 通过先打印第一个参数、移位剩余参数并重复这一过程，打印出了全部三个参数。
+
 ---
 
 ### 5.算术运算
