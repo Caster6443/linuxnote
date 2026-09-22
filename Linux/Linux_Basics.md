@@ -563,6 +563,8 @@ vim 里 `<` / `>` 用于缩进，缩进量由选项 `shiftwidth`（`sw`）决定
 
 **永久设置**写进配置文件：
 
+普通vim编辑文件
+
 ```bash
 vim ~/.vimrc
 ```
@@ -571,6 +573,18 @@ vim ~/.vimrc
 
 ```
 set shiftwidth=2
+```
+
+lazyvim需要编辑另一个文件
+
+```
+nvim ~/.config/nvim/lua/config/options.lua
+```
+
+写入
+
+```
+vim.opt.shiftwidth = 2
 ```
 
 末行模式中的更多用法
